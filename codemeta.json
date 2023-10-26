@@ -1,0 +1,31 @@
+{
+    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@type": "SoftwareSourceCode",
+    "license": [
+        "https://spdx.org/licenses/EPL-1.0",
+        "https://spdx.org/licenses/LGPL-2.1"
+    ],
+    "codeRepository": "https://gitlab.ow2.org/sat4j/sat4j/",
+    "contIntegration": "https://gitlab.ow2.org/sat4j/sat4j/-/pipelines",
+    "dateCreated": "2004-01-01",
+    "datePublished": "2004-06-01",
+    "dateModified": "2020-12-14",
+    "downloadUrl": "https://gitlab.ow2.org/sat4j/sat4j/-/releases/2_3_6",
+    "issueTracker": "https://gitlab.ow2.org/sat4j/sat4j/-/issues",
+    "name": "Sat4j",
+    "version": "2.3.6",
+    "description": "SAT4J is a library of boolean reasoners for the Java platform. The library has been designed to be easy to use and targets SAT instances coming from real problems translated into SAT. The library supports also pseudo boolean constraints, and provides solutions for various decision and optimization problems by translation into SAT of Pseudo-Boolean problems (MAXSAT, CSP).",
+    "applicationCategory": "Computer Science",
+    "developmentStatus": "active",
+    "referencePublication": "https://doi.org/10.3233/SAT190075",
+    "funder": {
+        "@type": "Organization",
+        "name": "Université d'Artois and CNRS"
+    },
+    "programmingLanguage": [
+        "Java"
+    ],
+    "runtimePlatform": [
+        "JVM"
+    ]
+}
