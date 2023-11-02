@@ -1,4 +1,4 @@
-package org.sat4j;
+package org.sat4j.fuzzer;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
