@@ -25,9 +25,10 @@ public class TraceFactory {
             final int NBCLAUSES = slaveRandomGenerator.nextInt(10000) + 1; // What kind of upper bound???
             // Solver does not allow empty cnf without at least 1 clause
 
-            System.out.println("MAXVAR: " + MAXVAR);
-            System.out.println("MAXLENGTHCLAUSE: " + MAXLENGTHCLAUSE);
-            System.out.println("NBCLAUSES: " + NBCLAUSES);
+            System.out.println("c MAXVAR: " + MAXVAR);
+            System.out.println("c MAXLENGTHCLAUSE: " + MAXLENGTHCLAUSE);
+            System.out.println("c NBCLAUSES: " + NBCLAUSES);
+            System.out.println("p cnf " + MAXVAR + " " + NBCLAUSES);
 
             final Trace trace = new Trace(slaveSeed);
 
@@ -41,16 +42,23 @@ public class TraceFactory {
             solver.setExpectedNumberOfClauses(NBCLAUSES);
 
             for (int i = 0; i < NBCLAUSES; i++) {
+                final int clauseLength = slaveRandomGenerator.nextInt(MAXLENGTHCLAUSE) + 2;
 
-                final int clauseLength = slaveRandomGenerator.nextInt(MAXLENGTHCLAUSE) + 1;
                 // Solver does not allow empty clauses throws
                 // ContradictionException
                 final int[] clause = new int[clauseLength];
 
                 for (int j = 0; j < clauseLength; j++) {
                     clause[j] = slaveRandomGenerator.nextInt(MAXVAR + 1) + 1;
+                    final boolean sign = (slaveRandomGenerator.nextInt(2) == 1);
+                    if (!sign)
+                        clause[j] *= -1;
                     // How do I make sure that no variable is missing ???
                 }
+
+                for (int lit : clause)
+                    System.out.print(lit + " ");
+                System.out.println("0");
 
                 try {
                     trace.addToTrace(index + " addClause() " + Arrays.toString(clause));
@@ -58,11 +66,13 @@ public class TraceFactory {
                     index++;
                     solver.addClause(new VecInt(clause));
                 } catch (final Exception e) {
-                    System.out.println("Inisde Exception from addClause()");
+                    System.out.println("Inside Exception from addClause()");
                     System.out.println(e.getMessage());
+                    System.out.println(e);
                     trace.toFile();
                     return;
                 }
+
             }
 
             final IProblem problem = solver;
@@ -72,9 +82,9 @@ public class TraceFactory {
                 // Need to upfate to use the run() method from Solver just like Launcher inside .sat directory
                 if (problem.isSatisfiable()) { 
                     // Why do I always get SAT ??? Doesn't make sense when I have 40 smth variables and 4000 smth clauses
-                    System.out.println("SATISFIABLE!");
+                    System.out.println("c SATISFIABLE!");
                 } else {
-                    System.out.println("UNSATISFIABLE!");
+                    System.out.println("c UNSATISFIABLE!");
                 }
             } catch (final Exception e) {
                 System.out.println("Inisde Exception from isSatisfiable()");

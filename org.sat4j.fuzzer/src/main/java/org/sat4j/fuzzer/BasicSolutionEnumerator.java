@@ -18,7 +18,7 @@ import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 
 public class BasicSolutionEnumerator {
-    public static void main(final String[] args) {
+    public static void run(final String[] args) {
         final ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(3600); // 1 hour timeout
         Reader reader = new DimacsReader(solver);
@@ -29,7 +29,11 @@ public class BasicSolutionEnumerator {
         try {
             // CNF filename is given on the command line
             IProblem problem = reader.parseInstance(args[0]);
-            while (problem.isSatisfiable()) {
+            Boolean is_sat = false;
+            do {
+                is_sat = problem.isSatisfiable();
+                if (!is_sat)
+                    break;
                 if (!SAT) {
                     SAT = true;
                     System.out.println("Satisfiable !\n");
@@ -47,13 +51,12 @@ public class BasicSolutionEnumerator {
                                 + "\n");
                 clause = new VecInt(lits);
                 clauses.push(clause);
-                solver.reset();
-                reader = new DimacsReader(solver);
-                problem = reader.parseInstance(args[0]);
-                solver.addAllClauses(clauses);
-            }
+                solver.addClause(clause);
+            } while (is_sat);
             if (!SAT) {
                 System.out.println("Unsatisfiable !");
+            } else {
+                System.out.println("No other solution");
             }
         } catch (final FileNotFoundException e) {
             // TODO Auto-generated catch block

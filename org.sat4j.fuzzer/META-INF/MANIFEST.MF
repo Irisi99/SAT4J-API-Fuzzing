@@ -1,6 +1,6 @@
 Manifest-Version: 0.0
 Built-By: Iris Parruca
-Main-Class: org.sat4j.fuzzer.BasicSolutionEnumerator
+Main-Class: org.sat4j.fuzzer.APIFuzzermkd
 Specification-Title: SAT4J
 Specification-Version: NA
 Specification-Vendor: Iris Parruca
