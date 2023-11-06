@@ -11,56 +11,47 @@ import org.sat4j.reader.DimacsReader;
 import org.sat4j.reader.Reader;
 import org.sat4j.reader.ParseFormatException;
 import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
-import org.sat4j.core.Vec;
-import org.sat4j.specs.IVec;
-import org.sat4j.specs.IVecInt;
 
 public class BasicSolutionEnumerator {
     public static void main(final String[] args) {
         final ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(3600); // 1 hour timeout
-        Reader reader = new DimacsReader(solver);
-        final IVec<IVecInt> clauses = new Vec<>();
-        IVecInt clause;
+        final Reader reader = new DimacsReader(solver);
         Boolean SAT = false;
         int i = 0;
         try {
             // CNF filename is given on the command line
-            IProblem problem = reader.parseInstance(args[0]);
-            while (problem.isSatisfiable()) {
+            reader.parseInstance(args[0]);
+
+            while (solver.isSatisfiable()) {
                 if (!SAT) {
                     SAT = true;
-                    System.out.println("Satisfiable !\n");
+                    System.out.println("SATISFIABLE!\n");
                 }
                 i++;
-                final int[] lits = Arrays.copyOf(problem.model(),
-                        problem.model().length);
+                final int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);
+
+                System.out.println("Solution " + i + " : "
+                                + Arrays.toString(lits).substring(1, Arrays.toString(lits).length() - 1)
+                                + "\n");
+
                 for (int j = 0; j < lits.length; j++) {
                     lits[j] = lits[j] * -1;
                 }
-                System.out
-                        .println("Solution " + i + " : "
-                                + Arrays.toString(lits).substring(1,
-                                        Arrays.toString(lits).length() - 1)
-                                + "\n");
-                clause = new VecInt(lits);
-                clauses.push(clause);
-                solver.reset();
-                reader = new DimacsReader(solver);
-                problem = reader.parseInstance(args[0]);
-                solver.addAllClauses(clauses);
+
+                solver.addClause(new VecInt(lits));
+
             }
             if (!SAT) {
-                System.out.println("Unsatisfiable !");
+                System.out.println("UNSATISFIABLE!");
             }
         } catch (final FileNotFoundException e) {
-            // TODO Auto-generated catch block
+            System.out.println(e.getMessage());
         } catch (final ParseFormatException e) {
-            // TODO Auto-generated catch block
+            System.out.println(e.getMessage());
         } catch (final IOException e) {
-            // TODO Auto-generated catch block
+            System.out.println(e.getMessage());
         } catch (final ContradictionException e) {
             System.out.println("Unsatisfiable (trivial)!");
         } catch (final TimeoutException e) {
