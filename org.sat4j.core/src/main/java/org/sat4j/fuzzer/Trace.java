@@ -8,23 +8,23 @@ import java.util.List;
 
 public class Trace {
 
-    private long ID;
+    private String ID;
     private final List<String> traceCalls;
 
     public Trace() {
-        this((long) 0);
+        this("0");
     }
 
-    public Trace(final long Id) {
+    public Trace(final String Id) {
         ID = Id;
         traceCalls = new ArrayList<String>();
     }
 
-    public void setId(final long Id) {
+    public void setId(final String Id) {
         ID = Id;
     }
 
-    public long getId() {
+    public String getId() {
         return ID;
     }
 

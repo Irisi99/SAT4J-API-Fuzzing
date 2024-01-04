@@ -38,7 +38,7 @@ public class TraceRunner {
             LENGTHCLAUSE = 3 + slaveRandomGenerator.nextInt(6);
         }
 
-        final Trace trace = new Trace(seed);
+        final Trace trace = new Trace(Long.toHexString(seed));
 
         index = 1;
         trace.addToTrace(index + " init");

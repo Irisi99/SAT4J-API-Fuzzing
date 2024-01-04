@@ -19,8 +19,8 @@ public class APIFuzzer {
         // Generate Master Seed 64 bit
         final byte[] masterSeed = rand.generateSeed(64);
         final long value = new BigInteger(masterSeed).longValue();
-        System.out.println("Number of used bits: " + (Long.SIZE - Long.numberOfLeadingZeros(value)));
-        System.out.println(value);
+        // System.out.println("Number of used bits: " + (Long.SIZE - Long.numberOfLeadingZeros(value)));
+        // System.out.println(value);
         
         // check the next 2 internal ones if they overlap
         TraceFactory.run(value);
