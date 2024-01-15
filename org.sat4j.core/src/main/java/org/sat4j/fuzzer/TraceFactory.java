@@ -13,7 +13,9 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 public class TraceFactory {
 
+    static Random masterRandomGenerator;
     static Random slaveRandomGenerator;
+    static int MAX_ITERATIONS = 2000;
     static int MAXVAR;
     static int CLAUSE_LENGTH = 3;    
     static boolean UNIFORM;    
@@ -26,21 +28,23 @@ public class TraceFactory {
     static ArrayList<String> SOLVERS = new ArrayList<String>();
 
     // sanity check - verbose - print all variables you are choosing
-    static Boolean verbose = true;
+    static Boolean verbose = false;
 
-    public static void run(final long seed) {
+    public static void run(long seed, boolean isTraceSeed) {
 
         initializeOptions();
 
-        //  The Random class uses a 48-bit seed
-        final Random masterRandomGenerator = new Random(seed);
+        if(!isTraceSeed){
+            //  The Random class uses a 48-bit seed
+            masterRandomGenerator = new Random(seed);
+        }
 
-        int iterations = 0;
+        int iteration = 0;
         int increments = 0;
         Trace trace;
         Boolean isSAT;
-        Map<String, Number> stats;
         // STATISTICS
+        Map<String, Number> stats;
         int SATinstances = 0;
         int UNSATinstances = 0;
         long LearnedClauses = 0;        
@@ -49,19 +53,21 @@ public class TraceFactory {
         long startTime = 0;
         long endTime = 0;
 
-        while (iterations < 500) {
+        while (iteration < MAX_ITERATIONS) {
 
-            iterations++;
+            iteration++;
 
             // Generate Slave Seed
-            long slaveSeed = masterRandomGenerator.nextLong();
-            slaveRandomGenerator = new Random(slaveSeed); 
-            // test that two seeds don't give the same sequence
-
-            if(verbose){
-                System.out.println("Number of used bits: " + (Long.SIZE - Long.numberOfLeadingZeros(slaveSeed)));
-                System.out.println(slaveSeed);
+            long slaveSeed;
+            if(!isTraceSeed){
+                slaveSeed = masterRandomGenerator.nextLong();
+                slaveRandomGenerator = new Random(slaveSeed); 
+            } else {
+                slaveSeed = seed;
+                verbose = true;
             }
+
+            slaveRandomGenerator = new Random(slaveSeed); 
             
             MAXVAR = 0;
             NUMBER_OF_CLAUSES = 0;
@@ -71,7 +77,7 @@ public class TraceFactory {
             // Uniform or not - 1 to max length
             UNIFORM = slaveRandomGenerator.nextBoolean();
             if(UNIFORM && verbose){
-                System.out.println("CLAUSE_LENGTH :" + CLAUSE_LENGTH);
+                System.out.println("CLAUSE_LENGTH: " + CLAUSE_LENGTH);
             }
             // Higher Length of clause means more SAT (shorter solve time, less conflicts and less learned clauses)
             // Higher coeficient (more clauses) means more UNSAT
@@ -86,10 +92,12 @@ public class TraceFactory {
             try {
                 solver = initializeSolver();
             } catch (Exception e) {
-                System.out.println("Inisde Exception from initializeSolver()");
-                System.out.println(e.getMessage());
-                trace.toFile();
-                return;
+                if(!isTraceSeed){
+                    trace.toFile();
+                }
+                System.out.print(" --- Inisde Exception from initializeSolver()");
+                System.out.println(" --- " + e.getMessage());
+                continue;
             }
 
             // Incremental -> add clauses - solve - repeat (increase number of variables and clauses)
@@ -112,28 +120,53 @@ public class TraceFactory {
                 try{
                     addClauses(trace);
                 } catch (final Exception e) {
-                    System.out.println("Inisde Exception from addClause()");
-                    System.out.println(e.getMessage());
-                    trace.toFile();
-                    return;
+                    if(!isTraceSeed){
+                        trace.toFile();
+                    }
+                    System.out.print(" --- Inisde Exception from addClause()");
+                    System.out.println(" --- " + e.getMessage());
+                    break;
                 }
 
                 try {
-                    trace.addToTrace(index + " solve");
-                    index++;
-
                     startTime = System.currentTimeMillis();
                     if(ASSUMPTIONS){
-                        VecInt assumption = new VecInt();
+                        VecInt assumption = new VecInt(0);
                         // power law for assumptions as well
-                        // ..........................................
+                        int size = MAXVAR/10;
+                        while(slaveRandomGenerator.nextDouble() < 1.0/6.0){
+                            size += MAXVAR/10;
+                        }
+
+                        while (assumption.size() < size) {
+                            int lit = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                            if(assumption.contains(lit) || assumption.contains(-lit) || lit == 0){
+                                continue;
+                            }
+                            else{
+                                assumption.push(lit);
+                            }
+                        }
                         if(verbose){
                             System.out.println("ASSUMPTIONS:" + Arrays.toString(assumption.toArray()));
                         }
+
+                        trace.addToTrace(index + " assuming " + Arrays.toString(assumption.toArray()));
+                        index++;
+
+                        trace.addToTrace(index + " solve");
+                        index++;
+
                         isSAT = solver.isSatisfiable(assumption);
+
                     } else {
+
+                        trace.addToTrace(index + " solve");
+                        index++;
+
                         isSAT = solver.isSatisfiable(); 
                     }
+                    
                     endTime = System.currentTimeMillis();
 
                     if (isSAT) {
@@ -157,10 +190,12 @@ public class TraceFactory {
                     }
 
                 } catch (final Exception e) {
-                    System.out.println("Inisde Exception from isSatisfiable()");
-                    System.out.println(e.getMessage());
-                    trace.toFile();
-                    return;
+                    if(!isTraceSeed){
+                        trace.toFile();
+                    }
+                    System.out.print(" --- Inisde Exception from isSatisfiable()");
+                    System.out.println(" --- " + e.getMessage());
+                    break;
                 }
             }
 
@@ -170,19 +205,22 @@ public class TraceFactory {
             NrConflicts += (long) stats.get("conflicts");
             SolverRunTime += endTime - startTime;
 
-            // if(verbose){
-            //     trace.toFile();
-            //     break;
-            // }
+            if(verbose){
+                break;
+            }
+
+            if(iteration % 1000 == 0 || verbose){
+                // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
+                if(!verbose){
+                    System.out.println("Statistics for "+(iteration - 1000)+ " - " + iteration +" iterations : ");
+                }
+                System.out.println("SAT Instances : " + SATinstances);
+                System.out.println("UNSAT Instances : " + UNSATinstances);        
+                System.out.println("Average Leanred Clauses : " + LearnedClauses/iteration);        
+                System.out.println("Average Nr Conflicts : " + NrConflicts/iteration);
+                System.out.println("Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
+            }
         }
-
-        // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
-        System.out.println("SAT Instances : " + SATinstances);
-        System.out.println("UNSAT Instances : " + UNSATinstances);        
-        System.out.println("Average Leanred Clauses : " + LearnedClauses/iterations);        
-        System.out.println("Average Nr Conflicts : " + NrConflicts/iterations);
-        System.out.println("Average Solver Run Time : " + SolverRunTime/iterations + " milli sec");
-
     }
 
     private static void addClauses(final Trace trace) throws ContradictionException{
@@ -248,19 +286,14 @@ public class TraceFactory {
 
     public static void initializeOptions(){
 
-        // do nothing
-        // change all from default
-        // change some
-        // power law for range of options as well
-
-        OPTIONS.add("kleast");
-        OPTIONS.add("optimize");
-        OPTIONS.add("randomWalk");
+        // OPTIONS.add("kleast");
+        // OPTIONS.add("optimize");
+        // OPTIONS.add("randomWalk");
         OPTIONS.add("hot");
         OPTIONS.add("simplify");
-        OPTIONS.add("lower");
-        OPTIONS.add("equivalence");
-        OPTIONS.add("incomplete");
+        // OPTIONS.add("lower");
+        // OPTIONS.add("equivalence");
+        // OPTIONS.add("incomplete");
         OPTIONS.add("solver");
 
         SOLVERS.add("DFS");
@@ -278,35 +311,50 @@ public class TraceFactory {
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         ICDCL<?> asolver = (ICDCL<?>) factory.defaultSolver();
 
-        // if (slaveRandomGenerator.nextBoolean()) {
-        //     String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
-        //     if(verbose){
-        //         System.out.println("SOLVER: "+solverName);
-        //     }
-        //     asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
-        // }
+        // do nothing or
+        if(slaveRandomGenerator.nextBoolean()){
+            // change all from default
+            if(slaveRandomGenerator.nextBoolean()){
 
-        // if (cmd.hasOption("rw")) {
-        //     double proba = Double.parseDouble(cmd.getOptionValue("rw"));
-        //     IOrder order = asolver.getOrder();
-        //     if (isModeOptimization
-        //             && order instanceof VarOrderHeapObjective) {
-        //         order = new RandomWalkDecoratorObjective(
-        //                 (VarOrderHeapObjective) order, proba);
-        //     } else {
-        //         order = new RandomWalkDecorator((VarOrderHeap) order, proba);
-        //     }
-        //     asolver.setOrder(order);
-        // }
+                String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
+                asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+                // asolver.setKeepSolverHot(true);
+                asolver.setDBSimplificationAllowed(true);
+                if(verbose){
+                    System.out.println("SOLVER: "+solverName); 
+                    // System.out.println("KEEP SOLVER HOT");
+                    System.out.println("DBS SIMPLIFICATION ALLOWED");
+                }
 
-        // if (cmd.hasOption("H")) {
-        //     asolver.setKeepSolverHot(true);
-        // }
+            } else {
+                // change some
+                if (slaveRandomGenerator.nextBoolean()) {
+                    String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
+                    asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+                    if(verbose){
+                        System.out.println("SOLVER: "+solverName);
+                    }
+                }
 
-        // if (cmd.hasOption("y")) {
-        //     asolver.setDBSimplificationAllowed(true);
-        // }
+                // if (slaveRandomGenerator.nextBoolean()) {
+                //     asolver.setKeepSolverHot(true);
+                //     if(verbose){
+                //         System.out.println("KEEP SOLVER HOT");
+                //     }
+                // }
 
+                if (slaveRandomGenerator.nextBoolean()) {
+                    asolver.setDBSimplificationAllowed(true);
+                    if(verbose){
+                        System.out.println("DBS SIMPLIFICATION ALLOWED");
+                    }
+                }
+            }
+        }
+
+        if(verbose){
+            System.out.println(asolver.toString());
+        }
         return asolver;
     }
 
@@ -315,5 +363,5 @@ public class TraceFactory {
 
 // TO DO:
 // Plant bugs? - Mutation Testing?
-// Coverage?
+// Coverage? 
 // Options - configure solver, not just the default one - Check Launcher.java inside 'org.sat4j.sat' folder

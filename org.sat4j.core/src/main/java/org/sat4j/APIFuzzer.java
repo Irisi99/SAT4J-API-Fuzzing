@@ -23,7 +23,7 @@ public class APIFuzzer {
         // System.out.println(value);
         
         // check the next 2 internal ones if they overlap
-        TraceFactory.run(value);
+        TraceFactory.run(value, false);
     }
 
 }

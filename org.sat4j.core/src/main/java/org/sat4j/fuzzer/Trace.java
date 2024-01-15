@@ -50,7 +50,7 @@ public class Trace {
             e.printStackTrace();
         }
 
-        System.out.println("Created trace file " + ID + ".txt");
+        System.out.print("Created trace file " + ID + ".txt");
     }
 
 }
