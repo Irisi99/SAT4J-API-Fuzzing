@@ -47,7 +47,7 @@ public class Trace {
                 myWriter.write(traceCalls.get(i) + "\n");
             myWriter.close();
         } catch (final IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         }
 
         System.out.print("Created trace file " + ID + ".txt");

@@ -28,9 +28,7 @@ public class TraceFactory {
     static ArrayList<String> SOLVERS = new ArrayList<String>();
 
     // sanity check - verbose - print all variables you are choosing
-    static Boolean verbose = false;
-
-    public static void run(long seed, boolean isTraceSeed) {
+    public static String run(long seed, boolean isTraceSeed, boolean verbose) {
 
         initializeOptions();
 
@@ -43,6 +41,7 @@ public class TraceFactory {
         int increments = 0;
         Trace trace;
         Boolean isSAT;
+        String errorMessage = "";
         // STATISTICS
         Map<String, Number> stats;
         int SATinstances = 0;
@@ -61,10 +60,9 @@ public class TraceFactory {
             long slaveSeed;
             if(!isTraceSeed){
                 slaveSeed = masterRandomGenerator.nextLong();
-                slaveRandomGenerator = new Random(slaveSeed); 
             } else {
                 slaveSeed = seed;
-                verbose = true;
+                // verbose = true;
             }
 
             slaveRandomGenerator = new Random(slaveSeed); 
@@ -72,7 +70,7 @@ public class TraceFactory {
             MAXVAR = 0;
             NUMBER_OF_CLAUSES = 0;
             // (3.8/4.5) * MAXVAR - about 50/50 SAT/UNSAT
-            coeficient = 3.1;
+            coeficient = 2.6;
 
             // Uniform or not - 1 to max length
             UNIFORM = slaveRandomGenerator.nextBoolean();
@@ -86,17 +84,19 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             index = 1;
-            trace.addToTrace(index + " init");
-            index++;
 
             try {
-                solver = initializeSolver();
+                solver = initializeSolver(trace, verbose);
             } catch (Exception e) {
                 if(!isTraceSeed){
                     trace.toFile();
+                    System.out.print(" --- Inisde Exception from initializeSolver()");
+                    System.out.println(" --- " + e.getMessage());
                 }
-                System.out.print(" --- Inisde Exception from initializeSolver()");
-                System.out.println(" --- " + e.getMessage());
+                errorMessage = e.getMessage();
+                if(verbose){
+                    e.printStackTrace(System.out);
+                }
                 continue;
             }
 
@@ -122,42 +122,46 @@ public class TraceFactory {
                 } catch (final Exception e) {
                     if(!isTraceSeed){
                         trace.toFile();
+                        System.out.print(" --- Inisde Exception from addClause()");
+                        System.out.println(" --- " + e.getMessage());
                     }
-                    System.out.print(" --- Inisde Exception from addClause()");
-                    System.out.println(" --- " + e.getMessage());
+                    errorMessage = e.getMessage();
+                    if(verbose){
+                        e.printStackTrace(System.out);
+                    }
                     break;
                 }
 
                 try {
                     startTime = System.currentTimeMillis();
                     if(ASSUMPTIONS){
-                        VecInt assumption = new VecInt(0);
+                        int[] assumption;
                         // power law for assumptions as well
                         int size = MAXVAR/10;
                         while(slaveRandomGenerator.nextDouble() < 1.0/6.0){
                             size += MAXVAR/10;
                         }
 
-                        while (assumption.size() < size) {
+                        assumption = new int[size];
+
+                        for (int i=0 ; i < size; i++) {
+                            // Need to see if variable is used as well - is throwing errors 
                             int lit = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
-                            if(assumption.contains(lit) || assumption.contains(-lit) || lit == 0){
-                                continue;
+                            if(isAlreadyPresent(assumption, i) || lit == 0){
+                                i--;
                             }
                             else{
-                                assumption.push(lit);
+                                assumption[i] = lit;
                             }
                         }
                         if(verbose){
-                            System.out.println("ASSUMPTIONS:" + Arrays.toString(assumption.toArray()));
+                            System.out.println("ASSUMPTIONS: " + toString(assumption));
                         }
 
-                        trace.addToTrace(index + " assuming " + Arrays.toString(assumption.toArray()));
+                        trace.addToTrace(index + " assuming " + toString(assumption));
                         index++;
 
-                        trace.addToTrace(index + " solve");
-                        index++;
-
-                        isSAT = solver.isSatisfiable(assumption);
+                        isSAT = solver.isSatisfiable(new VecInt(assumption));
 
                     } else {
 
@@ -174,7 +178,7 @@ public class TraceFactory {
                             SATinstances++;
                             if(verbose){
                                 System.out.println("SATISFIABLE!");
-                                System.out.println("SOLUTION: "+Arrays.toString(solver.model()));
+                                System.out.println("SOLUTION: "+toString(solver.model()));
                             }
                         }
                     } else{
@@ -192,9 +196,13 @@ public class TraceFactory {
                 } catch (final Exception e) {
                     if(!isTraceSeed){
                         trace.toFile();
+                        System.out.print(" --- Inisde Exception from isSatisfiable()");
+                        System.out.println(" --- " + e.getMessage());
                     }
-                    System.out.print(" --- Inisde Exception from isSatisfiable()");
-                    System.out.println(" --- " + e.getMessage());
+                    errorMessage = e.getMessage();
+                    if(verbose){
+                        e.printStackTrace(System.out);
+                    }
                     break;
                 }
             }
@@ -205,15 +213,13 @@ public class TraceFactory {
             NrConflicts += (long) stats.get("conflicts");
             SolverRunTime += endTime - startTime;
 
-            if(verbose){
+            if(isTraceSeed || verbose){
                 break;
             }
 
-            if(iteration % 1000 == 0 || verbose){
+            if(iteration % 1000 == 0){
                 // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
-                if(!verbose){
-                    System.out.println("Statistics for "+(iteration - 1000)+ " - " + iteration +" iterations : ");
-                }
+                System.out.println("Statistics for "+ iteration +" iterations : ");
                 System.out.println("SAT Instances : " + SATinstances);
                 System.out.println("UNSAT Instances : " + UNSATinstances);        
                 System.out.println("Average Leanred Clauses : " + LearnedClauses/iteration);        
@@ -221,13 +227,15 @@ public class TraceFactory {
                 System.out.println("Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
             }
         }
+
+        return errorMessage;
     }
 
-    private static void addClauses(final Trace trace) throws ContradictionException{
+    private static void addClauses(Trace trace) throws ContradictionException{
 
         for (int i = 0; i < NUMBER_OF_CLAUSES; i++) {
 
-            final int[] clause;
+            int[] clause;
 
             // Uniform or not
             CLAUSE_LENGTH = 3;
@@ -259,6 +267,11 @@ public class TraceFactory {
             }
 
             try {
+
+                // clauses are just for development purpopses, remove later
+                trace.addToTrace(index + " addClause " + toString(clause));
+                index++;
+
                 solver.addClause(new VecInt(clause));            
             } catch (ContradictionException e) {
                 if(e.getMessage().contains("Creating Empty clause ?")){
@@ -267,21 +280,8 @@ public class TraceFactory {
                     throw e;
                 }
             }
-            
-            // clauses are just for development purpopses, remove later
-            trace.addToTrace(index + " addClause " + Arrays.toString(clause));
-            index++;
         }
 
-    }
-
-    // Make sure all lits in the clause are all different from each other
-    public static Boolean isAlreadyPresent(final int[] clause, final int index){
-        for(int i = 0; i < index; i++){
-            if(clause[i] == clause[index])
-                return true;
-        }
-        return false;
     }
 
     public static void initializeOptions(){
@@ -306,8 +306,11 @@ public class TraceFactory {
         SOLVERS.add("CLEANING");
     }
 
-    public static ISolver initializeSolver() throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+    public static ISolver initializeSolver(Trace trace, boolean verbose) throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 
+        // Check Launcher.java inside 'org.sat4j.sat' folder
+        trace.addToTrace(index + " init");
+        index++;
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         ICDCL<?> asolver = (ICDCL<?>) factory.defaultSolver();
 
@@ -315,11 +318,17 @@ public class TraceFactory {
         if(slaveRandomGenerator.nextBoolean()){
             // change all from default
             if(slaveRandomGenerator.nextBoolean()){
-
+                
                 String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
+                trace.addToTrace(index + " using solver " + solverName);
+                index++;
                 asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+                
                 // asolver.setKeepSolverHot(true);
+                trace.addToTrace(index + " DBS simplification allowed");
+                index++;
                 asolver.setDBSimplificationAllowed(true);
+               
                 if(verbose){
                     System.out.println("SOLVER: "+solverName); 
                     // System.out.println("KEEP SOLVER HOT");
@@ -330,7 +339,10 @@ public class TraceFactory {
                 // change some
                 if (slaveRandomGenerator.nextBoolean()) {
                     String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
+                    trace.addToTrace(index + " using solver " + solverName);
+                    index++;
                     asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+                    
                     if(verbose){
                         System.out.println("SOLVER: "+solverName);
                     }
@@ -344,7 +356,10 @@ public class TraceFactory {
                 // }
 
                 if (slaveRandomGenerator.nextBoolean()) {
+                    trace.addToTrace(index + " DBS simplification allowed");
+                    index++;
                     asolver.setDBSimplificationAllowed(true);
+                    
                     if(verbose){
                         System.out.println("DBS SIMPLIFICATION ALLOWED");
                     }
@@ -358,10 +373,24 @@ public class TraceFactory {
         return asolver;
     }
 
+    // Make sure all lits in the clause are all different from each other
+    public static Boolean isAlreadyPresent(int[] clause, int index){
+        for(int i = 0; i < index; i++){
+            if(clause[i] == clause[index])
+                return true;
+        }
+        return false;
+    }
+
+    public static String toString( int[] clause){
+        String stringClause = "";
+        for(int i=0; i < clause.length; i++){
+            stringClause += clause[i]+" ";
+        }
+        return stringClause;
+    }
+
 }
 
-
 // TO DO:
-// Plant bugs? - Mutation Testing?
-// Coverage? 
-// Options - configure solver, not just the default one - Check Launcher.java inside 'org.sat4j.sat' folder
+// Coverage
