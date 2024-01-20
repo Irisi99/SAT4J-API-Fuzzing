@@ -390,6 +390,3 @@ public class TraceFactory {
     }
 
 }
-
-// TO DO:
-// Coverage

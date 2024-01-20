@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.sat4j.specs.ContradictionException;
@@ -25,36 +27,65 @@ public class DeltaDebugger {
 
             int granularity = 2;
             int size = content.size();
+            int section = (int) (size/granularity);
             int start = 0;
             int end = size;
-            List<String> c;
+            List<String> temp;
             String output;
+            boolean reduced = false;
             boolean fileCreated = false;
 
-            while(granularity < size){
+            while(section >= 1){
+
+                temp = new ArrayList<String>(content);;
 
                 for(int i = 0; i < granularity; i++ ){
 
-                    start = i * (int) (size/granularity);
-                    end = start + (int) (size/granularity);
-
-                    if(end > size || i == (granularity-1))
+                    start = i * section;
+                    end = start + section;
+                    if(end > size)
                         end = size;
 
-                    c = content.subList(start, end);
-                    output = TraceRunner.runTrace(c, false);
+                    System.out.print("section size: "+section+" --- ");
+                    System.out.print("start: "+start+" --- ");
+                    System.out.print("end: "+end+" --- ");
+
+                    for(int j = start; j < end; j++){
+                        temp.set(j, null);
+                    }
+                    // temp.removeAll(content.subList(start, end));
+                    output = TraceRunner.runTrace(temp, false);
 
                     if(output != null && output.compareTo(errorMessage) == 0){
-                        createFile(c, seedHEX);
-                        fileCreated = true;
+                        createFile(temp, seedHEX);
+                        reduced = true;
+                        System.out.println("reduced: true");
+                    } else {
+                        for(int j = start; j < end; j++){
+                            temp.set(j, content.get(j));
+                        }
+                        // temp.addAll(content.subList(start, end));
+                        System.out.println("reduced: false");
                     }
                 }
-                
-                granularity = granularity * 2;
+
+                if(reduced){
+                    fileCreated = true;
+                    reduced = false;
+                    temp.removeAll(Collections.singletonList(null));
+                    content = new ArrayList<String>(temp);
+                    createFile(content, seedHEX);
+                    size = content.size();
+                }else {
+                    granularity = granularity * 2;
+                }
+                if(section == 1)
+                    break;
+                section = (int) (size/granularity);
             }
 
             if(fileCreated){
-                System.out.print("Created trace file " + seedHEX + "_db.txt");
+                System.out.print("Created trace file " + seedHEX + "_dd.txt");
             }
 
         } catch (Exception e) {
@@ -64,13 +95,15 @@ public class DeltaDebugger {
     }
 
     private static void createFile(List<String> trace, String seedHEX){
-        String path = "./traces/" + seedHEX + "_db.txt";
+        String path = "./traces/" + seedHEX + "_dd.txt";
         final File traceFile = new File(path);
         try {
             traceFile.createNewFile();
             final FileWriter myWriter = new FileWriter(path);
-            for (int j = 0; j < trace.size(); j++)
+            myWriter.write("1 init\n");
+            for (int j = 0; j < trace.size(); j++){
                 myWriter.write(trace.get(j) + "\n");
+            }
             myWriter.close();
         } catch (final IOException e) {
             e.printStackTrace(System.out);

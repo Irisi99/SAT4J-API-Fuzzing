@@ -18,13 +18,14 @@ public class TraceRunner {
         // Give name of Trace File in comandline 
         String fileName = String.valueOf(args[0]);
 
-        if(!fileName.contains("_db")){
+        if(!fileName.contains("_dd")){
             String seedHEX = fileName.split(".txt")[0];
             long value = Long.parseUnsignedLong(seedHEX, 16);
             TraceFactory.run(value, true, true);
         } else {
             try {
                 List<String> content = Files.readAllLines(Paths.get("./traces/" + fileName));
+                content.remove(0);
                 runTrace(content, true);
 
             } catch (IOException e) {
@@ -39,6 +40,10 @@ public class TraceRunner {
 
         try{
             for(int i = 0; i < apiCalls.size(); i++){
+
+                if(apiCalls.get(i) == null)
+                    continue;
+
                 if(apiCalls.get(i).contains("using solver")){
                     String[] t = apiCalls.get(i).split(" ");
                     String solverName = t[t.length-1];
