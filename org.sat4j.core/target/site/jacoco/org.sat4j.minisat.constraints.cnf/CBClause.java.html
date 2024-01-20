@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CBClause.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.cnf</a> &gt; <span class="el_source">CBClause.java</span></div><h1>CBClause.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004-2008 Daniel Le Berre
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ * 
+ * Based on the original MiniSat specification from:
+ * 
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ * 
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.cnf;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import java.io.Serializable;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.minisat.core.Undoable;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.MandatoryLiteralListener;
+import org.sat4j.specs.Propagatable;
+import org.sat4j.specs.UnitPropagationListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * @author leberre
+ */
+<span class="nc bnc" id="L48" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+public class CBClause implements Constr, Undoable, Propagatable, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    protected int falsified;
+
+    private boolean learnt;
+
+    protected final int[] lits;
+
+    protected final ILits voc;
+
+    private double activity;
+
+    public static CBClause brandNewClause(ILits voc, IVecInt literals) {
+<span class="nc" id="L64">        var c = new CBClause(literals, voc);</span>
+<span class="nc" id="L65">        c.register();</span>
+<span class="nc" id="L66">        return c;</span>
+    }
+
+    /**
+     * 
+     */
+<span class="nc" id="L72">    public CBClause(IVecInt ps, ILits voc, boolean learnt) {</span>
+<span class="nc" id="L73">        this.learnt = learnt;</span>
+<span class="nc" id="L74">        this.lits = new int[ps.size()];</span>
+<span class="nc" id="L75">        this.voc = voc;</span>
+<span class="nc" id="L76">        ps.moveTo(this.lits);</span>
+<span class="nc" id="L77">    }</span>
+
+    public CBClause(IVecInt ps, ILits voc) {
+<span class="nc" id="L80">        this(ps, voc, false);</span>
+<span class="nc" id="L81">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#remove()
+     */
+    public void remove() {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        for (var i = 0; i &lt; lits.length; i++) {</span>
+<span class="nc" id="L90">            voc.watches(lits[i] ^ 1).remove(this);</span>
+        }
+<span class="nc" id="L92">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#propagate(org.sat4j.minisat.core.
+     * UnitPropagationListener, int)
+     */
+    public boolean propagate(UnitPropagationListener s, int p) {
+<span class="nc" id="L101">        voc.undos(p).push(this);</span>
+<span class="nc" id="L102">        falsified++;</span>
+<span class="nc bnc" id="L103" title="All 4 branches missed.">        assert falsified != lits.length;</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (falsified == lits.length - 1) {</span>
+            // find unassigned literal
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            for (var i = 0; i &lt; lits.length; i++) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (!voc.isFalsified(lits[i])) {</span>
+<span class="nc" id="L108">                    return s.enqueue(lits[i], this);</span>
+                }
+            }
+            // one of the variable in to be propagated to false.
+            // (which explains why the falsified counter has not
+            // been increased yet)
+<span class="nc" id="L114">            return false;</span>
+        }
+<span class="nc" id="L116">        return true;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#simplify()
+     */
+    public boolean simplify() {
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        for (var p : lits) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (voc.isSatisfied(p)) {</span>
+<span class="nc" id="L127">                return true;</span>
+            }
+        }
+<span class="nc" id="L130">        return false;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#undo(int)
+     */
+    public void undo(int p) {
+<span class="nc" id="L139">        falsified--;</span>
+<span class="nc" id="L140">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#calcReason(int,
+     * org.sat4j.specs.VecInt)
+     */
+    public void calcReason(int p, IVecInt outReason) {
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        assert outReason.size() == 0;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (var q : lits) {</span>
+<span class="nc bnc" id="L151" title="All 6 branches missed.">            assert voc.isFalsified(q) || q == p;</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">            if (voc.isFalsified(q)) {</span>
+<span class="nc" id="L153">                outReason.push(q ^ 1);</span>
+            }
+        }
+<span class="nc bnc" id="L156" title="All 6 branches missed.">        assert (p == ILits.UNDEFINED) || (outReason.size() == lits.length - 1);</span>
+<span class="nc" id="L157">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#learnt()
+     */
+    public boolean learnt() {
+<span class="nc" id="L165">        return learnt;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#incActivity(double)
+     */
+    @Override
+    public void incActivity(double claInc) {
+<span class="nc" id="L175">        activity += claInc;</span>
+<span class="nc" id="L176">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#getActivity()
+     */
+    @Override
+    public double getActivity() {
+<span class="nc" id="L185">        return activity;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#locked()
+     */
+    public boolean locked() {
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        return voc.getReason(lits[0]) == this;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#setLearnt()
+     */
+    public void setLearnt() {
+<span class="nc" id="L203">        learnt = true;</span>
+<span class="nc" id="L204">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#register()
+     */
+    public void register() {
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        for (var p : lits) {</span>
+<span class="nc" id="L213">            voc.watch(p ^ 1, this);</span>
+        }
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if (learnt) {</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">            for (var p : lits) {</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                if (voc.isFalsified(p)) {</span>
+<span class="nc" id="L218">                    voc.undos(p ^ 1).push(this);</span>
+<span class="nc" id="L219">                    falsified++;</span>
+                }
+            }
+<span class="nc bnc" id="L222" title="All 4 branches missed.">            assert falsified == lits.length - 1;</span>
+        }
+<span class="nc" id="L224">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#rescaleBy(double)
+     */
+    @Override
+    public void rescaleBy(double d) {
+<span class="nc" id="L233">        activity *= d;</span>
+<span class="nc" id="L234">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#size()
+     */
+    public int size() {
+<span class="nc" id="L242">        return lits.length;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.Constr#get(int)
+     */
+    public int get(int i) {
+<span class="nc" id="L251">        return lits[i];</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.core.Constr#assertConstraint(org.sat4j.minisat.core
+     * .UnitPropagationListener)
+     */
+    public void assertConstraint(UnitPropagationListener s) {
+<span class="nc bnc" id="L262" title="All 4 branches missed.">        assert voc.isUnassigned(lits[0]);</span>
+<span class="nc" id="L263">        boolean ret = s.enqueue(lits[0], this);</span>
+<span class="nc bnc" id="L264" title="All 4 branches missed.">        assert ret;</span>
+<span class="nc" id="L265">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L269">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">        for (var i = 0; i &lt; lits.length; i++) {</span>
+<span class="nc" id="L271">            stb.append(lits[i]);</span>
+<span class="nc" id="L272">            stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L273">            stb.append(voc.valueToString(lits[i]));</span>
+<span class="nc" id="L274">            stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L275">            stb.append(&quot; &quot;); //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L277">        return stb.toString();</span>
+    }
+
+    public boolean canBePropagatedMultipleTimes() {
+<span class="nc" id="L281">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public String toString(VarMapper mapper) {
+<span class="nc" id="L285">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void remove(UnitPropagationListener upl) {
+<span class="nc" id="L289">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
+<span class="nc" id="L293">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void assertConstraintIfNeeded(UnitPropagationListener s) {
+<span class="nc" id="L297">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean canBeSatisfiedByCountingLiterals() {
+<span class="nc" id="L301">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int requiredNumberOfSatisfiedLiterals() {
+<span class="nc" id="L305">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSatisfied() {
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        for (int p : this.lits) {</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">            if (voc.isSatisfied(p)) {</span>
+<span class="nc" id="L311">                return true;</span>
+            }
+        }
+<span class="nc" id="L314">        return false;</span>
+    }
+
+    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+<span class="nc" id="L318">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void propagatePI(MandatoryLiteralListener l, int p) {
+<span class="nc" id="L322">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public Constr toConstraint() {
+<span class="nc" id="L326">        return this;</span>
+    }
+
+    @Override
+    public String dump() {
+<span class="nc" id="L331">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">        for (var p : lits) {</span>
+<span class="nc" id="L333">            stb.append(LiteralsUtils.toDimacs(p));</span>
+<span class="nc" id="L334">            stb.append(' ');</span>
+        }
+<span class="nc" id="L336">        stb.append('0');</span>
+<span class="nc" id="L337">        return stb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

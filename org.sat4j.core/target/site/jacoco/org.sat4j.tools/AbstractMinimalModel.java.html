@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractMinimalModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">AbstractMinimalModel.java</span></div><h1>AbstractMinimalModel.java</h1><pre class="source lang-java linenums">package org.sat4j.tools;
+
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+
+public class AbstractMinimalModel extends SolverDecorator&lt;ISolver&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    protected final SortedSet&lt;Integer&gt; pLiterals;
+    protected final SolutionFoundListener modelListener;
+
+    public static IVecInt positiveLiterals(ISolver solver) {
+<span class="nc" id="L21">        IVecInt literals = new VecInt(solver.nVars());</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        for (var i = 1; i &lt;= solver.nVars(); i++) {</span>
+<span class="nc" id="L23">            literals.push(i);</span>
+        }
+<span class="nc" id="L25">        return literals;</span>
+    }
+
+    public static IVecInt negativeLiterals(ISolver solver) {
+<span class="nc" id="L29">        IVecInt literals = new VecInt(solver.nVars());</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        for (var i = 1; i &lt;= solver.nVars(); i++) {</span>
+<span class="nc" id="L31">            literals.push(-i);</span>
+        }
+<span class="nc" id="L33">        return literals;</span>
+    }
+
+    public AbstractMinimalModel(ISolver solver) {
+<span class="nc" id="L37">        this(solver, SolutionFoundListener.VOID);</span>
+<span class="nc" id="L38">    }</span>
+
+    public AbstractMinimalModel(ISolver solver, IVecInt p) {
+<span class="nc" id="L41">        this(solver, p, SolutionFoundListener.VOID);</span>
+<span class="nc" id="L42">    }</span>
+
+    public AbstractMinimalModel(ISolver solver,
+            SolutionFoundListener modelListener) {
+<span class="nc" id="L46">        this(solver, negativeLiterals(solver), modelListener);</span>
+<span class="nc" id="L47">    }</span>
+
+    public AbstractMinimalModel(ISolver solver, IVecInt p,
+            SolutionFoundListener modelListener) {
+<span class="nc" id="L51">        super(solver);</span>
+<span class="nc" id="L52">        this.pLiterals = new TreeSet&lt;&gt;();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (IteratorInt it = p.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L54">            this.pLiterals.add(it.next());</span>
+        }
+<span class="nc" id="L56">        this.modelListener = modelListener;</span>
+
+<span class="nc" id="L58">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

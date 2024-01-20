@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolverFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat</a> &gt; <span class="el_source">SolverFactory.java</span></div><h1>SolverFactory.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat;
+
+import org.sat4j.core.ASolverFactory;
+import org.sat4j.minisat.constraints.MixedDataStructureDanielHT;
+import org.sat4j.minisat.constraints.MixedDataStructureDanielWL;
+import org.sat4j.minisat.constraints.MixedDataStructureDanielWLConciseBinary;
+import org.sat4j.minisat.constraints.MixedDataStructureSingleWL;
+import org.sat4j.minisat.core.DataStructureFactory;
+import org.sat4j.minisat.core.ICDCL;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.core.SearchParams;
+import org.sat4j.minisat.core.Solver;
+import org.sat4j.minisat.learning.LimitedLearning;
+import org.sat4j.minisat.learning.MiniSATLearning;
+import org.sat4j.minisat.learning.NoLearningButHeuristics;
+import org.sat4j.minisat.learning.PercentLengthLearning;
+import org.sat4j.minisat.orders.PhaseCachingAutoEraseStrategy;
+import org.sat4j.minisat.orders.RSATLastLearnedClausesPhaseSelectionStrategy;
+import org.sat4j.minisat.orders.RSATPhaseSelectionStrategy;
+import org.sat4j.minisat.orders.RandomLiteralSelectionStrategy;
+import org.sat4j.minisat.orders.RandomWalkDecorator;
+import org.sat4j.minisat.orders.VarOrderHeap;
+import org.sat4j.minisat.restarts.ArminRestarts;
+import org.sat4j.minisat.restarts.Glucose21Restarts;
+import org.sat4j.minisat.restarts.LubyRestarts;
+import org.sat4j.minisat.restarts.MiniSATRestarts;
+import org.sat4j.minisat.restarts.NoRestarts;
+import org.sat4j.opt.MinOneDecorator;
+import org.sat4j.specs.ISolver;
+import org.sat4j.tools.DimacsOutputSolver;
+import org.sat4j.tools.ManyCore;
+import org.sat4j.tools.OptToSatAdapter;
+import org.sat4j.tools.StatisticsSolver;
+
+/**
+ * User friendly access to pre-constructed solvers.
+ * 
+ * @author leberre
+ */
+public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    // thread safe implementation of the singleton design pattern
+    private static SolverFactory instance;
+
+    /**
+     * Private constructor. Use singleton method instance() instead.
+     * 
+     * @see #instance()
+     */
+    private SolverFactory() {
+        super();
+    }
+
+    private static synchronized void createInstance() {
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (instance == null) {</span>
+<span class="fc" id="L90">            instance = new SolverFactory();</span>
+        }
+<span class="fc" id="L92">    }</span>
+
+    /**
+     * Access to the single instance of the factory.
+     * 
+     * @return the singleton of that class.
+     */
+    public static SolverFactory instance() {
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (instance == null) {</span>
+<span class="fc" id="L101">            createInstance();</span>
+        }
+<span class="fc" id="L103">        return instance;</span>
+    }
+
+    /**
+     * @return a &quot;default&quot; &quot;minilearning&quot; solver learning clauses of size
+     *         smaller than 10 % of the total number of variables with a heap
+     *         based var order.
+     */
+    public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeap() {
+<span class="fc" id="L112">        return newMiniLearningHeap(new MixedDataStructureDanielWL());</span>
+    }
+
+    public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapEZSimp() {
+<span class="nc" id="L116">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeap();</span>
+<span class="nc" id="L117">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="nc" id="L118">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeapExpSimp() {
+<span class="fc" id="L122">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeap();</span>
+<span class="fc" id="L123">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="fc" id="L124">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeapRsatExpSimp() {
+<span class="fc" id="L128">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeapExpSimp();</span>
+<span class="fc" id="L129">        solver.setOrder(new VarOrderHeap(new RSATPhaseSelectionStrategy()));</span>
+<span class="fc" id="L130">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeapRsatExpSimpBiere() {
+<span class="nc" id="L134">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
+<span class="nc" id="L135">        solver.setRestartStrategy(new ArminRestarts());</span>
+<span class="nc" id="L136">        solver.setSearchParams(new SearchParams(1.1, 100));</span>
+<span class="nc" id="L137">        return solver;</span>
+    }
+
+    public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapRsatExpSimpLuby() {
+<span class="nc" id="L141">        ICDCL&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
+<span class="nc" id="L142">        solver.setRestartStrategy(new LubyRestarts(512));</span>
+<span class="nc" id="L143">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newGlucose21() {
+<span class="fc" id="L147">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
+<span class="fc" id="L148">        solver.setRestartStrategy(new Glucose21Restarts());</span>
+<span class="fc" id="L149">        solver.setLearnedConstraintsDeletionStrategy(solver.lbdBased);</span>
+<span class="fc" id="L150">        return solver;</span>
+    }
+
+    private static Solver&lt;DataStructureFactory&gt; newBestCurrentSolverConfiguration(
+            DataStructureFactory dsf) {
+<span class="nc" id="L155">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="nc" id="L156">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning, dsf,</span>
+                new VarOrderHeap(new RSATPhaseSelectionStrategy()),
+                new ArminRestarts());
+<span class="nc" id="L159">        solver.setSearchParams(new SearchParams(1.1, 100));</span>
+<span class="nc" id="L160">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="nc" id="L161">        return solver;</span>
+    }
+
+    /**
+     * 
+     * @since 2.2
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newGreedySolver() {
+<span class="nc" id="L169">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="nc" id="L170">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+                new MixedDataStructureDanielWL(),
+                new RandomWalkDecorator(
+                        new VarOrderHeap(new RSATPhaseSelectionStrategy())),
+                new NoRestarts());
+<span class="nc" id="L175">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="nc" id="L176">        return solver;</span>
+    }
+
+    /**
+     * 
+     * @since 2.3.6
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newRandomSolver() {
+<span class="nc" id="L184">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="nc" id="L185">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+                new MixedDataStructureDanielWL(),
+                new RandomWalkDecorator(
+                        new VarOrderHeap(new RandomLiteralSelectionStrategy()),
+                        1.0),
+                new NoRestarts());
+<span class="nc" id="L191">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="nc" id="L192">        return solver;</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newDefaultAutoErasePhaseSaving() {
+<span class="nc" id="L199">        ICDCL&lt;DataStructureFactory&gt; solver = newBestWL();</span>
+<span class="nc" id="L200">        solver.setOrder(new VarOrderHeap(new PhaseCachingAutoEraseStrategy()));</span>
+<span class="nc" id="L201">        return solver;</span>
+    }
+
+    /**
+     * @since 2.2.3
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newDefaultMS21PhaseSaving() {
+<span class="nc" id="L208">        ICDCL&lt;DataStructureFactory&gt; solver = newBestWL();</span>
+<span class="nc" id="L209">        solver.setOrder(new VarOrderHeap(</span>
+                new RSATLastLearnedClausesPhaseSelectionStrategy()));
+<span class="nc" id="L211">        return solver;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public static Solver&lt;DataStructureFactory&gt; newBestWL() {
+<span class="nc" id="L218">        return newBestCurrentSolverConfiguration(</span>
+                new MixedDataStructureDanielWL());
+    }
+
+    /**
+     * 
+     * @since 2.1
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newBestHT() {
+<span class="nc" id="L227">        return newBestCurrentSolverConfiguration(</span>
+                new MixedDataStructureDanielHT());
+    }
+
+    /**
+     * 
+     * @since 2.2
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newBest17() {
+<span class="nc" id="L236">        Solver&lt;DataStructureFactory&gt; solver = newBestCurrentSolverConfiguration(</span>
+                new MixedDataStructureSingleWL());
+<span class="nc" id="L238">        solver.setSimplifier(solver.expensiveSimplificationWLOnly);</span>
+<span class="nc" id="L239">        solver.setLearnedConstraintsDeletionStrategy(</span>
+                solver.activityBasedLowMemory);
+<span class="nc" id="L241">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
+                10);
+<span class="nc" id="L243">        solver.setLearningStrategy(learning);</span>
+<span class="nc" id="L244">        return solver;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public static Solver&lt;DataStructureFactory&gt; newGlucose() {
+<span class="nc" id="L251">        Solver&lt;DataStructureFactory&gt; solver = newBestWL();</span>
+<span class="nc" id="L252">        solver.setLearnedConstraintsDeletionStrategy(solver.lbdBased);</span>
+<span class="nc" id="L253">        solver.setRestartStrategy(new LubyRestarts(512));</span>
+<span class="nc" id="L254">        return solver;</span>
+    }
+
+    /**
+     * @param dsf
+     *            a specific data structure factory
+     * @return a default &quot;minilearning&quot; solver using a specific data structure
+     *         factory, learning clauses of length smaller or equals to 10 % of
+     *         the number of variables and a heap based VSIDS heuristics
+     */
+    public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeap(
+            DataStructureFactory dsf) {
+<span class="fc" id="L266">        return newMiniLearning(dsf, new VarOrderHeap());</span>
+    }
+
+    /**
+     * @param dsf
+     *            the data structure factory used to represent literals and
+     *            clauses
+     * @param order
+     *            the heuristics
+     * @return a SAT solver with learning limited to clauses of length smaller
+     *         or equal to 10 percent of the total number of variables, the dsf
+     *         data structure, the FirstUIP clause generator and order as
+     *         heuristics.
+     */
+    public static Solver&lt;DataStructureFactory&gt; newMiniLearning(
+            DataStructureFactory dsf, IOrder order) {
+<span class="fc" id="L282">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="fc" id="L283">        return new Solver&lt;&gt;(learning, dsf, order, new MiniSATRestarts());</span>
+    }
+
+    /**
+     * @return a default MiniLearning without restarts.
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapEZSimpNoRestarts() {
+<span class="nc" id="L290">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
+                10);
+<span class="nc" id="L292">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+                new MixedDataStructureDanielWL(),
+                new SearchParams(Integer.MAX_VALUE), new VarOrderHeap(),
+                new MiniSATRestarts());
+<span class="nc" id="L296">        learning.setSolver(solver);</span>
+<span class="nc" id="L297">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="nc" id="L298">        return solver;</span>
+    }
+
+    /**
+     * @return a default MiniLearning with restarts beginning at 1000 conflicts.
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapEZSimpLongRestarts() {
+<span class="nc" id="L305">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
+                10);
+<span class="nc" id="L307">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+                new MixedDataStructureDanielWL(), new SearchParams(1000),
+                new VarOrderHeap(), new MiniSATRestarts());
+<span class="nc" id="L310">        learning.setSolver(solver);</span>
+<span class="nc" id="L311">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="nc" id="L312">        return solver;</span>
+    }
+
+    /**
+     * @return a SAT solver very close to the original MiniSAT sat solver.
+     */
+    public static Solver&lt;DataStructureFactory&gt; newMiniSATHeap() {
+<span class="nc" id="L319">        return newMiniSATHeap(new MixedDataStructureDanielWL());</span>
+    }
+
+    /**
+     * @return a SAT solver very close to the original MiniSAT sat solver
+     *         including easy reason simplification.
+     */
+    public static ICDCL&lt;DataStructureFactory&gt; newMiniSATHeapEZSimp() {
+<span class="nc" id="L327">        Solver&lt;DataStructureFactory&gt; solver = newMiniSATHeap();</span>
+<span class="nc" id="L328">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="nc" id="L329">        return solver;</span>
+    }
+
+    public static ICDCL&lt;DataStructureFactory&gt; newMiniSATHeapExpSimp() {
+<span class="nc" id="L333">        Solver&lt;DataStructureFactory&gt; solver = newMiniSATHeap();</span>
+<span class="nc" id="L334">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="nc" id="L335">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newMiniSATHeap(
+            DataStructureFactory dsf) {
+<span class="nc" id="L340">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="nc" id="L341">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning, dsf,</span>
+                new VarOrderHeap(), new MiniSATRestarts());
+<span class="nc" id="L343">        learning.setDataStructureFactory(solver.getDSFactory());</span>
+<span class="nc" id="L344">        learning.setVarActivityListener(solver);</span>
+<span class="nc" id="L345">        return solver;</span>
+    }
+
+    /**
+     * @return MiniSAT with VSIDS heuristics, FirstUIP clause generator for
+     *         backjumping but no learning.
+     */
+    public static ICDCL&lt;MixedDataStructureDanielWL&gt; newBackjumping() {
+<span class="nc" id="L353">        NoLearningButHeuristics&lt;MixedDataStructureDanielWL&gt; learning = new NoLearningButHeuristics&lt;&gt;();</span>
+<span class="nc" id="L354">        Solver&lt;MixedDataStructureDanielWL&gt; solver = new Solver&lt;&gt;(learning,</span>
+                new MixedDataStructureDanielWL(), new VarOrderHeap(),
+                new MiniSATRestarts());
+<span class="nc" id="L357">        learning.setVarActivityListener(solver);</span>
+<span class="nc" id="L358">        return solver;</span>
+    }
+
+    /**
+     * @return a solver computing models with a minimum number of satisfied
+     *         literals.
+     */
+    public static ISolver newMinOneSolver() {
+<span class="nc" id="L366">        return new OptToSatAdapter(new MinOneDecorator(newDefault()));</span>
+    }
+
+    /**
+     * 
+     * @return the default solver with an aggressive LCDS based on age
+     */
+    public static ISolver newAgeLCDS() {
+<span class="nc" id="L374">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="nc" id="L375">        solver.setLearnedConstraintsDeletionStrategy(solver.ageBased);</span>
+<span class="nc" id="L376">        return solver;</span>
+    }
+
+    /**
+     * 
+     * @return the default solver with an aggressive LCDS based on activity
+     */
+    public static ISolver newActivityLCDS() {
+<span class="nc" id="L384">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="nc" id="L385">        solver.setLearnedConstraintsDeletionStrategy(solver.activityBased);</span>
+<span class="nc" id="L386">        return solver;</span>
+    }
+
+    /**
+     * 
+     * @return the default solver with an aggressive LCDS based on size
+     */
+    public static ISolver newSizeLCDS() {
+<span class="nc" id="L394">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="nc" id="L395">        solver.setLearnedConstraintsDeletionStrategy(solver.sizeBased);</span>
+<span class="nc" id="L396">        return solver;</span>
+    }
+
+    /**
+     * Default solver of the SolverFactory. This solver is meant to be used on
+     * challenging SAT benchmarks.
+     * 
+     * @return the best &quot;general purpose&quot; SAT solver available in the factory.
+     * @see #defaultSolver() the same method, polymorphic, to be called from an
+     *      instance of ASolverFactory.
+     */
+    public static ISolver newDefault() {
+<span class="fc" id="L408">        return newGlucose21();</span>
+    }
+
+    @Override
+    public ISolver defaultSolver() {
+<span class="fc" id="L413">        return newDefault();</span>
+    }
+
+    /**
+     * Small footprint SAT solver.
+     * 
+     * @return a SAT solver suitable for solving small/easy SAT benchmarks.
+     * @see #lightSolver() the same method, polymorphic, to be called from an
+     *      instance of ASolverFactory.
+     */
+    public static ISolver newLight() {
+<span class="nc" id="L424">        return newMiniLearningHeap();</span>
+    }
+
+    @Override
+    public ISolver lightSolver() {
+<span class="nc" id="L429">        return newLight();</span>
+    }
+
+    public static ISolver newDimacsOutput() {
+<span class="nc" id="L433">        return new DimacsOutputSolver();</span>
+    }
+
+    public static ISolver newStatistics() {
+<span class="nc" id="L437">        return new StatisticsSolver();</span>
+    }
+
+    public static ISolver newParallel() {
+<span class="nc" id="L441">        return new ManyCore&lt;ISolver&gt;(newSAT(), newUNSAT(),</span>
+<span class="nc" id="L442">                newMiniLearningHeapRsatExpSimpLuby(),</span>
+<span class="nc" id="L443">                newMiniLearningHeapRsatExpSimp(),</span>
+<span class="nc" id="L444">                newDefaultAutoErasePhaseSaving(), newMiniLearningHeap(),</span>
+<span class="nc" id="L445">                newMiniSATHeapExpSimp(), newMiniSATHeapEZSimp());</span>
+    }
+
+    /**
+     * Two solvers are running in //: one for solving SAT instances, the other
+     * one for solving unsat instances.
+     * 
+     * @return a parallel solver for both SAT and UNSAT problems.
+     */
+    public static ISolver newSATUNSAT() {
+<span class="nc" id="L455">        return new ManyCore&lt;ISolver&gt;(newSAT(), newUNSAT());</span>
+    }
+
+    /**
+     * That solver is expected to perform better on satisfiable benchmarks.
+     * 
+     * @return a solver for satisfiable benchmarks.
+     */
+    public static Solver&lt;DataStructureFactory&gt; newSAT() {
+<span class="nc" id="L464">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="nc" id="L465">        solver.setRestartStrategy(new LubyRestarts(100));</span>
+<span class="nc" id="L466">        solver.setLearnedConstraintsDeletionStrategy(</span>
+                solver.activityBasedLowMemory);
+<span class="nc" id="L468">        return solver;</span>
+    }
+
+    /**
+     * That solver is expected to perform better on unsatisfiable benchmarks.
+     * 
+     * @return a solver for unsatisfiable benchmarks.
+     */
+    public static Solver&lt;DataStructureFactory&gt; newUNSAT() {
+<span class="nc" id="L477">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="nc" id="L478">        solver.setRestartStrategy(new NoRestarts());</span>
+<span class="nc" id="L479">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="nc" id="L480">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newConcise() {
+<span class="nc" id="L484">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="nc" id="L485">        solver.setDataStructureFactory(</span>
+                new MixedDataStructureDanielWLConciseBinary());
+<span class="nc" id="L487">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
+<span class="nc" id="L488">        return solver;</span>
+    }
+
+    public static Solver&lt;DataStructureFactory&gt; newNoSimplification() {
+<span class="nc" id="L492">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="nc" id="L493">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
+<span class="nc" id="L494">        return solver;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

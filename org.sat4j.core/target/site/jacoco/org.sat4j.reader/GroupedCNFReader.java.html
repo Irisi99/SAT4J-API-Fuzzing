@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupedCNFReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.reader</a> &gt; <span class="el_source">GroupedCNFReader.java</span></div><h1>GroupedCNFReader.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.reader;
+
+import java.io.IOException;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IGroupSolver;
+
+<span class="nc bnc" id="L38" title="All 2 branches missed.">@Feature(value = &quot;reader&quot;, parent = &quot;expert&quot;)</span>
+public class GroupedCNFReader extends DimacsReader {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private int numberOfComponents;
+
+    private final IGroupSolver groupSolver;
+
+    private int currentComponentIndex;
+
+    public GroupedCNFReader(IGroupSolver solver) {
+<span class="nc" id="L53">        super(solver, &quot;gcnf&quot;);</span>
+<span class="nc" id="L54">        this.groupSolver = solver;</span>
+<span class="nc" id="L55">    }</span>
+
+    /**
+     * @throws IOException
+     *             iff an IO occurs
+     * @throws ParseFormatException
+     *             if the input stream does not comply with the DIMACS format.
+     * @since 2.1
+     */
+    @Override
+    protected void readProblemLine() throws IOException, ParseFormatException {
+
+<span class="nc" id="L67">        String line = this.scanner.nextLine();</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">        assert line != null;</span>
+<span class="nc" id="L69">        line = line.trim();</span>
+<span class="nc" id="L70">        String[] tokens = line.split(&quot;\\s+&quot;);</span>
+<span class="nc bnc" id="L71" title="All 4 branches missed.">        if (tokens.length &lt; 5 || !&quot;p&quot;.equals(tokens[0])</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                || !this.formatString.equals(tokens[1])) {</span>
+<span class="nc" id="L73">            throw new ParseFormatException(</span>
+                    &quot;problem line expected (p &quot; + this.formatString + &quot; ...)&quot;);
+        }
+
+        int vars;
+
+        // reads the max var id
+<span class="nc" id="L80">        vars = Integer.parseInt(tokens[2]);</span>
+<span class="nc bnc" id="L81" title="All 4 branches missed.">        assert vars &gt; 0;</span>
+<span class="nc" id="L82">        this.solver.newVar(vars);</span>
+        // reads the number of clauses
+<span class="nc" id="L84">        this.expectedNbOfConstr = Integer.parseInt(tokens[3]);</span>
+<span class="nc bnc" id="L85" title="All 4 branches missed.">        assert this.expectedNbOfConstr &gt; 0;</span>
+<span class="nc" id="L86">        this.numberOfComponents = Integer.parseInt(tokens[4]);</span>
+<span class="nc" id="L87">        this.solver.setExpectedNumberOfClauses(this.expectedNbOfConstr);</span>
+<span class="nc" id="L88">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    @Override
+    protected boolean handleLine()
+            throws ContradictionException, IOException, ParseFormatException {
+        int lit;
+<span class="nc" id="L97">        var added = false;</span>
+<span class="nc" id="L98">        String component = this.scanner.next();</span>
+<span class="nc bnc" id="L99" title="All 4 branches missed.">        if (!component.startsWith(&quot;{&quot;) || !component.endsWith(&quot;}&quot;)) {</span>
+<span class="nc" id="L100">            throw new ParseFormatException(</span>
+                    &quot;Component index required at the beginning of the clause&quot;);
+        }
+<span class="nc" id="L103">        this.currentComponentIndex = Integer</span>
+<span class="nc" id="L104">                .valueOf(component.substring(1, component.length() - 1));</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">        if (this.currentComponentIndex &lt; 0</span>
+                || this.currentComponentIndex &gt; this.numberOfComponents) {
+<span class="nc" id="L107">            throw new ParseFormatException(</span>
+                    &quot;wrong component index: &quot; + this.currentComponentIndex);
+        }
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        while (!this.scanner.eof()) {</span>
+<span class="nc" id="L111">            lit = this.scanner.nextInt();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">            if (lit == 0) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                if (this.literals.size() &gt; 0) {</span>
+<span class="nc" id="L114">                    flushConstraint();</span>
+<span class="nc" id="L115">                    this.literals.clear();</span>
+<span class="nc" id="L116">                    added = true;</span>
+                }
+                break;
+            }
+<span class="nc" id="L120">            this.literals.push(lit);</span>
+        }
+<span class="nc" id="L122">        return added;</span>
+    }
+
+    /**
+     * 
+     * @throws ContradictionException
+     * @since 2.1
+     */
+    @Override
+    protected void flushConstraint() throws ContradictionException {
+        try {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (this.currentComponentIndex == 0) {</span>
+<span class="nc" id="L134">                this.groupSolver.addClause(this.literals);</span>
+            } else {
+<span class="nc" id="L136">                this.groupSolver.addClause(this.literals,</span>
+                        this.currentComponentIndex);
+            }
+<span class="nc" id="L139">        } catch (IllegalArgumentException ex) {</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">            if (isVerbose()) {</span>
+<span class="nc" id="L141">                System.err.println(&quot;c Skipping constraint &quot; + this.literals);</span>
+            }
+<span class="nc" id="L143">        }</span>
+<span class="nc" id="L144">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

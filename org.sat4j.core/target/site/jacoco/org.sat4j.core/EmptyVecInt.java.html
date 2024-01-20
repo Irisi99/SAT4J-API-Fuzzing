@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmptyVecInt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.core</a> &gt; <span class="el_source">EmptyVecInt.java</span></div><h1>EmptyVecInt.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.core;
+
+import java.util.Comparator;
+
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+
+<span class="fc" id="L37">final class EmptyVecInt implements IVecInt {</span>
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    public int size() {
+<span class="fc" id="L44">        return 0;</span>
+    }
+
+    public void shrink(int nofelems) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L49">    }</span>
+
+    public void shrinkTo(int newsize) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L53">    }</span>
+
+    public IVecInt pop() {
+<span class="nc" id="L56">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void growTo(int newsize, int pad) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L61">    }</span>
+
+    public void ensure(int nsize) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L65">    }</span>
+
+    public IVecInt push(int elem) {
+<span class="nc" id="L68">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void unsafePush(int elem) {
+<span class="nc" id="L72">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void clear() {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L77">    }</span>
+
+    public int last() {
+<span class="nc" id="L80">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int get(int i) {
+<span class="nc" id="L84">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void set(int i, int o) {
+<span class="nc" id="L88">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean contains(int e) {
+<span class="nc" id="L92">        return false;</span>
+    }
+
+    public void copyTo(IVecInt copy) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L97">    }</span>
+
+    public void copyTo(int[] is) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L101">    }</span>
+
+    public void moveTo(IVecInt dest) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L105">    }</span>
+
+    public void moveTo2(IVecInt dest) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L109">    }</span>
+
+    public void moveTo(int[] dest) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L113">    }</span>
+
+    public void insertFirst(int elem) {
+<span class="nc" id="L116">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void remove(int elem) {
+<span class="nc" id="L120">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int delete(int i) {
+<span class="nc" id="L124">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void sort() {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L129">    }</span>
+
+    public void sortUnique() {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L133">    }</span>
+
+    public int unsafeGet(int eleem) {
+<span class="nc" id="L136">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int containsAt(int e) {
+<span class="nc" id="L140">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int containsAt(int e, int from) {
+<span class="nc" id="L144">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void moveTo(int dest, int source) {
+<span class="nc" id="L148">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean isEmpty() {
+<span class="nc" id="L152">        return true;</span>
+    }
+
+    public IteratorInt iterator() {
+<span class="fc" id="L156">        return new IteratorInt() {</span>
+
+            public boolean hasNext() {
+<span class="fc" id="L159">                return false;</span>
+            }
+
+            public int next() {
+<span class="nc" id="L163">                throw new UnsupportedOperationException();</span>
+            }
+        };
+    }
+
+    public int[] toArray() {
+<span class="nc" id="L169">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int indexOf(int e) {
+<span class="nc" id="L173">        return -1;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L178">        return &quot;[]&quot;;</span>
+    }
+
+    public void moveTo(int sourceStartingIndex, int[] dest) {
+<span class="nc" id="L182">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IVecInt[] subset(int cardinal) {
+<span class="nc" id="L186">        return new IVecInt[0];</span>
+    }
+
+    @Override
+    public boolean equals(Object o) {
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (o instanceof IVecInt) {</span>
+<span class="nc" id="L192">            return ((IVecInt) o).isEmpty();</span>
+        }
+<span class="nc" id="L194">        return false;</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L199">        return 0;</span>
+    }
+
+    public void sort(Comparator&lt;Integer&gt; comparator) {
+        // do nothing when IVecInt is empty
+<span class="nc" id="L204">    }</span>
+
+    @Override
+    public IVecInt clone() {
+<span class="nc" id="L208">        return new EmptyVecInt();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

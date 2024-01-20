@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CheckMUSSolutionListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">CheckMUSSolutionListener.java</span></div><h1>CheckMUSSolutionListener.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.ASolverFactory;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.TimeoutException;
+
+@Feature(&quot;solutionlistener&quot;)
+public class CheckMUSSolutionListener implements SolutionFoundListener {
+
+    private static final String ORG_SAT4J_CORE = &quot;org.sat4j.core&quot;;
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private List&lt;IVecInt&gt; clauses;
+
+    private String explain;
+
+    private final ASolverFactory&lt;? extends ISolver&gt; factory;
+
+<span class="nc" id="L62">    public CheckMUSSolutionListener(ASolverFactory&lt;? extends ISolver&gt; factory) {</span>
+<span class="nc" id="L63">        this.clauses = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L64">        this.factory = factory;</span>
+<span class="nc" id="L65">    }</span>
+
+    public void addOriginalClause(IVecInt clause) {
+<span class="nc" id="L68">        IVecInt newClause = new VecInt(clause.size());</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (clauses == null) {</span>
+<span class="nc" id="L70">            this.clauses = new ArrayList&lt;&gt;();</span>
+        }
+<span class="nc" id="L72">        clause.copyTo(newClause);</span>
+<span class="nc" id="L73">        clauses.add(newClause);</span>
+<span class="nc" id="L74">    }</span>
+
+    /**
+     * 
+     * @param mus
+     *            containing the clauses identifiers
+     * @return true if mus is really minimal unsatisfiable.
+     */
+    public boolean checkThatItIsAMUS(IVecInt mus) {
+<span class="nc" id="L83">        var result = false;</span>
+
+<span class="nc" id="L85">        ISolver solver = factory.defaultSolver();</span>
+
+        try {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            for (var i = 0; i &lt; mus.size(); i++) {</span>
+<span class="nc" id="L89">                solver.addClause(clauses.get(mus.get(i) - 1));</span>
+            }
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            result = !solver.isSatisfiable();</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            if (!result) {</span>
+<span class="nc" id="L95">                explain = &quot;The set of clauses in the MUS is SAT : &quot;</span>
+<span class="nc" id="L96">                        + Arrays.toString(solver.model());</span>
+<span class="nc" id="L97">                return result;</span>
+            }
+
+<span class="nc" id="L100">        } catch (ContradictionException e) {</span>
+<span class="nc" id="L101">            Logger.getLogger(ORG_SAT4J_CORE).log(Level.INFO,</span>
+                    &quot;Trivial inconsistency&quot;, e);
+<span class="nc" id="L103">            result = true;</span>
+<span class="nc" id="L104">        } catch (TimeoutException e) {</span>
+<span class="nc" id="L105">            Logger.getLogger(ORG_SAT4J_CORE).log(Level.INFO,</span>
+                    &quot;Timeout when checking unsatisfiability&quot;, e);
+<span class="nc" id="L107">        }</span>
+
+        try {
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            for (var i = 0; i &lt; mus.size(); i++) {</span>
+<span class="nc" id="L111">                solver = factory.defaultSolver();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                for (var j = 0; j &lt; mus.size(); j++) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                    if (j != i) {</span>
+<span class="nc" id="L114">                        solver.addClause(clauses.get(mus.get(j) - 1));</span>
+                    }
+                }
+<span class="nc bnc" id="L117" title="All 4 branches missed.">                result = result &amp;&amp; solver.isSatisfiable();</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                if (!result) {</span>
+<span class="nc" id="L119">                    explain = &quot;The subset of clauses in the MUS not containing clause &quot;</span>
+                            + (i + 1) + &quot; is SAT : &quot;
+<span class="nc" id="L121">                            + Arrays.toString(solver.model());</span>
+<span class="nc" id="L122">                    return result;</span>
+                }
+            }
+<span class="nc" id="L125">        } catch (ContradictionException e) {</span>
+<span class="nc" id="L126">            Logger.getLogger(ORG_SAT4J_CORE).log(Level.INFO,</span>
+                    &quot;Trivial inconsistency&quot;, e);
+<span class="nc" id="L128">            result = false;</span>
+<span class="nc" id="L129">        } catch (TimeoutException e) {</span>
+<span class="nc" id="L130">            Logger.getLogger(ORG_SAT4J_CORE).log(Level.INFO,</span>
+                    &quot;Timeout when checking satisfiability&quot;, e);
+<span class="nc" id="L132">        }</span>
+
+<span class="nc" id="L134">        return result;</span>
+
+    }
+
+    @Override
+    public void onSolutionFound(IVecInt solution) {
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (checkThatItIsAMUS(solution)) {</span>
+<span class="nc" id="L141">            System.out.println(solution + &quot; is a MUS&quot;);</span>
+        } else {
+<span class="nc" id="L143">            System.out.println(solution + &quot; is not a MUS \n&quot; + explain);</span>
+        }
+<span class="nc" id="L145">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

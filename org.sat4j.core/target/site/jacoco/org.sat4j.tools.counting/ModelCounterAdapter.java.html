@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelCounterAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools.counting</a> &gt; <span class="el_source">ModelCounterAdapter.java</span></div><h1>ModelCounterAdapter.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2019 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+
+package org.sat4j.tools.counting;
+
+import java.math.BigInteger;
+
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.ModelIteratorToSATAdapter;
+import org.sat4j.tools.SolutionFoundListener;
+
+/**
+ * This class is an object adapter allowing to count the models of a formula by
+ * iterating over its models.
+ * 
+ * As such, this model counter is &lt;b&gt;really slow&lt;/b&gt;, and should only be used
+ * either on small formulas or with a low bound. Use it with caution!
+ * 
+ * @author Romain Wallon
+ */
+public final class ModelCounterAdapter implements IModelCounter {
+
+    /**
+     * The adapted model iterator.
+     */
+    private final ModelIteratorToSATAdapter adaptee;
+
+    /**
+     * Creates a new ModelCounterAdapter.
+     * 
+     * @param solver
+     *            The solver to adapt.
+     */
+<span class="nc" id="L62">    private ModelCounterAdapter(ISolver solver) {</span>
+<span class="nc" id="L63">        this.adaptee = new ModelIteratorToSATAdapter(solver,</span>
+                SolutionFoundListener.VOID);
+<span class="nc" id="L65">    }</span>
+
+    /**
+     * Creates a new ModelCounterAdapter adapting the given solver. The number
+     * of models to count is not upper bounded.
+     * 
+     * @param solver
+     *            The solver to adapt.
+     * 
+     * @return The created model counter.
+     */
+    public static ModelCounterAdapter newInstance(ISolver solver) {
+<span class="nc" id="L77">        return newInstance(solver, Long.MAX_VALUE);</span>
+    }
+
+    /**
+     * Creates a new ModelCounterAdapter adapting the given solver.
+     * 
+     * @param solver
+     *            The solver to adapt.
+     * @param bound
+     *            The maximum number of models to count.
+     * 
+     * @return The created model counter.
+     */
+    public static ModelCounterAdapter newInstance(ISolver solver, long bound) {
+<span class="nc" id="L91">        var counter = new ModelCounterAdapter(solver);</span>
+<span class="nc" id="L92">        counter.setBound(bound);</span>
+<span class="nc" id="L93">        return counter;</span>
+    }
+
+    /**
+     * Counts the models of the given solver. This method is designed for
+     * convenience, so as to avoid manipulating instances of
+     * {@link ModelCounterAdapter} if only one call is needed.
+     * 
+     * @param solver
+     *            The solver to count the models of.
+     * 
+     * @return The number of models of the given solver.
+     */
+    public static BigInteger countModels(ISolver solver) {
+<span class="nc" id="L107">        return countModels(solver, Long.MAX_VALUE);</span>
+    }
+
+    /**
+     * Counts up to {@code bound} models of the given solver. This is method is
+     * designed for convenience, so as to avoid manipulating instances of
+     * {@link ModelCounterAdapter} if only one call is needed.
+     * 
+     * @param solver
+     *            The solver to count the models of.
+     * @param bound
+     *            The maximum number of models to count.
+     * 
+     * @return The number of models of the given solver.
+     */
+    public static BigInteger countModels(ISolver solver, long bound) {
+<span class="nc" id="L123">        IModelCounter counter = newInstance(solver, bound);</span>
+<span class="nc" id="L124">        BigInteger nbModels = counter.countModels();</span>
+<span class="nc" id="L125">        counter.reset();</span>
+<span class="nc" id="L126">        return nbModels;</span>
+    }
+
+    /**
+     * Sets the bound for the number of models to count. A {@code long} will
+     * always be sufficient, since counting each model one by one will never
+     * allow to overflow a {@code long}.
+     * 
+     * @param bound
+     *            The maximum number of models to count.
+     */
+    public void setBound(long bound) {
+<span class="nc" id="L138">        adaptee.setBound(bound);</span>
+<span class="nc" id="L139">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.tools.counting.IModelCounter#countModels()
+     */
+    @Override
+    public BigInteger countModels() {
+        try {
+            // Calling this method will actually iterate over the models.
+<span class="nc" id="L150">            adaptee.isSatisfiable();</span>
+
+<span class="nc" id="L152">        } catch (TimeoutException e) {</span>
+            // This exception is ignored.
+            // We simply consider the number of models found so far.
+<span class="nc" id="L155">        }</span>
+
+<span class="nc" id="L157">        return BigInteger.valueOf(adaptee.numberOfModelsFoundSoFar());</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.tools.counting.IModelCounter#reset()
+     */
+    @Override
+    public void reset() {
+<span class="nc" id="L167">        adaptee.clearBlockingClauses();</span>
+<span class="nc" id="L168">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

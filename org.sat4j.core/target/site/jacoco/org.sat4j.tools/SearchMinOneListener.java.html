@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchMinOneListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">SearchMinOneListener.java</span></div><h1>SearchMinOneListener.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.Lbool;
+import org.sat4j.specs.RandomAccessModel;
+import org.sat4j.specs.SearchListener;
+
+/**
+ * That class allows to iterate over the models from the inside: conflicts are
+ * created to ask the solver to backtrack.
+ * 
+ * @author leberre
+ * 
+ */
+<span class="nc bnc" id="L45" title="All 2 branches missed.">@Feature(&quot;searchlistener&quot;)</span>
+public class SearchMinOneListener implements SearchListener&lt;ISolverService&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private ISolverService solverService;
+
+    private final SolutionFoundListener sfl;
+
+<span class="nc" id="L57">    public SearchMinOneListener(SolutionFoundListener sfl) {</span>
+<span class="nc" id="L58">        this.sfl = sfl;</span>
+<span class="nc" id="L59">    }</span>
+
+    @Override
+    public void init(ISolverService solverService) {
+<span class="nc" id="L63">        this.solverService = solverService;</span>
+<span class="nc" id="L64">    }</span>
+
+    @Override
+    public void solutionFound(int[] model, RandomAccessModel lazyModel) {
+<span class="nc" id="L68">        var degree = 0;</span>
+<span class="nc" id="L69">        var variables = new int[model.length];</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        for (var i = 0; i &lt; model.length; i++) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            if (model[i] &gt; 0) {</span>
+<span class="nc" id="L72">                degree++;</span>
+<span class="nc" id="L73">                variables[i] = model[i];</span>
+            } else {
+<span class="nc" id="L75">                variables[i] = -model[i];</span>
+            }
+        }
+<span class="nc" id="L78">        System.out.println(solverService.getLogPrefix() + &quot; #one &quot; + degree);</span>
+<span class="nc" id="L79">        this.solverService.addAtMostOnTheFly(variables, degree - 1);</span>
+<span class="nc" id="L80">        sfl.onSolutionFound(model);</span>
+<span class="nc" id="L81">    }</span>
+
+    @Override
+    public void end(Lbool result) {
+<span class="nc bnc" id="L85" title="All 4 branches missed.">        assert result != Lbool.TRUE;</span>
+<span class="nc" id="L86">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

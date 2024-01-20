@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CardinalityDataStructureYanMin.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints</a> &gt; <span class="el_source">CardinalityDataStructureYanMin.java</span></div><h1>CardinalityDataStructureYanMin.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.constraints;
+
+import org.sat4j.minisat.constraints.card.MinWatchCard;
+import org.sat4j.minisat.constraints.cnf.LearntWLClause;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IVecInt;
+
+/**
+ * @author leberre To change the template for this generated type comment go to
+ *         Window - Preferences - Java - Code Generation - Code and Comments
+ */
+<span class="nc" id="L42">public class CardinalityDataStructureYanMin</span>
+        extends AbstractCardinalityDataStructure {
+
+    private static final long serialVersionUID = 1L;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.DataStructureFactory#createClause(org.sat4j.datatype
+     * .VecInt)
+     */
+    public Constr createClause(IVecInt literals) throws ContradictionException {
+<span class="nc" id="L55">        return MinWatchCard.minWatchCardNew(this.solver, getVocabulary(),</span>
+                literals, MinWatchCard.ATLEAST, 1);
+    }
+
+    public Constr createUnregisteredClause(IVecInt literals) {
+<span class="nc" id="L60">        return new LearntWLClause(literals, getVocabulary());</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.DataStructureFactory#createCardinalityConstraint(org
+     * .sat4j.datatype.VecInt, int)
+     */
+    @Override
+    public Constr createCardinalityConstraint(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L73">        return MinWatchCard.minWatchCardNew(this.solver, getVocabulary(),</span>
+                literals, MinWatchCard.ATLEAST, degree);
+    }
+
+    @Override
+    public Constr createUnregisteredCardinalityConstraint(IVecInt literals,
+            int degree) {
+<span class="nc" id="L80">        return new MinWatchCard(getVocabulary(), literals, MinWatchCard.ATLEAST,</span>
+                degree);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

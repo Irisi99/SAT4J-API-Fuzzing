@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TraceFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.fuzzer</a> &gt; <span class="el_source">TraceFactory.java</span></div><h1>TraceFactory.java</h1><pre class="source lang-java linenums">package org.sat4j.fuzzer;
+
+import java.util.Random;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.sat4j.core.ASolverFactory;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.core.ICDCL;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.ISolver;
+<span class="nc" id="L13">public class TraceFactory {</span>
+
+    static Random masterRandomGenerator;
+    static Random slaveRandomGenerator;
+<span class="fc" id="L17">    static int MAX_ITERATIONS = 2000;</span>
+    static int MAXVAR;
+<span class="fc" id="L19">    static int CLAUSE_LENGTH = 3;    </span>
+    static boolean UNIFORM;    
+    static boolean ASSUMPTIONS;
+    static int NUMBER_OF_CLAUSES;
+    static double coeficient;
+    static ISolver solver;
+    static int index;
+<span class="fc" id="L26">    static ArrayList&lt;String&gt; OPTIONS = new ArrayList&lt;String&gt;();    </span>
+<span class="fc" id="L27">    static ArrayList&lt;String&gt; SOLVERS = new ArrayList&lt;String&gt;();</span>
+
+    // sanity check - verbose - print all variables you are choosing
+    public static String run(long seed, boolean isTraceSeed, boolean verbose) {
+
+<span class="fc" id="L32">        initializeOptions();</span>
+
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if(!isTraceSeed){</span>
+            //  The Random class uses a 48-bit seed
+<span class="fc" id="L36">            masterRandomGenerator = new Random(seed);</span>
+        }
+
+<span class="fc" id="L39">        int iteration = 0;</span>
+<span class="fc" id="L40">        int increments = 0;</span>
+        Trace trace;
+        Boolean isSAT;
+<span class="fc" id="L43">        String errorMessage = &quot;&quot;;</span>
+        // STATISTICS
+        Map&lt;String, Number&gt; stats;
+<span class="fc" id="L46">        int SATinstances = 0;</span>
+<span class="fc" id="L47">        int UNSATinstances = 0;</span>
+<span class="fc" id="L48">        long LearnedClauses = 0;        </span>
+<span class="fc" id="L49">        long NrConflicts = 0;</span>
+<span class="fc" id="L50">        long SolverRunTime = 0;</span>
+<span class="fc" id="L51">        long startTime = 0;</span>
+<span class="fc" id="L52">        long endTime = 0;</span>
+
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        while (iteration &lt; MAX_ITERATIONS) {</span>
+
+<span class="fc" id="L56">            iteration++;</span>
+
+            // Generate Slave Seed
+            long slaveSeed;
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            if(!isTraceSeed){</span>
+<span class="fc" id="L61">                slaveSeed = masterRandomGenerator.nextLong();</span>
+            } else {
+<span class="nc" id="L63">                slaveSeed = seed;</span>
+                // verbose = true;
+            }
+
+<span class="fc" id="L67">            slaveRandomGenerator = new Random(slaveSeed); </span>
+            
+<span class="fc" id="L69">            MAXVAR = 0;</span>
+<span class="fc" id="L70">            NUMBER_OF_CLAUSES = 0;</span>
+            // (3.8/4.5) * MAXVAR - about 50/50 SAT/UNSAT
+<span class="fc" id="L72">            coeficient = 2.5;</span>
+
+            // Uniform or not - 1 to max length
+<span class="fc" id="L75">            UNIFORM = slaveRandomGenerator.nextBoolean();</span>
+<span class="pc bpc" id="L76" title="1 of 4 branches missed.">            if(UNIFORM &amp;&amp; verbose){</span>
+<span class="nc" id="L77">                System.out.println(&quot;CLAUSE_LENGTH: &quot; + CLAUSE_LENGTH);</span>
+            }
+            // Higher Length of clause means more SAT (shorter solve time, less conflicts and less learned clauses)
+            // Higher coeficient (more clauses) means more UNSAT
+
+            // HEX ID for Trace
+<span class="fc" id="L83">            trace = new Trace(Long.toHexString(slaveSeed));</span>
+
+<span class="fc" id="L85">            index = 1;</span>
+
+            try {
+<span class="fc" id="L88">                solver = initializeSolver(trace, verbose);</span>
+<span class="nc" id="L89">            } catch (Exception e) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if(!isTraceSeed){</span>
+<span class="nc" id="L91">                    trace.toFile();</span>
+<span class="nc" id="L92">                    System.out.print(&quot; --- Inisde Exception from initializeSolver()&quot;);</span>
+<span class="nc" id="L93">                    System.out.println(&quot; --- &quot; + e.getMessage());</span>
+                }
+<span class="nc" id="L95">                errorMessage = e.getMessage();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                if(verbose){</span>
+<span class="nc" id="L97">                    e.printStackTrace(System.out);</span>
+                }
+<span class="nc" id="L99">                continue;</span>
+<span class="fc" id="L100">            }</span>
+
+            // Incremental -&gt; add clauses - solve - repeat (increase number of variables and clauses)
+            // flip assumptions - randomly generate assumptions not old solutions
+<span class="fc" id="L104">            ASSUMPTIONS = slaveRandomGenerator.nextBoolean();</span>
+<span class="fc" id="L105">            increments = 0;</span>
+
+<span class="fc bfc" id="L107" title="All 2 branches covered.">            while(increments &lt; 3){ // not fixed number of increments</span>
+<span class="fc" id="L108">                increments ++;</span>
+
+<span class="fc" id="L110">                int OLDMAXVAR = MAXVAR;</span>
+<span class="fc" id="L111">                MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR; // add 20 - 200</span>
+<span class="fc" id="L112">                NUMBER_OF_CLAUSES = (int) (coeficient * (MAXVAR - OLDMAXVAR));</span>
+
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">                if(verbose){</span>
+<span class="nc" id="L115">                    System.out.println(&quot;MAXVAR: &quot; + MAXVAR);                    </span>
+<span class="nc" id="L116">                    System.out.println(&quot;NUMBER_OF_CLAUSES: &quot; + NUMBER_OF_CLAUSES);</span>
+                }
+
+                try{
+<span class="fc" id="L120">                    addClauses(trace);</span>
+<span class="nc" id="L121">                } catch (final Exception e) {</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">                    if(!isTraceSeed){</span>
+<span class="nc" id="L123">                        trace.toFile();</span>
+<span class="nc" id="L124">                        System.out.print(&quot; --- Inisde Exception from addClause()&quot;);</span>
+<span class="nc" id="L125">                        System.out.println(&quot; --- &quot; + e.getMessage());</span>
+                    }
+<span class="nc" id="L127">                    errorMessage = e.getMessage();</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">                    if(verbose){</span>
+<span class="nc" id="L129">                        e.printStackTrace(System.out);</span>
+                    }
+<span class="nc" id="L131">                    break;</span>
+<span class="fc" id="L132">                }</span>
+
+                try {
+<span class="fc" id="L135">                    startTime = System.currentTimeMillis();</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">                    if(ASSUMPTIONS){</span>
+                        int[] assumption;
+                        // power law for assumptions as well
+<span class="fc" id="L139">                        int size = MAXVAR/10;</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">                        while(slaveRandomGenerator.nextDouble() &lt; 1.0/6.0){</span>
+<span class="fc" id="L141">                            size += MAXVAR/10;</span>
+                        }
+
+<span class="fc" id="L144">                        assumption = new int[size];</span>
+
+<span class="fc bfc" id="L146" title="All 2 branches covered.">                        for (int i=0 ; i &lt; size; i++) {</span>
+                            // Need to see if variable is used as well - is throwing errors 
+<span class="fc" id="L148">                            int lit = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);</span>
+<span class="pc bpc" id="L149" title="1 of 4 branches missed.">                            if(isAlreadyPresent(assumption, i) || lit == 0){</span>
+<span class="fc" id="L150">                                i--;</span>
+                            }
+                            else{
+<span class="fc" id="L153">                                assumption[i] = lit;</span>
+                            }
+                        }
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">                        if(verbose){</span>
+<span class="nc" id="L157">                            System.out.println(&quot;ASSUMPTIONS: &quot; + toString(assumption));</span>
+                        }
+
+<span class="fc" id="L160">                        trace.addToTrace(index + &quot; assuming &quot; + toString(assumption));</span>
+<span class="fc" id="L161">                        index++;</span>
+
+<span class="fc" id="L163">                        isSAT = solver.isSatisfiable(new VecInt(assumption));</span>
+
+<span class="fc" id="L165">                    } else {</span>
+
+<span class="fc" id="L167">                        trace.addToTrace(index + &quot; solve&quot;);</span>
+<span class="fc" id="L168">                        index++;</span>
+
+<span class="fc" id="L170">                        isSAT = solver.isSatisfiable(); </span>
+                    }
+                    
+<span class="fc" id="L173">                    endTime = System.currentTimeMillis();</span>
+
+<span class="fc bfc" id="L175" title="All 2 branches covered.">                    if (isSAT) {</span>
+<span class="fc bfc" id="L176" title="All 2 branches covered.">                        if(increments == 3){</span>
+<span class="fc" id="L177">                            SATinstances++;</span>
+<span class="pc bpc" id="L178" title="1 of 2 branches missed.">                            if(verbose){</span>
+<span class="nc" id="L179">                                System.out.println(&quot;SATISFIABLE!&quot;);</span>
+<span class="nc" id="L180">                                System.out.println(&quot;SOLUTION: &quot;+toString(solver.model()));</span>
+                            }
+                        }
+                    } else{
+<span class="fc" id="L184">                        UNSATinstances ++;</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">                        if(verbose){</span>
+<span class="nc" id="L186">                            System.out.println(&quot;UNSATISFIABLE!&quot;);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                            if(ASSUMPTIONS){</span>
+                                // ask for explanation why it is UNSAT - array of failed assumptions
+<span class="nc" id="L189">                                System.out.println(&quot;EXPLANATION: &quot;+solver.unsatExplanation());</span>
+                            }
+                        }
+<span class="fc" id="L192">                        break;</span>
+                    }
+
+<span class="fc" id="L195">                } catch (final Exception e) {</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">                    if(!isTraceSeed){</span>
+<span class="fc" id="L197">                        trace.toFile();</span>
+<span class="fc" id="L198">                        System.out.print(&quot; --- Inisde Exception from isSatisfiable()&quot;);</span>
+<span class="fc" id="L199">                        System.out.println(&quot; --- &quot; + e.getMessage());</span>
+                    }
+<span class="fc" id="L201">                    errorMessage = e.getMessage();</span>
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">                    if(verbose){</span>
+<span class="nc" id="L203">                        e.printStackTrace(System.out);</span>
+                    }
+<span class="fc" id="L205">                    break;</span>
+<span class="fc" id="L206">                }</span>
+<span class="fc" id="L207">            }</span>
+
+<span class="fc" id="L209">            stats = solver.getStat();</span>
+            // System.out.println(stats.keySet());
+<span class="fc" id="L211">            LearnedClauses += (long) stats.get(&quot;learnedclauses&quot;);            </span>
+<span class="fc" id="L212">            NrConflicts += (long) stats.get(&quot;conflicts&quot;);</span>
+<span class="fc" id="L213">            SolverRunTime += endTime - startTime;</span>
+
+<span class="pc bpc" id="L215" title="2 of 4 branches missed.">            if(isTraceSeed || verbose){</span>
+<span class="nc" id="L216">                break;</span>
+            }
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">            if(iteration % 1000 == 0){</span>
+                // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
+<span class="fc" id="L221">                System.out.println(&quot;Statistics for &quot;+ iteration +&quot; iterations : &quot;);</span>
+<span class="fc" id="L222">                System.out.println(&quot;SAT Instances : &quot; + SATinstances);</span>
+<span class="fc" id="L223">                System.out.println(&quot;UNSAT Instances : &quot; + UNSATinstances);        </span>
+<span class="fc" id="L224">                System.out.println(&quot;Average Leanred Clauses : &quot; + LearnedClauses/iteration);        </span>
+<span class="fc" id="L225">                System.out.println(&quot;Average Nr Conflicts : &quot; + NrConflicts/iteration);</span>
+<span class="fc" id="L226">                System.out.println(&quot;Average Solver Run Time : &quot; + SolverRunTime/iteration + &quot; milli sec&quot;);</span>
+            }
+<span class="fc" id="L228">        }</span>
+
+<span class="fc" id="L230">        return errorMessage;</span>
+    }
+
+    private static void addClauses(Trace trace) throws ContradictionException{
+
+<span class="fc bfc" id="L235" title="All 2 branches covered.">        for (int i = 0; i &lt; NUMBER_OF_CLAUSES; i++) {</span>
+
+            int[] clause;
+
+            // Uniform or not
+<span class="fc" id="L240">            CLAUSE_LENGTH = 3;</span>
+<span class="fc bfc" id="L241" title="All 2 branches covered.">            if(!UNIFORM){</span>
+                // flip a coin if to make it shorter / longer and keep repeating
+<span class="fc" id="L243">                Double percentage = slaveRandomGenerator.nextDouble();</span>
+                
+<span class="fc bfc" id="L245" title="All 2 branches covered.">                if(percentage &lt; 0.01){</span>
+                    // 1% unit clause
+<span class="fc" id="L247">                    CLAUSE_LENGTH = 1;</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">                } else if(percentage &lt; 0.1){</span>
+                    // 10% binary clause
+<span class="fc" id="L250">                    CLAUSE_LENGTH = 2;</span>
+                } else {
+                    // 1/6 + longer clauses
+<span class="fc bfc" id="L253" title="All 2 branches covered.">                    while (percentage &lt; 1.0/6.0) {</span>
+<span class="fc" id="L254">                        CLAUSE_LENGTH += 1;</span>
+<span class="fc" id="L255">                        percentage = slaveRandomGenerator.nextDouble();</span>
+                    }
+                }
+            }
+<span class="fc" id="L259">            clause = new int[CLAUSE_LENGTH];</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">            for (int j = 0; j &lt; CLAUSE_LENGTH; j++) {</span>
+<span class="fc" id="L262">                clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);</span>
+<span class="fc bfc" id="L263" title="All 4 branches covered.">                while (clause[j] == 0 || isAlreadyPresent(clause, j)) {</span>
+<span class="fc" id="L264">                    clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);</span>
+                }
+            }
+
+            try {
+
+                // clauses are just for development purpopses, remove later
+<span class="fc" id="L271">                trace.addToTrace(index + &quot; addClause &quot; + toString(clause));</span>
+<span class="fc" id="L272">                index++;</span>
+
+<span class="fc" id="L274">                solver.addClause(new VecInt(clause));            </span>
+<span class="fc" id="L275">            } catch (ContradictionException e) {</span>
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">                if(e.getMessage().contains(&quot;Creating Empty clause ?&quot;)){</span>
+<span class="fc" id="L277">                    NUMBER_OF_CLAUSES += 1;</span>
+                } else {
+<span class="nc" id="L279">                    throw e;</span>
+                }
+<span class="fc" id="L281">            }</span>
+        }
+
+<span class="fc" id="L284">    }</span>
+
+    public static void initializeOptions(){
+
+        // OPTIONS.add(&quot;kleast&quot;);
+        // OPTIONS.add(&quot;optimize&quot;);
+        // OPTIONS.add(&quot;randomWalk&quot;);
+<span class="fc" id="L291">        OPTIONS.add(&quot;hot&quot;);</span>
+<span class="fc" id="L292">        OPTIONS.add(&quot;simplify&quot;);</span>
+        // OPTIONS.add(&quot;lower&quot;);
+        // OPTIONS.add(&quot;equivalence&quot;);
+        // OPTIONS.add(&quot;incomplete&quot;);
+<span class="fc" id="L296">        OPTIONS.add(&quot;solver&quot;);</span>
+
+<span class="fc" id="L298">        SOLVERS.add(&quot;DFS&quot;);</span>
+<span class="fc" id="L299">        SOLVERS.add(&quot;LEARNING&quot;);</span>
+<span class="fc" id="L300">        SOLVERS.add(&quot;ORDERS&quot;);</span>
+<span class="fc" id="L301">        SOLVERS.add(&quot;PHASE&quot;);</span>
+<span class="fc" id="L302">        SOLVERS.add(&quot;RESTARTS&quot;);</span>
+<span class="fc" id="L303">        SOLVERS.add(&quot;SIMP&quot;);        </span>
+<span class="fc" id="L304">        SOLVERS.add(&quot;PARAMS&quot;);</span>
+<span class="fc" id="L305">        SOLVERS.add(&quot;CLEANING&quot;);</span>
+<span class="fc" id="L306">    }</span>
+
+    public static ISolver initializeSolver(Trace trace, boolean verbose) throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
+
+        // Check Launcher.java inside 'org.sat4j.sat' folder
+<span class="fc" id="L311">        trace.addToTrace(index + &quot; init&quot;);</span>
+<span class="fc" id="L312">        index++;</span>
+<span class="fc" id="L313">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
+<span class="fc" id="L314">        ICDCL&lt;?&gt; asolver = (ICDCL&lt;?&gt;) factory.defaultSolver();</span>
+
+        // do nothing or
+<span class="fc bfc" id="L317" title="All 2 branches covered.">        if(slaveRandomGenerator.nextBoolean()){</span>
+            // change all from default
+<span class="fc bfc" id="L319" title="All 2 branches covered.">            if(slaveRandomGenerator.nextBoolean()){</span>
+                
+<span class="fc" id="L321">                String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));</span>
+<span class="fc" id="L322">                trace.addToTrace(index + &quot; using solver &quot; + solverName);</span>
+<span class="fc" id="L323">                index++;</span>
+<span class="fc" id="L324">                asolver = (ICDCL&lt;?&gt;) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
+                
+                // asolver.setKeepSolverHot(true);
+<span class="fc" id="L327">                trace.addToTrace(index + &quot; DBS simplification allowed&quot;);</span>
+<span class="fc" id="L328">                index++;</span>
+<span class="fc" id="L329">                asolver.setDBSimplificationAllowed(true);</span>
+               
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">                if(verbose){</span>
+<span class="nc" id="L332">                    System.out.println(&quot;SOLVER: &quot;+solverName); </span>
+                    // System.out.println(&quot;KEEP SOLVER HOT&quot;);
+<span class="nc" id="L334">                    System.out.println(&quot;DBS SIMPLIFICATION ALLOWED&quot;);</span>
+                }
+
+<span class="fc" id="L337">            } else {</span>
+                // change some
+<span class="fc bfc" id="L339" title="All 2 branches covered.">                if (slaveRandomGenerator.nextBoolean()) {</span>
+<span class="fc" id="L340">                    String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));</span>
+<span class="fc" id="L341">                    trace.addToTrace(index + &quot; using solver &quot; + solverName);</span>
+<span class="fc" id="L342">                    index++;</span>
+<span class="fc" id="L343">                    asolver = (ICDCL&lt;?&gt;) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
+                    
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">                    if(verbose){</span>
+<span class="nc" id="L346">                        System.out.println(&quot;SOLVER: &quot;+solverName);</span>
+                    }
+                }
+
+                // if (slaveRandomGenerator.nextBoolean()) {
+                //     asolver.setKeepSolverHot(true);
+                //     if(verbose){
+                //         System.out.println(&quot;KEEP SOLVER HOT&quot;);
+                //     }
+                // }
+
+<span class="fc bfc" id="L357" title="All 2 branches covered.">                if (slaveRandomGenerator.nextBoolean()) {</span>
+<span class="fc" id="L358">                    trace.addToTrace(index + &quot; DBS simplification allowed&quot;);</span>
+<span class="fc" id="L359">                    index++;</span>
+<span class="fc" id="L360">                    asolver.setDBSimplificationAllowed(true);</span>
+                    
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">                    if(verbose){</span>
+<span class="nc" id="L363">                        System.out.println(&quot;DBS SIMPLIFICATION ALLOWED&quot;);</span>
+                    }
+                }
+            }
+        }
+
+<span class="pc bpc" id="L369" title="1 of 2 branches missed.">        if(verbose){</span>
+<span class="nc" id="L370">            System.out.println(asolver.toString());</span>
+        }
+<span class="fc" id="L372">        return asolver;</span>
+    }
+
+    // Make sure all lits in the clause are all different from each other
+    public static Boolean isAlreadyPresent(int[] clause, int index){
+<span class="fc bfc" id="L377" title="All 2 branches covered.">        for(int i = 0; i &lt; index; i++){</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">            if(clause[i] == clause[index])</span>
+<span class="fc" id="L379">                return true;</span>
+        }
+<span class="fc" id="L381">        return false;</span>
+    }
+
+    public static String toString( int[] clause){
+<span class="fc" id="L385">        String stringClause = &quot;&quot;;</span>
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        for(int i=0; i &lt; clause.length; i++){</span>
+<span class="fc" id="L387">            stringClause += clause[i]+&quot; &quot;;</span>
+        }
+<span class="fc" id="L389">        return stringClause;</span>
+    }
+
+}
+
+// TO DO:
+// Coverage
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

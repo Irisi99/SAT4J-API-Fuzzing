@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolverStats.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.core</a> &gt; <span class="el_source">SolverStats.java</span></div><h1>SolverStats.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.core;
+
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Contains some statistics regarding the search.
+ * 
+ * @author daniel
+ * 
+ */
+<span class="fc" id="L44">public class SolverStats implements Serializable {</span>
+    private static final long serialVersionUID = 1L;
+
+    private int starts;
+
+    private long decisions;
+
+    private long propagations;
+
+    private long inspects;
+
+    private long conflicts;
+
+    private long learnedliterals;
+
+    private long learnedbinaryclauses;
+
+    private long learnedternaryclauses;
+
+    private long learnedclauses;
+
+    private long ignoredclauses;
+
+    private long rootSimplifications;
+
+    private long reducedliterals;
+
+    private long changedreason;
+
+    private int reduceddb;
+
+    private int shortcuts;
+
+    private long updateLBD;
+
+    private int importedUnits;
+
+    private boolean noDecisionAfterFirstConflict;
+
+    public void reset() {
+<span class="nc" id="L84">        this.starts = 0;</span>
+<span class="nc" id="L85">        this.decisions = 0;</span>
+<span class="nc" id="L86">        this.propagations = 0;</span>
+<span class="nc" id="L87">        this.inspects = 0;</span>
+<span class="nc" id="L88">        this.shortcuts = 0;</span>
+<span class="nc" id="L89">        this.conflicts = 0;</span>
+<span class="nc" id="L90">        this.learnedliterals = 0;</span>
+<span class="nc" id="L91">        this.learnedclauses = 0;</span>
+<span class="nc" id="L92">        this.ignoredclauses = 0;</span>
+<span class="nc" id="L93">        this.learnedbinaryclauses = 0;</span>
+<span class="nc" id="L94">        this.learnedternaryclauses = 0;</span>
+<span class="nc" id="L95">        this.rootSimplifications = 0;</span>
+<span class="nc" id="L96">        this.reducedliterals = 0;</span>
+<span class="nc" id="L97">        this.changedreason = 0;</span>
+<span class="nc" id="L98">        this.reduceddb = 0;</span>
+<span class="nc" id="L99">        this.updateLBD = 0;</span>
+<span class="nc" id="L100">        this.importedUnits = 0;</span>
+<span class="nc" id="L101">        this.noDecisionAfterFirstConflict = true;</span>
+<span class="nc" id="L102">    }</span>
+
+    public void printStat(PrintWriter out, String prefix) {
+<span class="nc" id="L105">        out.println(prefix + &quot;starts\t\t: &quot; + this.getStarts());</span>
+<span class="nc" id="L106">        out.println(prefix + &quot;conflicts\t\t: &quot; + this.conflicts);</span>
+<span class="nc" id="L107">        out.println(prefix + &quot;decisions\t\t: &quot; + this.decisions);</span>
+<span class="nc" id="L108">        out.println(prefix + &quot;propagations\t\t: &quot; + this.propagations);</span>
+<span class="nc" id="L109">        out.println(prefix + &quot;inspects\t\t: &quot; + this.inspects);</span>
+<span class="nc" id="L110">        out.println(prefix + &quot;shortcuts\t\t: &quot; + this.shortcuts);</span>
+<span class="nc" id="L111">        out.println(prefix + &quot;learnt literals\t: &quot; + this.learnedliterals);</span>
+<span class="nc" id="L112">        out.println(prefix + &quot;learnt binary clauses\t: &quot;</span>
+                + this.learnedbinaryclauses);
+<span class="nc" id="L114">        out.println(prefix + &quot;learnt ternary clauses\t: &quot;</span>
+                + this.learnedternaryclauses);
+<span class="nc" id="L116">        out.println(prefix + &quot;learnt constraints\t: &quot; + this.learnedclauses);</span>
+<span class="nc" id="L117">        out.println(prefix + &quot;ignored constraints\t: &quot; + this.ignoredclauses);</span>
+<span class="nc" id="L118">        out.println(</span>
+                prefix + &quot;root simplifications\t: &quot; + this.rootSimplifications);
+<span class="nc" id="L120">        out.println(prefix + &quot;removed literals (reason simplification)\t: &quot;</span>
+                + this.reducedliterals);
+<span class="nc" id="L122">        out.println(prefix + &quot;reason swapping (by a shorter reason)\t: &quot;</span>
+                + this.changedreason);
+<span class="nc" id="L124">        out.println(prefix + &quot;Calls to reduceDB\t: &quot; + this.reduceddb);</span>
+<span class="nc" id="L125">        out.println(prefix + &quot;Number of update (reduction) of LBD\t: &quot;</span>
+                + this.updateLBD);
+<span class="nc" id="L127">        out.println(prefix + &quot;Imported unit clauses\t: &quot; + this.importedUnits);</span>
+<span class="nc" id="L128">        out.println(prefix + &quot;No decision after first conflict\t: &quot;</span>
+                + this.noDecisionAfterFirstConflict);
+<span class="nc" id="L130">    }</span>
+
+    public Map&lt;String, Number&gt; toMap() {
+<span class="fc" id="L133">        Map&lt;String, Number&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L134">        Class&lt;?&gt; clazz = this.getClass();</span>
+        do {
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            for (Field f : clazz.getDeclaredFields()) {</span>
+                try {
+<span class="fc" id="L138">                    f.setAccessible(true);</span>
+<span class="fc" id="L139">                    Object value = f.get(this);</span>
+<span class="fc bfc" id="L140" title="All 4 branches covered.">                    if (!&quot;serialVersionUID&quot;.equals(f.getName())</span>
+                            &amp;&amp; value instanceof Number) {
+<span class="fc" id="L142">                        map.put(f.getName(), (Number) value);</span>
+                    }
+<span class="nc" id="L144">                } catch (IllegalArgumentException | IllegalAccessException e) {</span>
+                    // ignores silently
+<span class="fc" id="L146">                }</span>
+            }
+<span class="fc" id="L148">            clazz = clazz.getSuperclass();</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">        } while (clazz != null);</span>
+<span class="fc" id="L150">        return map;</span>
+    }
+
+    public int getStarts() {
+<span class="nc" id="L154">        return starts;</span>
+    }
+
+    public void incStarts() {
+<span class="fc" id="L158">        this.starts++;</span>
+<span class="fc" id="L159">    }</span>
+
+    public long getDecisions() {
+<span class="nc" id="L162">        return decisions;</span>
+    }
+
+    public void incDecisions() {
+<span class="fc" id="L166">        this.decisions++;</span>
+<span class="fc" id="L167">    }</span>
+
+    public long getPropagations() {
+<span class="nc" id="L170">        return propagations;</span>
+    }
+
+    public void incPropagations() {
+<span class="fc" id="L174">        this.propagations++;</span>
+<span class="fc" id="L175">    }</span>
+
+    public long getInspects() {
+<span class="nc" id="L178">        return inspects;</span>
+    }
+
+    public void incInspects() {
+<span class="fc" id="L182">        this.inspects++;</span>
+<span class="fc" id="L183">    }</span>
+
+    public long getConflicts() {
+<span class="fc" id="L186">        return conflicts;</span>
+    }
+
+    public void incConflicts() {
+<span class="fc" id="L190">        this.conflicts++;</span>
+<span class="fc" id="L191">    }</span>
+
+    public long getLearnedliterals() {
+<span class="nc" id="L194">        return learnedliterals;</span>
+    }
+
+    public void incLearnedliterals() {
+<span class="fc" id="L198">        this.learnedliterals++;</span>
+<span class="fc" id="L199">    }</span>
+
+    public long getLearnedbinaryclauses() {
+<span class="nc" id="L202">        return learnedbinaryclauses;</span>
+    }
+
+    public void incLearnedbinaryclauses() {
+<span class="fc" id="L206">        this.learnedbinaryclauses++;</span>
+<span class="fc" id="L207">    }</span>
+
+    public long getLearnedternaryclauses() {
+<span class="nc" id="L210">        return learnedternaryclauses;</span>
+    }
+
+    public void incLearnedternaryclauses() {
+<span class="fc" id="L214">        this.learnedternaryclauses++;</span>
+<span class="fc" id="L215">    }</span>
+
+    public long getLearnedclauses() {
+<span class="nc" id="L218">        return learnedclauses;</span>
+    }
+
+    public void incLearnedclauses() {
+<span class="fc" id="L222">        this.learnedclauses++;</span>
+<span class="fc" id="L223">    }</span>
+
+    public long getIgnoredclauses() {
+<span class="nc" id="L226">        return ignoredclauses;</span>
+    }
+
+    public void incIgnoredclauses() {
+<span class="nc" id="L230">        this.ignoredclauses++;</span>
+<span class="nc" id="L231">    }</span>
+
+    public long getRootSimplifications() {
+<span class="nc" id="L234">        return rootSimplifications;</span>
+    }
+
+    public void incRootSimplifications() {
+<span class="fc" id="L238">        this.rootSimplifications++;</span>
+<span class="fc" id="L239">    }</span>
+
+    public long getReducedliterals() {
+<span class="nc" id="L242">        return reducedliterals;</span>
+    }
+
+    public void incReducedliterals(int increment) {
+<span class="fc" id="L246">        this.reducedliterals += increment;</span>
+<span class="fc" id="L247">    }</span>
+
+    public long getChangedreason() {
+<span class="nc" id="L250">        return changedreason;</span>
+    }
+
+    public void incChangedreason() {
+<span class="nc" id="L254">        this.changedreason++;</span>
+<span class="nc" id="L255">    }</span>
+
+    public int getReduceddb() {
+<span class="nc" id="L258">        return reduceddb;</span>
+    }
+
+    public void incReduceddb() {
+<span class="nc" id="L262">        this.reduceddb++;</span>
+<span class="nc" id="L263">    }</span>
+
+    public int getShortcuts() {
+<span class="nc" id="L266">        return shortcuts;</span>
+    }
+
+    public void incShortcuts() {
+<span class="nc" id="L270">        this.shortcuts++;</span>
+<span class="nc" id="L271">    }</span>
+
+    public long getUpdateLBD() {
+<span class="nc" id="L274">        return updateLBD;</span>
+    }
+
+    public void incUpdateLBD() {
+<span class="fc" id="L278">        this.updateLBD++;</span>
+<span class="fc" id="L279">    }</span>
+
+    public int getImportedUnits() {
+<span class="nc" id="L282">        return importedUnits;</span>
+    }
+
+    public void incImportedUnits(int increment) {
+<span class="fc" id="L286">        this.importedUnits += increment;</span>
+<span class="fc" id="L287">    }</span>
+
+    public boolean hasNoDecisionAfterFirstConflict() {
+<span class="nc" id="L290">        return noDecisionAfterFirstConflict;</span>
+    }
+
+    public void setNoDecisionAfterFirstConflict(
+            boolean noDecisionAfterFirstConflict) {
+<span class="fc" id="L295">        this.noDecisionAfterFirstConflict = noDecisionAfterFirstConflict;</span>
+<span class="fc" id="L296">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

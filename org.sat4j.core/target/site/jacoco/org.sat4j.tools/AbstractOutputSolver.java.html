@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractOutputSolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">AbstractOutputSolver.java</span></div><h1>AbstractOutputSolver.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.Map;
+
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.SearchListener;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.specs.UnitClauseProvider;
+
+<span class="nc" id="L47">public abstract class AbstractOutputSolver implements ISolver {</span>
+
+    private static final String THERE_IS_NO_REAL_SOLVER_BEHIND = &quot;There is no real solver behind!&quot;;
+
+    protected int nbvars;
+
+    protected int nbclauses;
+
+<span class="nc" id="L55">    protected boolean fixedNbClauses = false;</span>
+
+<span class="nc" id="L57">    protected boolean firstConstr = true;</span>
+
+    private boolean verbose;
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    public boolean removeConstr(IConstr c) {
+<span class="nc" id="L67">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
+            throws ContradictionException {
+<span class="nc" id="L72">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void setTimeout(int t) {
+
+<span class="nc" id="L77">    }</span>
+
+    public void setTimeoutMs(long t) {
+<span class="nc" id="L80">    }</span>
+
+    public int getTimeout() {
+<span class="nc" id="L83">        return 0;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public long getTimeoutMs() {
+<span class="nc" id="L90">        return 0L;</span>
+    }
+
+    public void expireTimeout() {
+
+<span class="nc" id="L95">    }</span>
+
+    public boolean isSatisfiable(IVecInt assumps, boolean global)
+            throws TimeoutException {
+<span class="nc" id="L99">        throw new TimeoutException(THERE_IS_NO_REAL_SOLVER_BEHIND);</span>
+    }
+
+    public boolean isSatisfiable(boolean global) throws TimeoutException {
+<span class="nc" id="L103">        throw new TimeoutException(THERE_IS_NO_REAL_SOLVER_BEHIND);</span>
+    }
+
+    public void printInfos(PrintWriter output, String prefix) {
+<span class="nc" id="L107">    }</span>
+
+    public void setTimeoutOnConflicts(int count) {
+
+<span class="nc" id="L111">    }</span>
+
+    public boolean isDBSimplificationAllowed() {
+<span class="nc" id="L114">        return false;</span>
+    }
+
+    public void setDBSimplificationAllowed(boolean status) {
+
+<span class="nc" id="L119">    }</span>
+
+    public void printStat(PrintStream output, String prefix) {
+<span class="nc" id="L122">    }</span>
+
+    public void printStat(PrintWriter output, String prefix) {
+
+<span class="nc" id="L126">    }</span>
+
+    public Map&lt;String, Number&gt; getStat() {
+<span class="nc" id="L129">        return null;</span>
+    }
+
+    public void clearLearntClauses() {
+
+<span class="nc" id="L134">    }</span>
+
+    public int[] model() {
+<span class="nc" id="L137">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean model(int variable) {
+<span class="nc" id="L141">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean isSatisfiable() throws TimeoutException {
+<span class="nc" id="L145">        throw new TimeoutException(THERE_IS_NO_REAL_SOLVER_BEHIND);</span>
+    }
+
+    public boolean isSatisfiable(IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L149">        throw new TimeoutException(THERE_IS_NO_REAL_SOLVER_BEHIND);</span>
+    }
+
+    public int[] findModel() throws TimeoutException {
+<span class="nc" id="L153">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int[] findModel(IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L157">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public boolean removeSubsumedConstr(IConstr c) {
+<span class="nc" id="L164">        return false;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public IConstr addBlockingClause(IVecInt literals)
+            throws ContradictionException {
+<span class="nc" id="L172">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IConstr discardCurrentModel() throws ContradictionException {
+<span class="nc" id="L176">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IVecInt createBlockingClauseForCurrentModel() {
+<span class="nc" id="L180">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public &lt;S extends ISolverService&gt; SearchListener&lt;S&gt; getSearchListener() {
+<span class="nc" id="L187">        return null;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public &lt;S extends ISolverService&gt; void setSearchListener(
+            SearchListener&lt;S&gt; sl) {
+<span class="nc" id="L195">    }</span>
+
+    /**
+     * @since 2.2
+     */
+    public boolean isVerbose() {
+<span class="nc" id="L201">        return this.verbose;</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public void setVerbose(boolean value) {
+<span class="nc" id="L208">        this.verbose = value;</span>
+<span class="nc" id="L209">    }</span>
+
+    /**
+     * @since 2.2
+     */
+    public void setLogPrefix(String prefix) {
+        // do nothing
+
+<span class="nc" id="L217">    }</span>
+
+    /**
+     * @since 2.2
+     */
+    public String getLogPrefix() {
+<span class="nc" id="L223">        return &quot;&quot;;</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public IVecInt unsatExplanation() {
+<span class="nc" id="L230">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int[] primeImplicant() {
+<span class="nc" id="L234">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int nConstraints() {
+<span class="nc" id="L238">        return 0;</span>
+    }
+
+    public int newVar(int howmany) {
+<span class="nc" id="L242">        return 0;</span>
+    }
+
+    public int nVars() {
+<span class="nc" id="L246">        return 0;</span>
+    }
+
+    public boolean isSolverKeptHot() {
+<span class="nc" id="L250">        return false;</span>
+    }
+
+    public void setKeepSolverHot(boolean value) {
+<span class="nc" id="L254">    }</span>
+
+    public ISolver getSolvingEngine() {
+<span class="nc" id="L257">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void setUnitClauseProvider(UnitClauseProvider upl) {
+<span class="nc" id="L261">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IConstr addConstr(Constr constr) {
+<span class="nc" id="L265">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public void preprocessing() {
+<span class="nc" id="L270">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

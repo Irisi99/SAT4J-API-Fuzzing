@@ -9,18 +9,18 @@ import java.util.List;
 public class Trace {
 
     private String ID;
-    private final List<String> traceCalls;
+    private List<String> traceCalls;
 
     public Trace() {
         this("0");
     }
 
-    public Trace(final String Id) {
+    public Trace(String Id) {
         ID = Id;
         traceCalls = new ArrayList<String>();
     }
 
-    public void setId(final String Id) {
+    public void setId(String Id) {
         ID = Id;
     }
 
@@ -28,25 +28,25 @@ public class Trace {
         return ID;
     }
 
-    public void addToTrace(final String call) {
+    public void addToTrace(String call) {
         traceCalls.add(call);
     }
 
-    public void removeFromTrace(final String call) {
+    public void removeFromTrace(String call) {
         traceCalls.remove(call);
     }
 
     public void toFile() {
-        final String path = "./traces/" + ID + ".txt";
+        String path = "./traces/" + ID + ".txt";
 
-        final File traceFile = new File(path);
+        File traceFile = new File(path);
         try {
             traceFile.createNewFile();
-            final FileWriter myWriter = new FileWriter(path);
+            FileWriter myWriter = new FileWriter(path);
             for (int i = 0; i < traceCalls.size(); i++)
                 myWriter.write(traceCalls.get(i) + "\n");
             myWriter.close();
-        } catch (final IOException e) {
+        } catch (IOException e) {
             e.printStackTrace(System.out);
         }
 

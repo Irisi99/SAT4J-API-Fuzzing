@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SolutionCounter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">SolutionCounter.java</span></div><h1>SolutionCounter.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.TimeoutException;
+
+/**
+ * Another solver decorator that counts the number of solutions.
+ * 
+ * Note that this approach is quite naive so do not expect it to work on large
+ * examples. The number of solutions will be wrong if the SAT solver does not
+ * provide a complete assignment.
+ * 
+ * The class is expected to be used that way:
+ * 
+ * &lt;pre&gt;
+ * SolutionCounter counter = new SolverCounter(SolverFactory.newDefault());
+ * try {
+ *     int nbSol = counter.countSolutions();
+ *     // the exact number of solutions is nbSol
+ *     ...
+ *  } catch (TimeoutException te) {
+ *     int lowerBound = counter.lowerBound();
+ *     // the solver found lowerBound solutions so far.
+ *     ...
+ *  }
+ * &lt;/pre&gt;
+ * 
+ * @author leberre
+ * 
+ */
+@Feature(&quot;solver&quot;)
+public class SolutionCounter extends SolverDecorator&lt;ISolver&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private int lowerBound;
+
+    public SolutionCounter(ISolver solver) {
+<span class="nc" id="L75">        super(solver);</span>
+<span class="nc" id="L76">    }</span>
+
+    /**
+     * Get the number of solutions found before the timeout occurs.
+     * 
+     * @return the number of solutions found so far.
+     * @since 2.1
+     */
+    public int lowerBound() {
+<span class="nc" id="L85">        return this.lowerBound;</span>
+    }
+
+    /**
+     * Naive approach to count the solutions available in a boolean formula:
+     * each time a solution is found, a new clause is added to prevent it to be
+     * found again.
+     * 
+     * @return the number of solution found.
+     * @throws TimeoutException
+     *             if the timeout given to the solver is reached.
+     */
+    public long countSolutions() throws TimeoutException {
+<span class="nc" id="L98">        this.lowerBound = 0;</span>
+<span class="nc" id="L99">        var trivialfalsity = false;</span>
+
+<span class="nc bnc" id="L101" title="All 4 branches missed.">        while (!trivialfalsity &amp;&amp; isSatisfiable(true)) {</span>
+<span class="nc" id="L102">            this.lowerBound++;</span>
+<span class="nc" id="L103">            int[] last = model();</span>
+<span class="nc" id="L104">            IVecInt clause = new VecInt(last.length);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            for (int q : last) {</span>
+<span class="nc" id="L106">                clause.push(-q);</span>
+            }
+            try {
+<span class="nc" id="L109">                addClause(clause);</span>
+<span class="nc" id="L110">            } catch (ContradictionException e) {</span>
+<span class="nc" id="L111">                trivialfalsity = true;</span>
+<span class="nc" id="L112">            }</span>
+<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">        return this.lowerBound;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

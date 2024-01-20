@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnitClause.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.cnf</a> &gt; <span class="el_source">UnitClause.java</span></div><h1>UnitClause.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.cnf;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.MandatoryLiteralListener;
+import org.sat4j.specs.UnitPropagationListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * 
+ * @author daniel
+ * @since 2.1
+ */
+@Feature(&quot;constraint&quot;)
+public class UnitClause implements Constr {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    protected final int literal;
+    protected double activity;
+
+    private boolean learnt;
+
+    public UnitClause(int value) {
+<span class="fc" id="L61">        this(value, false);</span>
+<span class="fc" id="L62">    }</span>
+
+<span class="fc" id="L64">    public UnitClause(int value, boolean learnt) {</span>
+<span class="fc" id="L65">        this.literal = value;</span>
+<span class="fc" id="L66">        this.learnt = learnt;</span>
+<span class="fc" id="L67">    }</span>
+
+    public void assertConstraint(UnitPropagationListener s) {
+<span class="fc" id="L70">        s.enqueue(this.literal, this);</span>
+<span class="fc" id="L71">    }</span>
+
+    public void assertConstraintIfNeeded(UnitPropagationListener s) {
+<span class="nc" id="L74">        assertConstraint(s);</span>
+<span class="nc" id="L75">    }</span>
+
+    public void calcReason(int p, IVecInt outReason) {
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (p == ILits.UNDEFINED) {</span>
+<span class="nc" id="L79">            outReason.push(LiteralsUtils.neg(this.literal));</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    @Override
+    public double getActivity() {
+<span class="fc" id="L85">        return activity;</span>
+    }
+
+    @Override
+    public void incActivity(double claInc) {
+        // silent to prevent problems with xplain trick.
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public void setActivity(double claInc) {
+<span class="fc" id="L95">        activity = claInc;</span>
+<span class="fc" id="L96">    }</span>
+
+    public boolean locked() {
+<span class="nc" id="L99">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public void register() {
+<span class="nc" id="L104">    }</span>
+
+    public void remove(UnitPropagationListener upl) {
+<span class="nc" id="L107">        int oldLevel = upl.getPropagationLevel();</span>
+<span class="nc" id="L108">        upl.unset(this.literal);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (upl.getPropagationLevel() &lt; oldLevel - 1) {</span>
+<span class="nc" id="L110">            throw new IllegalStateException(</span>
+                    &quot;removed unit clause which caused propagations&quot;);
+        }
+<span class="nc" id="L113">    }</span>
+
+    public void rescaleBy(double d) {
+<span class="nc" id="L116">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void setLearnt() {
+<span class="nc" id="L120">        learnt = true;</span>
+<span class="nc" id="L121">    }</span>
+
+    public boolean simplify() {
+<span class="fc" id="L124">        return false;</span>
+    }
+
+    public boolean propagate(UnitPropagationListener s, int p) {
+<span class="nc" id="L128">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int get(int i) {
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">        if (i &gt; 0) {</span>
+<span class="nc" id="L133">            throw new IllegalArgumentException();</span>
+        }
+<span class="fc" id="L135">        return this.literal;</span>
+    }
+
+    public boolean learnt() {
+<span class="fc" id="L139">        return learnt;</span>
+    }
+
+    public int size() {
+<span class="fc" id="L143">        return 1;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L148">        return Lits.toString(this.literal);</span>
+    }
+
+    public boolean canBePropagatedMultipleTimes() {
+<span class="fc" id="L152">        return false;</span>
+    }
+
+    public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
+<span class="nc" id="L156">        calcReason(p, outReason);</span>
+<span class="nc" id="L157">    }</span>
+
+    public void propagatePi(MandatoryLiteralListener m) {
+<span class="nc" id="L160">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+
+    }
+
+    public boolean canBeSatisfiedByCountingLiterals() {
+<span class="nc" id="L165">        return true;</span>
+    }
+
+    public int requiredNumberOfSatisfiedLiterals() {
+<span class="nc" id="L169">        return 1;</span>
+    }
+
+    public boolean isSatisfied() {
+<span class="nc" id="L173">        return true;</span>
+    }
+
+    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+<span class="nc" id="L177">        return 0;</span>
+    }
+
+    public String toString(VarMapper mapper) {
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (mapper == null) {</span>
+<span class="nc" id="L182">            return toString();</span>
+        }
+<span class="nc" id="L184">        return mapper.map(LiteralsUtils.toDimacs(this.literal));</span>
+    }
+
+    @Override
+    public String dump() {
+<span class="nc" id="L189">        var stb = new StringBuilder();</span>
+<span class="nc" id="L190">        stb.append(literal);</span>
+<span class="nc" id="L191">        stb.append(&quot; 0&quot;);</span>
+<span class="nc" id="L192">        return stb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TabuListDecorator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.orders</a> &gt; <span class="el_source">TabuListDecorator.java</span></div><h1>TabuListDecorator.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.orders;
+
+import java.io.PrintWriter;
+import java.util.LinkedList;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.core.IPhaseSelectionStrategy;
+
+/**
+ * Uses a tabu list to prevent the solver to
+ * 
+ * @since 2.3.2
+ */
+@Feature(value = &quot;varheuristics&quot;, parent = &quot;expert&quot;)
+public class TabuListDecorator implements IOrder {
+
+    private final VarOrderHeap decorated;
+
+    private final int tabuSize;
+
+    private ILits voc;
+<span class="nc" id="L53">    private int lastVar = -1;</span>
+
+<span class="nc" id="L55">    private final LinkedList&lt;Integer&gt; tabuList = new LinkedList&lt;&gt;();</span>
+
+    public TabuListDecorator(VarOrderHeap order) {
+<span class="nc" id="L58">        this(order, 10);</span>
+<span class="nc" id="L59">    }</span>
+
+<span class="nc" id="L61">    public TabuListDecorator(VarOrderHeap order, int tabuSize) {</span>
+<span class="nc" id="L62">        this.decorated = order;</span>
+<span class="nc" id="L63">        this.tabuSize = tabuSize;</span>
+<span class="nc" id="L64">    }</span>
+
+    public void assignLiteral(int q) {
+<span class="nc" id="L67">        this.decorated.assignLiteral(q);</span>
+<span class="nc" id="L68">    }</span>
+
+    public IPhaseSelectionStrategy getPhaseSelectionStrategy() {
+<span class="nc" id="L71">        return this.decorated.getPhaseSelectionStrategy();</span>
+    }
+
+    public void init() {
+<span class="nc" id="L75">        this.decorated.init();</span>
+<span class="nc" id="L76">        this.lastVar = -1;</span>
+<span class="nc" id="L77">    }</span>
+
+    public void printStat(PrintWriter out, String prefix) {
+<span class="nc" id="L80">        out.println(prefix + &quot;tabu list size\t: &quot; + this.tabuSize);</span>
+<span class="nc" id="L81">        this.decorated.printStat(out, prefix);</span>
+<span class="nc" id="L82">    }</span>
+
+    public int select() {
+<span class="nc" id="L85">        int lit = this.decorated.select();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (lit == ILits.UNDEFINED) {</span>
+            int variable;
+            do {
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                if (this.tabuList.isEmpty()) {</span>
+<span class="nc" id="L90">                    return ILits.UNDEFINED;</span>
+                }
+<span class="nc" id="L92">                variable = this.tabuList.removeFirst();</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            } while (!this.voc.isUnassigned(variable &lt;&lt; 1));</span>
+<span class="nc" id="L94">            return getPhaseSelectionStrategy().select(variable);</span>
+        }
+<span class="nc" id="L96">        this.lastVar = lit &gt;&gt; 1;</span>
+<span class="nc" id="L97">        return lit;</span>
+    }
+
+    public void setLits(ILits lits) {
+<span class="nc" id="L101">        this.decorated.setLits(lits);</span>
+<span class="nc" id="L102">        this.voc = lits;</span>
+<span class="nc" id="L103">    }</span>
+
+    public void setPhaseSelectionStrategy(IPhaseSelectionStrategy strategy) {
+<span class="nc" id="L106">        this.decorated.setPhaseSelectionStrategy(strategy);</span>
+<span class="nc" id="L107">    }</span>
+
+    public void setVarDecay(double d) {
+<span class="nc" id="L110">        this.decorated.setVarDecay(d);</span>
+<span class="nc" id="L111">    }</span>
+
+    public void undo(int x) {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (this.tabuList.size() == this.tabuSize) {</span>
+<span class="nc" id="L115">            int variable = this.tabuList.removeFirst();</span>
+<span class="nc" id="L116">            this.decorated.undo(variable);</span>
+        }
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (x == this.lastVar) {</span>
+<span class="nc" id="L119">            this.tabuList.add(x);</span>
+<span class="nc" id="L120">            this.lastVar = -1;</span>
+        } else {
+<span class="nc" id="L122">            this.decorated.undo(x);</span>
+        }
+<span class="nc" id="L124">    }</span>
+
+    public void updateVar(int q) {
+<span class="nc" id="L127">        this.decorated.updateVar(q);</span>
+<span class="nc" id="L128">    }</span>
+
+    @Override
+    public void updateVar(int p, double value) {
+<span class="nc" id="L132">        updateVar(p);</span>
+<span class="nc" id="L133">    }</span>
+
+    public double varActivity(int q) {
+<span class="nc" id="L136">        return this.decorated.varActivity(q);</span>
+    }
+
+    public void varDecayActivity() {
+<span class="nc" id="L140">        this.decorated.varDecayActivity();</span>
+<span class="nc" id="L141">    }</span>
+
+    public void updateVarAtDecisionLevel(int q) {
+<span class="nc" id="L144">        this.decorated.updateVarAtDecisionLevel(q);</span>
+<span class="nc" id="L145">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L149">        return this.decorated.toString() + &quot; with tabu list of size &quot;</span>
+                + this.tabuSize;
+    }
+
+    public double[] getVariableHeuristics() {
+<span class="nc" id="L154">        return this.decorated.getVariableHeuristics();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

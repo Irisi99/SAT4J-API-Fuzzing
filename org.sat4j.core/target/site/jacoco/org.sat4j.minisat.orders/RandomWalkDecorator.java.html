@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomWalkDecorator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.orders</a> &gt; <span class="el_source">RandomWalkDecorator.java</span></div><h1>RandomWalkDecorator.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.orders;
+
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.util.Random;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.core.IPhaseSelectionStrategy;
+
+/**
+ * @since 2.2
+ */
+@Feature(value = &quot;varheuristics&quot;, parent = &quot;expert&quot;)
+public class RandomWalkDecorator implements IOrder, Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final VarOrderHeap decorated;
+
+    private double p;
+
+<span class="nc" id="L56">    private static final Random RAND = System</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            .getProperty(&quot;NONDETERMINISTIC&quot;) == null ? new Random(123456789)</span>
+<span class="nc" id="L58">                    : new Random();</span>
+    private ILits voc;
+    private int nbRandomWalks;
+
+    public RandomWalkDecorator(VarOrderHeap order) {
+<span class="nc" id="L63">        this(order, 0.01);</span>
+<span class="nc" id="L64">    }</span>
+
+<span class="nc" id="L66">    public RandomWalkDecorator(VarOrderHeap order, double p) {</span>
+<span class="nc" id="L67">        this.decorated = order;</span>
+<span class="nc" id="L68">        this.p = p;</span>
+<span class="nc" id="L69">    }</span>
+
+    public void assignLiteral(int q) {
+<span class="nc" id="L72">        this.decorated.assignLiteral(q);</span>
+<span class="nc" id="L73">    }</span>
+
+    public IPhaseSelectionStrategy getPhaseSelectionStrategy() {
+<span class="nc" id="L76">        return this.decorated.getPhaseSelectionStrategy();</span>
+    }
+
+    public double getProbability() {
+<span class="nc" id="L80">        return this.p;</span>
+    }
+
+    public void setProbability(double p) {
+<span class="nc" id="L84">        this.p = p;</span>
+<span class="nc" id="L85">    }</span>
+
+    public void init() {
+<span class="nc" id="L88">        this.decorated.init();</span>
+<span class="nc" id="L89">    }</span>
+
+    public void printStat(PrintWriter out, String prefix) {
+<span class="nc" id="L92">        out.println(prefix + &quot;random walks\t: &quot; + this.nbRandomWalks);</span>
+<span class="nc" id="L93">        this.decorated.printStat(out, prefix);</span>
+<span class="nc" id="L94">    }</span>
+
+    public int select() {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (RAND.nextDouble() &lt; this.p) {</span>
+            int variable, lit, max;
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            while (!this.decorated.heap.empty()) {</span>
+<span class="nc" id="L101">                max = this.decorated.heap.size();</span>
+<span class="nc" id="L102">                variable = this.decorated.heap.get(RAND.nextInt(max) + 1);</span>
+<span class="nc" id="L103">                lit = getPhaseSelectionStrategy().select(variable);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                if (this.voc.isUnassigned(lit)) {</span>
+<span class="nc" id="L105">                    this.nbRandomWalks++;</span>
+<span class="nc" id="L106">                    return lit;</span>
+                }
+            }
+        }
+<span class="nc" id="L110">        return this.decorated.select();</span>
+    }
+
+    public void setLits(ILits lits) {
+<span class="nc" id="L114">        this.decorated.setLits(lits);</span>
+<span class="nc" id="L115">        this.voc = lits;</span>
+<span class="nc" id="L116">        this.nbRandomWalks = 0;</span>
+<span class="nc" id="L117">    }</span>
+
+    public void setPhaseSelectionStrategy(IPhaseSelectionStrategy strategy) {
+<span class="nc" id="L120">        this.decorated.setPhaseSelectionStrategy(strategy);</span>
+<span class="nc" id="L121">    }</span>
+
+    public void setVarDecay(double d) {
+<span class="nc" id="L124">        this.decorated.setVarDecay(d);</span>
+<span class="nc" id="L125">    }</span>
+
+    public void undo(int x) {
+<span class="nc" id="L128">        this.decorated.undo(x);</span>
+<span class="nc" id="L129">    }</span>
+
+    public void updateVar(int q) {
+<span class="nc" id="L132">        this.decorated.updateVar(q);</span>
+<span class="nc" id="L133">    }</span>
+
+    @Override
+    public void updateVar(int p, double value) {
+<span class="nc" id="L137">        updateVar(p);</span>
+<span class="nc" id="L138">    }</span>
+
+    public double varActivity(int q) {
+<span class="nc" id="L141">        return this.decorated.varActivity(q);</span>
+    }
+
+    public void varDecayActivity() {
+<span class="nc" id="L145">        this.decorated.varDecayActivity();</span>
+<span class="nc" id="L146">    }</span>
+
+    public void updateVarAtDecisionLevel(int q) {
+<span class="nc" id="L149">        this.decorated.updateVarAtDecisionLevel(q);</span>
+<span class="nc" id="L150">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L154">        return this.decorated.toString() + &quot; with random walks &quot; + this.p;</span>
+    }
+
+    public double[] getVariableHeuristics() {
+<span class="nc" id="L158">        return this.decorated.getVariableHeuristics();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

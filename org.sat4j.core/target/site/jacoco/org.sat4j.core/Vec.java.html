@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Vec.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.core</a> &gt; <span class="el_source">Vec.java</span></div><h1>Vec.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.core;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import org.sat4j.specs.IVec;
+
+/**
+ * Simple but efficient vector implementation, based on the vector
+ * implementation available in MiniSAT. Note that the elements are compared
+ * using their references, not using the equals method.
+ * 
+ * @author leberre
+ */
+public final class Vec&lt;T&gt; implements IVec&lt;T&gt; {
+    // MiniSat -- Copyright (c) 2003-2005, Niklas Een, Niklas Sorensson
+    //
+    // Permission is hereby granted, free of charge, to any person obtaining a
+    // copy of this software and associated documentation files (the
+    // &quot;Software&quot;), to deal in the Software without restriction, including
+    // without limitation the rights to use, copy, modify, merge, publish,
+    // distribute, sublicense, and/or sell copies of the Software, and to
+    // permit persons to whom the Software is furnished to do so, subject to
+    // the following conditions:
+    //
+    // The above copyright notice and this permission notice shall be included
+    // in all copies or substantial portions of the Software.
+    //
+    // THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Create a Vector with an initial capacity of 5 elements.
+     */
+    public Vec() {
+<span class="fc" id="L75">        this(5);</span>
+<span class="fc" id="L76">    }</span>
+
+    /**
+     * Adapter method to translate an array of int into an IVec.
+     * 
+     * The array is used inside the Vec, so the elements may be modified outside
+     * the Vec. But it should not take much memory. The size of the created Vec
+     * is the length of the array.
+     * 
+     * @param elts
+     *            a filled array of T.
+     */
+<span class="nc" id="L88">    public Vec(T[] elts) { // NOPMD</span>
+<span class="nc" id="L89">        this.myarray = elts;</span>
+<span class="nc" id="L90">        this.nbelem = elts.length;</span>
+<span class="nc" id="L91">    }</span>
+
+    /**
+     * Create a Vector with a given capacity.
+     * 
+     * @param size
+     *            the capacity of the vector.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L100">    public Vec(int size) {</span>
+<span class="fc" id="L101">        this.myarray = (T[]) new Object[size];</span>
+<span class="fc" id="L102">    }</span>
+
+    /**
+     * Construit un vecteur contenant de taille size rempli a l'aide de size
+     * pad.
+     * 
+     * @param size
+     *            la taille du vecteur
+     * @param pad
+     *            l'objet servant a remplir le vecteur
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="nc" id="L114">    public Vec(int size, T pad) {</span>
+<span class="nc" id="L115">        this.myarray = (T[]) new Object[size];</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (var i = 0; i &lt; size; i++) {</span>
+<span class="nc" id="L117">            this.myarray[i] = pad;</span>
+        }
+<span class="nc" id="L119">        this.nbelem = size;</span>
+<span class="nc" id="L120">    }</span>
+
+    public int size() {
+<span class="fc" id="L123">        return this.nbelem;</span>
+    }
+
+    /**
+     * Remove nofelems from the Vector. It is assumed that the number of
+     * elements to remove is smaller or equals to the current number of elements
+     * in the vector
+     * 
+     * @param nofelems
+     *            the number of elements to remove.
+     */
+    public void shrink(int nofelems) {
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        while (nofelems-- &gt; 0) {</span>
+<span class="nc" id="L136">            this.myarray[--this.nbelem] = null;</span>
+        }
+<span class="nc" id="L138">    }</span>
+
+    /**
+     * reduce the Vector to exactly newsize elements
+     * 
+     * @param newsize
+     *            the new size of the vector.
+     */
+    public void shrinkTo(final int newsize) {
+<span class="fc bfc" id="L147" title="All 2 branches covered.">        for (int i = this.nbelem; i &gt; newsize; i--) {</span>
+<span class="fc" id="L148">            this.myarray[i - 1] = null;</span>
+        }
+<span class="fc" id="L150">        this.nbelem = newsize;</span>
+<span class="fc" id="L151">    }</span>
+
+    /**
+     * Pop the last element on the stack. It is assumed that the stack is not
+     * empty!
+     */
+    public void pop() {
+<span class="nc" id="L158">        this.myarray[--this.nbelem] = null;</span>
+<span class="nc" id="L159">    }</span>
+
+    public void growTo(final int newsize, final T pad) {
+<span class="nc" id="L162">        ensure(newsize);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        for (int i = this.nbelem; i &lt; newsize; i++) {</span>
+<span class="nc" id="L164">            this.myarray[i] = pad;</span>
+        }
+<span class="nc" id="L166">        this.nbelem = newsize;</span>
+<span class="nc" id="L167">    }</span>
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public void ensure(final int nsize) {
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (nsize &gt;= this.myarray.length) {</span>
+<span class="fc" id="L172">            T[] narray = (T[]) new Object[Math.max(nsize, this.nbelem * 2)];</span>
+<span class="fc" id="L173">            System.arraycopy(this.myarray, 0, narray, 0, this.nbelem);</span>
+<span class="fc" id="L174">            this.myarray = narray;</span>
+        }
+<span class="fc" id="L176">    }</span>
+
+    public IVec&lt;T&gt; push(final T elem) {
+<span class="fc" id="L179">        ensure(this.nbelem + 1);</span>
+<span class="fc" id="L180">        this.myarray[this.nbelem++] = elem;</span>
+<span class="fc" id="L181">        return this;</span>
+    }
+
+    public void unsafePush(final T elem) {
+<span class="nc" id="L185">        this.myarray[this.nbelem++] = elem;</span>
+<span class="nc" id="L186">    }</span>
+
+    /**
+     * Insert an element at the very beginning of the vector. The former first
+     * element is appended to the end of the vector in order to have a constant
+     * time operation.
+     * 
+     * @param elem
+     *            the element to put first in the vector.
+     */
+    public void insertFirst(final T elem) {
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (this.nbelem &gt; 0) {</span>
+<span class="nc" id="L198">            push(this.myarray[0]);</span>
+<span class="nc" id="L199">            this.myarray[0] = elem;</span>
+<span class="nc" id="L200">            return;</span>
+        }
+<span class="nc" id="L202">        push(elem);</span>
+<span class="nc" id="L203">    }</span>
+
+    public void insertFirstWithShifting(final T elem) {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (this.nbelem &gt; 0) {</span>
+<span class="nc" id="L207">            ensure(this.nbelem + 1);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            for (int i = this.nbelem; i &gt; 0; i--) {</span>
+<span class="nc" id="L209">                this.myarray[i] = this.myarray[i - 1];</span>
+            }
+<span class="nc" id="L211">            this.myarray[0] = elem;</span>
+<span class="nc" id="L212">            this.nbelem++;</span>
+<span class="nc" id="L213">            return;</span>
+        }
+<span class="nc" id="L215">        push(elem);</span>
+<span class="nc" id="L216">    }</span>
+
+    public void clear() {
+<span class="fc" id="L219">        Arrays.fill(this.myarray, 0, this.nbelem, null);</span>
+<span class="fc" id="L220">        this.nbelem = 0;</span>
+<span class="fc" id="L221">    }</span>
+
+    /**
+     * return the latest element on the stack. It is assumed that the stack is
+     * not empty!
+     * 
+     * @return the last element on the stack (the one on the top)
+     */
+    public T last() {
+<span class="nc" id="L230">        return this.myarray[this.nbelem - 1];</span>
+    }
+
+    public T get(final int index) {
+<span class="fc" id="L234">        return this.myarray[index];</span>
+    }
+
+    public void set(int index, T elem) {
+<span class="nc" id="L238">        this.myarray[index] = elem;</span>
+<span class="nc" id="L239">    }</span>
+
+    /**
+     * Remove an element that belongs to the Vector.
+     * 
+     * @param elem
+     *            an element from the vector.
+     */
+    public void remove(T elem) {
+<span class="fc" id="L248">        var j = 0;</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">        for (; this.myarray[j] != elem; j++) {</span>
+<span class="pc bpc" id="L250" title="1 of 2 branches missed.">            if (j == size())</span>
+<span class="nc" id="L251">                throw new NoSuchElementException();</span>
+        }
+        // arraycopy is always faster than manual copy
+<span class="fc" id="L254">        System.arraycopy(this.myarray, j + 1, this.myarray, j, size() - j - 1);</span>
+<span class="fc" id="L255">        this.myarray[--this.nbelem] = null;</span>
+<span class="fc" id="L256">    }</span>
+
+    /**
+     * Remove an element that belongs to the Vector. The method will break if
+     * the element does not belong to the vector. While {@link #remove(T)} look
+     * from the beginning of the vector, this method starts from the end of the
+     * vector.
+     * 
+     * @param elem
+     *            an element from the vector.
+     */
+    public void removeFromLast(T elem) {
+<span class="nc" id="L268">        int j = this.nbelem - 1;</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        for (; this.myarray[j] != elem; j--) {</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">            if (j == -1)</span>
+<span class="nc" id="L271">                throw new NoSuchElementException();</span>
+        }
+        // arraycopy is always faster than manual copy
+<span class="nc" id="L274">        System.arraycopy(this.myarray, j + 1, this.myarray, j, size() - j - 1);</span>
+<span class="nc" id="L275">        this.myarray[--this.nbelem] = null;</span>
+<span class="nc" id="L276">    }</span>
+
+    /**
+     * Delete the ith element of the vector. The latest element of the vector
+     * replaces the removed element at the ith indexer.
+     * 
+     * @param index
+     *            the indexer of the element in the vector
+     * @return the former ith element of the vector that is now removed from the
+     *         vector
+     */
+    public T delete(int index) {
+<span class="nc" id="L288">        var ith = this.myarray[index];</span>
+<span class="nc" id="L289">        this.myarray[index] = this.myarray[--this.nbelem];</span>
+<span class="nc" id="L290">        this.myarray[this.nbelem] = null;</span>
+<span class="nc" id="L291">        return ith;</span>
+    }
+
+    /**
+     * Copy the content of the vector to another vector.
+     * 
+     * THIS METHOD IS NOT SPECIALLY EFFICIENT. USE WITH CAUTION.
+     * 
+     * @param copy
+     *            a non null vector
+     */
+    public void copyTo(IVec&lt;T&gt; copy) {
+<span class="fc" id="L303">        final Vec&lt;T&gt; ncopy = (Vec&lt;T&gt;) copy;</span>
+<span class="fc" id="L304">        final int nsize = this.nbelem + ncopy.nbelem;</span>
+<span class="fc" id="L305">        copy.ensure(nsize);</span>
+<span class="fc" id="L306">        System.arraycopy(this.myarray, 0, ncopy.myarray, ncopy.nbelem,</span>
+                this.nbelem);
+<span class="fc" id="L308">        ncopy.nbelem = nsize;</span>
+<span class="fc" id="L309">    }</span>
+
+    /**
+     * Copy the content of the vector to an array.
+     * 
+     * THIS METHOD IS NOT SPECIALLY EFFICIENT. USE WITH CAUTION.
+     * 
+     * @param dest
+     *            a non null array, containing sufficient space to copy the
+     *            content of the current vector, i.e.
+     *            &lt;code&gt;dest.length &amp;gt;= this.size()&lt;/code&gt;.
+     */
+    public &lt;E&gt; void copyTo(E[] dest) {
+<span class="nc" id="L322">        System.arraycopy(this.myarray, 0, dest, 0, this.nbelem);</span>
+<span class="nc" id="L323">    }</span>
+
+    /*
+     * Copy one vector to another (cleaning the first), in constant time.
+     */
+    public void moveTo(IVec&lt;T&gt; dest) {
+<span class="fc" id="L329">        copyTo(dest);</span>
+<span class="fc" id="L330">        clear();</span>
+<span class="fc" id="L331">    }</span>
+
+    public void moveTo(int dest, int source) {
+<span class="fc bfc" id="L334" title="All 2 branches covered.">        if (dest != source) {</span>
+<span class="fc" id="L335">            this.myarray[dest] = this.myarray[source];</span>
+<span class="fc" id="L336">            this.myarray[source] = null;</span>
+        }
+<span class="fc" id="L338">    }</span>
+
+    public T[] toArray() {
+        // DLB findbugs ok
+<span class="nc" id="L342">        return this.myarray;</span>
+    }
+
+    private int nbelem;
+
+    private T[] myarray;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L356">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        for (var i = 0; i &lt; this.nbelem - 1; i++) {</span>
+<span class="nc" id="L358">            stb.append(this.myarray[i]);</span>
+<span class="nc" id="L359">            stb.append(&quot;,&quot;); //$NON-NLS-1$</span>
+        }
+<span class="nc bnc" id="L361" title="All 2 branches missed.">        if (this.nbelem &gt; 0) {</span>
+<span class="nc" id="L362">            stb.append(this.myarray[this.nbelem - 1]);</span>
+        }
+<span class="nc" id="L364">        return stb.toString();</span>
+    }
+
+    void selectionSort(int from, int to, Comparator&lt;T&gt; cmp) {
+        int i, j, besti;
+        T tmp;
+
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        for (i = from; i &lt; to - 1; i++) {</span>
+<span class="nc" id="L372">            besti = i;</span>
+<span class="nc bnc" id="L373" title="All 2 branches missed.">            for (j = i + 1; j &lt; to; j++) {</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">                if (cmp.compare(this.myarray[j], this.myarray[besti]) &lt; 0) {</span>
+<span class="nc" id="L375">                    besti = j;</span>
+                }
+            }
+<span class="nc" id="L378">            tmp = this.myarray[i];</span>
+<span class="nc" id="L379">            this.myarray[i] = this.myarray[besti];</span>
+<span class="nc" id="L380">            this.myarray[besti] = tmp;</span>
+        }
+<span class="nc" id="L382">    }</span>
+
+    void sort(int from, int to, Comparator&lt;T&gt; cmp) {
+<span class="nc" id="L385">        int width = to - from;</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        if (width &lt;= 15) {</span>
+<span class="nc" id="L387">            selectionSort(from, to, cmp);</span>
+        } else {
+<span class="nc" id="L389">            var pivot = this.myarray[width / 2 + from];</span>
+            T tmp;
+<span class="nc" id="L391">            int i = from - 1;</span>
+<span class="nc" id="L392">            int j = to;</span>
+
+            for (;;) {
+                do {
+<span class="nc" id="L396">                    i++;</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">                } while (cmp.compare(this.myarray[i], pivot) &lt; 0);</span>
+                do {
+<span class="nc" id="L399">                    j--;</span>
+<span class="nc bnc" id="L400" title="All 2 branches missed.">                } while (cmp.compare(pivot, this.myarray[j]) &lt; 0);</span>
+
+<span class="nc bnc" id="L402" title="All 2 branches missed.">                if (i &gt;= j) {</span>
+<span class="nc" id="L403">                    break;</span>
+                }
+
+<span class="nc" id="L406">                tmp = this.myarray[i];</span>
+<span class="nc" id="L407">                this.myarray[i] = this.myarray[j];</span>
+<span class="nc" id="L408">                this.myarray[j] = tmp;</span>
+            }
+
+<span class="nc" id="L411">            sort(from, i, cmp);</span>
+<span class="nc" id="L412">            sort(i, to, cmp);</span>
+        }
+<span class="nc" id="L414">    }</span>
+
+    /**
+     * Sort the vector according to a given order on the elements.
+     * 
+     * @param comparator
+     *            a way to order the elements of the vector
+     */
+    public void sort(Comparator&lt;T&gt; comparator) {
+<span class="nc" id="L423">        sort(0, this.nbelem, comparator);</span>
+<span class="nc" id="L424">    }</span>
+
+    public void sortUnique(Comparator&lt;T&gt; cmp) {
+        int i, j;
+        T last;
+
+<span class="nc bnc" id="L430" title="All 2 branches missed.">        if (this.nbelem == 0) {</span>
+<span class="nc" id="L431">            return;</span>
+        }
+
+<span class="nc" id="L434">        sort(0, this.nbelem, cmp);</span>
+
+<span class="nc" id="L436">        i = 1;</span>
+<span class="nc" id="L437">        last = this.myarray[0];</span>
+<span class="nc bnc" id="L438" title="All 2 branches missed.">        for (j = 1; j &lt; this.nbelem; j++) {</span>
+<span class="nc bnc" id="L439" title="All 2 branches missed.">            if (cmp.compare(last, this.myarray[j]) &lt; 0) {</span>
+<span class="nc" id="L440">                last = this.myarray[i] = this.myarray[j];</span>
+<span class="nc" id="L441">                i++;</span>
+            }
+        }
+
+<span class="nc" id="L445">        this.nbelem = i;</span>
+<span class="nc" id="L446">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L455" title="All 2 branches missed.">        if (obj instanceof IVec&lt;?&gt;) {</span>
+<span class="nc" id="L456">            IVec&lt;?&gt; v = (IVec&lt;?&gt;) obj;</span>
+<span class="nc bnc" id="L457" title="All 2 branches missed.">            if (v.size() != size()) {</span>
+<span class="nc" id="L458">                return false;</span>
+            }
+<span class="nc bnc" id="L460" title="All 2 branches missed.">            for (var i = 0; i &lt; size(); i++) {</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">                if (!v.get(i).equals(get(i))) {</span>
+<span class="nc" id="L462">                    return false;</span>
+                }
+            }
+<span class="nc" id="L465">            return true;</span>
+        }
+<span class="nc" id="L467">        return false;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+<span class="nc" id="L477">        var sum = 0;</span>
+<span class="nc bnc" id="L478" title="All 2 branches missed.">        for (var i = 0; i &lt; this.nbelem; i++) {</span>
+<span class="nc" id="L479">            sum += this.myarray[i].hashCode() / this.nbelem;</span>
+        }
+<span class="nc" id="L481">        return sum;</span>
+    }
+
+    public Iterator&lt;T&gt; iterator() {
+<span class="nc" id="L485">        return new Iterator&lt;T&gt;() {</span>
+<span class="nc" id="L486">            private int i = 0;</span>
+
+            public boolean hasNext() {
+<span class="nc bnc" id="L489" title="All 2 branches missed.">                return this.i &lt; Vec.this.nbelem;</span>
+            }
+
+            public T next() {
+<span class="nc bnc" id="L493" title="All 2 branches missed.">                if (this.i == Vec.this.nbelem) {</span>
+<span class="nc" id="L494">                    throw new NoSuchElementException();</span>
+                }
+<span class="nc" id="L496">                return Vec.this.myarray[this.i++];</span>
+            }
+        };
+    }
+
+    public boolean isEmpty() {
+<span class="nc bnc" id="L502" title="All 2 branches missed.">        return this.nbelem == 0;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public boolean contains(T e) {
+<span class="nc bnc" id="L509" title="All 2 branches missed.">        for (var i = 0; i &lt; this.nbelem; i++) {</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">            if (this.myarray[i].equals(e)) {</span>
+<span class="nc" id="L511">                return true;</span>
+            }
+        }
+<span class="nc" id="L514">        return false;</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public int indexOf(T element) {
+<span class="nc bnc" id="L521" title="All 2 branches missed.">        for (var i = 0; i &lt; this.nbelem; i++) {</span>
+<span class="nc bnc" id="L522" title="All 2 branches missed.">            if (this.myarray[i].equals(element)) {</span>
+<span class="nc" id="L523">                return i;</span>
+            }
+        }
+<span class="nc" id="L526">        return -1;</span>
+    }
+
+    @Override
+    public IVec&lt;T&gt; clone() {
+<span class="nc" id="L531">        IVec&lt;T&gt; cloned = new Vec&lt;&gt;(this.size());</span>
+<span class="nc" id="L532">        this.copyTo(cloned);</span>
+<span class="nc" id="L533">        return cloned;</span>
+    }
+
+    /**
+     * Alternative way to create a vector, the Java 9+ way.
+     * 
+     * @param values
+     *            an arbitrary number of values
+     * @return a new vector with those values
+     * @since 2.3.6
+     */
+    @SafeVarargs
+    public static &lt;U&gt; Vec&lt;U&gt; of(U... values) {
+<span class="nc" id="L546">        return new Vec&lt;&gt;(values);</span>
+    }
+
+    /**
+     * Alternative way to create a vector, the Java 9+ way, from a standard Java
+     * collection.
+     * 
+     * @param values
+     *            a collection with an arbitrary number of values
+     * @return a new vector with those values
+     * @since 2.3.6
+     */
+    public static &lt;U&gt; Vec&lt;U&gt; of(Collection&lt;U&gt; values) {
+<span class="nc" id="L559">        Vec&lt;U&gt; v = new Vec&lt;&gt;(values.size());</span>
+<span class="nc bnc" id="L560" title="All 2 branches missed.">        for (U u : values) {</span>
+<span class="nc" id="L561">            v.push(u);</span>
+<span class="nc" id="L562">        }</span>
+<span class="nc" id="L563">        return v;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -14,10 +14,10 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 
 public class BasicSolutionEnumerator {
-    public static void main(final String[] args) {
-        final ISolver solver = SolverFactory.newDefault();
+    public static void main(String[] args) {
+        ISolver solver = SolverFactory.newDefault();
         solver.setTimeout(3600); // 1 hour timeout
-        final Reader reader = new DimacsReader(solver);
+        Reader reader = new DimacsReader(solver);
         Boolean SAT = false;
         int i = 0;
         try {
@@ -30,7 +30,7 @@ public class BasicSolutionEnumerator {
                     System.out.println("SATISFIABLE!\n");
                 }
                 i++;
-                final int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);
+                int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);
 
                 System.out.println("Solution " + i + " : "
                                 + Arrays.toString(lits).substring(1, Arrays.toString(lits).length() - 1)
@@ -46,15 +46,15 @@ public class BasicSolutionEnumerator {
             if (!SAT) {
                 System.out.println("UNSATISFIABLE!");
             }
-        } catch (final FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
-        } catch (final ParseFormatException e) {
+        } catch (ParseFormatException e) {
             System.out.println(e.getMessage());
-        } catch (final IOException e) {
+        } catch (IOException e) {
             System.out.println(e.getMessage());
-        } catch (final ContradictionException e) {
+        } catch (ContradictionException e) {
             System.out.println("Unsatisfiable (trivial)!");
-        } catch (final TimeoutException e) {
+        } catch (TimeoutException e) {
             System.out.println("Timeout, sorry!");
         }
     }

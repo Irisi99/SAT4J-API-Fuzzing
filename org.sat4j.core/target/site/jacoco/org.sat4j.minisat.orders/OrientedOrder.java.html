@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrientedOrder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.orders</a> &gt; <span class="el_source">OrientedOrder.java</span></div><h1>OrientedOrder.java</h1><pre class="source lang-java linenums">package org.sat4j.minisat.orders;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.util.Scanner;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.core.IPhaseSelectionStrategy;
+import org.sat4j.specs.IVecInt;
+
+/**
+ * Forces the order of the heuristics for some literals. Then hand back to a
+ * dynamic heuristics.
+ * 
+ * @author leberre
+ *
+ */
+@Feature(value = &quot;varheuristics&quot;, parent = &quot;expert&quot;)
+public class OrientedOrder implements IOrder {
+
+<span class="nc" id="L27">    private final IVecInt orderedLits = new VecInt();</span>
+    private boolean[] managed;
+    private ILits voc;
+
+    private final String fileName;
+
+    private final IOrder order;
+
+<span class="nc" id="L35">    public OrientedOrder(String fileName, IOrder order) {</span>
+<span class="nc" id="L36">        this.fileName = fileName;</span>
+<span class="nc" id="L37">        this.order = order;</span>
+<span class="nc" id="L38">    }</span>
+
+    @Override
+    public void setLits(ILits lits) {
+<span class="nc" id="L42">        order.setLits(lits);</span>
+<span class="nc" id="L43">        voc = lits;</span>
+<span class="nc" id="L44">    }</span>
+
+    @Override
+    public int select() {
+        int p;
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        for (var i = 0; i &lt; orderedLits.size(); i++) {</span>
+<span class="nc" id="L50">            p = orderedLits.get(i);</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            if (voc.isUnassigned(p)) {</span>
+<span class="nc" id="L52">                return p;</span>
+            }
+        }
+<span class="nc" id="L55">        return order.select();</span>
+    }
+
+    @Override
+    public void undo(int x) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (!managed[x &gt;&gt; 1]) {</span>
+<span class="nc" id="L61">            order.undo(x);</span>
+        }
+<span class="nc" id="L63">    }</span>
+
+    @Override
+    public void updateVar(int p) {
+<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (!managed[p &gt;&gt; 1]) {</span>
+<span class="nc" id="L68">            order.updateVar(p);</span>
+        }
+<span class="nc" id="L70">    }</span>
+
+    @Override
+    public void updateVar(int p, double value) {
+<span class="nc" id="L74">        updateVar(p);</span>
+<span class="nc" id="L75">    }</span>
+
+    @Override
+    public void init() {
+<span class="nc" id="L79">        order.init();</span>
+<span class="nc" id="L80">        managed = new boolean[voc.nVars() + 1];</span>
+<span class="nc" id="L81">        try (var in = new Scanner(</span>
+                new BufferedReader(new FileReader(fileName)))) {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            while (in.hasNext()) {</span>
+<span class="nc" id="L84">                append(in.nextInt());</span>
+            }
+<span class="nc" id="L86">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L87">            throw new IllegalStateException(e);</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">    }</span>
+
+    private void append(int l) {
+<span class="nc" id="L92">        var p = LiteralsUtils.toInternal(l);</span>
+<span class="nc" id="L93">        orderedLits.push(p);</span>
+<span class="nc" id="L94">        managed[p &gt;&gt; 1] = true;</span>
+<span class="nc" id="L95">    }</span>
+
+    @Override
+    public void printStat(PrintWriter out, String prefix) {
+<span class="nc" id="L99">        order.printStat(out, prefix);</span>
+<span class="nc" id="L100">    }</span>
+
+    @Override
+    public void setVarDecay(double d) {
+<span class="nc" id="L104">        order.setVarDecay(d);</span>
+<span class="nc" id="L105">    }</span>
+
+    @Override
+    public void varDecayActivity() {
+<span class="nc" id="L109">        order.varDecayActivity();</span>
+<span class="nc" id="L110">    }</span>
+
+    @Override
+    public double varActivity(int p) {
+<span class="nc" id="L114">        return order.varActivity(p);</span>
+    }
+
+    @Override
+    public void assignLiteral(int p) {
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (!managed[p &gt;&gt; 1]) {</span>
+<span class="nc" id="L120">            order.assignLiteral(p);</span>
+        }
+<span class="nc" id="L122">    }</span>
+
+    @Override
+    public void setPhaseSelectionStrategy(IPhaseSelectionStrategy strategy) {
+<span class="nc" id="L126">        order.setPhaseSelectionStrategy(strategy);</span>
+<span class="nc" id="L127">    }</span>
+
+    @Override
+    public IPhaseSelectionStrategy getPhaseSelectionStrategy() {
+<span class="nc" id="L131">        return order.getPhaseSelectionStrategy();</span>
+    }
+
+    @Override
+    public void updateVarAtDecisionLevel(int q) {
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (!managed[q &gt;&gt; 1]) {</span>
+<span class="nc" id="L137">            order.updateVarAtDecisionLevel(q);</span>
+        }
+<span class="nc" id="L139">    }</span>
+
+    @Override
+    public double[] getVariableHeuristics() {
+<span class="nc" id="L143">        return order.getVariableHeuristics();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

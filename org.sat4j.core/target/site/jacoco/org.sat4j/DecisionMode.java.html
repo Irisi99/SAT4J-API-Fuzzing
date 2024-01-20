@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DecisionMode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j</a> &gt; <span class="el_source">DecisionMode.java</span></div><h1>DecisionMode.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import java.io.PrintWriter;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.reader.Reader;
+import org.sat4j.specs.AssignmentOrigin;
+import org.sat4j.specs.ILogAble;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.Backbone;
+
+/**
+ * Behavior of the solver when one single solution is needed.
+ * 
+ * @author leberre
+ * 
+ */
+@Feature(&quot;solutionlistener&quot;)
+<span class="nc" id="L53">public final class DecisionMode implements ILauncherMode {</span>
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+<span class="nc" id="L58">    private ExitCode exitCode = ExitCode.UNKNOWN;</span>
+    private int nbSolutionFound;
+    private transient PrintWriter out;
+    private long beginTime;
+    private Reader reader;
+    private ISolver solver;
+
+<span class="nc" id="L65">    private static final DecisionMode instance = new DecisionMode();</span>
+
+    /**
+     * The launcher is in decision mode: the answer is either SAT, UNSAT or
+     * UNKNOWN
+     */
+    public static DecisionMode instance() {
+<span class="nc" id="L72">        return instance;</span>
+    }
+
+    public void displayResult(ISolver solver, IProblem problem, ILogAble logger,
+            PrintWriter out, Reader reader, long beginTime,
+            boolean displaySolutionLine) {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (solver != null) {</span>
+<span class="nc" id="L79">            out.flush();</span>
+<span class="nc" id="L80">            double wallclocktime = (System.currentTimeMillis() - beginTime)</span>
+                    / 1000.0;
+<span class="nc" id="L82">            solver.printStat(out);</span>
+<span class="nc" id="L83">            out.printf(&quot;%s%s%n&quot;, OutputPrefix.ANSWER_PREFIX, exitCode);</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">            if (exitCode != ExitCode.UNKNOWN</span>
+                    &amp;&amp; exitCode != ExitCode.UNSATISFIABLE) {
+<span class="nc" id="L86">                int[] model = problem.model();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (System.getProperty(&quot;prime&quot;) != null) {</span>
+<span class="nc" id="L88">                    int initiallength = model.length;</span>
+<span class="nc" id="L89">                    logger.log(&quot;returning a prime implicant ...&quot;);</span>
+<span class="nc" id="L90">                    long beginpi = System.currentTimeMillis();</span>
+<span class="nc" id="L91">                    model = solver.primeImplicant();</span>
+<span class="nc" id="L92">                    long endpi = System.currentTimeMillis();</span>
+<span class="nc" id="L93">                    logger.log(&quot;removed &quot; + (initiallength - model.length)</span>
+                            + &quot; literals&quot;);
+<span class="nc" id="L95">                    logger.log(&quot;pi computation time: &quot; + (endpi - beginpi)</span>
+                            + &quot; ms&quot;);
+                }
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (System.getProperty(&quot;backbone&quot;) != null) {</span>
+<span class="nc" id="L99">                    logger.log(&quot;computing the backbone of the formula ...&quot;);</span>
+<span class="nc" id="L100">                    long beginpi = System.currentTimeMillis();</span>
+<span class="nc" id="L101">                    model = solver.primeImplicant();</span>
+                    try {
+<span class="nc" id="L103">                        IVecInt backbone = Backbone.instance().compute(solver,</span>
+                                model);
+<span class="nc" id="L105">                        long endpi = System.currentTimeMillis();</span>
+<span class="nc" id="L106">                        out.print(solver.getLogPrefix());</span>
+<span class="nc" id="L107">                        reader.decode(backbone.toArray(), out);</span>
+<span class="nc" id="L108">                        out.println();</span>
+<span class="nc" id="L109">                        logger.log(&quot;backbone computation time: &quot;</span>
+                                + (endpi - beginpi) + &quot; ms&quot;);
+<span class="nc" id="L111">                    } catch (TimeoutException e) {</span>
+<span class="nc" id="L112">                        logger.log(&quot;timeout, cannot compute the backbone.&quot;);</span>
+<span class="nc" id="L113">                    }</span>
+
+                }
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (nbSolutionFound &gt;= 1) {</span>
+<span class="nc" id="L117">                    logger.log(&quot;Found &quot; + nbSolutionFound + &quot; solution(s)&quot;);</span>
+                } else {
+<span class="nc" id="L119">                    printSolution(solver, out, reader, model);</span>
+                }
+            }
+<span class="nc" id="L122">            logger.log(&quot;Total wall clock time (in seconds) : &quot; + wallclocktime); //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L124">    }</span>
+
+    private void printSolution(ISolver solver, PrintWriter out, Reader reader,
+            int[] model) {
+<span class="nc" id="L128">        out.print(OutputPrefix.SOLUTION_PREFIX);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (System.getProperty(&quot;color&quot;) == null) {</span>
+<span class="nc" id="L130">            reader.decode(model, out);</span>
+<span class="nc" id="L131">            out.println();</span>
+        } else {
+<span class="nc" id="L133">            var stats = new int[AssignmentOrigin.values().length];</span>
+            AssignmentOrigin origin;
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            for (int p : model) {</span>
+<span class="nc" id="L136">                origin = solver.getOriginInModel(p);</span>
+<span class="nc" id="L137">                out.print(origin.getColor());</span>
+<span class="nc" id="L138">                out.print(p);</span>
+<span class="nc" id="L139">                out.print(AssignmentOrigin.BLANK);</span>
+<span class="nc" id="L140">                out.print(&quot; &quot;);</span>
+<span class="nc" id="L141">                stats[origin.ordinal()]++;</span>
+            }
+<span class="nc" id="L143">            out.println(&quot;0&quot;);</span>
+<span class="nc" id="L144">            out.print(solver.getLogPrefix());</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            for (AssignmentOrigin ao : AssignmentOrigin.values()) {</span>
+<span class="nc" id="L146">                out.printf(&quot;%s%s%s: %d &quot;, ao.getColor(), ao,</span>
+<span class="nc" id="L147">                        AssignmentOrigin.BLANK, stats[ao.ordinal()]);</span>
+            }
+<span class="nc" id="L149">            out.println();</span>
+        }
+<span class="nc" id="L151">    }</span>
+
+    public void solve(IProblem problem, Reader reader, ILogAble logger,
+            PrintWriter out, long beginTime) {
+<span class="nc" id="L155">        this.exitCode = ExitCode.UNKNOWN;</span>
+<span class="nc" id="L156">        this.out = out;</span>
+<span class="nc" id="L157">        this.nbSolutionFound = 0;</span>
+<span class="nc" id="L158">        this.beginTime = beginTime;</span>
+<span class="nc" id="L159">        this.reader = reader;</span>
+<span class="nc" id="L160">        this.solver = (ISolver) problem;</span>
+
+        try {
+            // that call can change the value of this.exitCode
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (problem.isSatisfiable()) {</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">                if (this.exitCode == ExitCode.UNKNOWN) {</span>
+<span class="nc" id="L166">                    this.exitCode = ExitCode.SATISFIABLE;</span>
+                }
+            } else {
+<span class="nc bnc" id="L169" title="All 2 branches missed.">                if (this.exitCode == ExitCode.UNKNOWN) {</span>
+<span class="nc" id="L170">                    this.exitCode = ExitCode.UNSATISFIABLE;</span>
+                }
+            }
+<span class="nc" id="L173">        } catch (TimeoutException e) {</span>
+<span class="nc" id="L174">            logger.log(&quot;timeout&quot;);</span>
+<span class="nc" id="L175">        }</span>
+
+<span class="nc" id="L177">    }</span>
+
+    public void setIncomplete(boolean isIncomplete) {
+        // Not applicable for decision problems
+<span class="nc" id="L181">    }</span>
+
+    public ExitCode getCurrentExitCode() {
+<span class="nc" id="L184">        return this.exitCode;</span>
+    }
+
+    @Override
+    public void onSolutionFound(int[] solution) {
+<span class="nc" id="L189">        this.nbSolutionFound++;</span>
+<span class="nc" id="L190">        this.exitCode = ExitCode.SATISFIABLE;</span>
+<span class="nc" id="L191">        this.out.printf(&quot;c Found solution #%d  (%.2f)s%n&quot;, nbSolutionFound,</span>
+<span class="nc" id="L192">                (System.currentTimeMillis() - beginTime) / 1000.0);</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (System.getProperty(&quot;printallmodels&quot;) != null) {</span>
+<span class="nc" id="L194">            printSolution(solver, out, reader, solution);</span>
+        }
+<span class="nc" id="L196">    }</span>
+
+    @Override
+    public void onSolutionFound(IVecInt solution) {
+<span class="nc" id="L200">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public void onUnsatTermination() {
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (this.exitCode == ExitCode.SATISFIABLE) {</span>
+<span class="nc" id="L206">            this.exitCode = ExitCode.OPTIMUM_FOUND;</span>
+        }
+<span class="nc" id="L208">    }</span>
+
+    public void setExitCode(ExitCode exitCode) {
+<span class="nc" id="L211">        this.exitCode = exitCode;</span>
+<span class="nc" id="L212">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

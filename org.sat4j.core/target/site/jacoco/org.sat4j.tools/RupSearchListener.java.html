@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RupSearchListener.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">RupSearchListener.java</span></div><h1>RupSearchListener.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.logging.Logger;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.Lbool;
+import org.sat4j.specs.SearchListener;
+
+/**
+ * Output an unsat proof using the reverse unit propagation (RUP) format.
+ * 
+ * @author daniel
+ * 
+ * @param &lt;S&gt;
+ *            a solver service
+ * @since 2.3.4
+ */
+@Feature(&quot;searchlistener&quot;)
+public class RupSearchListener&lt;S extends ISolverService&gt;
+        implements SearchListener&lt;S&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private PrintStream out;
+    private final File file;
+
+<span class="nc" id="L66">    public RupSearchListener(String filename) {</span>
+<span class="nc" id="L67">        file = new File(filename);</span>
+<span class="nc" id="L68">    }</span>
+
+    @Override
+    public void init(S solverService) {
+        try {
+<span class="nc" id="L73">            out = new PrintStream(new FileOutputStream(file));</span>
+<span class="nc" id="L74">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L75">            out = System.out;</span>
+<span class="nc" id="L76">        }</span>
+<span class="nc" id="L77">    }</span>
+
+    @Override
+    public void end(Lbool result) {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (result == Lbool.FALSE) {</span>
+<span class="nc" id="L82">            out.println(&quot;0&quot;);</span>
+<span class="nc" id="L83">            out.close();</span>
+        } else {
+<span class="nc" id="L85">            out.close();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (!file.delete()) {</span>
+<span class="nc" id="L87">                Logger.getLogger(&quot;org.sat4j.core&quot;)</span>
+<span class="nc" id="L88">                        .info(&quot;Cannot delete file &quot; + file.getName());</span>
+            }
+        }
+<span class="nc" id="L91">    }</span>
+
+    @Override
+    public void learn(IConstr c) {
+<span class="nc" id="L95">        printConstr(c);</span>
+<span class="nc" id="L96">    }</span>
+
+    @Override
+    public void delete(IConstr c) {
+<span class="nc" id="L100">        out.print(&quot;d &quot;);</span>
+<span class="nc" id="L101">        printConstr(c);</span>
+<span class="nc" id="L102">    }</span>
+
+    private void printConstr(IConstr c) {
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (var i = 0; i &lt; c.size(); i++) {</span>
+<span class="nc" id="L106">            out.print(LiteralsUtils.toDimacs(c.get(i)));</span>
+<span class="nc" id="L107">            out.print(&quot; &quot;);</span>
+        }
+<span class="nc" id="L109">        out.println(&quot;0&quot;);</span>
+<span class="nc" id="L110">    }</span>
+
+    @Override
+    public void learnUnit(int p) {
+<span class="nc" id="L114">        out.print(p);</span>
+<span class="nc" id="L115">        out.println(&quot; 0&quot;);</span>
+<span class="nc" id="L116">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

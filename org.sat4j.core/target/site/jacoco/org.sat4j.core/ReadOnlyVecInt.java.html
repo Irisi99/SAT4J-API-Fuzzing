@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReadOnlyVecInt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.core</a> &gt; <span class="el_source">ReadOnlyVecInt.java</span></div><h1>ReadOnlyVecInt.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.core;
+
+import java.util.Comparator;
+
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+
+/**
+ * Utility class to allow Read Only access only to an IVecInt.
+ * 
+ * @author daniel
+ * 
+ */
+public final class ReadOnlyVecInt implements IVecInt {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final IVecInt vec;
+
+<span class="nc" id="L52">    public ReadOnlyVecInt(IVecInt vec) {</span>
+<span class="nc" id="L53">        this.vec = vec;</span>
+<span class="nc" id="L54">    }</span>
+
+    public void clear() {
+<span class="nc" id="L57">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean contains(int e) {
+<span class="nc" id="L61">        return this.vec.contains(e);</span>
+    }
+
+    public int containsAt(int e) {
+<span class="nc" id="L65">        return this.vec.containsAt(e);</span>
+    }
+
+    public int containsAt(int e, int from) {
+<span class="nc" id="L69">        return this.vec.containsAt(e, from);</span>
+    }
+
+    public void copyTo(IVecInt copy) {
+<span class="nc" id="L73">        this.vec.copyTo(copy);</span>
+<span class="nc" id="L74">    }</span>
+
+    public void copyTo(int[] is) {
+<span class="nc" id="L77">        this.vec.copyTo(is);</span>
+<span class="nc" id="L78">    }</span>
+
+    public int delete(int i) {
+<span class="nc" id="L81">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void ensure(int nsize) {
+<span class="nc" id="L85">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int get(int i) {
+<span class="nc" id="L89">        return this.vec.get(i);</span>
+    }
+
+    public void growTo(int newsize, int pad) {
+<span class="nc" id="L93">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void insertFirst(int elem) {
+<span class="nc" id="L97">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean isEmpty() {
+<span class="nc" id="L101">        return this.vec.isEmpty();</span>
+    }
+
+    public IteratorInt iterator() {
+<span class="nc" id="L105">        return this.vec.iterator();</span>
+    }
+
+    public int last() {
+<span class="nc" id="L109">        return this.vec.last();</span>
+    }
+
+    public void moveTo(IVecInt dest) {
+<span class="nc" id="L113">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void moveTo(int[] dest) {
+<span class="nc" id="L117">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void moveTo(int dest, int source) {
+<span class="nc" id="L121">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void moveTo2(IVecInt dest) {
+<span class="nc" id="L125">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IVecInt pop() {
+<span class="nc" id="L129">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IVecInt push(int elem) {
+<span class="nc" id="L133">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void remove(int elem) {
+<span class="nc" id="L137">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void set(int i, int o) {
+<span class="nc" id="L141">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void shrink(int nofelems) {
+<span class="nc" id="L145">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void shrinkTo(int newsize) {
+<span class="nc" id="L149">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int size() {
+<span class="nc" id="L153">        return this.vec.size();</span>
+    }
+
+    public void sort() {
+<span class="nc" id="L157">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void sortUnique() {
+<span class="nc" id="L161">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int unsafeGet(int eleem) {
+<span class="nc" id="L165">        return this.vec.unsafeGet(eleem);</span>
+    }
+
+    public void unsafePush(int elem) {
+<span class="nc" id="L169">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public int[] toArray() {
+<span class="nc" id="L176">        var copy = new int[this.vec.size()];</span>
+<span class="nc" id="L177">        this.vec.copyTo(copy);</span>
+<span class="nc" id="L178">        return copy;</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public int indexOf(int e) {
+<span class="nc" id="L185">        return this.vec.indexOf(e);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L190">        return this.vec.toString();</span>
+    }
+
+    public void moveTo(int sourceStartingIndex, int[] dest) {
+<span class="nc" id="L194">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * 
+     * @author sroussel
+     * @since 2.3.1
+     */
+    public VecInt[] subset(int cardinal) {
+<span class="nc" id="L203">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L208">        return this.vec.hashCode();</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc" id="L213">        return this.vec.equals(obj);</span>
+    }
+
+    public void sort(Comparator&lt;Integer&gt; comparator) {
+<span class="nc" id="L217">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public IVecInt clone() {
+<span class="nc" id="L222">        IVecInt cloned = new VecInt(this.size());</span>
+<span class="nc" id="L223">        this.copyTo(cloned);</span>
+<span class="nc" id="L224">        return cloned;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

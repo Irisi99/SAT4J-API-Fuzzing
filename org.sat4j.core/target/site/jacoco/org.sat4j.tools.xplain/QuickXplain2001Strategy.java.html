@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuickXplain2001Strategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools.xplain</a> &gt; <span class="el_source">QuickXplain2001Strategy.java</span></div><h1>QuickXplain2001Strategy.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools.xplain;
+
+import java.util.Map;
+import java.util.Set;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+import org.sat4j.specs.TimeoutException;
+
+/**
+ * An implementation of the QuickXplain algorithm as explained by Ulrich Junker
+ * in the following paper:
+ * 
+ * &lt;code&gt;
+ * &amp;#64;inproceedings{ junker01:quickxplain:inp, author={Ulrich Junker},
+ *                 title={QUICKXPLAIN: Conflict Detection for Arbitrary
+ *                 Constraint Propagation Algorithms}, booktitle={IJCAI'01
+ *                 Workshop on Modelling and Solving problems with constraints
+ *                 (CONS-1)}, year={2001}, month={August}, address={Seattle, WA,
+ *                 USA}, url={citeseer.ist.psu.edu/junker01quickxplain.html},
+ *                 url={http://www.lirmm.fr/~bessiere/ws_ijcai01/junker.ps.gz} }
+ * 
+ *                 The algorithm has been adapted to work properly in a context
+ *                 where we can afford to add a selector variable to each clause
+ *                 to enable or disable each constraint.
+ * 
+ *                 Note that for the moment, QuickXplain does not work properly
+ *                 in an optimization setting.
+ * &lt;/code&gt;
+ * 
+ * @since 2.1
+ */
+<span class="nc bnc" id="L64" title="All 2 branches missed.">public class QuickXplain2001Strategy implements MinimizationStrategy {</span>
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private boolean computationCanceled;
+
+    public void cancelExplanationComputation() {
+<span class="nc" id="L74">        this.computationCanceled = true;</span>
+<span class="nc" id="L75">    }</span>
+
+    public IVecInt explain(ISolver solver, Map&lt;Integer, ?&gt; constrs,
+            IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L79">        this.computationCanceled = false;</span>
+<span class="nc" id="L80">        IVecInt encodingAssumptions = new VecInt(</span>
+<span class="nc" id="L81">                constrs.size() + assumps.size());</span>
+<span class="nc" id="L82">        assumps.copyTo(encodingAssumptions);</span>
+<span class="nc" id="L83">        IVecInt firstExplanation = solver.unsatExplanation();</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (solver.isVerbose()) {</span>
+<span class="nc" id="L85">            System.out.print(solver.getLogPrefix() + &quot;initial unsat core &quot;);</span>
+<span class="nc" id="L86">            firstExplanation.sort();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">            for (IteratorInt it = firstExplanation.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L88">                System.out.print(constrs.get(-it.next()));</span>
+<span class="nc" id="L89">                System.out.print(&quot; &quot;);</span>
+            }
+<span class="nc" id="L91">            System.out.println();</span>
+        }
+<span class="nc" id="L93">        Set&lt;Integer&gt; constraintsVariables = constrs.keySet();</span>
+        int p;
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (var i = 0; i &lt; firstExplanation.size(); i++) {</span>
+<span class="nc" id="L96">            p = -firstExplanation.get(i);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (constraintsVariables.contains(p)) {</span>
+<span class="nc" id="L98">                encodingAssumptions.push(p);</span>
+            }
+        }
+<span class="nc" id="L101">        IVecInt results = new VecInt(encodingAssumptions.size());</span>
+<span class="nc" id="L102">        computeExplanation(solver, encodingAssumptions, assumps.size(),</span>
+<span class="nc" id="L103">                encodingAssumptions.size() - 1, results);</span>
+<span class="nc" id="L104">        return results;</span>
+    }
+
+    private void computeExplanation(ISolver solver, IVecInt encodingAssumptions,
+            int start, int end, IVecInt result) throws TimeoutException {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (!solver.isSatisfiable(encodingAssumptions)) {</span>
+<span class="nc" id="L110">            return;</span>
+        }
+<span class="nc" id="L112">        int i = start;</span>
+<span class="nc" id="L113">        encodingAssumptions.set(i, -encodingAssumptions.get(i));</span>
+<span class="nc bnc" id="L114" title="All 4 branches missed.">        assert encodingAssumptions.get(i) &lt; 0;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        while (!this.computationCanceled</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                &amp;&amp; solver.isSatisfiable(encodingAssumptions)) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">            if (i == end) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                for (int j = start; j &lt;= end; j++) {</span>
+<span class="nc" id="L119">                    encodingAssumptions.set(j, -encodingAssumptions.get(j));</span>
+                }
+<span class="nc" id="L121">                return;</span>
+            }
+<span class="nc" id="L123">            i++;</span>
+<span class="nc bnc" id="L124" title="All 4 branches missed.">            assert encodingAssumptions.get(i) &gt; 0;</span>
+<span class="nc" id="L125">            encodingAssumptions.set(i, -encodingAssumptions.get(i));</span>
+        }
+<span class="nc" id="L127">        result.push(-encodingAssumptions.get(i));</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">        if (start == i) {</span>
+<span class="nc" id="L129">            return;</span>
+        }
+<span class="nc" id="L131">        int newend = i - 1;</span>
+<span class="nc" id="L132">        int split = (newend + start) / 2;</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (split &lt; newend) {</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">            for (int j = split + 1; j &lt; i; j++) {</span>
+<span class="nc" id="L135">                encodingAssumptions.set(j, -encodingAssumptions.get(j));</span>
+            }
+<span class="nc" id="L137">            computeExplanation(solver, encodingAssumptions, split + 1, newend,</span>
+                    result);
+        }
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        if (start &lt;= split) {</span>
+<span class="nc bnc" id="L141" title="All 2 branches missed.">            for (int j = start; j &lt;= split; j++) {</span>
+<span class="nc" id="L142">                encodingAssumptions.set(j, -encodingAssumptions.get(j));</span>
+            }
+<span class="nc" id="L144">            computeExplanation(solver, encodingAssumptions, start, split,</span>
+                    result);
+        }
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (this.computationCanceled) {</span>
+<span class="nc" id="L148">            throw new TimeoutException();</span>
+        }
+<span class="nc" id="L150">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L154">        return &quot;QuickXplain (IJCAI WS 2001 version) minimization strategy&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

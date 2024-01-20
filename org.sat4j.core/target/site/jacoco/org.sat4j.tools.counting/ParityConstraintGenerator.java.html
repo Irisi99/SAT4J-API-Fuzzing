@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParityConstraintGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools.counting</a> &gt; <span class="el_source">ParityConstraintGenerator.java</span></div><h1>ParityConstraintGenerator.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2019 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+
+package org.sat4j.tools.counting;
+
+import java.util.Random;
+
+import org.sat4j.core.ConstrGroup;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.constraints.xor.Xor;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+
+/**
+ * This class allows to generate and manage random parity constraints for the
+ * ApproxMC algorithm.
+ * 
+ * @author Romain Wallon
+ */
+<span class="nc bnc" id="L49" title="All 2 branches missed.">public class ParityConstraintGenerator {</span>
+
+    /**
+     * The pseudo-random number generator used to create random parity
+     * constraints. This differs from the original paper, which uses numbers
+     * generated from &lt;a href=&quot;http://fourmilab.ch/hotbits/&quot;&gt;HotBits&lt;/a&gt;.
+     */
+<span class="nc" id="L56">    private static final Random RANDOM = System</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            .getProperty(&quot;NONDETERMINISTIC&quot;) == null ? new Random(123456789)</span>
+<span class="nc" id="L58">                    : new Random();</span>
+
+    /**
+     * The solver in which parity constraints are added.
+     */
+    private final ISolver solver;
+
+    /**
+     * The set of variables to consider for the parity constraints.
+     */
+    private final SamplingSet samplingSet;
+
+    /**
+     * The parity constraints that have been added to the solver.
+     */
+    private final ConstrGroup parityConstraints;
+
+    /**
+     * Whether the parity constraints are currently activated.
+     */
+    private boolean activated;
+
+    /**
+     * Creates a new ParityConstraintGenerator.
+     * 
+     * @param solver
+     *            The solver in which parity constraints are added.
+     * @param samplingSet
+     *            The set of variables to consider in the parity constraints.
+     */
+<span class="nc" id="L88">    public ParityConstraintGenerator(ISolver solver, SamplingSet samplingSet) {</span>
+<span class="nc" id="L89">        this.solver = solver;</span>
+<span class="nc" id="L90">        this.samplingSet = samplingSet;</span>
+<span class="nc" id="L91">        this.parityConstraints = new ConstrGroup();</span>
+<span class="nc" id="L92">    }</span>
+
+    /**
+     * Gives the number of constraints that are managed by this generator.
+     * 
+     * @return The number of constraints.
+     */
+    public int nbConstraints() {
+<span class="nc" id="L100">        return parityConstraints.size();</span>
+    }
+
+    /**
+     * Generates {@code nb} parity constraints, and adds them to the solver. The
+     * constraints are all activated.
+     * 
+     * @param nb
+     *            The number of constraints to generate.
+     */
+    public void generate(int nb) {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        for (var i = 0; i &lt; nb; i++) {</span>
+            // Looking for the variables to put in the constraint.
+<span class="nc" id="L113">            IVecInt lits = new VecInt();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">            for (IteratorInt it = samplingSet.variables(); it.hasNext();) {</span>
+<span class="nc" id="L115">                var variable = it.next();</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                if (RANDOM.nextBoolean()) {</span>
+<span class="nc" id="L117">                    lits.push(variable);</span>
+                }
+<span class="nc" id="L119">            }</span>
+
+            // Adding the generated constraint.
+            // The parity is also randomly chosen.
+<span class="nc" id="L123">            IConstr constr = solver.addParity(lits, RANDOM.nextBoolean());</span>
+<span class="nc" id="L124">            parityConstraints.add(constr);</span>
+        }
+
+        // All added constraints are activated.
+<span class="nc" id="L128">        activated = true;</span>
+<span class="nc" id="L129">    }</span>
+
+    /**
+     * Gives the {@code i}-th parity constraint managed by this generator.
+     * 
+     * @param i
+     *            The index of the constraint to get.
+     * 
+     * @return The {@code i}-th constraint.
+     */
+    public Xor getConstraint(int i) {
+<span class="nc bnc" id="L140" title="All 4 branches missed.">        assert i &lt; nbConstraints();</span>
+<span class="nc" id="L141">        return (Xor) parityConstraints.getConstr(i);</span>
+    }
+
+    /**
+     * Deactivates all the constraints that have been generated. They are
+     * &lt;b&gt;not&lt;/b&gt; removed from the solver.
+     */
+    public void deactivate() {
+<span class="nc" id="L149">        deactivate(nbConstraints());</span>
+<span class="nc" id="L150">    }</span>
+
+    /**
+     * Deactivates the first {@code nb} constraints that have been generated.
+     * They are &lt;b&gt;not&lt;/b&gt; removed from the solver.
+     * 
+     * @param nb
+     *            The number of constraints to deactivate
+     */
+    public void deactivate(int nb) {
+        // Deactivating the constraints.
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        for (var i = 0; i &lt; nb; i++) {</span>
+<span class="nc" id="L162">            getConstraint(i).deactivate();</span>
+        }
+<span class="nc" id="L164">        activated = false;</span>
+
+        // The learnt clauses cannot be kept as the input has changed.
+<span class="nc" id="L167">        solver.clearLearntClauses();</span>
+<span class="nc" id="L168">    }</span>
+
+    /**
+     * Activates all the constraints that have been generated.
+     */
+    public void activate() {
+<span class="nc" id="L174">        activate(nbConstraints());</span>
+<span class="nc" id="L175">    }</span>
+
+    /**
+     * Activates the first {@code nb} constraints that have been generated.
+     * 
+     * @param nb
+     *            The number of constraints to activate
+     */
+    public void activate(int nb) {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">        for (var i = 0; i &lt; nb; i++) {</span>
+<span class="nc" id="L185">            getConstraint(i).activate();</span>
+        }
+<span class="nc" id="L187">        activated = true;</span>
+<span class="nc" id="L188">    }</span>
+
+    /**
+     * Clears the generated constraints from the solver.
+     */
+    public void clear() {
+        // The constraints need to be activated before being removed.
+        // Otherwise, an exception will be thrown.
+<span class="nc bnc" id="L196" title="All 2 branches missed.">        if (!activated) {</span>
+<span class="nc" id="L197">            activate();</span>
+        }
+
+        // Actually removing the constraints.
+<span class="nc" id="L201">        parityConstraints.removeFrom(solver);</span>
+<span class="nc" id="L202">        parityConstraints.clear();</span>
+<span class="nc" id="L203">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

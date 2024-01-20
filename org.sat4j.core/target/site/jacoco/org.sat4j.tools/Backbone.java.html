@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Backbone.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">Backbone.java</span></div><h1>Backbone.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.util.BitSet;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+import org.sat4j.specs.TimeoutException;
+
+/**
+ * The aim of this class is to compute efficiently the literals implied by the
+ * set of constraints (also called backbone or unit implicates).
+ * 
+ * The work has been done in the context of ANR BR4CP.
+ * 
+ * @author leberre
+ * 
+ */
+public final class Backbone {
+
+<span class="nc" id="L53">    abstract static class Backboner {</span>
+<span class="nc" id="L54">        protected IBackboneProgressListener listener = IBackboneProgressListener.VOID;</span>
+        protected int nbSatTests;
+<span class="nc" id="L56">        private boolean implicant = true;</span>
+
+        public void setBackboneProgressListener(
+                IBackboneProgressListener listener) {
+<span class="nc" id="L60">            this.listener = listener;</span>
+<span class="nc" id="L61">        }</span>
+
+        public void setImplicantSimplification(boolean b) {
+<span class="nc" id="L64">            this.implicant = b;</span>
+<span class="nc" id="L65">        }</span>
+
+        public int[] simplifiedModel(ISolver solver) {
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (implicant) {</span>
+<span class="nc" id="L69">                return solver.primeImplicant();</span>
+            }
+<span class="nc" id="L71">            return solver.model();</span>
+        }
+
+        public IVecInt compute(ISolver solver, int[] implicant,
+                IVecInt assumptions) throws TimeoutException {
+<span class="nc" id="L76">            nbSatTests = 0;</span>
+<span class="nc" id="L77">            var assumptionsSet = new BitSet(solver.nVars());</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">            for (IteratorInt it = assumptions.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L79">                assumptionsSet.set(Math.abs(it.next()));</span>
+            }
+<span class="nc" id="L81">            IVecInt litsToTest = new VecInt();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">            for (int p : implicant) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                if (!assumptionsSet.get(Math.abs(p))) {</span>
+<span class="nc" id="L84">                    litsToTest.push(-p);</span>
+                }
+            }
+<span class="nc" id="L87">            return compute(solver, assumptions, litsToTest);</span>
+        }
+
+        public int nbSatTests() {
+<span class="nc" id="L91">            return this.nbSatTests;</span>
+        }
+
+        void incSatTests() {
+<span class="nc" id="L95">            nbSatTests++;</span>
+<span class="nc" id="L96">        }</span>
+
+        public IVecInt compute(ISolver solver, int[] implicant,
+                IVecInt assumptions, IVecInt filter) throws TimeoutException {
+<span class="nc" id="L100">            nbSatTests = 0;</span>
+<span class="nc" id="L101">            var assumptionsSet = new BitSet(solver.nVars());</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            for (IteratorInt it = assumptions.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L103">                assumptionsSet.set(Math.abs(it.next()));</span>
+            }
+<span class="nc" id="L105">            var filterSet = new BitSet();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            for (IteratorInt it = filter.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L107">                filterSet.set(Math.abs(it.next()));</span>
+            }
+<span class="nc" id="L109">            IVecInt litsToTest = new VecInt();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            for (int p : implicant) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                if (!assumptionsSet.get(Math.abs(p))</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">                        &amp;&amp; filterSet.get(Math.abs(p))) {</span>
+<span class="nc" id="L113">                    litsToTest.push(-p);</span>
+                }
+            }
+<span class="nc" id="L116">            return compute(solver, assumptions, litsToTest);</span>
+        }
+
+        abstract IVecInt compute(ISolver solver, IVecInt assumptions,
+                IVecInt litsToTest) throws TimeoutException;
+
+        static void removeVarNotPresentAndSatisfiedLits(int[] implicant,
+                IVecInt litsToTest, int n) {
+<span class="nc" id="L124">            var marks = new int[n + 1];</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">            for (int p : implicant) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">                marks[p &gt; 0 ? p : -p] = p;</span>
+            }
+            int q, mark;
+<span class="nc bnc" id="L129" title="All 2 branches missed.">            for (var i = 0; i &lt; litsToTest.size();) {</span>
+<span class="nc" id="L130">                q = litsToTest.get(i);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">                mark = marks[q &gt; 0 ? q : -q];</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">                if (mark == 0 || mark == q) {</span>
+<span class="nc" id="L133">                    litsToTest.delete(i);</span>
+                } else {
+<span class="nc" id="L135">                    i++;</span>
+                }
+            }
+<span class="nc" id="L138">        }</span>
+    }
+
+    /**
+     * Computes the backbone of a formula following the iterative algorithm
+     * described in Joao Marques-Silva, Mikolas Janota, Ines Lynce: On Computing
+     * Backbones of Propositional Theories. ECAI 2010: 15-20 and using Sat4j
+     * specific prime implicant computation.
+     * 
+     */
+<span class="nc" id="L148">    private static final Backboner BB = new Backboner() {</span>
+
+        @Override
+        IVecInt compute(ISolver solver, IVecInt assumptions, IVecInt litsToTest)
+                throws TimeoutException {
+            int[] implicant;
+<span class="nc" id="L154">            IVecInt candidates = new VecInt();</span>
+<span class="nc" id="L155">            assumptions.copyTo(candidates);</span>
+            int p;
+<span class="nc" id="L157">            int initLitsToTestSize = litsToTest.size();</span>
+<span class="nc" id="L158">            listener.start(initLitsToTestSize);</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            while (!litsToTest.isEmpty()) {</span>
+<span class="nc" id="L160">                listener.inProgress(initLitsToTestSize - litsToTest.size(),</span>
+                        initLitsToTestSize);
+<span class="nc" id="L162">                p = litsToTest.last();</span>
+<span class="nc" id="L163">                candidates.push(p);</span>
+<span class="nc" id="L164">                litsToTest.pop();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">                if (solver.isSatisfiable(candidates)) {</span>
+<span class="nc" id="L166">                    candidates.pop();</span>
+<span class="nc" id="L167">                    implicant = simplifiedModel(solver);</span>
+<span class="nc" id="L168">                    removeVarNotPresentAndSatisfiedLits(implicant, litsToTest,</span>
+<span class="nc" id="L169">                            solver.nVars());</span>
+                } else {
+<span class="nc" id="L171">                    candidates.pop().push(-p);</span>
+                }
+<span class="nc" id="L173">                incSatTests();</span>
+            }
+<span class="nc" id="L175">            listener.end(nbSatTests);</span>
+<span class="nc" id="L176">            return candidates;</span>
+        }
+    };
+
+    /**
+     * Computes the backbone of a formula using the iterative approach found in
+     * BB but testing a set of literals at once instead of only one. This
+     * approach outperforms BB in terms of SAT calls. Both approaches are made
+     * available for testing purposes.
+     * 
+     */
+<span class="nc" id="L187">    private static final Backboner IBB = new Backboner() {</span>
+
+        @Override
+        IVecInt compute(ISolver solver, IVecInt assumptions, IVecInt litsToTest)
+                throws TimeoutException {
+            int[] implicant;
+<span class="nc" id="L193">            IVecInt candidates = new VecInt();</span>
+<span class="nc" id="L194">            assumptions.copyTo(candidates);</span>
+            IConstr constr;
+<span class="nc" id="L196">            int initLitsToTestSize = litsToTest.size();</span>
+<span class="nc" id="L197">            listener.start(initLitsToTestSize);</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            while (!litsToTest.isEmpty()) {</span>
+<span class="nc" id="L199">                listener.inProgress(initLitsToTestSize - litsToTest.size(),</span>
+                        initLitsToTestSize);
+                try {
+<span class="nc" id="L202">                    constr = solver.addBlockingClause(litsToTest);</span>
+<span class="nc bnc" id="L203" title="All 2 branches missed.">                    if (solver.isSatisfiable(candidates)) {</span>
+<span class="nc" id="L204">                        implicant = simplifiedModel(solver);</span>
+<span class="nc" id="L205">                        removeVarNotPresentAndSatisfiedLits(implicant,</span>
+<span class="nc" id="L206">                                litsToTest, solver.nVars());</span>
+                    } else {
+<span class="nc" id="L208">                        for (IteratorInt it = litsToTest.iterator(); it</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                                .hasNext();) {</span>
+<span class="nc" id="L210">                            candidates.push(-it.next());</span>
+                        }
+<span class="nc" id="L212">                        litsToTest.clear();</span>
+                    }
+<span class="nc" id="L214">                    solver.removeSubsumedConstr(constr);</span>
+<span class="nc" id="L215">                } catch (ContradictionException e) {</span>
+<span class="nc" id="L216">                    for (IteratorInt it = litsToTest.iterator(); it</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">                            .hasNext();) {</span>
+<span class="nc" id="L218">                        candidates.push(-it.next());</span>
+                    }
+<span class="nc" id="L220">                    litsToTest.clear();</span>
+<span class="nc" id="L221">                }</span>
+<span class="nc" id="L222">                incSatTests();</span>
+            }
+<span class="nc" id="L224">            listener.end(nbSatTests);</span>
+<span class="nc" id="L225">            solver.clearLearntClauses();</span>
+<span class="nc" id="L226">            return candidates;</span>
+        }
+    };
+
+    private final Backboner backboner;
+
+<span class="nc" id="L232">    private static final Backbone instance = bb();</span>
+
+<span class="nc" id="L234">    private Backbone(Backboner bb) {</span>
+<span class="nc" id="L235">        this.backboner = bb;</span>
+<span class="nc" id="L236">    }</span>
+
+    public static Backbone instance() {
+<span class="nc" id="L239">        return instance;</span>
+    }
+
+    public static Backbone instance(IBackboneProgressListener listener,
+            boolean primeImplicantSimplification) {
+<span class="nc" id="L244">        instance.backboner.setBackboneProgressListener(listener);</span>
+<span class="nc" id="L245">        instance.backboner.setImplicantSimplification(primeImplicantSimplification);</span>
+<span class="nc" id="L246">        return instance;</span>
+    }
+
+    public static Backbone bb() {
+<span class="nc" id="L250">        return new Backbone(BB);</span>
+    }
+
+    public static Backbone ibb() {
+<span class="nc" id="L254">        return new Backbone(IBB);</span>
+    }
+
+    public IVecInt compute(ISolver solver) throws TimeoutException {
+<span class="nc" id="L258">        return compute(solver, VecInt.EMPTY);</span>
+    }
+
+    /**
+     * Computes the backbone of a formula.
+     * 
+     * 
+     * @param solver
+     *            a solver containing a satisfiable set of constraints.
+     * @param assumptions
+     *            a set of literals to satisfy
+     * @return the backbone of the solver when the assumptions are satisfied
+     * @throws TimeoutException
+     *             if the computation cannot be done within the timeout
+     * @throws IllegalArgumentException
+     *             if solver is unsatisfiable
+     */
+    public IVecInt compute(ISolver solver, IVecInt assumptions)
+            throws TimeoutException {
+<span class="nc" id="L277">        boolean result = solver.isSatisfiable(assumptions);</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (!result) {</span>
+<span class="nc" id="L279">            throw new IllegalArgumentException(&quot;Formula is UNSAT!&quot;);</span>
+        }
+<span class="nc" id="L281">        return backboner.compute(solver, solver.primeImplicant(), assumptions);</span>
+
+    }
+
+    /**
+     * Computes the backbone of a formula.
+     * 
+     * 
+     * @param solver
+     *            a solver containing a satisfiable set of constraints.
+     * @param assumptions
+     *            a set of literals to satisfy
+     * @param filter
+     *            a set of variables
+     * @return the backbone of the solver restricted to the variables of filter
+     *         when the assumptions are satisfied
+     * @throws TimeoutException
+     *             if the computation cannot be done within the timeout
+     * @throws IllegalArgumentException
+     *             if solver is unsatisfiable
+     */
+    public IVecInt compute(ISolver solver, IVecInt assumptions, IVecInt filter)
+            throws TimeoutException {
+<span class="nc" id="L304">        boolean result = solver.isSatisfiable(assumptions);</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">        if (!result) {</span>
+<span class="nc" id="L306">            throw new IllegalArgumentException(&quot;Formula is UNSAT!&quot;);</span>
+        }
+<span class="nc" id="L308">        return backboner.compute(solver, solver.primeImplicant(), assumptions, filter);</span>
+
+    }
+
+    /**
+     * Computes the backbone of a formula.
+     * 
+     * 
+     * @param solver
+     *            a solver containing a satisfiable set of constraints.
+     * @param implicant
+     *            an implicant of solver
+     * @return the backbone of the solver
+     * @throws TimeoutException
+     *             if the computation cannot be done within the timeout
+     */
+    public IVecInt compute(ISolver solver, int[] implicant)
+            throws TimeoutException {
+<span class="nc" id="L326">        return backboner.compute(solver, implicant, VecInt.EMPTY);</span>
+    }
+
+    /**
+     * Computes the backbone of a formula.
+     * 
+     * 
+     * @param solver
+     *            a solver containing a satisfiable set of constraints.
+     * @param implicant
+     *            an implicant of solver
+     * @param assumptions
+     *            a set of literals to satisfy
+     * @return the backbone of the solver when the assumptions are satisfied
+     * @throws TimeoutException
+     *             if the computation cannot be done within the timeout
+     */
+    public IVecInt compute(ISolver solver, int[] implicant, IVecInt assumptions)
+            throws TimeoutException {
+<span class="nc" id="L345">        return backboner.compute(solver, implicant, assumptions);</span>
+    }
+
+    /**
+     * Returns the number of calls to the SAT solver needed to compute the
+     * backbone.
+     * 
+     * @return the number of underlying calls to the SAT solver.
+     */
+    public int getNumberOfSatCalls() {
+<span class="nc" id="L355">        return backboner.nbSatTests();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

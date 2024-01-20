@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FixedLengthLearning.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.learning</a> &gt; <span class="el_source">FixedLengthLearning.java</span></div><h1>FixedLengthLearning.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.learning;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.DataStructureFactory;
+import org.sat4j.specs.Constr;
+
+/**
+ * A learning scheme for learning constraints of size smaller than a given
+ * constant.
+ * 
+ * @author leberre
+ */
+@Feature(value = &quot;learning&quot;, parent = &quot;expert&quot;)
+public final class FixedLengthLearning&lt;D extends DataStructureFactory&gt;
+        extends LimitedLearning&lt;D&gt; {
+
+    private static final long serialVersionUID = 1L;
+
+    private int maxlength;
+
+    private int bound;
+
+    public FixedLengthLearning() {
+<span class="nc" id="L53">        this(3);</span>
+<span class="nc" id="L54">    }</span>
+
+<span class="nc" id="L56">    public FixedLengthLearning(int maxlength) {</span>
+<span class="nc" id="L57">        this.maxlength = maxlength;</span>
+<span class="nc" id="L58">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.LimitedLearning#learningCondition(org.sat4j.minisat
+     * .Constr)
+     */
+    @Override
+    public void init() {
+<span class="nc" id="L69">        setBound(this.maxlength);</span>
+<span class="nc" id="L70">    }</span>
+
+    public void setMaxLength(int v) {
+<span class="nc" id="L73">        this.maxlength = v;</span>
+<span class="nc" id="L74">    }</span>
+
+    public int getMaxLength() {
+<span class="nc" id="L77">        return this.maxlength;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L82">        return &quot;Limit learning to clauses of size smaller or equal to &quot; //$NON-NLS-1$</span>
+                + this.maxlength;
+    }
+
+    protected void setBound(int newbound) {
+<span class="nc" id="L87">        this.bound = newbound;</span>
+<span class="nc" id="L88">    }</span>
+
+    @Override
+    protected boolean learningCondition(Constr constr) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        return constr.size() &lt;= this.bound;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

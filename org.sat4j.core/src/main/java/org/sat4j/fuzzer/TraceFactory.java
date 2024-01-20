@@ -3,7 +3,6 @@ package org.sat4j.fuzzer;
 import java.util.Random;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 
 import org.sat4j.core.ASolverFactory;
@@ -70,7 +69,7 @@ public class TraceFactory {
             MAXVAR = 0;
             NUMBER_OF_CLAUSES = 0;
             // (3.8/4.5) * MAXVAR - about 50/50 SAT/UNSAT
-            coeficient = 2.6;
+            coeficient = 2.5;
 
             // Uniform or not - 1 to max length
             UNIFORM = slaveRandomGenerator.nextBoolean();

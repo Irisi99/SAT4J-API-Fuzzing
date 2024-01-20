@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HighLevelXplain.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools.xplain</a> &gt; <span class="el_source">HighLevelXplain.java</span></div><h1>HighLevelXplain.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools.xplain;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.GroupClauseSelectorSolver;
+import org.sat4j.tools.SolverDecorator;
+
+/**
+ * Computation of MUS in a structured CNF, i.e. the clauses belong to
+ * components, the explanation is to be extracted in terms of components.
+ * 
+ * @author daniel
+ * 
+ * @param &lt;T&gt;
+ *            a subinterface to ISolver.
+ * @since 2.1
+ */
+<span class="nc bnc" id="L56" title="All 2 branches missed.">public class HighLevelXplain&lt;T extends ISolver&gt;</span>
+        extends GroupClauseSelectorSolver&lt;T&gt; implements Explainer {
+
+    private IVecInt assump;
+
+<span class="nc" id="L61">    private MinimizationStrategy xplainStrategy = new DeletionStrategy();</span>
+
+    public HighLevelXplain(T solver) {
+<span class="nc" id="L64">        super(solver);</span>
+<span class="nc" id="L65">    }</span>
+
+    @Override
+    public IConstr addAtLeast(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L70">        throw new UnsupportedOperationException();</span>
+    }
+
+    @Override
+    public IConstr addAtMost(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L76">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * @since 2.2.4
+     * @return
+     * @throws TimeoutException
+     */
+    private IVecInt explanationKeys() throws TimeoutException {
+<span class="nc bnc" id="L90" title="All 4 branches missed.">        assert !isSatisfiable(this.assump);</span>
+<span class="nc" id="L91">        ISolver solver = decorated();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (solver instanceof SolverDecorator&lt;?&gt;) {</span>
+<span class="nc" id="L93">            solver = ((SolverDecorator&lt;? extends ISolver&gt;) solver).decorated();</span>
+        }
+<span class="nc" id="L95">        return this.xplainStrategy.explain(solver, getVarToHighLevel(),</span>
+                this.assump);
+    }
+
+    public int[] minimalExplanation() throws TimeoutException {
+<span class="nc" id="L100">        Collection&lt;Integer&gt; components = explain();</span>
+<span class="nc" id="L101">        var model = new int[components.size()];</span>
+<span class="nc" id="L102">        var i = 0;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (int c : components) {</span>
+<span class="nc" id="L104">            model[i++] = c;</span>
+<span class="nc" id="L105">        }</span>
+<span class="nc" id="L106">        Arrays.sort(model);</span>
+<span class="nc" id="L107">        return model;</span>
+    }
+
+    /**
+     * @since 2.1
+     * @return
+     * @throws TimeoutException
+     */
+    public Collection&lt;Integer&gt; explain() throws TimeoutException {
+<span class="nc" id="L116">        IVecInt keys = explanationKeys();</span>
+<span class="nc" id="L117">        Collection&lt;Integer&gt; explanation = new HashSet&lt;&gt;(keys.size());</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        for (IteratorInt it = keys.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L119">            explanation.add(getVarToHighLevel().get(it.next()));</span>
+        }
+<span class="nc" id="L121">        return explanation;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public void cancelExplanation() {
+<span class="nc" id="L128">        this.xplainStrategy.cancelExplanationComputation();</span>
+<span class="nc" id="L129">    }</span>
+
+    @Override
+    public int[] findModel() throws TimeoutException {
+<span class="nc" id="L133">        this.assump = VecInt.EMPTY;</span>
+<span class="nc" id="L134">        return super.findModel();</span>
+    }
+
+    @Override
+    public int[] findModel(IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L139">        this.assump = assumps;</span>
+<span class="nc" id="L140">        return super.findModel(assumps);</span>
+    }
+
+    @Override
+    public boolean isSatisfiable() throws TimeoutException {
+<span class="nc" id="L145">        this.assump = VecInt.EMPTY;</span>
+<span class="nc" id="L146">        return super.isSatisfiable();</span>
+    }
+
+    @Override
+    public boolean isSatisfiable(boolean global) throws TimeoutException {
+<span class="nc" id="L151">        this.assump = VecInt.EMPTY;</span>
+<span class="nc" id="L152">        return super.isSatisfiable(global);</span>
+    }
+
+    @Override
+    public boolean isSatisfiable(IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L157">        this.assump = assumps;</span>
+<span class="nc" id="L158">        return super.isSatisfiable(assumps);</span>
+    }
+
+    @Override
+    public boolean isSatisfiable(IVecInt assumps, boolean global)
+            throws TimeoutException {
+<span class="nc" id="L164">        this.assump = assumps;</span>
+<span class="nc" id="L165">        return super.isSatisfiable(assumps, global);</span>
+    }
+
+    @Override
+    public String toString(String prefix) {
+<span class="nc" id="L170">        System.out.println(</span>
+                prefix + &quot;High Level Explanation (MUS) enabled solver&quot;);
+<span class="nc" id="L172">        System.out.println(prefix + this.xplainStrategy);</span>
+<span class="nc" id="L173">        return super.toString(prefix);</span>
+    }
+
+    public void setMinimizationStrategy(MinimizationStrategy strategy) {
+<span class="nc" id="L177">        this.xplainStrategy = strategy;</span>
+<span class="nc" id="L178">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

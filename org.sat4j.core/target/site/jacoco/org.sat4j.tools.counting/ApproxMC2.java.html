@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ApproxMC2.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools.counting</a> &gt; <span class="el_source">ApproxMC2.java</span></div><h1>ApproxMC2.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2019 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+
+package org.sat4j.tools.counting;
+
+import java.math.BigInteger;
+import java.util.Arrays;
+
+import org.sat4j.specs.ISolver;
+
+/**
+ * ApproxMC implements the approximate model counter proposed by Chakraborty,
+ * Meel and Vardi.
+ * 
+ * @author Romain WALLON
+ */
+public class ApproxMC2 extends AbstractApproxMC {
+
+    /**
+     * The number of cells that have been found.
+     */
+<span class="nc" id="L49">    private int nCells = 2;</span>
+
+    /**
+     * Creates a new ApproxMC2.
+     * 
+     * @param solver
+     *            The solver to use as an oracle.
+     * @param epsilon
+     *            The tolerance of the count.
+     * @param delta
+     *            the confidence of the count.
+     */
+    public ApproxMC2(ISolver solver, double epsilon, double delta) {
+<span class="nc" id="L62">        super(solver, epsilon, delta);</span>
+<span class="nc" id="L63">    }</span>
+
+    /**
+     * Creates a new ApproxMC2.
+     * 
+     * @param solver
+     *            The solver to use as an oracle.
+     * @param samplingSet
+     *            The set of variables to consider.
+     * @param epsilon
+     *            The tolerance of the count.
+     * @param delta
+     *            the confidence of the count.
+     */
+    public ApproxMC2(ISolver solver, SamplingSet samplingSet, double epsilon,
+            double delta) {
+<span class="nc" id="L79">        super(solver, samplingSet, epsilon, delta);</span>
+<span class="nc" id="L80">    }</span>
+
+    /**
+     * Creates a new ApproxMC2.
+     * 
+     * @param solver
+     *            The solver to use as an oracle.
+     * @param samplingSet
+     *            The set of variables to consider.
+     */
+    public ApproxMC2(ISolver solver, SamplingSet samplingSet) {
+<span class="nc" id="L91">        super(solver, samplingSet);</span>
+<span class="nc" id="L92">    }</span>
+
+    /**
+     * Creates a new ApproxMC2.
+     * 
+     * @param solver
+     *            The solver to use as an oracle.
+     */
+    public ApproxMC2(ISolver solver) {
+<span class="nc" id="L101">        super(solver);</span>
+<span class="nc" id="L102">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.tools.counting.AbstractApproxMC#computeThreshold()
+     */
+    @Override
+    protected int computeThreshold() {
+<span class="nc" id="L111">        return (int) (1 + 9.84 * (1 + (epsilon / (1 + epsilon)))</span>
+                * (1 + 1 / epsilon) * (1 + 1 / epsilon));
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.tools.counting.AbstractApproxMC#computeIterCount()
+     */
+    @Override
+    protected int computeIterCount() {
+<span class="nc" id="L122">        return (int) (17 * Math.log(3 / delta) / Math.log(2));</span>
+    }
+
+    /**
+     * Counts an epsilon-approximate estimate of the model count of the
+     * underlying formula, by partitioning the space of all the models into
+     * &quot;small&quot; cells containing at most {@code pivot} models.
+     * 
+     * @param thresh
+     *            The bound for the number of models in a cell.
+     * 
+     * @return The estimate of the model count, or {@code null} to report a
+     *         counting error, i.e;, when all generated cells were either empty
+     *         or too big.
+     */
+    @Override
+    protected BigInteger internalCountModels(int thresh) {
+        // Constraints are generated once and for all for this run.
+<span class="nc" id="L140">        generator.generate(samplingSet.nVars());</span>
+
+        // Counting with all parity constraints.
+<span class="nc" id="L143">        long count = boundedSAT(thresh);</span>
+<span class="nc" id="L144">        generator.deactivate();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (count &gt;= thresh) {</span>
+            // Reporting a counting error.
+<span class="nc" id="L147">            return null;</span>
+        }
+
+        // This is equivalent to nConstrPrev = log2(nCells)
+<span class="nc" id="L151">        int nConstrPrev = Integer.SIZE - Integer.numberOfLeadingZeros(nCells)</span>
+                - 1;
+
+        // Computing the number of models with the optimal set of constraints.
+<span class="nc" id="L155">        int nConstr = logSatSearch(thresh, nConstrPrev);</span>
+<span class="nc" id="L156">        var nSols = BigInteger.valueOf(boundedSAT(nConstr, thresh));</span>
+
+        // Forgetting all parity constraints used in this run.
+<span class="nc" id="L159">        generator.clear();</span>
+
+        // The number of models needs to be scaled w.r.t. the number of cells.
+<span class="nc" id="L162">        return nSols.shiftLeft(nConstr);</span>
+    }
+
+    /**
+     * Performs a logarithmic search for the optimal number of parity
+     * constraints to consider.
+     * 
+     * @param thresh
+     *            The maximum number of models to consider.
+     * @param nConstrPrev
+     *            The previous number of parity constraints that were added.
+     * 
+     * @return The best number of parity constraints to add.
+     */
+    private int logSatSearch(int thresh, int nConstrPrev) {
+<span class="nc" id="L177">        var loIndex = 0;</span>
+<span class="nc" id="L178">        int hiIndex = samplingSet.nVars() - 1;</span>
+<span class="nc" id="L179">        int nConstr = nConstrPrev;</span>
+<span class="nc" id="L180">        var cells = new int[samplingSet.nVars()];</span>
+<span class="nc" id="L181">        Arrays.fill(cells, -1);</span>
+<span class="nc" id="L182">        cells[0] = 1;</span>
+<span class="nc" id="L183">        cells[samplingSet.nVars() - 1] = 0;</span>
+
+        for (;;) {
+<span class="nc" id="L186">            long y = boundedSAT(nConstr, thresh);</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (y &gt;= thresh) {</span>
+                // There are too many constraints.
+<span class="nc bnc" id="L189" title="All 2 branches missed.">                if (cells[nConstr + 1] == 0) {</span>
+<span class="nc" id="L190">                    return nConstr + 1;</span>
+                }
+<span class="nc" id="L192">                Arrays.fill(cells, 1, nConstr + 1, 1);</span>
+<span class="nc" id="L193">                loIndex = nConstr;</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">                if (Math.abs(nConstr - nConstrPrev) &lt; 3) {</span>
+<span class="nc" id="L195">                    nConstr++;</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">                } else if ((nConstr &lt;&lt; 1) &lt; (samplingSet.nVars() - 1)) {</span>
+<span class="nc" id="L197">                    nConstr &lt;&lt;= 1;</span>
+                } else {
+<span class="nc" id="L199">                    nConstr = (hiIndex + nConstr) &gt;&gt; 1;</span>
+                }
+
+            } else {
+                // There is enough constraints, but maybe too many.
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                if (cells[nConstr - 1] == 1) {</span>
+<span class="nc" id="L205">                    return nConstr;</span>
+                }
+<span class="nc" id="L207">                Arrays.fill(cells, nConstr, samplingSet.nVars(), 0);</span>
+<span class="nc" id="L208">                hiIndex = nConstr;</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">                if (Math.abs(nConstr - nConstrPrev) &lt; 3) {</span>
+<span class="nc" id="L210">                    nConstr--;</span>
+                } else {
+<span class="nc" id="L212">                    nConstr = (nConstr + loIndex) &gt;&gt; 1;</span>
+                }
+            }
+<span class="nc" id="L215">        }</span>
+    }
+
+    /**
+     * Counts up to {@code bound} models of the formula, after having added
+     * {@code nbConstraints} parity constraints to the solver.
+     * 
+     * @param nbConstraints
+     *            The number of constraints to add.
+     * @param bound
+     *            The maximum number of models to count.
+     * 
+     * @return The number of models that have been counted.
+     */
+    private long boundedSAT(int nbConstraints, int bound) {
+<span class="nc" id="L230">        generator.activate(nbConstraints);</span>
+<span class="nc" id="L231">        long count = boundedSAT(bound);</span>
+<span class="nc" id="L232">        generator.deactivate(nbConstraints);</span>
+<span class="nc" id="L233">        return count;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.tools.counting.AbstractApproxMC#reset()
+     */
+    @Override
+    public void reset() {
+<span class="nc" id="L243">        this.nCells = 2;</span>
+<span class="nc" id="L244">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

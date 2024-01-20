@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HTClause.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.cnf</a> &gt; <span class="el_source">HTClause.java</span></div><h1>HTClause.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.cnf;
+
+import static org.sat4j.core.LiteralsUtils.neg;
+import static org.sat4j.core.LiteralsUtils.var;
+
+import java.io.Serializable;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.Propagatable;
+import org.sat4j.specs.UnitPropagationListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * Lazy data structure for clause using the Head Tail data structure from SATO,
+ * The original scheme is improved by avoiding moving pointers to literals but
+ * moving the literals themselves.
+ * 
+ * We suppose here that the clause contains at least 3 literals. Use the
+ * BinaryClause or UnaryClause clause data structures to deal with binary and
+ * unit clauses.
+ * 
+ * @author leberre
+ * @see BinaryClause
+ * @see UnitClause
+ * @since 2.1
+ */
+<span class="nc bnc" id="L60" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+public abstract class HTClause implements Propagatable, Constr, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    protected double activity;
+
+    protected final int[] middleLits;
+
+    protected final ILits voc;
+
+    protected int head;
+
+    protected int tail;
+
+    /**
+     * Creates a new basic clause
+     * 
+     * @param voc
+     *            the vocabulary of the formula
+     * @param ps
+     *            A VecInt that WILL BE EMPTY after calling that method.
+     */
+<span class="nc" id="L83">    protected HTClause(IVecInt ps, ILits voc) {</span>
+<span class="nc bnc" id="L84" title="All 4 branches missed.">        assert ps.size() &gt; 1;</span>
+<span class="nc" id="L85">        this.head = ps.get(0);</span>
+<span class="nc" id="L86">        this.tail = ps.last();</span>
+<span class="nc" id="L87">        final int size = ps.size() - 2;</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">        assert size &gt; 0;</span>
+<span class="nc" id="L89">        this.middleLits = new int[size];</span>
+<span class="nc" id="L90">        System.arraycopy(ps.toArray(), 1, this.middleLits, 0, size);</span>
+<span class="nc" id="L91">        ps.clear();</span>
+<span class="nc bnc" id="L92" title="All 4 branches missed.">        assert ps.size() == 0;</span>
+<span class="nc" id="L93">        this.voc = voc;</span>
+<span class="nc" id="L94">        this.activity = 0;</span>
+<span class="nc" id="L95">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#calcReason(Solver, Lit, Vec)
+     */
+    public void calcReason(int p, IVecInt outReason) {
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (this.voc.isFalsified(this.head)) {</span>
+<span class="nc" id="L104">            outReason.push(neg(this.head));</span>
+        }
+<span class="nc" id="L106">        final int[] mylits = this.middleLits;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        for (int mylit : mylits) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">            if (this.voc.isFalsified(mylit)) {</span>
+<span class="nc" id="L109">                outReason.push(neg(mylit));</span>
+            }
+        }
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (this.voc.isFalsified(this.tail)) {</span>
+<span class="nc" id="L113">            outReason.push(neg(this.tail));</span>
+        }
+<span class="nc" id="L115">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#remove(Solver)
+     */
+    public void remove(UnitPropagationListener upl) {
+<span class="nc" id="L123">        this.voc.watches(neg(this.head)).remove(this);</span>
+<span class="nc" id="L124">        this.voc.watches(neg(this.tail)).remove(this);</span>
+<span class="nc" id="L125">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#simplify(Solver)
+     */
+    public boolean simplify() {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (this.voc.isSatisfied(this.head)</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">                || this.voc.isSatisfied(this.tail)) {</span>
+<span class="nc" id="L135">            return true;</span>
+        }
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        for (int middleLit : this.middleLits) {</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (this.voc.isSatisfied(middleLit)) {</span>
+<span class="nc" id="L139">                return true;</span>
+            }
+        }
+<span class="nc" id="L142">        return false;</span>
+    }
+
+    public boolean propagate(UnitPropagationListener s, int p) {
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (this.head == neg(p)) {</span>
+<span class="nc" id="L148">            final int[] mylits = this.middleLits;</span>
+<span class="nc" id="L149">            var temphead = 0;</span>
+            // moving head on the right
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            while (temphead &lt; mylits.length</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                    &amp;&amp; this.voc.isFalsified(mylits[temphead])) {</span>
+<span class="nc" id="L153">                temphead++;</span>
+            }
+<span class="nc bnc" id="L155" title="All 4 branches missed.">            assert temphead &lt;= mylits.length;</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (temphead == mylits.length) {</span>
+<span class="nc" id="L157">                this.voc.watch(p, this);</span>
+<span class="nc" id="L158">                return s.enqueue(this.tail, this);</span>
+            }
+<span class="nc" id="L160">            this.head = mylits[temphead];</span>
+<span class="nc" id="L161">            mylits[temphead] = neg(p);</span>
+<span class="nc" id="L162">            this.voc.watch(neg(this.head), this);</span>
+<span class="nc" id="L163">            return true;</span>
+        }
+<span class="nc bnc" id="L165" title="All 4 branches missed.">        assert this.tail == neg(p);</span>
+<span class="nc" id="L166">        final int[] mylits = this.middleLits;</span>
+<span class="nc" id="L167">        int temptail = mylits.length - 1;</span>
+        // moving tail on the left
+<span class="nc bnc" id="L169" title="All 4 branches missed.">        while (temptail &gt;= 0 &amp;&amp; this.voc.isFalsified(mylits[temptail])) {</span>
+<span class="nc" id="L170">            temptail--;</span>
+        }
+<span class="nc bnc" id="L172" title="All 4 branches missed.">        assert -1 &lt;= temptail;</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        if (-1 == temptail) {</span>
+<span class="nc" id="L174">            this.voc.watch(p, this);</span>
+<span class="nc" id="L175">            return s.enqueue(this.head, this);</span>
+        }
+<span class="nc" id="L177">        this.tail = mylits[temptail];</span>
+<span class="nc" id="L178">        mylits[temptail] = neg(p);</span>
+<span class="nc" id="L179">        this.voc.watch(neg(this.tail), this);</span>
+<span class="nc" id="L180">        return true;</span>
+    }
+
+    /*
+     * For learnt clauses only @author leberre
+     */
+    public boolean locked() {
+<span class="nc bnc" id="L187" title="All 2 branches missed.">        return this.voc.getReason(this.head) == this</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">                || this.voc.getReason(this.tail) == this;</span>
+    }
+
+    /**
+     * @return the activity of the clause
+     */
+    @Override
+    public double getActivity() {
+<span class="nc" id="L196">        return this.activity;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L201">        var stb = new StringBuilder();</span>
+<span class="nc" id="L202">        stb.append(Lits.toString(this.head));</span>
+<span class="nc" id="L203">        stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L204">        stb.append(this.voc.valueToString(this.head));</span>
+<span class="nc" id="L205">        stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L206">        stb.append(&quot; &quot;); //$NON-NLS-1$</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        for (int middleLit : this.middleLits) {</span>
+<span class="nc" id="L208">            stb.append(Lits.toString(middleLit));</span>
+<span class="nc" id="L209">            stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L210">            stb.append(this.voc.valueToString(middleLit));</span>
+<span class="nc" id="L211">            stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L212">            stb.append(&quot; &quot;); //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L214">        stb.append(Lits.toString(this.tail));</span>
+<span class="nc" id="L215">        stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L216">        stb.append(this.voc.valueToString(this.tail));</span>
+<span class="nc" id="L217">        stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L218">        return stb.toString();</span>
+    }
+
+    /**
+     * Return the ith literal of the clause. Note that the order of the literals
+     * does change during the search...
+     * 
+     * @param i
+     *            the index of the literal
+     * @return the literal
+     */
+    public int get(int i) {
+<span class="nc bnc" id="L230" title="All 2 branches missed.">        if (i == 0) {</span>
+<span class="nc" id="L231">            return this.head;</span>
+        }
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if (i == this.middleLits.length + 1) {</span>
+<span class="nc" id="L234">            return this.tail;</span>
+        }
+<span class="nc" id="L236">        return this.middleLits[i - 1];</span>
+    }
+
+    /**
+     * @param d
+     */
+    @Override
+    public void rescaleBy(double d) {
+<span class="nc" id="L244">        this.activity *= d;</span>
+<span class="nc" id="L245">    }</span>
+
+    public int size() {
+<span class="nc" id="L248">        return this.middleLits.length + 2;</span>
+    }
+
+    public void assertConstraint(UnitPropagationListener s) {
+<span class="nc bnc" id="L252" title="All 4 branches missed.">        assert this.voc.isUnassigned(this.head);</span>
+<span class="nc" id="L253">        boolean ret = s.enqueue(this.head, this);</span>
+<span class="nc bnc" id="L254" title="All 4 branches missed.">        assert ret;</span>
+<span class="nc" id="L255">    }</span>
+
+    public void assertConstraintIfNeeded(UnitPropagationListener s) {
+<span class="nc bnc" id="L258" title="All 2 branches missed.">        if (voc.isFalsified(this.tail)) {</span>
+<span class="nc" id="L259">            boolean ret = s.enqueue(this.head, this);</span>
+<span class="nc bnc" id="L260" title="All 4 branches missed.">            assert ret;</span>
+        }
+<span class="nc" id="L262">    }</span>
+
+    public ILits getVocabulary() {
+<span class="nc" id="L265">        return this.voc;</span>
+    }
+
+    public int[] getLits() {
+<span class="nc" id="L269">        var tmp = new int[size()];</span>
+<span class="nc" id="L270">        System.arraycopy(this.middleLits, 0, tmp, 1, this.middleLits.length);</span>
+<span class="nc" id="L271">        tmp[0] = this.head;</span>
+<span class="nc" id="L272">        tmp[tmp.length - 1] = this.tail;</span>
+<span class="nc" id="L273">        return tmp;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (obj == null) {</span>
+<span class="nc" id="L279">            return false;</span>
+        }
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        if (this.getClass() != obj.getClass())</span>
+<span class="nc" id="L282">            return false;</span>
+        try {
+<span class="nc" id="L284">            HTClause wcl = (HTClause) obj;</span>
+<span class="nc bnc" id="L285" title="All 4 branches missed.">            if (wcl.head != this.head || wcl.tail != this.tail) {</span>
+<span class="nc" id="L286">                return false;</span>
+            }
+<span class="nc bnc" id="L288" title="All 2 branches missed.">            if (this.middleLits.length != wcl.middleLits.length) {</span>
+<span class="nc" id="L289">                return false;</span>
+            }
+            boolean ok;
+<span class="nc bnc" id="L292" title="All 2 branches missed.">            for (int lit : this.middleLits) {</span>
+<span class="nc" id="L293">                ok = false;</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">                for (int lit2 : wcl.middleLits) {</span>
+<span class="nc bnc" id="L295" title="All 2 branches missed.">                    if (lit == lit2) {</span>
+<span class="nc" id="L296">                        ok = true;</span>
+<span class="nc" id="L297">                        break;</span>
+                    }
+                }
+<span class="nc bnc" id="L300" title="All 2 branches missed.">                if (!ok) {</span>
+<span class="nc" id="L301">                    return false;</span>
+                }
+            }
+<span class="nc" id="L304">            return true;</span>
+<span class="nc" id="L305">        } catch (ClassCastException e) {</span>
+<span class="nc" id="L306">            return false;</span>
+        }
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L312">        long sum = (long) this.head + this.tail;</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">        for (int p : this.middleLits) {</span>
+<span class="nc" id="L314">            sum += p;</span>
+        }
+<span class="nc" id="L316">        return (int) sum / this.middleLits.length;</span>
+    }
+
+    public boolean canBePropagatedMultipleTimes() {
+<span class="nc" id="L320">        return false;</span>
+    }
+
+    public Constr toConstraint() {
+<span class="nc" id="L324">        return this;</span>
+    }
+
+    public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
+<span class="nc" id="L328">        calcReason(p, outReason);</span>
+<span class="nc" id="L329">    }</span>
+
+    public boolean canBeSatisfiedByCountingLiterals() {
+<span class="nc" id="L332">        return true;</span>
+    }
+
+    public int requiredNumberOfSatisfiedLiterals() {
+<span class="nc" id="L336">        return 1;</span>
+    }
+
+    public boolean isSatisfied() {
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        if (voc.isSatisfied(this.head))</span>
+<span class="nc" id="L341">            return true;</span>
+<span class="nc bnc" id="L342" title="All 2 branches missed.">        if (voc.isSatisfied(this.tail))</span>
+<span class="nc" id="L343">            return true;</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        for (int p : this.middleLits) {</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">            if (voc.isSatisfied(p))</span>
+<span class="nc" id="L346">                return true;</span>
+        }
+<span class="nc" id="L348">        return false;</span>
+    }
+
+    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+<span class="nc bnc" id="L352" title="All 2 branches missed.">        for (int i = trail.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc bnc" id="L353" title="All 2 branches missed.">            if (var(trail.get(i)) == var(this.head)) {</span>
+<span class="nc" id="L354">                return i;</span>
+            }
+        }
+<span class="nc" id="L357">        return -1;</span>
+    }
+
+    public String toString(VarMapper mapper) {
+<span class="nc" id="L361">        var stb = new StringBuilder();</span>
+<span class="nc" id="L362">        stb.append(mapper.map(LiteralsUtils.toDimacs(this.head)));</span>
+<span class="nc" id="L363">        stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L364">        stb.append(this.voc.valueToString(this.head));</span>
+<span class="nc" id="L365">        stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L366">        stb.append(&quot; &quot;); //$NON-NLS-1$</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        for (int middleLit : this.middleLits) {</span>
+<span class="nc" id="L368">            stb.append(mapper.map(LiteralsUtils.toDimacs(middleLit)));</span>
+<span class="nc" id="L369">            stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L370">            stb.append(this.voc.valueToString(middleLit));</span>
+<span class="nc" id="L371">            stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L372">            stb.append(&quot; &quot;); //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L374">        stb.append(mapper.map(LiteralsUtils.toDimacs(this.tail)));</span>
+<span class="nc" id="L375">        stb.append(&quot;[&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L376">        stb.append(this.voc.valueToString(this.tail));</span>
+<span class="nc" id="L377">        stb.append(&quot;]&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L378">        return stb.toString();</span>
+    }
+
+    @Override
+    public String dump() {
+<span class="nc" id="L383">        var stb = new StringBuilder();</span>
+<span class="nc" id="L384">        stb.append(LiteralsUtils.toDimacs(this.head));</span>
+<span class="nc" id="L385">        stb.append(' ');</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">        for (int p : middleLits) {</span>
+<span class="nc" id="L387">            stb.append(LiteralsUtils.toDimacs(p));</span>
+<span class="nc" id="L388">            stb.append(' ');</span>
+        }
+<span class="nc" id="L390">        stb.append(LiteralsUtils.toDimacs(this.tail));</span>
+<span class="nc" id="L391">        stb.append(&quot; 0&quot;);</span>
+<span class="nc" id="L392">        return stb.toString();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

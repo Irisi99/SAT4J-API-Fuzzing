@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchParams.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.core</a> &gt; <span class="el_source">SearchParams.java</span></div><h1>SearchParams.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.core;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Some parameters used during the search.
+ * 
+ * @author daniel
+ * 
+ */
+public class SearchParams implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L47">    private static final Logger LOGGER = Logger.getLogger(&quot;org.sat4j.core&quot;);</span>
+
+    /**
+     * Default search parameters.
+     * 
+     */
+    public SearchParams() {
+<span class="fc" id="L54">        this(0.95, 0.999, 1.5, 100);</span>
+<span class="fc" id="L55">    }</span>
+
+    /**
+     * 
+     * @param conflictBound
+     *            the initial conflict bound for the first restart.
+     */
+    public SearchParams(int conflictBound) {
+<span class="nc" id="L63">        this(0.95, 0.999, 1.5, conflictBound);</span>
+<span class="nc" id="L64">    }</span>
+
+    public SearchParams(double confincfactor, int conflictBound) {
+<span class="nc" id="L67">        this(0.95, 0.999, confincfactor, conflictBound);</span>
+<span class="nc" id="L68">    }</span>
+
+    /**
+     * @param d
+     *            variable decay
+     * @param e
+     *            clause decay
+     * @param f
+     *            conflict bound increase factor
+     * @param i
+     *            initialConflictBound
+     */
+<span class="fc" id="L80">    public SearchParams(double d, double e, double f, int i) {</span>
+<span class="fc" id="L81">        this.varDecay = d;</span>
+<span class="fc" id="L82">        this.claDecay = e;</span>
+<span class="fc" id="L83">        this.conflictBoundIncFactor = f;</span>
+<span class="fc" id="L84">        this.initConflictBound = i;</span>
+<span class="fc" id="L85">    }</span>
+
+    /**
+     * @return la valeur de clause decay
+     */
+    public double getClaDecay() {
+<span class="fc" id="L91">        return this.claDecay;</span>
+    }
+
+    /**
+     * @return la valeur de var decay
+     */
+    public double getVarDecay() {
+<span class="fc" id="L98">        return this.varDecay;</span>
+    }
+
+    private double claDecay;
+
+    private double varDecay;
+
+    private double conflictBoundIncFactor;
+
+    private int initConflictBound;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L116">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        for (Field field : SearchParams.class.getDeclaredFields()) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">            if (!field.getName().startsWith(&quot;serial&quot;)</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                    &amp;&amp; !field.getName().startsWith(&quot;class&quot;)) {</span>
+<span class="nc" id="L120">                stb.append(field.getName());</span>
+<span class="nc" id="L121">                stb.append(&quot;=&quot;); //$NON-NLS-1$</span>
+                try {
+<span class="nc" id="L123">                    stb.append(field.get(this));</span>
+<span class="nc" id="L124">                } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L125">                    LOGGER.log(Level.INFO,</span>
+                            &quot;Issue when reflectively accessing field&quot;, e);
+<span class="nc" id="L127">                } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L128">                    LOGGER.log(Level.INFO,</span>
+                            &quot;Access issue when reflectively accessing field&quot;,
+                            e);
+<span class="nc" id="L131">                }</span>
+<span class="nc" id="L132">                stb.append(&quot; &quot;); //$NON-NLS-1$</span>
+            }
+        }
+<span class="nc" id="L135">        return stb.toString();</span>
+    }
+
+    /**
+     * @param conflictBoundIncFactor
+     *            the conflictBoundIncFactor to set
+     */
+    public void setConflictBoundIncFactor(double conflictBoundIncFactor) {
+<span class="nc" id="L143">        this.conflictBoundIncFactor = conflictBoundIncFactor;</span>
+<span class="nc" id="L144">    }</span>
+
+    /**
+     * @param initConflictBound
+     *            the initConflictBound to set
+     */
+    public void setInitConflictBound(int initConflictBound) {
+<span class="nc" id="L151">        this.initConflictBound = initConflictBound;</span>
+<span class="nc" id="L152">    }</span>
+
+    /**
+     * @return the conflictBoundIncFactor
+     */
+    public double getConflictBoundIncFactor() {
+<span class="nc" id="L158">        return this.conflictBoundIncFactor;</span>
+    }
+
+    /**
+     * @return the initConflictBound
+     */
+    public int getInitConflictBound() {
+<span class="nc" id="L165">        return this.initConflictBound;</span>
+    }
+
+    /**
+     * @param claDecay
+     *            the claDecay to set
+     */
+    public void setClaDecay(double claDecay) {
+<span class="nc" id="L173">        this.claDecay = claDecay;</span>
+<span class="nc" id="L174">    }</span>
+
+    /**
+     * @param varDecay
+     *            the varDecay to set
+     */
+    public void setVarDecay(double varDecay) {
+<span class="nc" id="L181">        this.varDecay = varDecay;</span>
+<span class="nc" id="L182">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Heap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.core</a> &gt; <span class="el_source">Heap.java</span></div><h1>Heap.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.core;
+
+import java.io.Serializable;
+
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.orders.VariableComparator;
+import org.sat4j.specs.IVecInt;
+
+/**
+ * Heap implementation used to maintain the variables order in some heuristics.
+ * 
+ * @author daniel
+ * 
+ */
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">public final class Heap implements Serializable {</span>
+
+    /*
+     * default serial version id
+     */
+    private static final long serialVersionUID = 1L;
+
+    private static int left(int i) {
+<span class="fc" id="L52">        return i &lt;&lt; 1;</span>
+    }
+
+    private static int right(int i) {
+<span class="fc" id="L56">        return i &lt;&lt; 1 ^ 1;</span>
+    }
+
+    private static int parent(int i) {
+<span class="fc" id="L60">        return i &gt;&gt; 1;</span>
+    }
+
+<span class="fc" id="L63">    private final IVecInt variables = new VecInt(); // heap of ints</span>
+
+<span class="fc" id="L65">    private final IVecInt indices = new VecInt(); // int -&gt; index in heap</span>
+
+    private final VariableComparator comparator;
+
+    void percolateUp(int i) {
+<span class="fc" id="L70">        int x = this.variables.get(i);</span>
+<span class="fc" id="L71">        int p = parent(i);</span>
+<span class="fc bfc" id="L72" title="All 4 branches covered.">        while (i != 1 &amp;&amp; comparator.preferredTo(x, this.variables.get(p))) {</span>
+<span class="fc" id="L73">            this.variables.set(i, this.variables.get(p));</span>
+<span class="fc" id="L74">            this.indices.set(this.variables.get(p), i);</span>
+<span class="fc" id="L75">            i = p;</span>
+<span class="fc" id="L76">            p = parent(p);</span>
+        }
+<span class="fc" id="L78">        this.variables.set(i, x);</span>
+<span class="fc" id="L79">        this.indices.set(x, i);</span>
+<span class="fc" id="L80">    }</span>
+
+    void percolateDown(int i) {
+<span class="fc" id="L83">        int x = this.variables.get(i);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        while (left(i) &lt; this.variables.size()) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            int child = right(i) &lt; this.variables.size()</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                    &amp;&amp; comparator.preferredTo(this.variables.get(right(i)),</span>
+<span class="fc" id="L87">                            this.variables.get(left(i))) ? right(i) : left(i);</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">            if (!comparator.preferredTo(this.variables.get(child), x)) {</span>
+<span class="fc" id="L89">                break;</span>
+            }
+<span class="fc" id="L91">            this.variables.set(i, this.variables.get(child));</span>
+<span class="fc" id="L92">            this.indices.set(this.variables.get(i), i);</span>
+<span class="fc" id="L93">            i = child;</span>
+<span class="fc" id="L94">        }</span>
+<span class="fc" id="L95">        this.variables.set(i, x);</span>
+<span class="fc" id="L96">        this.indices.set(x, i);</span>
+<span class="fc" id="L97">    }</span>
+
+    boolean ok(int n) {
+<span class="pc bpc" id="L100" title="2 of 4 branches missed.">        return n &gt;= 0 &amp;&amp; n &lt; this.indices.size();</span>
+    }
+
+<span class="fc" id="L103">    public Heap(VariableComparator comparator) { // NOPMD</span>
+<span class="fc" id="L104">        this.comparator = comparator;</span>
+<span class="fc" id="L105">        this.variables.push(-1);</span>
+<span class="fc" id="L106">    }</span>
+
+    public void setBounds(int size) {
+<span class="pc bpc" id="L109" title="2 of 4 branches missed.">        assert size &gt;= 0;</span>
+<span class="fc" id="L110">        this.indices.growTo(size, 0);</span>
+<span class="fc" id="L111">    }</span>
+
+    public boolean inHeap(int n) {
+<span class="pc bpc" id="L114" title="2 of 4 branches missed.">        assert ok(n);</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        return this.indices.get(n) != 0;</span>
+    }
+
+    public void increase(int n) {
+<span class="pc bpc" id="L119" title="2 of 4 branches missed.">        assert ok(n);</span>
+<span class="pc bpc" id="L120" title="2 of 4 branches missed.">        assert inHeap(n);</span>
+<span class="fc" id="L121">        percolateUp(this.indices.get(n));</span>
+<span class="fc" id="L122">    }</span>
+
+    public boolean empty() {
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        return this.variables.size() == 1;</span>
+    }
+
+    public int size() {
+<span class="nc" id="L129">        return this.variables.size() - 1;</span>
+    }
+
+    public int get(int i) {
+<span class="fc" id="L133">        int r = this.variables.get(i);</span>
+<span class="fc" id="L134">        this.variables.set(i, this.variables.last());</span>
+<span class="fc" id="L135">        this.indices.set(this.variables.get(i), i);</span>
+<span class="fc" id="L136">        this.indices.set(r, 0);</span>
+<span class="fc" id="L137">        this.variables.pop();</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        if (this.variables.size() &gt; 1) {</span>
+<span class="fc" id="L139">            percolateDown(1);</span>
+        }
+<span class="fc" id="L141">        return r;</span>
+    }
+
+    public void insert(int n) {
+<span class="pc bpc" id="L145" title="2 of 4 branches missed.">        assert ok(n);</span>
+<span class="fc" id="L146">        this.indices.set(n, this.variables.size());</span>
+<span class="fc" id="L147">        this.variables.push(n);</span>
+<span class="fc" id="L148">        percolateUp(this.indices.get(n));</span>
+<span class="fc" id="L149">    }</span>
+
+    public int getmin() {
+<span class="fc" id="L152">        return get(1);</span>
+    }
+
+    public boolean heapProperty() {
+<span class="nc" id="L156">        return heapProperty(1);</span>
+    }
+
+    public boolean heapProperty(int i) {
+<span class="nc bnc" id="L160" title="All 2 branches missed.">        return i &gt;= this.variables.size()</span>
+<span class="nc bnc" id="L161" title="All 4 branches missed.">                || (parent(i) == 0 || !comparator.preferredTo(this.variables.get(i),</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">                        this.variables.get(parent(i)))) &amp;&amp; heapProperty(left(i))</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                &amp;&amp; heapProperty(right(i));</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

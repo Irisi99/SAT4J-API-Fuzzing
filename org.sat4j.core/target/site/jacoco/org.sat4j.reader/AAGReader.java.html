@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AAGReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.reader</a> &gt; <span class="el_source">AAGReader.java</span></div><h1>AAGReader.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.reader;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.tools.GateTranslator;
+
+/**
+ * Reader for the ASCII And Inverter Graph format defined by Armin Biere.
+ * 
+ * @author daniel
+ * 
+ */
+<span class="nc bnc" id="L49" title="All 2 branches missed.">@Feature(value = &quot;reader&quot;, parent = &quot;expert&quot;)</span>
+public class AAGReader extends Reader {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private static final int FALSE = 0;
+
+    private static final int TRUE = 1;
+
+    private final GateTranslator solver;
+
+    private int maxvarid;
+
+    private int nbinputs;
+
+<span class="nc" id="L67">    AAGReader(ISolver s) {</span>
+<span class="nc" id="L68">        this.solver = new GateTranslator(s);</span>
+<span class="nc" id="L69">    }</span>
+
+    @Override
+    public void decode(int[] model, PrintWriter out) {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        for (var i = 0; i &lt; this.nbinputs; i++) {</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            out.print(model[i] &gt; 0 ? 1 : 0);</span>
+        }
+<span class="nc" id="L76">    }</span>
+
+    @Override
+    public IProblem parseInstance(java.io.InputStream in)
+            throws ParseFormatException, ContradictionException, IOException {
+<span class="nc" id="L81">        var scanner = new EfficientScanner(in);</span>
+<span class="nc" id="L82">        String prefix = scanner.next();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (!&quot;aag&quot;.equals(prefix)) {</span>
+<span class="nc" id="L84">            throw new ParseFormatException(&quot;AAG format only!&quot;);</span>
+        }
+<span class="nc" id="L86">        this.maxvarid = scanner.nextInt();</span>
+<span class="nc" id="L87">        this.nbinputs = scanner.nextInt();</span>
+<span class="nc" id="L88">        var nblatches = scanner.nextInt();</span>
+<span class="nc" id="L89">        var nboutputs = scanner.nextInt();</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (nboutputs &gt; 1) {</span>
+<span class="nc" id="L91">            throw new ParseFormatException(</span>
+                    &quot;CNF conversion allowed for single output circuit only!&quot;);
+        }
+<span class="nc" id="L94">        var nbands = scanner.nextInt();</span>
+<span class="nc" id="L95">        this.solver.newVar(this.maxvarid + 1);</span>
+<span class="nc" id="L96">        this.solver.setExpectedNumberOfClauses(3 * nbands + 2);</span>
+<span class="nc" id="L97">        readInput(this.nbinputs, scanner);</span>
+<span class="nc bnc" id="L98" title="All 4 branches missed.">        assert nblatches == 0;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (nboutputs &gt; 0) {</span>
+<span class="nc" id="L100">            int output0 = readOutput(nboutputs, scanner);</span>
+<span class="nc" id="L101">            readAnd(nbands, output0, scanner);</span>
+        }
+<span class="nc" id="L103">        return this.solver;</span>
+    }
+
+    private void readAnd(int nbands, int output0, EfficientScanner scanner)
+            throws ContradictionException, IOException, ParseFormatException {
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (var i = 0; i &lt; nbands; i++) {</span>
+<span class="nc" id="L110">            var lhs = scanner.nextInt();</span>
+<span class="nc" id="L111">            var rhs0 = scanner.nextInt();</span>
+<span class="nc" id="L112">            var rhs1 = scanner.nextInt();</span>
+<span class="nc" id="L113">            this.solver.and(toDimacs(lhs), toDimacs(rhs0), toDimacs(rhs1));</span>
+        }
+<span class="nc" id="L115">        this.solver.gateTrue(this.maxvarid + 1);</span>
+<span class="nc" id="L116">        this.solver.gateTrue(toDimacs(output0));</span>
+<span class="nc" id="L117">    }</span>
+
+    private int toDimacs(int v) {
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (v == FALSE) {</span>
+<span class="nc" id="L121">            return -(this.maxvarid + 1);</span>
+        }
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (v == TRUE) {</span>
+<span class="nc" id="L124">            return this.maxvarid + 1;</span>
+        }
+<span class="nc" id="L126">        int variable = v &gt;&gt; 1;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if ((v &amp; 1) == 0) {</span>
+<span class="nc" id="L128">            return variable;</span>
+        }
+<span class="nc" id="L130">        return -variable;</span>
+    }
+
+    private int readOutput(int nboutputs, EfficientScanner scanner)
+            throws IOException, ParseFormatException {
+<span class="nc" id="L135">        IVecInt outputs = new VecInt(nboutputs);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        for (var i = 0; i &lt; nboutputs; i++) {</span>
+<span class="nc" id="L137">            outputs.push(scanner.nextInt());</span>
+        }
+<span class="nc" id="L139">        return outputs.get(0);</span>
+    }
+
+    private IVecInt readInput(int numberOfInputs, EfficientScanner scanner)
+            throws IOException, ParseFormatException {
+<span class="nc" id="L144">        IVecInt inputs = new VecInt(numberOfInputs);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        for (var i = 0; i &lt; numberOfInputs; i++) {</span>
+<span class="nc" id="L146">            inputs.push(scanner.nextInt());</span>
+        }
+<span class="nc" id="L148">        return inputs;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

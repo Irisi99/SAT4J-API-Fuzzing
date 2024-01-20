@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JSONReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.reader</a> &gt; <span class="el_source">JSONReader.java</span></div><h1>JSONReader.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.reader;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.regex.Pattern;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+
+/**
+ * Simple JSON reader for clauses and cardinality constraints.
+ * 
+ * Clauses are represented as an array of Dimacs literals (non zero integers).
+ * Cardinality constraints are represented like a clause for its left hand side,
+ * a comparator (a string) and a number.
+ * &lt;code&gt;[[-1,-2,-3],[[1,-2,3],'&amp;gt;',2],[4,-3,6]]&lt;/code&gt; for instance
+ * represents three constraints, two clauses and the cardinality constraint
+ * &lt;code&gt;x1 + not x2 + x3 &amp;gt; 2&lt;/code&gt;.
+ * 
+ * @author leberre
+ * 
+ * @param &lt;S&gt;
+ *            the type of solver to feed.
+ * @since 2.3.3
+ */
+@Feature(value = &quot;reader&quot;, parent = &quot;expert&quot;)
+public class JSONReader&lt;S extends ISolver&gt; extends Reader {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    protected final S solver;
+
+    public static final String CLAUSE = &quot;(\\[(-?(\\d+)(,-?(\\d+))*+)?\\])&quot;;
+
+    public static final String CARD = &quot;(\\[&quot; + CLAUSE + &quot;,'[=&lt;&gt;]=?',-?\\d+\\])&quot;;
+
+    public final String constraint;
+
+    public final String formula;
+
+<span class="nc" id="L81">    private static final Pattern CLAUSE_PATTERN = Pattern.compile(CLAUSE);</span>
+
+<span class="nc" id="L83">    private static final Pattern CARD_PATTERN = Pattern.compile(CARD);</span>
+
+    private final Pattern constraintPattern;
+
+<span class="nc" id="L87">    public JSONReader(S solver) {</span>
+<span class="nc" id="L88">        this.solver = solver;</span>
+<span class="nc" id="L89">        constraint = constraintRegexp();</span>
+<span class="nc" id="L90">        formula = &quot;^\\[(&quot; + constraint + &quot;(,&quot; + constraint + &quot;)*)?\\]$&quot;;</span>
+<span class="nc" id="L91">        constraintPattern = Pattern.compile(constraint);</span>
+<span class="nc" id="L92">    }</span>
+
+    protected String constraintRegexp() {
+<span class="nc" id="L95">        return &quot;(&quot; + CLAUSE + &quot;|&quot; + CARD + &quot;)&quot;;</span>
+    }
+
+    private void handleConstraint(String constraint)
+            throws ParseFormatException, ContradictionException {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (CARD_PATTERN.matcher(constraint).matches()) {</span>
+<span class="nc" id="L101">            handleCard(constraint);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        } else if (CLAUSE_PATTERN.matcher(constraint).matches()) {</span>
+<span class="nc" id="L103">            handleClause(constraint);</span>
+        } else {
+<span class="nc" id="L105">            handleNotHandled(constraint);</span>
+        }
+<span class="nc" id="L107">    }</span>
+
+    protected void handleNotHandled(String constraint)
+            throws ParseFormatException, ContradictionException {
+<span class="nc" id="L111">        throw new ParseFormatException(&quot;Unknown constraint: &quot; + constraint);</span>
+    }
+
+    private void handleClause(String constraint) throws ContradictionException {
+<span class="nc" id="L115">        solver.addClause(getLiterals(constraint));</span>
+<span class="nc" id="L116">    }</span>
+
+    protected IVecInt getLiterals(String constraint) {
+<span class="nc" id="L119">        String trimmed = constraint.trim();</span>
+<span class="nc" id="L120">        trimmed = trimmed.substring(1, trimmed.length() - 1);</span>
+<span class="nc" id="L121">        String[] literals = trimmed.split(&quot;,&quot;);</span>
+<span class="nc" id="L122">        IVecInt clause = new VecInt();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (String literal : literals) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            if (literal.length() &gt; 0)</span>
+<span class="nc" id="L125">                clause.push(Integer.valueOf(literal.trim()));</span>
+        }
+<span class="nc" id="L127">        return clause;</span>
+    }
+
+    protected void handleCard(String constraint) throws ContradictionException {
+<span class="nc" id="L131">        String trimmed = constraint.trim();</span>
+<span class="nc" id="L132">        trimmed = trimmed.substring(1, trimmed.length() - 1);</span>
+<span class="nc" id="L133">        var matcher = CLAUSE_PATTERN.matcher(trimmed);</span>
+<span class="nc bnc" id="L134" title="All 2 branches missed.">        if (matcher.find()) {</span>
+<span class="nc" id="L135">            IVecInt clause = getLiterals(matcher.group());</span>
+<span class="nc" id="L136">            trimmed = matcher.replaceFirst(&quot;&quot;);</span>
+<span class="nc" id="L137">            String[] str = trimmed.split(&quot;,&quot;);</span>
+
+<span class="nc" id="L139">            var degree = Integer.valueOf(str[2]);</span>
+<span class="nc" id="L140">            var comparator = str[1].substring(1, str[1].length() - 1);</span>
+<span class="nc bnc" id="L141" title="All 4 branches missed.">            if (&quot;=&quot;.equals(comparator) || (&quot;==&quot;.equals(comparator))) {</span>
+<span class="nc" id="L142">                solver.addExactly(clause, degree);</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">            } else if (&quot;&lt;=&quot;.equals(comparator)) {</span>
+<span class="nc" id="L144">                solver.addAtMost(clause, degree);</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            } else if (&quot;&lt;&quot;.equals(comparator)) {</span>
+<span class="nc" id="L146">                solver.addAtMost(clause, degree - 1);</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            } else if (&quot;&gt;=&quot;.equals(comparator)) {</span>
+<span class="nc" id="L148">                solver.addAtLeast(clause, degree);</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">            } else if (&quot;&gt;&quot;.equals(comparator)) {</span>
+<span class="nc" id="L150">                solver.addAtLeast(clause, degree + 1);</span>
+            }
+        }
+<span class="nc" id="L153">    }</span>
+
+    @Override
+    public IProblem parseInstance(InputStream in)
+            throws ParseFormatException, ContradictionException, IOException {
+<span class="nc" id="L158">        var out = new StringWriter();</span>
+<span class="nc" id="L159">        var reader = new BufferedReader(new InputStreamReader(in));</span>
+        String line;
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        while ((line = reader.readLine()) != null) {</span>
+<span class="nc" id="L162">            out.append(line);</span>
+        }
+<span class="nc" id="L164">        return parseString(out.toString());</span>
+    }
+
+    public ISolver parseString(String json)
+            throws ParseFormatException, ContradictionException {
+<span class="nc" id="L169">        String trimmed = json.trim();</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        if (!trimmed.matches(formula)) {</span>
+<span class="nc" id="L171">            throw new ParseFormatException(&quot;Wrong input &quot; + json);</span>
+        }
+<span class="nc" id="L173">        var matcher = constraintPattern.matcher(trimmed);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        while (matcher.find()) {</span>
+<span class="nc" id="L175">            handleConstraint(matcher.group());</span>
+        }
+<span class="nc" id="L177">        return solver;</span>
+    }
+
+    @Override
+    public void decode(int[] model, PrintWriter out) {
+<span class="nc" id="L182">        out.print(&quot;[&quot;);</span>
+<span class="nc" id="L183">        out.print(new VecInt(model));</span>
+<span class="nc" id="L184">        out.print(&quot;]&quot;);</span>
+<span class="nc" id="L185">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

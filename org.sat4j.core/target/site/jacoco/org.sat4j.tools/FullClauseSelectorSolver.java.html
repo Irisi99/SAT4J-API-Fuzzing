@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FullClauseSelectorSolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">FullClauseSelectorSolver.java</span></div><h1>FullClauseSelectorSolver.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+
+@Feature(&quot;solver&quot;)
+public class FullClauseSelectorSolver&lt;T extends ISolver&gt;
+        extends AbstractClauseSelectorSolver&lt;T&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+<span class="nc" id="L51">    private final Map&lt;Integer, IConstr&gt; constrs = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L52">    private final IVecInt lastClause = new VecInt();</span>
+    private IConstr lastConstr;
+    private final boolean skipDuplicatedEntries;
+
+    public FullClauseSelectorSolver(T solver, boolean skipDuplicatedEntries) {
+<span class="nc" id="L57">        super(solver);</span>
+<span class="nc" id="L58">        this.skipDuplicatedEntries = skipDuplicatedEntries;</span>
+<span class="nc" id="L59">    }</span>
+
+    public IConstr addControlableClause(IVecInt literals)
+            throws ContradictionException {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.skipDuplicatedEntries) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">            if (literals.equals(this.lastClause)) {</span>
+<span class="nc" id="L65">                return null;</span>
+            }
+<span class="nc" id="L67">            this.lastClause.clear();</span>
+<span class="nc" id="L68">            literals.copyTo(this.lastClause);</span>
+        }
+<span class="nc" id="L70">        int newvar = createNewVar(literals);</span>
+<span class="nc" id="L71">        literals.push(newvar);</span>
+<span class="nc" id="L72">        this.lastConstr = super.addClause(literals);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (this.lastConstr == null) {</span>
+<span class="nc" id="L74">            discardLastestVar();</span>
+        } else {
+<span class="nc" id="L76">            this.constrs.put(newvar, this.lastConstr);</span>
+        }
+<span class="nc" id="L78">        return this.lastConstr;</span>
+    }
+
+    public IConstr addNonControlableClause(IVecInt literals)
+            throws ContradictionException {
+<span class="nc" id="L83">        return super.addClause(literals);</span>
+    }
+
+    @Override
+    public IConstr addClause(IVecInt literals) throws ContradictionException {
+<span class="nc" id="L88">        return addControlableClause(literals);</span>
+    }
+
+    @Override
+    public int[] model() {
+<span class="nc" id="L93">        int[] fullmodel = super.modelWithInternalVariables();</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (fullmodel == null) {</span>
+<span class="nc" id="L95">            return null;</span>
+        }
+<span class="nc" id="L97">        var model = new int[fullmodel.length - this.constrs.size()];</span>
+<span class="nc" id="L98">        var j = 0;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (int element : fullmodel) {</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (this.constrs.get(Math.abs(element)) == null) {</span>
+<span class="nc" id="L101">                model[j++] = element;</span>
+            }
+        }
+<span class="nc" id="L104">        return model;</span>
+    }
+
+    /**
+     * 
+     * @since 2.1
+     */
+    public Collection&lt;IConstr&gt; getConstraints() {
+<span class="nc" id="L112">        return this.constrs.values();</span>
+    }
+
+    @Override
+    public Collection&lt;Integer&gt; getAddedVars() {
+<span class="nc" id="L117">        return this.constrs.keySet();</span>
+    }
+
+    public IConstr getLastConstr() {
+<span class="nc" id="L121">        return lastConstr;</span>
+    }
+
+    public void setLastConstr(IConstr lastConstr) {
+<span class="nc" id="L125">        this.lastConstr = lastConstr;</span>
+<span class="nc" id="L126">    }</span>
+
+    public Map&lt;Integer, IConstr&gt; getConstrs() {
+<span class="nc" id="L129">        return constrs;</span>
+    }
+
+    public IVecInt getLastClause() {
+<span class="nc" id="L133">        return lastClause;</span>
+    }
+
+    public boolean isSkipDuplicatedEntries() {
+<span class="nc" id="L137">        return skipDuplicatedEntries;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

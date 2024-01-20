@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OriginalHTClause.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.cnf</a> &gt; <span class="el_source">OriginalHTClause.java</span></div><h1>OriginalHTClause.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.cnf;
+
+import static org.sat4j.core.LiteralsUtils.neg;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.MandatoryLiteralListener;
+import org.sat4j.specs.UnitPropagationListener;
+
+/**
+ * @since 2.1
+ */
+<span class="nc bnc" id="L43" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+public class OriginalHTClause extends HTClause {
+
+    public OriginalHTClause(IVecInt ps, ILits voc) {
+<span class="nc" id="L47">        super(ps, voc);</span>
+<span class="nc" id="L48">    }</span>
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.constraints.cnf.WLClause#register()
+     */
+    public void register() {
+<span class="nc" id="L61">        this.voc.watch(neg(this.head), this);</span>
+<span class="nc" id="L62">        this.voc.watch(neg(this.tail), this);</span>
+<span class="nc" id="L63">    }</span>
+
+    public boolean learnt() {
+<span class="nc" id="L66">        return false;</span>
+    }
+
+    public void setLearnt() {
+        // do nothing
+<span class="nc" id="L71">    }</span>
+
+    /**
+     * Creates a brand new clause, presumably from external data.
+     * 
+     * @param voc
+     *            the vocabulary
+     * @param literals
+     *            the literals to store in the clause
+     * 
+     * @return the created clause or null if the clause should be ignored
+     *         (tautology for example)
+     */
+    public static OriginalHTClause brandNewClause(ILits voc, IVecInt literals) {
+<span class="nc" id="L85">        var c = new OriginalHTClause(literals, voc);</span>
+<span class="nc" id="L86">        c.register();</span>
+<span class="nc" id="L87">        return c;</span>
+    }
+
+    public void propagatePI(MandatoryLiteralListener l, int p) {
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (this.head == neg(p)) {</span>
+<span class="nc" id="L92">            final int[] mylits = this.middleLits;</span>
+            // moving head on the right
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            while (savedindexhead &lt; mylits.length</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                    &amp;&amp; this.voc.isFalsified(mylits[savedindexhead])) {</span>
+<span class="nc" id="L96">                savedindexhead++;</span>
+            }
+<span class="nc bnc" id="L98" title="All 4 branches missed.">            assert savedindexhead &lt;= mylits.length;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">            if (savedindexhead == mylits.length) {</span>
+<span class="nc" id="L100">                l.isMandatory(this.tail);</span>
+            } else {
+<span class="nc" id="L102">                this.head = mylits[savedindexhead];</span>
+<span class="nc" id="L103">                mylits[savedindexhead] = neg(p);</span>
+<span class="nc" id="L104">                this.voc.watch(neg(this.head), this);</span>
+            }
+<span class="nc" id="L106">        } else {</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">            assert this.tail == neg(p);</span>
+<span class="nc" id="L108">            final int[] mylits = this.middleLits;</span>
+            // moving tail on the left
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            while (savedindextail &gt;= 0</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">                    &amp;&amp; this.voc.isFalsified(mylits[savedindextail])) {</span>
+<span class="nc" id="L112">                savedindextail--;</span>
+            }
+<span class="nc bnc" id="L114" title="All 4 branches missed.">            assert -1 &lt;= savedindextail;</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">            if (-1 == savedindextail) {</span>
+<span class="nc" id="L116">                l.isMandatory(this.head);</span>
+            } else {
+<span class="nc" id="L118">                this.tail = mylits[savedindextail];</span>
+<span class="nc" id="L119">                mylits[savedindextail] = neg(p);</span>
+<span class="nc" id="L120">                this.voc.watch(neg(this.tail), this);</span>
+            }
+        }
+<span class="nc" id="L123">    }</span>
+
+    private int savedindexhead;
+    private int savedindextail;
+
+    @Override
+    public boolean propagate(UnitPropagationListener s, int p) {
+<span class="nc" id="L130">        this.savedindexhead = 0;</span>
+<span class="nc" id="L131">        this.savedindextail = middleLits.length - 1;</span>
+<span class="nc" id="L132">        return super.propagate(s, p);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

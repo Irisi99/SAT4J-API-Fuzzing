@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReadOnlyVec.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.core</a> &gt; <span class="el_source">ReadOnlyVec.java</span></div><h1>ReadOnlyVec.java</h1><pre class="source lang-java linenums">package org.sat4j.core;
+
+/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+import java.util.Comparator;
+import java.util.Iterator;
+
+import org.sat4j.specs.IVec;
+
+/**
+ * Utility class to allow Read Only access to an {@link IVec}.
+ * 
+ * @author daniel
+ * 
+ * @param &lt;T&gt;
+ *            the type of the container.
+ */
+public final class ReadOnlyVec&lt;T&gt; implements IVec&lt;T&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final IVec&lt;T&gt; vec;
+
+<span class="nc" id="L54">    public ReadOnlyVec(IVec&lt;T&gt; vec) {</span>
+<span class="nc" id="L55">        this.vec = vec;</span>
+<span class="nc" id="L56">    }</span>
+
+    public void clear() {
+<span class="nc" id="L59">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void copyTo(IVec&lt;T&gt; copy) {
+<span class="nc" id="L63">        this.vec.copyTo(copy);</span>
+<span class="nc" id="L64">    }</span>
+
+    public &lt;E&gt; void copyTo(E[] dest) {
+<span class="nc" id="L67">        this.vec.copyTo(dest);</span>
+<span class="nc" id="L68">    }</span>
+
+    public T delete(int i) {
+<span class="nc" id="L71">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void ensure(int nsize) {
+<span class="nc" id="L75">        throw new UnsupportedOperationException();</span>
+
+    }
+
+    public T get(int i) {
+<span class="nc" id="L80">        return this.vec.get(i);</span>
+    }
+
+    public void growTo(int newsize, T pad) {
+<span class="nc" id="L84">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void insertFirst(T elem) {
+<span class="nc" id="L88">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void insertFirstWithShifting(T elem) {
+<span class="nc" id="L92">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean isEmpty() {
+<span class="nc" id="L96">        return this.vec.isEmpty();</span>
+    }
+
+    public Iterator&lt;T&gt; iterator() {
+<span class="nc" id="L100">        return this.vec.iterator();</span>
+    }
+
+    public T last() {
+<span class="nc" id="L104">        return this.vec.last();</span>
+    }
+
+    public void moveTo(IVec&lt;T&gt; dest) {
+<span class="nc" id="L108">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void moveTo(int dest, int source) {
+<span class="nc" id="L112">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void pop() {
+<span class="nc" id="L116">        throw new UnsupportedOperationException();</span>
+    }
+
+    public IVec&lt;T&gt; push(T elem) {
+<span class="nc" id="L120">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void remove(T elem) {
+<span class="nc" id="L124">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void removeFromLast(T elem) {
+<span class="nc" id="L128">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void set(int i, T o) {
+<span class="nc" id="L132">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void shrink(int nofelems) {
+<span class="nc" id="L136">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void shrinkTo(int newsize) {
+<span class="nc" id="L140">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int size() {
+<span class="nc" id="L144">        return this.vec.size();</span>
+    }
+
+    public void sort(Comparator&lt;T&gt; comparator) {
+<span class="nc" id="L148">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void sortUnique(Comparator&lt;T&gt; comparator) {
+<span class="nc" id="L152">        throw new UnsupportedOperationException();</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public T[] toArray() {
+<span class="nc" id="L157">        T[] array = (T[]) new Object[this.vec.size()];</span>
+<span class="nc" id="L158">        this.vec.copyTo(array);</span>
+<span class="nc" id="L159">        return array;</span>
+    }
+
+    public void unsafePush(T elem) {
+<span class="nc" id="L163">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public boolean contains(T element) {
+<span class="nc" id="L170">        return this.vec.contains(element);</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public int indexOf(T element) {
+<span class="nc" id="L177">        return this.vec.indexOf(element);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L182">        return this.vec.toString();</span>
+    }
+
+    @Override
+    public int hashCode() {
+<span class="nc" id="L187">        return this.vec.hashCode();</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc" id="L192">        return this.vec.equals(obj);</span>
+    }
+
+    @Override
+    public IVec&lt;T&gt; clone() {
+<span class="nc" id="L197">        IVec&lt;T&gt; cloned = new Vec&lt;&gt;(this.size());</span>
+<span class="nc" id="L198">        this.copyTo(cloned);</span>
+<span class="nc" id="L199">        return new ReadOnlyVec&lt;&gt;(cloned);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

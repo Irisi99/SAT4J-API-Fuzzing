@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClausalCardinalitiesDecorator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">ClausalCardinalitiesDecorator.java</span></div><h1>ClausalCardinalitiesDecorator.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.tools.encoding.EncodingStrategyAdapter;
+import org.sat4j.tools.encoding.Policy;
+
+/**
+ * 
+ * A decorator for clausal cardinalities constraints.
+ * 
+ * @author stephanieroussel
+ * @since 2.3.1
+ * @param &lt;T&gt;
+ */
+@Feature(&quot;solver&quot;)
+public class ClausalCardinalitiesDecorator&lt;T extends ISolver&gt;
+        extends SolverDecorator&lt;T&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final EncodingStrategyAdapter encodingAdapter;
+
+    public ClausalCardinalitiesDecorator(T solver) {
+<span class="nc" id="L60">        super(solver);</span>
+<span class="nc" id="L61">        this.encodingAdapter = new Policy();</span>
+<span class="nc" id="L62">    }</span>
+
+    public ClausalCardinalitiesDecorator(T solver,
+            EncodingStrategyAdapter encodingAd) {
+<span class="nc" id="L66">        super(solver);</span>
+<span class="nc" id="L67">        this.encodingAdapter = encodingAd;</span>
+<span class="nc" id="L68">    }</span>
+
+    @Override
+    public IConstr addAtLeast(IVecInt literals, int k)
+            throws ContradictionException {
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        if (k == 1) {</span>
+<span class="nc" id="L74">            return this.encodingAdapter.addAtLeastOne(decorated(), literals);</span>
+        } else {
+<span class="nc" id="L76">            return this.encodingAdapter.addAtLeast(decorated(), literals, k);</span>
+        }
+    }
+
+    @Override
+    public IConstr addAtMost(IVecInt literals, int k)
+            throws ContradictionException {
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (k == 1) {</span>
+<span class="nc" id="L84">            return this.encodingAdapter.addAtMostOne(decorated(), literals);</span>
+        } else {
+<span class="nc" id="L86">            return this.encodingAdapter.addAtMost(decorated(), literals, k);</span>
+        }
+    }
+
+    @Override
+    public IConstr addExactly(IVecInt literals, int k)
+            throws ContradictionException {
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        if (k == 1) {</span>
+<span class="nc" id="L95">            return this.encodingAdapter.addExactlyOne(decorated(), literals);</span>
+        } else {
+<span class="nc" id="L97">            return this.encodingAdapter.addExactly(decorated(), literals, k);</span>
+        }
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L103">        return toString(&quot;&quot;);</span>
+    }
+
+    @Override
+    public String toString(String prefix) {
+<span class="nc" id="L108">        return super.toString(prefix) + &quot;\n&quot; + &quot;Cardinality to SAT encoding: \n&quot;</span>
+                + &quot;Encoding: &quot; + this.encodingAdapter + &quot;\n&quot;;
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

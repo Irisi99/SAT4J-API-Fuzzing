@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MultiTracing.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">MultiTracing.java</span></div><h1>MultiTracing.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.Lbool;
+import org.sat4j.specs.RandomAccessModel;
+import org.sat4j.specs.SearchListener;
+
+/**
+ * Allow to feed the solver with several SearchListener.
+ * 
+ * @author leberre
+ * 
+ */
+@Feature(&quot;searchlistener&quot;)
+public class MultiTracing&lt;T extends ISolverService&gt;
+        implements SearchListener&lt;T&gt; {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L59">    private final Collection&lt;SearchListener&lt;T&gt;&gt; listeners = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L61">    public MultiTracing(SearchListener&lt;T&gt;... listeners) {</span>
+<span class="nc" id="L62">        this.listeners.addAll(Arrays.asList(listeners));</span>
+<span class="nc" id="L63">    }</span>
+
+<span class="nc" id="L65">    public MultiTracing(List&lt;SearchListener&lt;T&gt;&gt; listenersList) {</span>
+<span class="nc" id="L66">        this.listeners.addAll(listenersList);</span>
+<span class="nc" id="L67">    }</span>
+
+    @Override
+    public void assuming(int p) {
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L72">            sl.assuming(p);</span>
+<span class="nc" id="L73">        }</span>
+
+<span class="nc" id="L75">    }</span>
+
+    @Override
+    public void propagating(int p) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L80">            sl.propagating(p);</span>
+<span class="nc" id="L81">        }</span>
+<span class="nc" id="L82">    }</span>
+
+    @Override
+    public void enqueueing(int p, IConstr reason) {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L87">            sl.enqueueing(p, reason);</span>
+<span class="nc" id="L88">        }</span>
+<span class="nc" id="L89">    }</span>
+
+    @Override
+    public void backtracking(int p) {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L94">            sl.backtracking(p);</span>
+<span class="nc" id="L95">        }</span>
+<span class="nc" id="L96">    }</span>
+
+    @Override
+    public void adding(int p) {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L101">            sl.adding(p);</span>
+<span class="nc" id="L102">        }</span>
+
+<span class="nc" id="L104">    }</span>
+
+    @Override
+    public void learn(IConstr c) {
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L109">            sl.learn(c);</span>
+<span class="nc" id="L110">        }</span>
+
+<span class="nc" id="L112">    }</span>
+
+    @Override
+    public void learnUnit(int p) {
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L117">            sl.learnUnit(p);</span>
+<span class="nc" id="L118">        }</span>
+<span class="nc" id="L119">    }</span>
+
+    @Override
+    public void delete(IConstr c) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L124">            sl.delete(c);</span>
+<span class="nc" id="L125">        }</span>
+
+<span class="nc" id="L127">    }</span>
+
+    @Override
+    public void conflictFound(IConstr confl, int dlevel, int trailLevel) {
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L132">            sl.conflictFound(confl, dlevel, trailLevel);</span>
+<span class="nc" id="L133">        }</span>
+
+<span class="nc" id="L135">    }</span>
+
+    @Override
+    public void conflictFound(int p) {
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L140">            sl.conflictFound(p);</span>
+<span class="nc" id="L141">        }</span>
+
+<span class="nc" id="L143">    }</span>
+
+    @Override
+    public void solutionFound(int[] model, RandomAccessModel lazyModel) {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L148">            sl.solutionFound(model, lazyModel);</span>
+<span class="nc" id="L149">        }</span>
+
+<span class="nc" id="L151">    }</span>
+
+    @Override
+    public void beginLoop() {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L156">            sl.beginLoop();</span>
+<span class="nc" id="L157">        }</span>
+<span class="nc" id="L158">    }</span>
+
+    @Override
+    public void start() {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L163">            sl.start();</span>
+<span class="nc" id="L164">        }</span>
+
+<span class="nc" id="L166">    }</span>
+
+    @Override
+    public void end(Lbool result) {
+<span class="nc bnc" id="L170" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L171">            sl.end(result);</span>
+<span class="nc" id="L172">        }</span>
+<span class="nc" id="L173">    }</span>
+
+    @Override
+    public void restarting() {
+<span class="nc bnc" id="L177" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L178">            sl.restarting();</span>
+<span class="nc" id="L179">        }</span>
+
+<span class="nc" id="L181">    }</span>
+
+    @Override
+    public void backjump(int backjumpLevel) {
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L186">            sl.backjump(backjumpLevel);</span>
+<span class="nc" id="L187">        }</span>
+
+<span class="nc" id="L189">    }</span>
+
+    @Override
+    public void init(T solverService) {
+<span class="nc bnc" id="L193" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L194">            sl.init(solverService);</span>
+<span class="nc" id="L195">        }</span>
+<span class="nc" id="L196">    }</span>
+
+    @Override
+    public void cleaning() {
+<span class="nc bnc" id="L200" title="All 2 branches missed.">        for (SearchListener&lt;T&gt; sl : this.listeners) {</span>
+<span class="nc" id="L201">            sl.cleaning();</span>
+<span class="nc" id="L202">        }</span>
+<span class="nc" id="L203">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

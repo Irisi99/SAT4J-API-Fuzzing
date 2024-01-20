@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupClauseSelectorSolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">GroupClauseSelectorSolver.java</span></div><h1>GroupClauseSelectorSolver.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.IGroupSolver;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+
+@Feature(&quot;solver&quot;)
+public class GroupClauseSelectorSolver&lt;T extends ISolver&gt;
+        extends AbstractClauseSelectorSolver&lt;T&gt; implements IGroupSolver {
+
+    private static final long serialVersionUID = 1L;
+
+<span class="nc" id="L51">    private final Map&lt;Integer, Integer&gt; varToHighLevel = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L52">    private final Map&lt;Integer, Integer&gt; highLevelToVar = new HashMap&lt;&gt;();</span>
+
+    public GroupClauseSelectorSolver(T solver) {
+<span class="nc" id="L55">        super(solver);</span>
+<span class="nc" id="L56">    }</span>
+
+    public IConstr addControlableClause(IVecInt literals, int desc)
+            throws ContradictionException {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (desc == 0) {</span>
+<span class="nc" id="L61">            return super.addClause(literals);</span>
+        }
+<span class="nc" id="L63">        Integer hlvar = getGroupVar(literals, desc);</span>
+<span class="nc" id="L64">        literals.push(hlvar);</span>
+<span class="nc" id="L65">        return super.addClause(literals);</span>
+    }
+
+    protected Integer getGroupVar(IVecInt literals, int groupid) {
+<span class="nc" id="L69">        Integer hlvar = this.highLevelToVar.get(groupid);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">        if (hlvar == null) {</span>
+<span class="nc" id="L71">            hlvar = createNewVar(literals);</span>
+<span class="nc" id="L72">            this.highLevelToVar.put(groupid, hlvar);</span>
+<span class="nc" id="L73">            this.varToHighLevel.put(hlvar, groupid);</span>
+        }
+<span class="nc" id="L75">        return hlvar;</span>
+    }
+
+    public IConstr addNonControlableClause(IVecInt literals)
+            throws ContradictionException {
+<span class="nc" id="L80">        return super.addClause(literals);</span>
+    }
+
+    public IConstr addClause(IVecInt literals, int desc)
+            throws ContradictionException {
+<span class="nc" id="L85">        return addControlableClause(literals, desc);</span>
+    }
+
+    @Override
+    public Collection&lt;Integer&gt; getAddedVars() {
+<span class="nc" id="L90">        return varToHighLevel.keySet();</span>
+    }
+
+    @Override
+    public int[] model() {
+<span class="nc" id="L95">        int[] fullmodel = super.modelWithInternalVariables();</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (fullmodel == null) {</span>
+<span class="nc" id="L97">            return null;</span>
+        }
+<span class="nc" id="L99">        var model = new int[fullmodel.length - this.varToHighLevel.size()];</span>
+<span class="nc" id="L100">        var j = 0;</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        for (int element : fullmodel) {</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (this.varToHighLevel.get(Math.abs(element)) == null) {</span>
+<span class="nc" id="L103">                model[j++] = element;</span>
+            }
+        }
+<span class="nc" id="L106">        return model;</span>
+    }
+
+    public Map&lt;Integer, Integer&gt; getVarToHighLevel() {
+<span class="nc" id="L110">        return varToHighLevel;</span>
+    }
+
+    @Override
+    public IVecInt unsatExplanation() {
+<span class="nc" id="L115">        IVecInt internal = super.unsatExplanation();</span>
+<span class="nc" id="L116">        IVecInt external = new VecInt(internal.size());</span>
+        int p;
+        Integer group;
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        for (IteratorInt it = internal.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L120">            p = it.next();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (p &gt; 0) {</span>
+<span class="nc" id="L122">                group = varToHighLevel.get(p);</span>
+            } else {
+<span class="nc" id="L124">                Integer negGroup = varToHighLevel.get(-p);</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                group = (negGroup == null) ? (null) : (-negGroup);</span>
+            }
+<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (group != null) {</span>
+<span class="nc" id="L128">                external.push(group);</span>
+            }
+        }
+<span class="nc" id="L131">        return external;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

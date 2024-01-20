@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AtLeast.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.card</a> &gt; <span class="el_source">AtLeast.java</span></div><h1>AtLeast.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.card;
+
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.constraints.cnf.Lits;
+import org.sat4j.minisat.constraints.cnf.OriginalWLClause;
+import org.sat4j.minisat.constraints.cnf.UnitClauses;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.minisat.core.Undoable;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+import org.sat4j.specs.MandatoryLiteralListener;
+import org.sat4j.specs.Propagatable;
+import org.sat4j.specs.UnitPropagationListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * @author leberre Contrainte de cardinalit?
+ */
+<span class="nc bnc" id="L56" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /** number of allowed falsified literal */
+    protected int maxUnsatisfied;
+
+    /** current number of falsified literals */
+    private int counter;
+
+    /**
+     * constraint literals
+     */
+    protected final int[] lits;
+
+    protected final ILits voc;
+
+    /**
+     * @param ps
+     *            a vector of literals
+     * @param degree
+     *            the minimal number of satisfied literals
+     */
+<span class="nc" id="L80">    public AtLeast(ILits voc, IVecInt ps, int degree) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (degree == 1) {</span>
+<span class="nc" id="L82">            throw new IllegalArgumentException(</span>
+                    &quot;cards with degree 1 are clauses!!!!&quot;);
+        }
+<span class="nc" id="L85">        this.maxUnsatisfied = ps.size() - degree;</span>
+<span class="nc" id="L86">        this.voc = voc;</span>
+<span class="nc" id="L87">        this.counter = 0;</span>
+<span class="nc" id="L88">        this.lits = new int[ps.size()];</span>
+<span class="nc" id="L89">        ps.moveTo(this.lits);</span>
+<span class="nc" id="L90">    }</span>
+
+    protected static int niceParameters(UnitPropagationListener s, ILits voc,
+            IVecInt ps, int deg) throws ContradictionException {
+
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (ps.size() &lt; deg) {</span>
+<span class="nc" id="L96">            throw new ContradictionException();</span>
+        }
+<span class="nc" id="L98">        int degree = deg;</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (var i = 0; i &lt; ps.size();) {</span>
+            // on verifie si le litteral est affecte
+<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (voc.isUnassigned(ps.get(i))) {</span>
+                // go to next literal
+<span class="nc" id="L103">                i++;</span>
+            } else {
+                // Si le litteral est satisfait,
+                // ?a revient ? baisser le degr?
+<span class="nc bnc" id="L107" title="All 2 branches missed.">                if (voc.isSatisfied(ps.get(i))) {</span>
+<span class="nc" id="L108">                    degree--;</span>
+                }
+                // dans tous les cas, s'il est assign?,
+                // on enleve le ieme litteral
+<span class="nc" id="L112">                ps.delete(i);</span>
+            }
+        }
+
+        // on trie le vecteur ps
+<span class="nc" id="L117">        ps.sortUnique();</span>
+        // ?limine les clauses tautologiques
+        // deux litt?raux de signe oppos?s apparaissent dans la m?me
+        // clause
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (ps.size() == degree) {</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">            for (var i = 0; i &lt; ps.size(); i++) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">                if (!s.enqueue(ps.get(i))) {</span>
+<span class="nc" id="L125">                    throw new ContradictionException();</span>
+                }
+            }
+<span class="nc" id="L128">            return 0;</span>
+        }
+
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (ps.size() &lt; degree) {</span>
+<span class="nc" id="L132">            throw new ContradictionException();</span>
+        }
+<span class="nc" id="L134">        return degree;</span>
+
+    }
+
+    /**
+     * @since 2.1
+     */
+    public static Constr atLeastNew(UnitPropagationListener s, ILits voc,
+            IVecInt ps, int n) throws ContradictionException {
+<span class="nc" id="L143">        int degree = niceParameters(s, voc, ps, n);</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (degree == 0) {</span>
+<span class="nc" id="L145">            return new UnitClauses(ps);</span>
+        }
+<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (degree == 1) {</span>
+<span class="nc" id="L148">            return OriginalWLClause.brandNewClause(voc, ps);</span>
+        }
+<span class="nc" id="L150">        Constr constr = new AtLeast(voc, ps, degree);</span>
+<span class="nc" id="L151">        constr.register();</span>
+<span class="nc" id="L152">        return constr;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public void remove(UnitPropagationListener upl) {
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        for (int q : this.lits) {</span>
+<span class="nc" id="L160">            this.voc.watches(q ^ 1).remove(this);</span>
+        }
+
+<span class="nc" id="L163">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#propagate(Solver, Lit)
+     */
+    public boolean propagate(UnitPropagationListener s, int p) {
+        // remet la clause dans la liste des clauses regardees
+<span class="nc" id="L172">        this.voc.watch(p, this);</span>
+
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (this.counter == this.maxUnsatisfied) {</span>
+<span class="nc" id="L175">            return false;</span>
+        }
+
+<span class="nc" id="L178">        this.counter++;</span>
+<span class="nc" id="L179">        this.voc.undos(p).push(this);</span>
+
+        // If no more can be false, enqueue the rest:
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (this.counter == this.maxUnsatisfied) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            for (int q : this.lits) {</span>
+<span class="nc bnc" id="L184" title="All 4 branches missed.">                if (this.voc.isUnassigned(q) &amp;&amp; !s.enqueue(q, this)) {</span>
+<span class="nc" id="L185">                    return false;</span>
+                }
+            }
+        }
+<span class="nc" id="L189">        return true;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#simplify(Solver)
+     */
+    public boolean simplify() {
+<span class="nc" id="L198">        return false;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#undo(Solver, Lit)
+     */
+    public void undo(int p) {
+<span class="nc" id="L207">        this.counter--;</span>
+<span class="nc" id="L208">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see Constr#calcReason(Solver, Lit, Vec)
+     */
+    public void calcReason(int p, IVecInt outReason) {
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        int c = p == ILits.UNDEFINED ? -1 : 0;</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">        for (int q : this.lits) {</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">            if (this.voc.isFalsified(q)) {</span>
+<span class="nc" id="L219">                outReason.push(q ^ 1);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">                if (++c &gt;= this.maxUnsatisfied) {</span>
+<span class="nc" id="L221">                    return;</span>
+                }
+            }
+        }
+<span class="nc" id="L225">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.datatype.Constr#learnt()
+     */
+    public boolean learnt() {
+        // Ces contraintes ne sont pas apprises pour le moment.
+<span class="nc" id="L234">        return false;</span>
+    }
+
+    /*
+     * For learnt clauses only @author leberre
+     */
+    public boolean locked() {
+<span class="nc" id="L241">        return true;</span>
+    }
+
+    public void setLearnt() {
+<span class="nc" id="L245">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void register() {
+<span class="nc" id="L249">        this.counter = 0;</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        for (var q : this.lits) {</span>
+<span class="nc" id="L251">            voc.watch(q ^ 1, this);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (voc.isFalsified(q)) {</span>
+<span class="nc" id="L253">                this.counter++;</span>
+<span class="nc" id="L254">                this.voc.undos(q ^ 1).push(this);</span>
+            }
+        }
+<span class="nc" id="L257">    }</span>
+
+    public int size() {
+<span class="nc" id="L260">        return this.lits.length;</span>
+    }
+
+    public int get(int i) {
+<span class="nc" id="L264">        return this.lits[i];</span>
+    }
+
+    public void assertConstraint(UnitPropagationListener s) {
+<span class="nc" id="L268">        var ret = true;</span>
+<span class="nc bnc" id="L269" title="All 2 branches missed.">        for (Integer lit : this.lits) {</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">            if (this.voc.isUnassigned(lit)) {</span>
+<span class="nc" id="L271">                ret &amp;= s.enqueue(lit, this);</span>
+            }
+        }
+<span class="nc bnc" id="L274" title="All 4 branches missed.">        assert ret;</span>
+<span class="nc" id="L275">    }</span>
+
+    public void assertConstraintIfNeeded(UnitPropagationListener s) {
+<span class="nc" id="L278">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * Textual representation of the constraint
+     * 
+     * @return a string representing the constraint.
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L288">        var stb = new StringBuilder();</span>
+<span class="nc" id="L289">        stb.append(&quot;Card (&quot; + this.lits.length + &quot;) : &quot;);</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">        for (var lit : this.lits) {</span>
+<span class="nc" id="L291">            stb.append(&quot; + &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L292">            stb.append(Lits.toString(lit));</span>
+<span class="nc" id="L293">            stb.append(&quot;[&quot;);</span>
+<span class="nc" id="L294">            stb.append(this.voc.valueToString(lit));</span>
+<span class="nc" id="L295">            stb.append(&quot;@&quot;);</span>
+<span class="nc" id="L296">            stb.append(this.voc.getLevel(lit));</span>
+<span class="nc" id="L297">            stb.append(&quot;]  &quot;);</span>
+        }
+<span class="nc" id="L299">        stb.append(&quot;&gt;= &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L300">        stb.append(size() - this.maxUnsatisfied);</span>
+
+<span class="nc" id="L302">        return stb.toString();</span>
+    }
+
+    public boolean canBePropagatedMultipleTimes() {
+<span class="nc" id="L306">        return false;</span>
+    }
+
+    public Constr toConstraint() {
+<span class="nc" id="L310">        return this;</span>
+    }
+
+    public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
+<span class="nc bnc" id="L314" title="All 2 branches missed.">        int c = p == ILits.UNDEFINED ? -1 : 0;</span>
+<span class="nc" id="L315">        IVecInt vlits = new VecInt(this.lits);</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">        for (IteratorInt it = trail.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L317">            int q = it.next();</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">            if (vlits.contains(q ^ 1)) {</span>
+<span class="nc" id="L319">                outReason.push(q);</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">                if (++c &gt;= this.maxUnsatisfied) {</span>
+<span class="nc" id="L321">                    return;</span>
+                }
+            }
+<span class="nc" id="L324">        }</span>
+<span class="nc" id="L325">    }</span>
+
+    public void propagatePI(MandatoryLiteralListener l, int p) {
+        // remet la clause dans la liste des clauses regardees
+<span class="nc" id="L329">        this.voc.watch(p, this);</span>
+
+<span class="nc" id="L331">        this.counter++;</span>
+<span class="nc" id="L332">        this.voc.undos(p).push(this);</span>
+
+        // If no more can be false, the remaining literals are mandatory
+<span class="nc bnc" id="L335" title="All 2 branches missed.">        if (this.counter == this.maxUnsatisfied) {</span>
+<span class="nc bnc" id="L336" title="All 2 branches missed.">            for (int q : this.lits) {</span>
+<span class="nc bnc" id="L337" title="All 2 branches missed.">                if (!this.voc.isFalsified(q)) {</span>
+<span class="nc" id="L338">                    l.isMandatory(q);</span>
+                }
+            }
+        }
+<span class="nc" id="L342">    }</span>
+
+    public boolean canBeSatisfiedByCountingLiterals() {
+<span class="nc" id="L345">        return true;</span>
+    }
+
+    public int requiredNumberOfSatisfiedLiterals() {
+<span class="nc" id="L349">        return this.lits.length - maxUnsatisfied;</span>
+    }
+
+    public boolean isSatisfied() {
+<span class="nc" id="L353">        var nbSatisfied = 0;</span>
+<span class="nc" id="L354">        var degree = size() - this.maxUnsatisfied;</span>
+<span class="nc bnc" id="L355" title="All 2 branches missed.">        for (int p : this.lits) {</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">            if (voc.isSatisfied(p)) {</span>
+<span class="nc" id="L357">                nbSatisfied++;</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">                if (nbSatisfied &gt;= degree) {</span>
+<span class="nc" id="L359">                    return true;</span>
+                }
+            }
+        }
+<span class="nc" id="L363">        return false;</span>
+    }
+
+    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+<span class="nc" id="L367">        var nUnsat = 0;</span>
+<span class="nc" id="L368">        Set&lt;Integer&gt; litsSet = new HashSet&lt;&gt;();</span>
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        for (Integer i : this.lits)</span>
+<span class="nc" id="L370">            litsSet.add(i);</span>
+<span class="nc bnc" id="L371" title="All 2 branches missed.">        for (var i = 0; i &lt; trail.size(); ++i) {</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">            if (litsSet.contains(trail.get(i) ^ 1)) {</span>
+<span class="nc" id="L373">                ++nUnsat;</span>
+<span class="nc bnc" id="L374" title="All 2 branches missed.">                if (nUnsat == this.maxUnsatisfied)</span>
+<span class="nc" id="L375">                    return i;</span>
+            }
+        }
+<span class="nc" id="L378">        return -1;</span>
+    }
+
+    public String toString(VarMapper mapper) {
+<span class="nc" id="L382">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L383" title="All 2 branches missed.">        for (int lit : this.lits) {</span>
+<span class="nc" id="L384">            stb.append(&quot; + &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L385">            stb.append(mapper.map(LiteralsUtils.toDimacs(lit)));</span>
+<span class="nc" id="L386">            stb.append(&quot;[&quot;);</span>
+<span class="nc" id="L387">            stb.append(this.voc.valueToString(lit));</span>
+<span class="nc" id="L388">            stb.append(&quot;]  &quot;);</span>
+        }
+<span class="nc" id="L390">        stb.append(&quot;&gt;= &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L391">        stb.append(size() - this.maxUnsatisfied);</span>
+
+<span class="nc" id="L393">        return stb.toString();</span>
+    }
+
+    @Override
+    public String dump() {
+<span class="nc" id="L398">        var stb = new StringBuilder();</span>
+<span class="nc" id="L399">        stb.append(LiteralsUtils.toOPB(this.lits[0]));</span>
+<span class="nc" id="L400">        var i = 1;</span>
+<span class="nc bnc" id="L401" title="All 2 branches missed.">        while (i &lt; this.lits.length) {</span>
+<span class="nc" id="L402">            stb.append(&quot; + &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L403">            stb.append(LiteralsUtils.toOPB(lits[i++]));</span>
+        }
+<span class="nc" id="L405">        stb.append(&quot; &gt;= &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L406">        stb.append(size() - this.maxUnsatisfied);</span>
+
+<span class="nc" id="L408">        return stb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

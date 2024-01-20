@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DimacsStringSolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">DimacsStringSolver.java</span></div><h1>DimacsStringSolver.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import java.io.PrintWriter;
+import java.util.Collection;
+import java.util.Iterator;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.AssignmentOrigin;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.IGroupSolver;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+import org.sat4j.specs.UnitClauseConsumer;
+
+/**
+ * Solver used to write down a CNF into a String.
+ * 
+ * It is especially useful compared to the DimacsOutputSolver because the number
+ * of clauses does not need to be known in advance.
+ * 
+ * @author leberre
+ * 
+ */
+<span class="nc bnc" id="L57" title="All 2 branches missed.">@Feature(&quot;solver&quot;)</span>
+public class DimacsStringSolver extends AbstractOutputSolver
+        implements IGroupSolver {
+
+    private static final String NOT_A_CLAUSAL_PROBLEM_DEGREE = &quot;Not a clausal problem! degree &quot;;
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private StringBuilder out;
+
+    private int firstCharPos;
+
+    private final int initBuilderSize;
+
+<span class="nc" id="L74">    private int maxvarid = 0;</span>
+
+    public DimacsStringSolver() {
+<span class="nc" id="L77">        this(16);</span>
+<span class="nc" id="L78">    }</span>
+
+<span class="nc" id="L80">    public DimacsStringSolver(int initSize) {</span>
+<span class="nc" id="L81">        this.out = new StringBuilder(initSize);</span>
+<span class="nc" id="L82">        this.initBuilderSize = initSize;</span>
+<span class="nc" id="L83">    }</span>
+
+    public StringBuilder getOut() {
+<span class="nc" id="L86">        return this.out;</span>
+    }
+
+    public int newVar() {
+<span class="nc" id="L90">        return 0;</span>
+    }
+
+    @Override
+    public int newVar(int howmany) {
+<span class="nc" id="L95">        setNbVars(howmany);</span>
+<span class="nc" id="L96">        return howmany;</span>
+    }
+
+    protected void setNbVars(int howmany) {
+<span class="nc" id="L100">        this.nbvars = howmany;</span>
+<span class="nc" id="L101">        this.maxvarid = howmany;</span>
+<span class="nc" id="L102">    }</span>
+
+    public void setExpectedNumberOfClauses(int nb) {
+<span class="nc" id="L105">        this.out.append(&quot; &quot;);</span>
+<span class="nc" id="L106">        this.out.append(nb);</span>
+<span class="nc" id="L107">        this.nbclauses = nb;</span>
+<span class="nc" id="L108">        this.fixedNbClauses = true;</span>
+<span class="nc" id="L109">    }</span>
+
+    public IConstr addClause(IVecInt literals) throws ContradictionException {
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (this.firstConstr) {</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (!this.fixedNbClauses) {</span>
+<span class="nc" id="L114">                this.firstCharPos = 0;</span>
+<span class="nc" id="L115">                this.out.append(&quot;                    &quot;);</span>
+<span class="nc" id="L116">                this.out.append(&quot;\n&quot;);</span>
+<span class="nc" id="L117">                this.nbclauses = 0;</span>
+            }
+<span class="nc" id="L119">            this.firstConstr = false;</span>
+        }
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        if (!this.fixedNbClauses) {</span>
+<span class="nc" id="L122">            this.nbclauses++;</span>
+        }
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        for (IteratorInt iterator = literals.iterator(); iterator.hasNext();) {</span>
+<span class="nc" id="L125">            this.out.append(iterator.next()).append(&quot; &quot;);</span>
+        }
+<span class="nc" id="L127">        this.out.append(&quot;0\n&quot;);</span>
+<span class="nc" id="L128">        return null;</span>
+    }
+
+    public IConstr addAtMost(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (degree &gt; 1) {</span>
+<span class="nc" id="L134">            throw new UnsupportedOperationException(</span>
+                    NOT_A_CLAUSAL_PROBLEM_DEGREE + degree);
+        }
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        assert degree == 1;</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (this.firstConstr) {</span>
+<span class="nc" id="L139">            this.firstCharPos = 0;</span>
+<span class="nc" id="L140">            this.out.append(&quot;                    &quot;);</span>
+<span class="nc" id="L141">            this.out.append(&quot;\n&quot;);</span>
+<span class="nc" id="L142">            this.nbclauses = 0;</span>
+<span class="nc" id="L143">            this.firstConstr = false;</span>
+        }
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        for (var i = 0; i &lt;= literals.size(); i++) {</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            for (int j = i + 1; j &lt; literals.size(); j++) {</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">                if (!this.fixedNbClauses) {</span>
+<span class="nc" id="L149">                    this.nbclauses++;</span>
+                }
+<span class="nc" id="L151">                this.out.append(-literals.get(i));</span>
+<span class="nc" id="L152">                this.out.append(&quot; &quot;);</span>
+<span class="nc" id="L153">                this.out.append(-literals.get(j));</span>
+<span class="nc" id="L154">                this.out.append(&quot; 0\n&quot;);</span>
+            }
+        }
+<span class="nc" id="L157">        return null;</span>
+    }
+
+    public IConstr addExactly(IVecInt literals, int n)
+            throws ContradictionException {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (n &gt; 1) {</span>
+<span class="nc" id="L163">            throw new UnsupportedOperationException(</span>
+                    NOT_A_CLAUSAL_PROBLEM_DEGREE + n);
+        }
+<span class="nc bnc" id="L166" title="All 4 branches missed.">        assert n == 1;</span>
+<span class="nc" id="L167">        addAtMost(literals, n);</span>
+<span class="nc" id="L168">        addAtLeast(literals, n);</span>
+<span class="nc" id="L169">        return null;</span>
+    }
+
+    public IConstr addAtLeast(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (degree &gt; 1) {</span>
+<span class="nc" id="L175">            throw new UnsupportedOperationException(</span>
+                    NOT_A_CLAUSAL_PROBLEM_DEGREE + degree);
+        }
+<span class="nc bnc" id="L178" title="All 4 branches missed.">        assert degree == 1;</span>
+<span class="nc" id="L179">        return addClause(literals);</span>
+    }
+
+    public void reset() {
+<span class="nc" id="L183">        this.fixedNbClauses = false;</span>
+<span class="nc" id="L184">        this.firstConstr = true;</span>
+<span class="nc" id="L185">        this.out = new StringBuilder(this.initBuilderSize);</span>
+<span class="nc" id="L186">        this.maxvarid = 0;</span>
+<span class="nc" id="L187">    }</span>
+
+    public String toString(String prefix) {
+<span class="nc" id="L190">        return &quot;Dimacs output solver&quot;;</span>
+    }
+
+    @Override
+    public int nConstraints() {
+<span class="nc" id="L195">        return this.nbclauses;</span>
+    }
+
+    @Override
+    public int nVars() {
+<span class="nc" id="L200">        return this.maxvarid;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L205">        this.out.insert(this.firstCharPos,</span>
+                &quot;p cnf &quot; + this.maxvarid + &quot; &quot; + this.nbclauses);
+<span class="nc" id="L207">        return this.out.toString();</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public int nextFreeVarId(boolean reserve) {
+<span class="nc bnc" id="L214" title="All 2 branches missed.">        if (reserve) {</span>
+<span class="nc" id="L215">            return ++this.maxvarid;</span>
+        }
+<span class="nc" id="L217">        return this.maxvarid + 1;</span>
+    }
+
+    /**
+     * @since 2.3.1
+     */
+    public int[] modelWithInternalVariables() {
+<span class="nc" id="L224">        throw new UnsupportedOperationException();</span>
+    }
+
+    public int realNumberOfVariables() {
+<span class="nc" id="L228">        return this.maxvarid;</span>
+    }
+
+    public void registerLiteral(int p) {
+<span class="nc" id="L232">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * @since 2.3.2
+     */
+    public boolean primeImplicant(int p) {
+<span class="nc" id="L239">        throw new UnsupportedOperationException();</span>
+    }
+
+    /**
+     * @since 2.3.3
+     */
+    public void printStat(PrintWriter out) {
+
+<span class="nc" id="L247">    }</span>
+
+    /**
+     * @since 2.3.3
+     */
+    public void printInfos(PrintWriter out) {
+<span class="nc" id="L253">        out.println(toString());</span>
+<span class="nc" id="L254">    }</span>
+
+    public IConstr addClause(IVecInt literals, int desc)
+            throws ContradictionException {
+<span class="nc" id="L258">        this.out.append(desc + &quot;&gt; &quot;);</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">        for (IteratorInt iterator = literals.iterator(); iterator.hasNext();) {</span>
+<span class="nc" id="L260">            this.out.append(iterator.next() + &quot; &quot;);</span>
+        }
+<span class="nc" id="L262">        this.out.append(&quot;0\n&quot;);</span>
+<span class="nc" id="L263">        return null;</span>
+    }
+
+    public Collection&lt;Integer&gt; getAddedVars() {
+<span class="nc" id="L267">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
+            throws ContradictionException {
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        for (Iterator&lt;IVecInt&gt; it = clauses.iterator(); it.hasNext();)</span>
+<span class="nc" id="L274">            addClause(it.next());</span>
+<span class="nc" id="L275">    }</span>
+
+    @Override
+    public IConstr addParity(IVecInt literals, boolean even) {
+<span class="nc" id="L279">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public AssignmentOrigin getOriginInModel(int p) {
+<span class="nc" id="L283">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
+<span class="nc" id="L288">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public int[] decisions() {
+<span class="nc" id="L293">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

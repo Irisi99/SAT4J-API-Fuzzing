@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BinaryClauses.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.cnf</a> &gt; <span class="el_source">BinaryClauses.java</span></div><h1>BinaryClauses.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004-2008 Daniel Le Berre
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ * 
+ * Based on the original MiniSat specification from:
+ * 
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ * 
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.cnf;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import java.io.Serializable;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.MandatoryLiteralListener;
+import org.sat4j.specs.Propagatable;
+import org.sat4j.specs.UnitPropagationListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * Concise representation of binary clauses.
+ * 
+ * @author leberre
+ */
+<span class="nc bnc" id="L49" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+public class BinaryClauses implements Constr, Propagatable, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private final ILits voc;
+
+<span class="nc" id="L56">    private final IVecInt clauses = new VecInt();</span>
+
+    private final int reason;
+
+<span class="nc" id="L60">    private int conflictindex = -1;</span>
+
+    /**
+     * 
+     */
+<span class="nc" id="L65">    public BinaryClauses(ILits voc, int p) {</span>
+<span class="nc" id="L66">        this.voc = voc;</span>
+<span class="nc" id="L67">        this.reason = p;</span>
+<span class="nc" id="L68">    }</span>
+
+    public void addBinaryClause(int p) {
+<span class="nc" id="L71">        clauses.push(p);</span>
+<span class="nc" id="L72">    }</span>
+
+    public void removeBinaryClause(int p) {
+<span class="nc" id="L75">        clauses.remove(p);</span>
+<span class="nc" id="L76">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#remove()
+     */
+    public void remove() {
+<span class="nc" id="L84">        throw new UnsupportedOperationException();</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#propagate(org.sat4j.minisat.
+     * UnitPropagationListener , int)
+     */
+    public boolean propagate(UnitPropagationListener s, int p) {
+<span class="nc" id="L94">        voc.watch(p, this);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (var i = 0; i &lt; clauses.size(); i++) {</span>
+<span class="nc" id="L96">            int q = clauses.get(i);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (!s.enqueue(q, this)) {</span>
+<span class="nc" id="L98">                conflictindex = i;</span>
+<span class="nc" id="L99">                return false;</span>
+            }
+        }
+<span class="nc" id="L102">        return true;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#simplify()
+     */
+    public boolean simplify() {
+<span class="nc" id="L111">        return false;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#undo(int)
+     */
+    public void undo(int p) {
+        // no to do
+<span class="nc" id="L121">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#calcReason(int, org.sat4j.datatype.VecInt)
+     */
+    public void calcReason(int p, IVecInt outReason) {
+<span class="nc" id="L129">        outReason.push(this.reason ^ 1);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (p == ILits.UNDEFINED) {</span>
+<span class="nc bnc" id="L131" title="All 4 branches missed.">            assert conflictindex &gt; -1;</span>
+<span class="nc" id="L132">            outReason.push(clauses.get(conflictindex) ^ 1);</span>
+        }
+<span class="nc" id="L134">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#learnt()
+     */
+    public boolean learnt() {
+<span class="nc" id="L142">        return false;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#locked()
+     */
+    public boolean locked() {
+<span class="nc" id="L151">        return false;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#setLearnt()
+     */
+    public void setLearnt() {
+<span class="nc" id="L160">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#register()
+     */
+    public void register() {
+<span class="nc" id="L168">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#size()
+     */
+    public int size() {
+<span class="nc" id="L176">        return clauses.size();</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.Constr#get(int)
+     */
+    public int get(int i) {
+<span class="nc" id="L185">        throw new UnsupportedOperationException();</span>
+    }
+
+    public void assertConstraint(UnitPropagationListener s) {
+<span class="nc" id="L189">        throw new UnsupportedOperationException();</span>
+    }
+
+    public boolean canBePropagatedMultipleTimes() {
+<span class="nc" id="L193">        return true;</span>
+    }
+
+    public String toString(VarMapper mapper) {
+<span class="nc" id="L197">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void propagatePI(MandatoryLiteralListener l, int p) {
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        for (var i = 0; i &lt; clauses.size(); i++) {</span>
+<span class="nc" id="L202">            l.isMandatory(clauses.get(i));</span>
+        }
+<span class="nc" id="L204">    }</span>
+
+    public Constr toConstraint() {
+<span class="nc" id="L207">        return this;</span>
+    }
+
+    public void remove(UnitPropagationListener upl) {
+<span class="nc" id="L211">        throw new UnsupportedOperationException(</span>
+                &quot;Cannot remove all the binary clauses at once!&quot;);
+    }
+
+    public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
+<span class="nc" id="L216">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void assertConstraintIfNeeded(UnitPropagationListener s) {
+<span class="nc" id="L220">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean canBeSatisfiedByCountingLiterals() {
+<span class="nc" id="L224">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int requiredNumberOfSatisfiedLiterals() {
+<span class="nc" id="L228">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSatisfied() {
+<span class="nc" id="L232">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+<span class="nc" id="L236">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public String dump() {
+<span class="nc" id="L241">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

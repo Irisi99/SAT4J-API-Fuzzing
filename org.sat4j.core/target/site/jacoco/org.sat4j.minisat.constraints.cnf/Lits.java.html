@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Lits.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.cnf</a> &gt; <span class="el_source">Lits.java</span></div><h1>Lits.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.constraints.cnf;
+
+import java.io.Serializable;
+
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.core.Vec;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.minisat.core.Undoable;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.Propagatable;
+
+/**
+ * @author laihem
+ * @author leberre
+ * 
+ */
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">public final class Lits implements Serializable, ILits {</span>
+
+    private static final int DEFAULT_INIT_SIZE = 128;
+
+    private static final long serialVersionUID = 1L;
+
+<span class="fc" id="L53">    private boolean[] pool = new boolean[1];</span>
+
+<span class="fc" id="L55">    private int realnVars = 0;</span>
+
+<span class="fc" id="L57">    @SuppressWarnings(&quot;unchecked&quot;)</span>
+    private IVec&lt;Propagatable&gt;[] watches = new IVec[0];
+
+<span class="fc" id="L60">    private int[] level = new int[0];</span>
+
+<span class="fc" id="L62">    private int[] trailPosition = new int[0];</span>
+
+<span class="fc" id="L64">    private Constr[] reason = new Constr[0];</span>
+
+<span class="fc" id="L66">    private int maxvarid = 0;</span>
+
+<span class="fc" id="L68">    @SuppressWarnings(&quot;unchecked&quot;)</span>
+    private IVec&lt;Undoable&gt;[] undos = new IVec[0];
+
+<span class="fc" id="L71">    private boolean[] falsified = new boolean[0];</span>
+
+<span class="fc" id="L73">    public Lits() {</span>
+<span class="fc" id="L74">        init(DEFAULT_INIT_SIZE);</span>
+<span class="fc" id="L75">    }</span>
+
+    @SuppressWarnings({ &quot;unchecked&quot; })
+    public void init(int nvar) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">        if (nvar &lt; this.pool.length) {</span>
+<span class="nc" id="L80">            return;</span>
+        }
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">        assert nvar &gt;= 0;</span>
+        // let some space for unused 0 indexer.
+<span class="fc" id="L84">        int nvars = nvar + 1;</span>
+<span class="fc" id="L85">        var npool = new boolean[nvars];</span>
+<span class="fc" id="L86">        System.arraycopy(this.pool, 0, npool, 0, this.pool.length);</span>
+<span class="fc" id="L87">        this.pool = npool;</span>
+
+<span class="fc" id="L89">        var nlevel = new int[nvars];</span>
+<span class="fc" id="L90">        System.arraycopy(this.level, 0, nlevel, 0, this.level.length);</span>
+<span class="fc" id="L91">        this.level = nlevel;</span>
+
+<span class="fc" id="L93">        var ntrailPosition = new int[nvars];</span>
+<span class="fc" id="L94">        System.arraycopy(this.trailPosition, 0, ntrailPosition, 0,</span>
+                this.trailPosition.length);
+<span class="fc" id="L96">        this.trailPosition = ntrailPosition;</span>
+
+<span class="fc" id="L98">        var nwatches = new IVec[2 * nvars];</span>
+<span class="fc" id="L99">        System.arraycopy(this.watches, 0, nwatches, 0, this.watches.length);</span>
+<span class="fc" id="L100">        this.watches = nwatches;</span>
+
+<span class="fc" id="L102">        var nundos = new IVec[nvars];</span>
+<span class="fc" id="L103">        System.arraycopy(this.undos, 0, nundos, 0, this.undos.length);</span>
+<span class="fc" id="L104">        this.undos = nundos;</span>
+
+<span class="fc" id="L106">        var nreason = new Constr[nvars];</span>
+<span class="fc" id="L107">        System.arraycopy(this.reason, 0, nreason, 0, this.reason.length);</span>
+<span class="fc" id="L108">        this.reason = nreason;</span>
+
+<span class="fc" id="L110">        var newFalsified = new boolean[2 * nvars];</span>
+<span class="fc" id="L111">        System.arraycopy(this.falsified, 0, newFalsified, 0,</span>
+                this.falsified.length);
+<span class="fc" id="L113">        this.falsified = newFalsified;</span>
+<span class="fc" id="L114">    }</span>
+
+    public int getFromPool(int x) {
+<span class="fc" id="L117">        var variable = Math.abs(x);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (variable &gt;= this.pool.length) {</span>
+<span class="fc" id="L119">            init(Math.max(variable, this.pool.length &lt;&lt; 1));</span>
+        }
+<span class="pc bpc" id="L121" title="2 of 4 branches missed.">        assert variable &lt; this.pool.length;</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (variable &gt; this.maxvarid) {</span>
+<span class="fc" id="L123">            this.maxvarid = variable;</span>
+        }
+<span class="fc" id="L125">        var lit = LiteralsUtils.toInternal(x);</span>
+<span class="pc bpc" id="L126" title="2 of 4 branches missed.">        assert lit &gt; 1;</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (!this.pool[variable]) {</span>
+<span class="fc" id="L128">            this.realnVars++;</span>
+<span class="fc" id="L129">            this.pool[variable] = true;</span>
+<span class="fc" id="L130">            this.watches[variable &lt;&lt; 1] = new Vec&lt;&gt;();</span>
+<span class="fc" id="L131">            this.watches[variable &lt;&lt; 1 | 1] = new Vec&lt;&gt;();</span>
+<span class="fc" id="L132">            this.undos[variable] = new Vec&lt;&gt;();</span>
+<span class="fc" id="L133">            this.level[variable] = -1;</span>
+<span class="fc" id="L134">            this.trailPosition[variable] = -1;</span>
+<span class="fc" id="L135">            this.falsified[variable &lt;&lt; 1] = false; // because truthValue[var] is</span>
+            // UNDEFINED
+<span class="fc" id="L137">            this.falsified[variable &lt;&lt; 1 | 1] = false; // because</span>
+                                                       // truthValue[var] is
+            // UNDEFINED
+        }
+<span class="fc" id="L141">        return lit;</span>
+    }
+
+    public boolean belongsToPool(int x) {
+<span class="pc bpc" id="L145" title="2 of 4 branches missed.">        assert x &gt; 0;</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">        if (x &gt;= this.pool.length) {</span>
+<span class="nc" id="L147">            return false;</span>
+        }
+<span class="fc" id="L149">        return this.pool[x];</span>
+    }
+
+    public void resetPool() {
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (var i = 0; i &lt; this.pool.length; i++) {</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (this.pool[i]) {</span>
+<span class="nc" id="L155">                reset(i &lt;&lt; 1);</span>
+            }
+        }
+<span class="nc" id="L158">        this.maxvarid = 0;</span>
+<span class="nc" id="L159">        this.realnVars = 0;</span>
+<span class="nc" id="L160">    }</span>
+
+    public void ensurePool(int howmany) {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (howmany &gt;= this.pool.length) {</span>
+<span class="nc" id="L164">            init(Math.max(howmany, this.pool.length &lt;&lt; 1));</span>
+        }
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (this.maxvarid &lt; howmany) {</span>
+<span class="nc" id="L167">            this.maxvarid = howmany;</span>
+        }
+<span class="nc" id="L169">    }</span>
+
+    public void unassign(int lit) {
+<span class="pc bpc" id="L172" title="3 of 6 branches missed.">        assert this.falsified[lit] || this.falsified[lit ^ 1];</span>
+<span class="fc" id="L173">        this.falsified[lit] = false;</span>
+<span class="fc" id="L174">        this.falsified[lit ^ 1] = false;</span>
+<span class="fc" id="L175">    }</span>
+
+    public void satisfies(int lit) {
+<span class="pc bpc" id="L178" title="3 of 6 branches missed.">        assert !this.falsified[lit] &amp;&amp; !this.falsified[lit ^ 1];</span>
+<span class="fc" id="L179">        this.falsified[lit] = false;</span>
+<span class="fc" id="L180">        this.falsified[lit ^ 1] = true;</span>
+<span class="fc" id="L181">    }</span>
+
+    public void forgets(int variable) {
+<span class="nc" id="L184">        this.falsified[variable &lt;&lt; 1] = true;</span>
+<span class="nc" id="L185">        this.falsified[variable &lt;&lt; 1 ^ 1] = true;</span>
+<span class="nc" id="L186">    }</span>
+
+    public boolean isSatisfied(int lit) {
+<span class="pc bpc" id="L189" title="1 of 4 branches missed.">        return this.falsified[lit ^ 1] &amp;&amp; !this.falsified[lit];</span>
+    }
+
+    public boolean isFalsified(int lit) {
+<span class="fc" id="L193">        return this.falsified[lit];</span>
+    }
+
+    public boolean isUnassigned(int lit) {
+<span class="fc bfc" id="L197" title="All 4 branches covered.">        return !this.falsified[lit] &amp;&amp; !this.falsified[lit ^ 1];</span>
+    }
+
+    public String valueToString(int lit) {
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (isUnassigned(lit)) {</span>
+<span class="nc" id="L202">            return &quot;?&quot;; //$NON-NLS-1$</span>
+        }
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (isSatisfied(lit)) {</span>
+<span class="nc" id="L205">            return &quot;T&quot;; //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L207">        return &quot;F&quot;; //$NON-NLS-1$</span>
+    }
+
+    public int nVars() {
+<span class="fc" id="L211">        return this.maxvarid;</span>
+    }
+
+    public int not(int lit) {
+<span class="nc" id="L215">        return lit ^ 1;</span>
+    }
+
+    public static String toString(int lit) {
+<span class="nc bnc" id="L219" title="All 2 branches missed.">        return ((lit &amp; 1) == 0 ? &quot;&quot; : &quot;-&quot;) + (lit &gt;&gt; 1); //$NON-NLS-1$//$NON-NLS-2$</span>
+    }
+
+    public static String toStringX(int lit) {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        return ((lit &amp; 1) == 0 ? &quot;+&quot; : &quot;-&quot;) + &quot;x&quot; + (lit &gt;&gt; 1); //$NON-NLS-1$//$NON-NLS-2$</span>
+    }
+
+    public void reset(int lit) {
+<span class="nc" id="L227">        this.watches[lit].clear();</span>
+<span class="nc" id="L228">        this.watches[lit ^ 1].clear();</span>
+<span class="nc" id="L229">        this.level[lit &gt;&gt; 1] = -1;</span>
+<span class="nc" id="L230">        this.trailPosition[lit &gt;&gt; 1] = -1;</span>
+<span class="nc" id="L231">        this.reason[lit &gt;&gt; 1] = null;</span>
+<span class="nc" id="L232">        this.undos[lit &gt;&gt; 1].clear();</span>
+<span class="nc" id="L233">        this.falsified[lit] = false;</span>
+<span class="nc" id="L234">        this.falsified[lit ^ 1] = false;</span>
+<span class="nc" id="L235">        this.pool[lit &gt;&gt; 1] = false;</span>
+<span class="nc" id="L236">    }</span>
+
+    public int getLevel(int lit) {
+<span class="fc" id="L239">        return this.level[lit &gt;&gt; 1];</span>
+    }
+
+    public void setLevel(int lit, int l) {
+<span class="fc" id="L243">        this.level[lit &gt;&gt; 1] = l;</span>
+<span class="fc" id="L244">    }</span>
+
+    public Constr getReason(int lit) {
+<span class="fc" id="L247">        return this.reason[lit &gt;&gt; 1];</span>
+    }
+
+    public void setReason(int lit, Constr r) {
+<span class="fc" id="L251">        this.reason[lit &gt;&gt; 1] = r;</span>
+<span class="fc" id="L252">    }</span>
+
+    public IVec&lt;Undoable&gt; undos(int lit) {
+<span class="fc" id="L255">        return this.undos[lit &gt;&gt; 1];</span>
+    }
+
+    public void watch(int lit, Propagatable c) {
+<span class="fc" id="L259">        this.watches[lit].push(c);</span>
+<span class="fc" id="L260">    }</span>
+
+    public IVec&lt;Propagatable&gt; watches(int lit) {
+<span class="fc" id="L263">        return this.watches[lit];</span>
+    }
+
+    public boolean isImplied(int lit) {
+<span class="nc" id="L267">        int variable = lit &gt;&gt; 1;</span>
+<span class="nc bnc" id="L268" title="All 8 branches missed.">        assert this.reason[variable] == null || this.falsified[lit]</span>
+                || this.falsified[lit ^ 1];
+        // a literal is implied if it is a unit clause, ie
+        // propagated without reason at decision level 0.
+<span class="nc bnc" id="L272" title="All 6 branches missed.">        return this.pool[variable]</span>
+                &amp;&amp; (this.reason[variable] != null || this.level[variable] == 0);
+    }
+
+    public int realnVars() {
+<span class="fc" id="L277">        return this.realnVars;</span>
+    }
+
+    /**
+     * To get the capacity of the current vocabulary.
+     * 
+     * @return the total number of variables that can be managed by the
+     *         vocabulary.
+     */
+    protected int capacity() {
+<span class="nc" id="L287">        return this.pool.length - 1;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public int nextFreeVarId(boolean reserve) {
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (reserve) {</span>
+<span class="nc" id="L295">            ensurePool(this.maxvarid + 1);</span>
+            // ensure pool changes maxvarid
+<span class="nc" id="L297">            return this.maxvarid;</span>
+        }
+<span class="nc" id="L299">        return this.maxvarid + 1;</span>
+    }
+
+    @Override
+    public void setTrailPosition(int lit, int position) {
+<span class="fc" id="L304">        this.trailPosition[lit &gt;&gt; 1] = position;</span>
+<span class="fc" id="L305">    }</span>
+
+    @Override
+    public int getTrailPosition(int lit) {
+<span class="nc" id="L309">        return this.trailPosition[lit &gt;&gt; 1];</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

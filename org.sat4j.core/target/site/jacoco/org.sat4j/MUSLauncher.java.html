@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MUSLauncher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j</a> &gt; <span class="el_source">MUSLauncher.java</span></div><h1>MUSLauncher.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j;
+
+import org.sat4j.minisat.SolverFactory;
+import org.sat4j.reader.GroupedCNFReader;
+import org.sat4j.reader.LecteurDimacs;
+import org.sat4j.reader.Reader;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.AllMUSes;
+import org.sat4j.tools.GroupClauseSelectorSolver;
+import org.sat4j.tools.SolutionFoundListener;
+import org.sat4j.tools.xplain.Explainer;
+import org.sat4j.tools.xplain.HighLevelXplain;
+import org.sat4j.tools.xplain.MinimizationStrategy;
+import org.sat4j.tools.xplain.Xplain;
+
+<span class="nc" id="L47">public class MUSLauncher extends AbstractLauncher {</span>
+
+    private static final String HIGH_LEVEL = &quot;high level &quot;;
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private int[] mus;
+
+    private Explainer xplain;
+
+<span class="nc" id="L60">    private boolean highLevel = false;</span>
+
+    private AllMUSes allMuses;
+
+    @Override
+    public void usage() {
+<span class="nc" id="L66">        log(&quot;java -jar sat4j-mus.jar [Insertion|Deletion|QuickXplain|all] &lt;cnffile&gt;|&lt;gcnffile&gt;&quot;);</span>
+<span class="nc" id="L67">    }</span>
+
+    @Override
+    protected Reader createReader(ISolver theSolver, String problemname) {
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (this.highLevel) {</span>
+<span class="nc" id="L72">            return new GroupedCNFReader(</span>
+                    (GroupClauseSelectorSolver&lt;ISolver&gt;) theSolver);
+        }
+<span class="nc" id="L75">        return new LecteurDimacs(theSolver);</span>
+    }
+
+    @Override
+    protected String getInstanceName(String[] args) {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (args.length == 0) {</span>
+<span class="nc" id="L81">            return null;</span>
+        }
+<span class="nc" id="L83">        return args[args.length - 1];</span>
+    }
+
+    @Override
+    protected ISolver configureSolver(String[] args) {
+<span class="nc" id="L88">        String problemName = args[args.length - 1];</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (problemName.endsWith(&quot;.gcnf&quot;)) {</span>
+<span class="nc" id="L90">            this.highLevel = true;</span>
+        }
+        ISolver solver;
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (this.highLevel) {</span>
+<span class="nc" id="L94">            HighLevelXplain&lt;ISolver&gt; hlxp = new HighLevelXplain&lt;&gt;(</span>
+<span class="nc" id="L95">                    SolverFactory.newDefault());</span>
+<span class="nc" id="L96">            this.xplain = hlxp;</span>
+<span class="nc" id="L97">            solver = hlxp;</span>
+<span class="nc" id="L98">        } else {</span>
+<span class="nc" id="L99">            Xplain&lt;ISolver&gt; xp = new Xplain&lt;&gt;(SolverFactory.newDefault(),</span>
+                    false);
+<span class="nc" id="L101">            this.xplain = xp;</span>
+<span class="nc" id="L102">            solver = xp;</span>
+        }
+<span class="nc" id="L104">        solver.setDBSimplificationAllowed(true);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        if (args.length == 2) {</span>
+            // retrieve minimization strategy
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (&quot;all&quot;.equals(args[0])) {</span>
+<span class="nc" id="L108">                allMuses = new AllMUSes(highLevel, SolverFactory.instance());</span>
+<span class="nc" id="L109">                solver = allMuses.getSolverInstance();</span>
+            } else {
+<span class="nc" id="L111">                String className = &quot;org.sat4j.tools.xplain.&quot; + args[0]</span>
+                        + &quot;Strategy&quot;;
+                try {
+<span class="nc" id="L114">                    this.xplain.setMinimizationStrategy(</span>
+<span class="nc" id="L115">                            (MinimizationStrategy) Class.forName(className)</span>
+<span class="nc" id="L116">                                    .getDeclaredConstructor().newInstance());</span>
+<span class="nc" id="L117">                } catch (Exception e) {</span>
+<span class="nc" id="L118">                    log(e.getMessage());</span>
+<span class="nc" id="L119">                }</span>
+            }
+        }
+<span class="nc" id="L122">        solver.setTimeout(Integer.MAX_VALUE);</span>
+<span class="nc" id="L123">        getLogWriter().println(</span>
+<span class="nc" id="L124">                solver.toString(OutputPrefix.COMMENT_PREFIX.toString()));</span>
+<span class="nc" id="L125">        return solver;</span>
+    }
+
+    @Override
+    protected void displayResult() {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (this.solver != null) {</span>
+<span class="nc" id="L131">            double wallclocktime = (System.currentTimeMillis() - this.beginTime)</span>
+                    / 1000.0;
+<span class="nc" id="L133">            this.solver.printStat(this.out);</span>
+<span class="nc" id="L134">            this.solver.printInfos(this.out);</span>
+<span class="nc" id="L135">            this.out.printf(&quot;%s %s%n&quot;, OutputPrefix.ANSWER_PREFIX,</span>
+<span class="nc" id="L136">                    this.getExitCode());</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">            if (this.getExitCode() == ExitCode.SATISFIABLE) {</span>
+<span class="nc" id="L138">                int[] model = this.solver.model();</span>
+<span class="nc" id="L139">                this.out.print(OutputPrefix.SOLUTION_PREFIX);</span>
+<span class="nc" id="L140">                this.reader.decode(model, this.out);</span>
+<span class="nc" id="L141">                this.out.println();</span>
+<span class="nc bnc" id="L142" title="All 4 branches missed.">            } else if (this.getExitCode() == ExitCode.UNSATISFIABLE</span>
+                    &amp;&amp; this.mus != null) {
+<span class="nc" id="L144">                this.out.print(OutputPrefix.SOLUTION_PREFIX);</span>
+<span class="nc" id="L145">                this.reader.decode(this.mus, this.out);</span>
+<span class="nc" id="L146">                this.out.println();</span>
+            }
+<span class="nc" id="L148">            log(&quot;Total wall clock time (in seconds) : &quot; + wallclocktime); //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L150">    }</span>
+
+    @Override
+    public void run(String[] args) {
+<span class="nc" id="L154">        this.mus = null;</span>
+<span class="nc" id="L155">        super.run(args);</span>
+<span class="nc" id="L156">        double wallclocktime = (System.currentTimeMillis() - this.beginTime)</span>
+                / 1000.0;
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (this.getExitCode() == ExitCode.UNSATISFIABLE) {</span>
+            try {
+<span class="nc" id="L160">                log(&quot;Unsat detection wall clock time (in seconds) : &quot;</span>
+                        + wallclocktime);
+<span class="nc" id="L162">                double beginmus = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                if (allMuses != null) {</span>
+<span class="nc" id="L164">                    SolutionFoundListener mssListener = new SolutionFoundListener() {</span>
+                        /**
+                         * 
+                         */
+                        private static final long serialVersionUID = 1L;
+<span class="nc" id="L169">                        private int msscount = 0;</span>
+
+                        @Override
+                        public void onSolutionFound(IVecInt solution) {
+<span class="nc" id="L173">                            System.out.print(&quot;\r&quot; + solver.getLogPrefix()</span>
+                                    + &quot;found mss number &quot; + ++msscount);
+<span class="nc" id="L175">                        }</span>
+                    };
+<span class="nc" id="L177">                    SolutionFoundListener musListener = new SolutionFoundListener() {</span>
+                        /**
+                         * 
+                         */
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public void onSolutionFound(IVecInt solution) {
+<span class="nc" id="L185">                            System.out.println(solver.getLogPrefix()</span>
+                                    + &quot;found mus number &quot; + ++muscount);
+<span class="nc" id="L187">                            out.print(OutputPrefix.SOLUTION_PREFIX);</span>
+<span class="nc" id="L188">                            var localMus = new int[solution.size()];</span>
+<span class="nc" id="L189">                            solution.copyTo(localMus);</span>
+<span class="nc" id="L190">                            reader.decode(localMus, out);</span>
+<span class="nc" id="L191">                            out.println();</span>
+<span class="nc" id="L192">                        }</span>
+                    };
+<span class="nc" id="L194">                    allMuses.computeAllMSS(mssListener);</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">                    if (&quot;card&quot;.equals(System.getProperty(&quot;min&quot;))) {</span>
+<span class="nc" id="L196">                        allMuses.computeAllMUSesOrdered(musListener);</span>
+                    } else {
+<span class="nc" id="L198">                        allMuses.computeAllMUSes(musListener);</span>
+                    }
+<span class="nc" id="L200">                    log(&quot;All MUSes computation wall clock time (in seconds) : &quot;</span>
+<span class="nc" id="L201">                            + (System.currentTimeMillis() - beginmus) / 1000.0);</span>
+<span class="nc" id="L202">                } else {</span>
+<span class="nc" id="L203">                    log(&quot;Size of initial &quot;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">                            + (this.highLevel ? HIGH_LEVEL : &quot;&quot;)</span>
+                            + &quot;unsat subformula: &quot;
+<span class="nc" id="L206">                            + this.solver.unsatExplanation().size());</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">                    log(&quot;Computing &quot; + (this.highLevel ? HIGH_LEVEL : &quot;&quot;)</span>
+                            + &quot;MUS ...&quot;);
+<span class="nc" id="L209">                    this.mus = this.xplain.minimalExplanation();</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">                    log(&quot;Size of the &quot; + (this.highLevel ? HIGH_LEVEL : &quot;&quot;)</span>
+                            + &quot;MUS: &quot; + this.mus.length);
+<span class="nc" id="L212">                    log(&quot;Unsat core  computation wall clock time (in seconds) : &quot;</span>
+<span class="nc" id="L213">                            + (System.currentTimeMillis() - beginmus) / 1000.0);</span>
+                }
+<span class="nc" id="L215">            } catch (TimeoutException e) {</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">                log(&quot;Cannot compute &quot; + (this.highLevel ? HIGH_LEVEL : &quot;&quot;)</span>
+                        + &quot;MUS within the timeout.&quot;);
+<span class="nc" id="L218">            }</span>
+        }
+
+<span class="nc" id="L221">    }</span>
+
+<span class="nc" id="L223">    private int muscount = 0;</span>
+
+    public static void main(final String[] args) {
+<span class="nc" id="L226">        var lanceur = new MUSLauncher();</span>
+<span class="nc bnc" id="L227" title="All 4 branches missed.">        if (args.length &lt; 1 || args.length &gt; 2) {</span>
+<span class="nc" id="L228">            lanceur.usage();</span>
+<span class="nc" id="L229">            return;</span>
+        }
+<span class="nc" id="L231">        lanceur.addHook();</span>
+<span class="nc" id="L232">        lanceur.run(args);</span>
+<span class="nc" id="L233">        System.exit(lanceur.getExitCode().value());</span>
+<span class="nc" id="L234">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

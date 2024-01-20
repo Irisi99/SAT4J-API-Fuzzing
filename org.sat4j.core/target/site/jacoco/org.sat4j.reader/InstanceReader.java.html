@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InstanceReader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.reader</a> &gt; <span class="el_source">InstanceReader.java</span></div><h1>InstanceReader.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.reader;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IProblem;
+import org.sat4j.specs.ISolver;
+
+/**
+ * An reader having the responsibility to choose the right reader according to
+ * the input.
+ * 
+ * @author leberre
+ */
+@Feature(value = &quot;reader&quot;, parent = &quot;expert&quot;)
+public class InstanceReader extends Reader {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private AAGReader aag;
+
+    private AIGReader aig;
+
+    private DimacsReader ezdimacs;
+
+    private LecteurDimacs dimacs;
+
+    private KlauseReader knf;
+
+<span class="nc" id="L67">    private Reader reader = null;</span>
+
+    private final ISolver solver;
+
+<span class="nc" id="L71">    public InstanceReader(ISolver solver, Reader reader) {</span>
+<span class="nc" id="L72">        this.solver = solver;</span>
+<span class="nc" id="L73">        this.reader = reader;</span>
+<span class="nc" id="L74">    }</span>
+
+<span class="nc" id="L76">    public InstanceReader(ISolver solver) {</span>
+<span class="nc" id="L77">        this.solver = solver;</span>
+<span class="nc" id="L78">    }</span>
+
+    private Reader getDefaultSATReader() {
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (this.dimacs == null) {</span>
+<span class="nc" id="L82">            this.dimacs = new LecteurDimacs(this.solver);</span>
+        }
+<span class="nc" id="L84">        return this.dimacs;</span>
+    }
+
+    private Reader getEZSATReader() {
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (this.ezdimacs == null) {</span>
+<span class="nc" id="L89">            this.ezdimacs = new DimacsReader(this.solver);</span>
+        }
+<span class="nc" id="L91">        return this.ezdimacs;</span>
+    }
+
+    private Reader getAIGReader() {
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.aig == null) {</span>
+<span class="nc" id="L96">            this.aig = new AIGReader(this.solver);</span>
+        }
+<span class="nc" id="L98">        return this.aig;</span>
+    }
+
+    private Reader getAAGReader() {
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (this.aag == null) {</span>
+<span class="nc" id="L103">            this.aag = new AAGReader(this.solver);</span>
+        }
+<span class="nc" id="L105">        return this.aag;</span>
+    }
+
+    private Reader getKNFGReader() {
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (this.knf == null) {</span>
+<span class="nc" id="L110">            this.knf = new KlauseReader(this.solver);</span>
+        }
+<span class="nc" id="L112">        return this.knf;</span>
+    }
+
+    protected Collection&lt;String&gt; getReservedPrefixes() {
+<span class="nc" id="L116">        Collection&lt;String&gt; prefixes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L117">        prefixes.add(&quot;EZCNF&quot;);</span>
+<span class="nc" id="L118">        return prefixes;</span>
+    }
+
+    @Override
+    public IProblem parseInstance(String filename)
+            throws ParseFormatException, IOException, ContradictionException {
+        String fname;
+<span class="nc" id="L125">        var prefix = &quot;&quot;;</span>
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (filename.startsWith(&quot;http://&quot;)) {</span>
+<span class="nc" id="L128">            filename = filename.substring(filename.lastIndexOf('/') + 1);</span>
+        }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String reservedPrefix : getReservedPrefixes()) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (filename.startsWith(reservedPrefix + &quot;:&quot;)) {</span>
+<span class="nc" id="L132">                filename = filename.substring(reservedPrefix.length() + 1);</span>
+<span class="nc" id="L133">                prefix = reservedPrefix;</span>
+
+            }
+<span class="nc" id="L136">        }</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">        if (filename.endsWith(&quot;.gz&quot;) || filename.endsWith(&quot;.bz2&quot;)) {</span>
+<span class="nc" id="L138">            fname = filename.substring(0, filename.lastIndexOf('.'));</span>
+        } else {
+<span class="nc" id="L140">            fname = filename;</span>
+        }
+<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (this.reader == null) {</span>
+<span class="nc" id="L143">            this.reader = handleFileName(fname, prefix);</span>
+<span class="nc" id="L144">            this.reader.setUseMapping(this.isUsingMapping());</span>
+        }
+<span class="nc" id="L146">        return this.reader.parseInstance(filename);</span>
+    }
+
+    protected Reader handleFileName(String fname, String prefix) {
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (&quot;EZCNF&quot;.equals(prefix)) {</span>
+<span class="nc" id="L151">            return getEZSATReader();</span>
+        }
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (fname.endsWith(&quot;.aag&quot;)) {</span>
+<span class="nc" id="L154">            return getAAGReader();</span>
+        }
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (fname.endsWith(&quot;.aig&quot;)) {</span>
+<span class="nc" id="L157">            return getAIGReader();</span>
+        }
+<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (fname.endsWith(&quot;.knf&quot;)) {</span>
+<span class="nc" id="L160">            return getKNFGReader();</span>
+        }
+<span class="nc" id="L162">        return getDefaultSATReader();</span>
+    }
+
+    @Override
+    public void decode(int[] model, PrintWriter out) {
+<span class="nc" id="L167">        this.reader.decode(model, out);</span>
+<span class="nc" id="L168">    }</span>
+
+    @Override
+    public IProblem parseInstance(java.io.InputStream in)
+            throws ParseFormatException, ContradictionException, IOException {
+<span class="nc" id="L173">        throw new UnsupportedOperationException(</span>
+                &quot;Use a domain specific Reader (LecteurDimacs, AIGReader, etc.) for stream input &quot;);
+    }
+
+    @Override
+    public boolean hasAMapping() {
+<span class="nc" id="L179">        return this.reader.hasAMapping();</span>
+    }
+
+    @Override
+    public Map&lt;Integer, String&gt; getMapping() {
+<span class="nc" id="L184">        return this.reader.getMapping();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

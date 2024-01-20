@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QuadraticPrimeImplicantStrategy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.core</a> &gt; <span class="el_source">QuadraticPrimeImplicantStrategy.java</span></div><h1>QuadraticPrimeImplicantStrategy.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.core;
+
+import static org.sat4j.core.LiteralsUtils.neg;
+import static org.sat4j.core.LiteralsUtils.toInternal;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.IteratorInt;
+
+/**
+ * Quadratic implementation of the model minimization strategy to compute a
+ * prime implicant. The main interest of that approach is to work for any kind
+ * of constraints (clauses, cardinality constraints, pseudo boolean constraints,
+ * any custom constraint).
+ * 
+ * @author leberre
+ * 
+ */
+<span class="nc bnc" id="L48" title="All 2 branches missed.">@Feature(value = &quot;primeimplicant&quot;, parent = &quot;expert&quot;)</span>
+<span class="nc" id="L49">public class QuadraticPrimeImplicantStrategy implements PrimeImplicantStrategy {</span>
+
+    private int[] prime;
+
+    /**
+     * Assume literal p and perform unit propagation
+     * 
+     * @param p
+     *            a literal
+     * @return true if no conflict is reached, false if a conflict is found.
+     */
+    boolean setAndPropagate(Solver&lt;? extends DataStructureFactory&gt; solver,
+            int p) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if (solver.voc.isUnassigned(p)) {</span>
+<span class="nc bnc" id="L63" title="All 4 branches missed.">            assert !solver.trail.contains(p);</span>
+<span class="nc bnc" id="L64" title="All 4 branches missed.">            assert !solver.trail.contains(neg(p));</span>
+<span class="nc bnc" id="L65" title="All 4 branches missed.">            return solver.assume(p) &amp;&amp; solver.propagate() == null;</span>
+        }
+<span class="nc" id="L67">        return solver.voc.isSatisfied(p);</span>
+    }
+
+    public int[] compute(Solver&lt;? extends DataStructureFactory&gt; solver) {
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        assert solver.qhead == solver.trail.size()</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">                + solver.learnedLiterals.size();</span>
+<span class="nc" id="L73">        long begin = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (solver.learnedLiterals.size() &gt; 0) {</span>
+<span class="nc" id="L75">            solver.qhead = solver.trail.size();</span>
+        }
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (solver.isVerbose()) {</span>
+<span class="nc" id="L78">            System.out.printf(&quot;%s implied: %d, decision: %d %n&quot;,</span>
+<span class="nc" id="L79">                    solver.getLogPrefix(), solver.implied.size(),</span>
+<span class="nc" id="L80">                    solver.decisions.size());</span>
+        }
+<span class="nc" id="L82">        prime = new int[solver.realNumberOfVariables() + 1];</span>
+        int p, d;
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (var i = 0; i &lt; prime.length; i++) {</span>
+<span class="nc" id="L85">            prime[i] = 0;</span>
+        }
+        boolean noproblem;
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        for (IteratorInt it = solver.implied.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L89">            d = it.next();</span>
+<span class="nc" id="L90">            p = toInternal(d);</span>
+<span class="nc" id="L91">            prime[Math.abs(d)] = d;</span>
+<span class="nc" id="L92">            noproblem = setAndPropagate(solver, p);</span>
+<span class="nc bnc" id="L93" title="All 4 branches missed.">            assert noproblem;</span>
+        }
+        boolean canBeRemoved;
+        int rightlevel;
+<span class="nc" id="L97">        var removed = 0;</span>
+<span class="nc" id="L98">        var posremoved = 0;</span>
+<span class="nc" id="L99">        var propagated = 0;</span>
+<span class="nc" id="L100">        var tested = 0;</span>
+<span class="nc" id="L101">        var l2propagation = 0;</span>
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        for (var i = 0; i &lt; solver.decisions.size(); i++) {</span>
+<span class="nc" id="L104">            d = solver.decisions.get(i);</span>
+<span class="nc bnc" id="L105" title="All 4 branches missed.">            assert !solver.voc.isFalsified(toInternal(d));</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (solver.voc.isSatisfied(toInternal(d))) {</span>
+                // d has been propagated
+<span class="nc" id="L108">                prime[Math.abs(d)] = d;</span>
+<span class="nc" id="L109">                propagated++;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            } else if (setAndPropagate(solver, toInternal(-d))) {</span>
+<span class="nc" id="L111">                canBeRemoved = true;</span>
+<span class="nc" id="L112">                tested++;</span>
+<span class="nc" id="L113">                rightlevel = solver.currentDecisionLevel();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">                for (int j = i + 1; j &lt; solver.decisions.size(); j++) {</span>
+<span class="nc" id="L115">                    l2propagation++;</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                    if (!setAndPropagate(solver,</span>
+<span class="nc" id="L117">                            toInternal(solver.decisions.get(j)))) {</span>
+<span class="nc" id="L118">                        canBeRemoved = false;</span>
+<span class="nc" id="L119">                        break;</span>
+                    }
+                }
+<span class="nc" id="L122">                solver.cancelUntil(rightlevel);</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                if (canBeRemoved) {</span>
+                    // it is not a necessary literal
+<span class="nc" id="L125">                    solver.forget(Math.abs(d));</span>
+<span class="nc" id="L126">                    IConstr confl = solver.propagate();</span>
+<span class="nc bnc" id="L127" title="All 4 branches missed.">                    assert confl == null;</span>
+<span class="nc" id="L128">                    removed++;</span>
+<span class="nc bnc" id="L129" title="All 4 branches missed.">                    if (d &gt; 0 &amp;&amp; d &gt; solver.nVars()) {</span>
+<span class="nc" id="L130">                        posremoved++;</span>
+                    }
+<span class="nc" id="L132">                } else {</span>
+<span class="nc" id="L133">                    prime[Math.abs(d)] = d;</span>
+<span class="nc" id="L134">                    solver.cancel();</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">                    assert solver.voc.isUnassigned(toInternal(d));</span>
+<span class="nc" id="L136">                    noproblem = setAndPropagate(solver, toInternal(d));</span>
+<span class="nc bnc" id="L137" title="All 4 branches missed.">                    assert noproblem;</span>
+                }
+            } else {
+                // conflict, literal is necessary
+<span class="nc" id="L141">                prime[Math.abs(d)] = d;</span>
+<span class="nc" id="L142">                solver.cancel();</span>
+<span class="nc" id="L143">                noproblem = setAndPropagate(solver, toInternal(d));</span>
+<span class="nc bnc" id="L144" title="All 4 branches missed.">                assert noproblem;</span>
+            }
+        }
+<span class="nc" id="L147">        solver.cancelUntil(0);</span>
+<span class="nc" id="L148">        var implicant = new int[prime.length - removed - 1];</span>
+<span class="nc" id="L149">        var index = 0;</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (int i : prime) {</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">            if (i != 0) {</span>
+<span class="nc" id="L152">                implicant[index++] = i;</span>
+            }
+        }
+<span class="nc" id="L155">        long end = System.currentTimeMillis();</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (solver.isVerbose()) {</span>
+<span class="nc" id="L157">            System.out.printf(</span>
+                    &quot;%s prime implicant computation statistics ORIG%n&quot;,
+<span class="nc" id="L159">                    solver.getLogPrefix());</span>
+<span class="nc" id="L160">            System.out.printf(</span>
+                    &quot;%s implied: %d, decision: %d, removed %d (+%d), tested %d, propagated %d), l2 propagation:%d, time(ms):%d %n&quot;,
+<span class="nc" id="L162">                    solver.getLogPrefix(), solver.implied.size(),</span>
+<span class="nc" id="L163">                    solver.decisions.size(), removed, posremoved, tested,</span>
+<span class="nc" id="L164">                    propagated, l2propagation, end - begin);</span>
+        }
+<span class="nc" id="L166">        return implicant;</span>
+
+    }
+
+    public int[] getPrimeImplicantAsArrayWithHoles() {
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (prime == null) {</span>
+<span class="nc" id="L172">            throw new UnsupportedOperationException(</span>
+                    &quot;Call the compute method first!&quot;);
+        }
+<span class="nc" id="L175">        return prime;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

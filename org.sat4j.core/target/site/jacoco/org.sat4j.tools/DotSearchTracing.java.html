@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DotSearchTracing.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">DotSearchTracing.java</span></div><h1>DotSearchTracing.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.Vec;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.Lbool;
+import org.sat4j.specs.RandomAccessModel;
+import org.sat4j.specs.SearchListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * Class allowing to express the search as a tree in the dot language. The
+ * resulting file can be viewed in a tool like
+ * &lt;a href=&quot;http://www.graphviz.org/&quot;&gt;Graphviz&lt;/a&gt;
+ * 
+ * To use only on small benchmarks.
+ * 
+ * Note that also does not make sense to use such a listener on a distributed or
+ * remote solver.
+ * 
+ * @author daniel
+ * @since 2.2
+ */
+@Feature(&quot;searchlistener&quot;)
+public class DotSearchTracing&lt;T&gt;
+        implements SearchListener&lt;ISolverService&gt;, VarMapper {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private final Vec&lt;String&gt; stack;
+
+<span class="nc" id="L74">    private String currentNodeName = null;</span>
+
+    private transient Writer out;
+
+<span class="nc" id="L78">    private boolean assertive = false;</span>
+
+    private Map&lt;Integer, T&gt; mapping;
+
+    /**
+     * @since 2.1
+     */
+<span class="nc" id="L85">    public DotSearchTracing(final String fileNameToSave) {</span>
+<span class="nc" id="L86">        this.stack = new Vec&lt;&gt;();</span>
+        try {
+<span class="nc" id="L88">            this.out = new FileWriter(fileNameToSave);</span>
+<span class="nc" id="L89">        } catch (IOException e) {</span>
+<span class="nc" id="L90">            System.err.println(&quot;Problem when created file.&quot;);</span>
+<span class="nc" id="L91">        }</span>
+<span class="nc" id="L92">    }</span>
+
+    public void setMapping(Map&lt;Integer, T&gt; mapping) {
+<span class="nc" id="L95">        this.mapping = mapping;</span>
+<span class="nc" id="L96">    }</span>
+
+    public String map(int dimacs) {
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (this.mapping != null) {</span>
+<span class="nc" id="L100">            int variable = Math.abs(dimacs);</span>
+<span class="nc" id="L101">            var t = this.mapping.get(variable);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">            if (t != null) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                if (dimacs &gt; 0) {</span>
+<span class="nc" id="L104">                    return t.toString();</span>
+                }
+<span class="nc" id="L106">                return &quot;-&quot; + t.toString();</span>
+            }
+        }
+<span class="nc" id="L109">        return Integer.toString(dimacs);</span>
+    }
+
+    @Override
+    public final void assuming(final int p) {
+<span class="nc" id="L114">        final int absP = Math.abs(p);</span>
+        String newName;
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (this.currentNodeName == null) {</span>
+<span class="nc" id="L118">            newName = Integer.toString(absP);</span>
+<span class="nc" id="L119">            this.stack.push(newName);</span>
+<span class="nc" id="L120">            saveLine(lineTab(&quot;\&quot;&quot; + newName + &quot;\&quot;&quot; + &quot;[label=\&quot;&quot; + map(p)</span>
+                    + &quot;\&quot;, shape=circle, color=blue, fontcolor=white, style=filled]&quot;));
+        } else {
+<span class="nc" id="L123">            newName = this.currentNodeName;</span>
+<span class="nc" id="L124">            this.stack.push(newName);</span>
+<span class="nc" id="L125">            saveLine(lineTab(&quot;\&quot;&quot; + newName + &quot;\&quot;&quot; + &quot;[label=\&quot;&quot; + map(p)</span>
+                    + &quot;\&quot;, shape=circle, color=blue, fontcolor=white, style=filled]&quot;));
+        }
+<span class="nc" id="L128">        this.currentNodeName = newName;</span>
+<span class="nc" id="L129">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    @Override
+    public final void propagating(final int p) {
+<span class="nc" id="L136">        String newName = this.currentNodeName + &quot;.&quot; + p + &quot;.&quot; + this.assertive;</span>
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        if (this.currentNodeName == null) {</span>
+<span class="nc" id="L139">            saveLine(lineTab(&quot;\&quot;null\&quot; [label=\&quot;\&quot;, shape=point]&quot;));</span>
+        }
+<span class="nc bnc" id="L141" title="All 2 branches missed.">        final String couleur = this.assertive ? &quot;orange&quot; : &quot;green&quot;;</span>
+
+<span class="nc" id="L143">        saveLine(lineTab(&quot;\&quot;&quot; + newName + &quot;\&quot;&quot; + &quot;[label=\&quot;&quot; + map(p)</span>
+                + &quot;\&quot;,shape=point, color=black]&quot;));
+<span class="nc" id="L145">        saveLine(lineTab(&quot;\&quot;&quot; + this.currentNodeName + &quot;\&quot;&quot; + &quot; -- &quot; + &quot;\&quot;&quot;</span>
+<span class="nc" id="L146">                + newName + &quot;\&quot;&quot; + &quot;[label=&quot; + &quot;\&quot; &quot; + map(p)</span>
+                + &quot;\&quot;, fontcolor =&quot; + couleur + &quot;, color = &quot; + couleur
+                + &quot;, style = bold]&quot;));
+<span class="nc" id="L149">        this.currentNodeName = newName;</span>
+<span class="nc" id="L150">        this.assertive = false;</span>
+<span class="nc" id="L151">    }</span>
+
+    @Override
+    public final void enqueueing(final int p, IConstr reason) {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (reason != null) {</span>
+<span class="nc" id="L156">            String newName = this.currentNodeName + &quot;.&quot; + p + &quot;.propagated.&quot;</span>
+                    + this.assertive;
+<span class="nc" id="L158">            saveLine(lineTab(&quot;\&quot;&quot; + newName + &quot;\&quot;&quot; + &quot;[label=\&quot;&quot; + map(p)</span>
+                    + &quot;\&quot;,shape=point, color=black]&quot;));
+<span class="nc" id="L160">            saveLine(lineTab(&quot;\&quot;&quot; + this.currentNodeName + &quot;\&quot;&quot; + &quot; -- &quot; + &quot;\&quot;&quot;</span>
+<span class="nc" id="L161">                    + newName + &quot;\&quot;&quot; + &quot;[label=&quot; + &quot;\&quot; &quot; + map(p)</span>
+                    + &quot;\&quot;, fontcolor = gray, color = gray, style = bold]&quot;));
+<span class="nc" id="L163">            String reasonName = newName + &quot;.reason&quot;;</span>
+<span class="nc" id="L164">            saveLine(lineTab(</span>
+<span class="nc" id="L165">                    &quot;\&quot;&quot; + reasonName + &quot;\&quot; [label=\&quot;&quot; + reason.toString(this)</span>
+                            + &quot;\&quot;, shape=box, color=\&quot;gray\&quot;, style=dotted]&quot;));
+<span class="nc" id="L167">            saveLine(&quot;\&quot;&quot; + reasonName + &quot;\&quot;&quot; + &quot;--&quot; + &quot;\&quot;&quot;</span>
+                    + this.currentNodeName + &quot;\&quot;&quot;
+                    + &quot;[label=\&quot;\&quot;, color=gray, style=dotted]&quot;);
+<span class="nc" id="L170">            this.currentNodeName = newName;</span>
+        }
+<span class="nc" id="L172">    }</span>
+
+    @Override
+    public final void backtracking(final int p) {
+<span class="nc" id="L176">        final String temp = this.stack.last();</span>
+<span class="nc" id="L177">        this.stack.pop();</span>
+<span class="nc" id="L178">        saveLine(&quot;\&quot;&quot; + temp + &quot;\&quot;&quot; + &quot;--&quot; + &quot;\&quot;&quot; + this.currentNodeName + &quot;\&quot;&quot;</span>
+                + &quot;[label=\&quot;\&quot;, color=red, style=dotted]&quot;);
+<span class="nc" id="L180">        this.currentNodeName = temp;</span>
+<span class="nc" id="L181">    }</span>
+
+    @Override
+    public final void adding(final int p) {
+<span class="nc" id="L185">        this.assertive = true;</span>
+<span class="nc" id="L186">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    @Override
+    public final void learn(final IConstr constr) {
+<span class="nc" id="L193">        String learned = this.currentNodeName + &quot;_learned&quot;;</span>
+        String text;
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (constr == null) {</span>
+<span class="nc" id="L196">            text = &quot;0 &gt;= 1&quot;;</span>
+        } else {
+<span class="nc" id="L198">            text = constr.toString(this);</span>
+        }
+<span class="nc" id="L200">        saveLine(lineTab(&quot;\&quot;&quot; + learned + &quot;\&quot; [label=\&quot;&quot; + text</span>
+                + &quot;\&quot;, shape=box, color=\&quot;orange\&quot;, style=dotted]&quot;));
+<span class="nc" id="L202">        saveLine(&quot;\&quot;&quot; + learned + &quot;\&quot;&quot; + &quot;--&quot; + &quot;\&quot;&quot; + this.currentNodeName</span>
+                + &quot;\&quot;&quot; + &quot;[label=\&quot;\&quot;, color=orange, style=dotted]&quot;);
+<span class="nc" id="L204">    }</span>
+
+    @Override
+    public final void delete(final IConstr c) {
+<span class="nc" id="L208">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    @Override
+    public final void conflictFound(IConstr confl, int dlevel, int trailLevel) {
+<span class="nc" id="L215">        saveLine(lineTab(&quot;\&quot;&quot; + this.currentNodeName + &quot;\&quot; [label=\&quot;&quot;</span>
+<span class="nc" id="L216">                + confl.toString(this)</span>
+                + &quot;\&quot;, shape=box, color=\&quot;red\&quot;, fontcolor=white, style=filled]&quot;));
+<span class="nc" id="L218">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    @Override
+    public final void conflictFound(int p) {
+<span class="nc" id="L225">        saveLine(lineTab(&quot;\&quot;&quot; + this.currentNodeName</span>
+                + &quot;\&quot; [label=\&quot;\&quot;, shape=box, color=\&quot;red\&quot;, style=filled]&quot;));
+<span class="nc" id="L227">    }</span>
+
+    @Override
+    public final void solutionFound(int[] model, RandomAccessModel lazyModel) {
+<span class="nc" id="L231">        saveLine(lineTab(&quot;\&quot;&quot; + this.currentNodeName</span>
+                + &quot;\&quot; [label=\&quot;\&quot;, shape=box, color=\&quot;green\&quot;, style=filled]&quot;));
+<span class="nc" id="L233">    }</span>
+
+    @Override
+    public final void beginLoop() {
+<span class="nc" id="L237">    }</span>
+
+    @Override
+    public final void start() {
+<span class="nc" id="L241">        saveLine(&quot;graph G {&quot;);</span>
+<span class="nc" id="L242">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    @Override
+    public final void end(Lbool result) {
+<span class="nc" id="L249">        saveLine(&quot;}&quot;);</span>
+<span class="nc" id="L250">    }</span>
+
+    private String lineTab(final String line) {
+<span class="nc" id="L253">        return &quot;\t&quot; + line;</span>
+    }
+
+    private void saveLine(final String line) {
+        try {
+<span class="nc" id="L258">            this.out.write(line + '\n');</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">            if (&quot;}&quot;.equals(line)) {</span>
+<span class="nc" id="L260">                this.out.close();</span>
+            }
+<span class="nc" id="L262">        } catch (IOException e) {</span>
+<span class="nc" id="L263">            Logger.getLogger(&quot;org.sat4j.core&quot;).log(Level.INFO,</span>
+                    &quot;Something went wrong when saving dot file&quot;, e);
+<span class="nc" id="L265">        }</span>
+<span class="nc" id="L266">    }</span>
+
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        // if the solver is serialized, out is linked to stdout
+<span class="nc" id="L271">        stream.defaultReadObject();</span>
+<span class="nc" id="L272">        this.out = new PrintWriter(System.out);</span>
+<span class="nc" id="L273">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

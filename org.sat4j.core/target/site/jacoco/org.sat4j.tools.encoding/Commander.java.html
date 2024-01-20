@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Commander.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools.encoding</a> &gt; <span class="el_source">Commander.java</span></div><h1>Commander.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+
+package org.sat4j.tools.encoding;
+
+import org.sat4j.core.ConstrGroup;
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+
+/**
+ * Commander encoding for &quot;at most one&quot; and &quot;at most k&quot; cases.
+ * 
+ * The case &quot;at most one&quot; is introduced in W. Klieber and G. Kwon &quot;Efficient CNF
+ * encoding for selecting 1 from N objects&quot; in Fourth Workshop on Constraints in
+ * Formal Verification, 2007.
+ * 
+ * The generalization to the &quot;at most k&quot; case is described in A. M. Frisch and P
+ * . A. Giannaros, &quot;SAT Encodings of the At-Most-k Constraint&quot;, in International
+ * Workshop on Modelling and Reformulating Constraint Satisfaction Problems,
+ * 2010
+ * 
+ * @author sroussel
+ * @since 2.3.1
+ */
+<span class="nc" id="L55">public class Commander extends EncodingStrategyAdapter {</span>
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * In this encoding, variables are partitioned in groups. Kwon and Klieber
+     * claim that the fewest clauses are produced when the size of the groups is
+     * 3, thus leading to 3.5 clauses and introducing n/2 variables.
+     */
+    @Override
+    public IConstr addAtMostOne(ISolver solver, IVecInt literals)
+            throws ContradictionException {
+
+<span class="nc" id="L71">        return addAtMostOne(solver, literals, 3);</span>
+    }
+
+    private IConstr addAtMostOne(ISolver solver, IVecInt literals,
+            int groupSize) throws ContradictionException {
+
+<span class="nc" id="L77">        var constrGroup = new ConstrGroup(false);</span>
+
+<span class="nc" id="L79">        IVecInt clause = new VecInt();</span>
+<span class="nc" id="L80">        IVecInt clause1 = new VecInt();</span>
+
+<span class="nc" id="L82">        final int n = literals.size();</span>
+
+<span class="nc" id="L84">        int nbGroup = (int) Math</span>
+<span class="nc" id="L85">                .ceil((double) literals.size() / (double) groupSize);</span>
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (nbGroup == 1) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">            for (var i = 0; i &lt; literals.size() - 1; i++) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">                for (int j = i + 1; j &lt; literals.size(); j++) {</span>
+<span class="nc" id="L90">                    clause.push(-literals.get(i));</span>
+<span class="nc" id="L91">                    clause.push(-literals.get(j));</span>
+<span class="nc" id="L92">                    constrGroup.add(solver.addClause(clause));</span>
+<span class="nc" id="L93">                    clause.clear();</span>
+                }
+            }
+<span class="nc" id="L96">            return constrGroup;</span>
+        }
+
+<span class="nc" id="L99">        var c = new int[nbGroup];</span>
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        for (var i = 0; i &lt; nbGroup; i++) {</span>
+<span class="nc" id="L102">            c[i] = solver.nextFreeVarId(true);</span>
+        }
+
+<span class="nc" id="L105">        int nbVarLastGroup = n - (nbGroup - 1) * groupSize;</span>
+
+        // Encoding &lt;=1 for each group of groupLitterals
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (var i = 0; i &lt; nbGroup; i++) {</span>
+<span class="nc" id="L109">            var size = 0;</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (i == nbGroup - 1) {</span>
+<span class="nc" id="L111">                size = nbVarLastGroup;</span>
+            } else {
+<span class="nc" id="L113">                size = groupSize;</span>
+            }
+            // Encoding &lt;=1 for each group of groupLitterals
+<span class="nc bnc" id="L116" title="All 2 branches missed.">            for (var j = 0; j &lt; size - 1; j++) {</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">                for (int k = j + 1; k &lt; size; k++) {</span>
+<span class="nc" id="L118">                    clause.push(-literals.get(i * groupSize + j));</span>
+<span class="nc" id="L119">                    clause.push(-literals.get(i * groupSize + k));</span>
+<span class="nc" id="L120">                    constrGroup.add(solver.addClause(clause));</span>
+<span class="nc" id="L121">                    clause.clear();</span>
+                }
+            }
+
+            // If a commander variable is true then some variable in its
+            // corresponding group must be true (clause1)
+            // If a commander variable is false then no variable in its group
+            // can be true (clause)
+<span class="nc" id="L129">            clause1.push(-c[i]);</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            for (var j = 0; j &lt; size; j++) {</span>
+<span class="nc" id="L131">                clause1.push(literals.get(i * groupSize + j));</span>
+<span class="nc" id="L132">                clause.push(c[i]);</span>
+<span class="nc" id="L133">                clause.push(-literals.get(i * groupSize + j));</span>
+<span class="nc" id="L134">                constrGroup.add(solver.addClause(clause));</span>
+<span class="nc" id="L135">                clause.clear();</span>
+            }
+<span class="nc" id="L137">            constrGroup.add(solver.addClause(clause1));</span>
+<span class="nc" id="L138">            clause1.clear();</span>
+        }
+
+        // encode &lt;=1 on commander variables
+
+<span class="nc" id="L143">        constrGroup.add(addAtMostOne(solver, new VecInt(c), groupSize));</span>
+<span class="nc" id="L144">        return constrGroup;</span>
+    }
+
+    @Override
+    public IConstr addExactlyOne(ISolver solver, IVecInt literals)
+            throws ContradictionException {
+<span class="nc" id="L150">        var group = new ConstrGroup(false);</span>
+
+<span class="nc" id="L152">        group.add(addAtLeastOne(solver, literals));</span>
+<span class="nc" id="L153">        group.add(addAtMostOne(solver, literals));</span>
+
+<span class="nc" id="L155">        return group;</span>
+    }
+
+    @Override
+    public IConstr addExactly(ISolver solver, IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L161">        var group = new ConstrGroup(false);</span>
+
+<span class="nc" id="L163">        group.add(addAtLeast(solver, literals, degree));</span>
+<span class="nc" id="L164">        group.add(addAtMost(solver, literals, degree));</span>
+
+<span class="nc" id="L166">        return group;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

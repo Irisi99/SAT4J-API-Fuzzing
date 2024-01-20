@@ -1,0 +1,2575 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Solver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.core</a> &gt; <span class="el_source">Solver.java</span></div><h1>Solver.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.minisat.core;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+import static org.sat4j.core.LiteralsUtils.toDimacs;
+import static org.sat4j.core.LiteralsUtils.toInternal;
+import static org.sat4j.core.LiteralsUtils.var;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.ConstrGroup;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.core.Vec;
+import org.sat4j.core.VecInt;
+import org.sat4j.minisat.constraints.xor.Xor;
+import org.sat4j.specs.AssignmentOrigin;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ILogAble;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
+import org.sat4j.specs.Lbool;
+import org.sat4j.specs.Propagatable;
+import org.sat4j.specs.SearchListener;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.specs.UnitClauseConsumer;
+import org.sat4j.specs.UnitClauseProvider;
+
+/**
+ * The backbone of the library providing the modular implementation of a MiniSAT
+ * (Chaff) like solver.
+ * 
+ * @author leberre
+ */
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">public class Solver&lt;D extends DataStructureFactory&gt;</span>
+        implements ISolverService, ICDCL&lt;D&gt; {
+
+    private static final String CALL_THE_SOLVE_METHOD_FIRST = &quot;Call the solve method first!!!&quot;;
+
+    private static final long serialVersionUID = 1L;
+
+    private static final double CLAUSE_RESCALE_FACTOR = 1e-20;
+
+    private static final double CLAUSE_RESCALE_BOUND = 1
+            / CLAUSE_RESCALE_FACTOR;
+
+    protected ILogAble out;
+
+    /**
+     * Set of original constraints.
+     */
+<span class="fc" id="L101">    protected final IVec&lt;Constr&gt; constrs = new Vec&lt;&gt;();</span>
+
+    /**
+     * Set of learned constraints.
+     */
+<span class="fc" id="L106">    protected final IVec&lt;Constr&gt; learnts = new Vec&lt;&gt;();</span>
+
+    /**
+     * Increment for clause activity.
+     */
+<span class="fc" id="L111">    private double claInc = 1.0;</span>
+
+    /**
+     * decay factor pour l'activit? des clauses.
+     */
+<span class="fc" id="L116">    private double claDecay = 1.0;</span>
+
+    /**
+     * propagation queue
+     */
+    // head of the queue in trail ... (taken from MiniSAT 1.14)
+<span class="fc" id="L122">    protected int qhead = 0;</span>
+
+    /**
+     * variable assignments (literals) in chronological order.
+     */
+<span class="fc" id="L127">    protected final IVecInt trail = new VecInt();</span>
+
+    /**
+     * position of the decision levels on the trail.
+     */
+<span class="fc" id="L132">    protected final IVecInt trailLim = new VecInt();</span>
+
+    /**
+     * position of assumptions before starting the search.
+     */
+    protected int rootLevel;
+
+<span class="fc" id="L139">    private int[] model = null;</span>
+
+    protected ILits voc;
+
+    private IOrder order;
+
+<span class="fc" id="L145">    private final ActivityComparator comparator = new ActivityComparator();</span>
+
+<span class="fc" id="L147">    SolverStats stats = new SolverStats();</span>
+
+    private LearningStrategy&lt;D&gt; learner;
+
+    protected volatile boolean undertimeout;
+
+<span class="fc" id="L153">    private long timeout = Integer.MAX_VALUE;</span>
+
+<span class="fc" id="L155">    private boolean timeBasedTimeout = true;</span>
+
+    protected D dsfactory;
+
+    private SearchParams params;
+
+<span class="fc" id="L161">    private final IVecInt internalDimacsReusableVector = new VecInt();</span>
+
+<span class="fc" id="L163">    protected SearchListener slistener = SearchListener.voidSearchListener();</span>
+
+    private RestartStrategy restarter;
+
+<span class="fc" id="L167">    private final Map&lt;String, Counter&gt; constrTypes = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L169">    private boolean isDBSimplificationAllowed = false;</span>
+
+<span class="fc" id="L171">    final IVecInt learnedLiterals = new VecInt();</span>
+
+<span class="fc" id="L173">    boolean verbose = false;</span>
+
+<span class="fc" id="L175">    private boolean keepHot = false;</span>
+
+<span class="fc" id="L177">    private String prefix = &quot;c &quot;;</span>
+<span class="fc" id="L178">    private int declaredMaxVarId = 0;</span>
+
+<span class="fc" id="L180">    private UnitClauseProvider unitClauseProvider = UnitClauseProvider.VOID;</span>
+
+<span class="fc" id="L182">    private UnitClauseConsumer unitClauseConsumer = UnitClauseConsumer.VOID;</span>
+
+<span class="fc" id="L184">    private final boolean classifyLiterals = System</span>
+<span class="pc bpc" id="L185" title="1 of 2 branches missed.">            .getProperty(&quot;color&quot;) != null;</span>
+
+    /**
+     * Translates an IvecInt containing Dimacs formatted variables into and
+     * IVecInt containing internal formatted variables.
+     * 
+     * Note that for sake of efficiency, the IVecInt returned by this method is
+     * always the same. DO NOT STORE IT N A CONSTRAINT.
+     * 
+     * @param in
+     *            a vector of Dimacs formatted variables (e.g. 1,-2)
+     * @return a vector of variables using internal representation (e.g 2,5)
+     * @see LiteralsUtils
+     * @since 2.3.6
+     */
+    public IVecInt dimacs2internal(IVecInt in) {
+<span class="fc" id="L201">        this.internalDimacsReusableVector.clear();</span>
+<span class="fc" id="L202">        this.internalDimacsReusableVector.ensure(in.size());</span>
+        int p;
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        for (var i = 0; i &lt; in.size(); i++) {</span>
+<span class="fc" id="L205">            p = in.get(i);</span>
+<span class="pc bpc" id="L206" title="1 of 2 branches missed.">            if (p == 0) {</span>
+<span class="nc" id="L207">                throw new IllegalArgumentException(</span>
+                        &quot;0 is not a valid variable identifier&quot;);
+            }
+<span class="fc" id="L210">            this.internalDimacsReusableVector</span>
+<span class="fc" id="L211">                    .unsafePush(this.voc.getFromPool(p));</span>
+        }
+<span class="fc" id="L213">        return this.internalDimacsReusableVector;</span>
+    }
+
+    /*
+     * @since 2.3.1
+     */
+    public void registerLiteral(int p) {
+<span class="nc" id="L220">        this.voc.getFromPool(p);</span>
+<span class="nc" id="L221">    }</span>
+
+    /**
+     * creates a Solver without LearningListener. A learningListener must be
+     * added to the solver, else it won't backtrack!!! A data structure factory
+     * must be provided, else it won't work either.
+     */
+
+    public Solver(LearningStrategy&lt;D&gt; learner, D dsf, IOrder order,
+            RestartStrategy restarter) {
+<span class="fc" id="L231">        this(learner, dsf, new SearchParams(), order, restarter);</span>
+<span class="fc" id="L232">    }</span>
+
+    public Solver(LearningStrategy&lt;D&gt; learner, D dsf, SearchParams params,
+            IOrder order, RestartStrategy restarter) {
+<span class="fc" id="L236">        this(learner, dsf, params, order, restarter, ILogAble.CONSOLE);</span>
+<span class="fc" id="L237">    }</span>
+
+    public Solver(LearningStrategy&lt;D&gt; learner, D dsf, SearchParams params,
+<span class="fc" id="L240">            IOrder order, RestartStrategy restarter, ILogAble logger) {</span>
+<span class="fc" id="L241">        this.order = order;</span>
+<span class="fc" id="L242">        this.params = params;</span>
+<span class="fc" id="L243">        this.restarter = restarter;</span>
+<span class="fc" id="L244">        this.out = logger;</span>
+<span class="fc" id="L245">        setDataStructureFactory(dsf);</span>
+        // should be called after dsf has been set up
+<span class="fc" id="L247">        setLearningStrategy(learner);</span>
+<span class="fc" id="L248">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#setDataStructureFactory(D)
+     */
+    public final void setDataStructureFactory(D dsf) {
+<span class="fc" id="L256">        this.dsfactory = dsf;</span>
+<span class="fc" id="L257">        this.dsfactory.setUnitPropagationListener(this);</span>
+<span class="fc" id="L258">        this.dsfactory.setLearner(this);</span>
+<span class="fc" id="L259">        this.voc = dsf.getVocabulary();</span>
+<span class="fc" id="L260">        this.order.setLits(this.voc);</span>
+<span class="fc" id="L261">    }</span>
+
+    /**
+     * @since 2.2
+     */
+    public boolean isVerbose() {
+<span class="nc" id="L267">        return this.verbose;</span>
+    }
+
+    /**
+     * @param value
+     * @since 2.2
+     */
+    public void setVerbose(boolean value) {
+<span class="nc" id="L275">        this.verbose = value;</span>
+<span class="nc" id="L276">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#setSearchListener(org.sat4j.specs.
+     * SearchListener )
+     */
+    public &lt;S extends ISolverService&gt; void setSearchListener(
+            SearchListener&lt;S&gt; sl) {
+<span class="nc" id="L286">        this.slistener = sl;</span>
+<span class="nc" id="L287">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#getSearchListener()
+     */
+    public SearchListener&lt;? extends ISolverService&gt; getSearchListener() {
+<span class="nc" id="L295">        return this.slistener;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.core.ICDCL#setLearningStrategy(org.sat4j.minisat.core.
+     * LearningStrategy)
+     */
+    public void setLearningStrategy(LearningStrategy&lt;D&gt; strategy) {
+<span class="pc bpc" id="L306" title="1 of 2 branches missed.">        if (this.learner != null) {</span>
+<span class="nc" id="L307">            this.learner.setSolver(null);</span>
+        }
+<span class="fc" id="L309">        this.learner = strategy;</span>
+<span class="fc" id="L310">        strategy.setSolver(this);</span>
+<span class="fc" id="L311">    }</span>
+
+    public void setTimeout(int t) {
+<span class="nc" id="L314">        this.timeout = t * 1000L;</span>
+<span class="nc" id="L315">        this.timeBasedTimeout = true;</span>
+<span class="nc" id="L316">        this.undertimeout = true;</span>
+<span class="nc" id="L317">    }</span>
+
+    public void setTimeoutMs(long t) {
+<span class="nc" id="L320">        this.timeout = t;</span>
+<span class="nc" id="L321">        this.timeBasedTimeout = true;</span>
+<span class="nc" id="L322">        this.undertimeout = true;</span>
+<span class="nc" id="L323">    }</span>
+
+    public void setTimeoutOnConflicts(int count) {
+<span class="nc" id="L326">        this.timeout = count;</span>
+<span class="nc" id="L327">        this.timeBasedTimeout = false;</span>
+<span class="nc" id="L328">        this.undertimeout = true;</span>
+<span class="nc" id="L329">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#setSearchParams(org.sat4j.minisat.core.
+     * SearchParams)
+     */
+    public void setSearchParams(SearchParams sp) {
+<span class="nc" id="L338">        this.params = sp;</span>
+<span class="nc" id="L339">    }</span>
+
+    public SearchParams getSearchParams() {
+<span class="nc" id="L342">        return this.params;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.core.ICDCL#setRestartStrategy(org.sat4j.minisat.core
+     * .RestartStrategy)
+     */
+    public void setRestartStrategy(RestartStrategy restarter) {
+<span class="fc" id="L353">        this.restarter = restarter;</span>
+<span class="fc" id="L354">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#getRestartStrategy()
+     */
+    public RestartStrategy getRestartStrategy() {
+<span class="nc" id="L362">        return this.restarter;</span>
+    }
+
+    public void expireTimeout() {
+<span class="nc" id="L366">        this.undertimeout = false;</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (this.timeBasedTimeout) {</span>
+<span class="nc bnc" id="L368" title="All 2 branches missed.">            if (this.timer != null) {</span>
+<span class="nc" id="L369">                this.timer.cancel();</span>
+<span class="nc" id="L370">                this.timer = null;</span>
+            }
+        } else {
+<span class="nc bnc" id="L373" title="All 2 branches missed.">            if (this.conflictCount != null) {</span>
+<span class="nc" id="L374">                this.conflictCount = null;</span>
+            }
+        }
+<span class="nc" id="L377">    }</span>
+
+    protected int nAssigns() {
+<span class="fc" id="L380">        return this.trail.size();</span>
+    }
+
+    public int nConstraints() {
+<span class="nc" id="L384">        return this.constrs.size();</span>
+    }
+
+    public void learn(Constr c) {
+<span class="fc" id="L388">        this.slistener.learn(c);</span>
+<span class="fc" id="L389">        this.learnts.push(c);</span>
+<span class="fc" id="L390">        c.setLearnt();</span>
+<span class="fc" id="L391">        c.register();</span>
+<span class="fc" id="L392">        this.stats.incLearnedclauses();</span>
+<span class="fc bfc" id="L393" title="All 3 branches covered.">        switch (c.size()) {</span>
+        case 2:
+<span class="fc" id="L395">            this.stats.incLearnedbinaryclauses();</span>
+<span class="fc" id="L396">            break;</span>
+        case 3:
+<span class="fc" id="L398">            this.stats.incLearnedternaryclauses();</span>
+<span class="fc" id="L399">            break;</span>
+        default:
+            // do nothing
+        }
+<span class="fc" id="L403">    }</span>
+
+    public final int decisionLevel() {
+<span class="fc" id="L406">        return this.trailLim.size();</span>
+    }
+
+    public int newVar(int howmany) {
+<span class="nc bnc" id="L410" title="All 4 branches missed.">        if (this.declaredMaxVarId &gt; 0 &amp;&amp; howmany &gt; this.declaredMaxVarId</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">                &amp;&amp; this.voc.nVars() &gt; this.declaredMaxVarId) {</span>
+<span class="nc" id="L412">            throw new IllegalStateException(</span>
+                    &quot;Caution, you are making solver's internal var id public with uncontrolled consequences with features requiring internal/hidden variables.&quot;);
+        }
+<span class="nc" id="L415">        this.voc.ensurePool(howmany);</span>
+<span class="nc" id="L416">        this.declaredMaxVarId = howmany;</span>
+<span class="nc" id="L417">        return howmany;</span>
+    }
+
+    public IConstr addClause(IVecInt literals) throws ContradictionException {
+<span class="fc" id="L421">        IVecInt vlits = dimacs2internal(literals);</span>
+<span class="fc" id="L422">        return addConstr(this.dsfactory.createClause(vlits));</span>
+    }
+
+    public boolean removeConstr(IConstr co) {
+<span class="nc bnc" id="L426" title="All 2 branches missed.">        if (co == null) {</span>
+<span class="nc" id="L427">            throw new IllegalArgumentException(</span>
+                    &quot;Reference to the constraint to remove needed!&quot;); //$NON-NLS-1$
+        }
+<span class="nc" id="L430">        Constr c = (Constr) co;</span>
+<span class="nc" id="L431">        c.remove(this);</span>
+<span class="nc" id="L432">        this.constrs.removeFromLast(c);</span>
+<span class="nc" id="L433">        clearLearntClauses();</span>
+<span class="nc" id="L434">        String type = c.getClass().getName();</span>
+<span class="nc" id="L435">        this.constrTypes.get(type).dec();</span>
+<span class="nc" id="L436">        return true;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public boolean removeSubsumedConstr(IConstr co) {
+<span class="nc bnc" id="L443" title="All 2 branches missed.">        if (co == null) {</span>
+<span class="nc" id="L444">            throw new IllegalArgumentException(</span>
+                    &quot;Reference to the constraint to remove needed!&quot;); //$NON-NLS-1$
+        }
+<span class="nc bnc" id="L447" title="All 2 branches missed.">        if (this.constrs.last() != co) {</span>
+<span class="nc" id="L448">            throw new IllegalArgumentException(</span>
+                    &quot;Can only remove latest added constraint!!!&quot;); //$NON-NLS-1$
+        }
+<span class="nc" id="L451">        Constr c = (Constr) co;</span>
+<span class="nc" id="L452">        c.remove(this);</span>
+<span class="nc" id="L453">        this.constrs.pop();</span>
+<span class="nc" id="L454">        String type = c.getClass().getName();</span>
+<span class="nc" id="L455">        this.constrTypes.get(type).dec();</span>
+<span class="nc" id="L456">        return true;</span>
+    }
+
+    public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
+            throws ContradictionException {
+<span class="nc" id="L461">        for (Iterator&lt;IVecInt&gt; iterator = clauses.iterator(); iterator</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">                .hasNext();) {</span>
+<span class="nc" id="L463">            addClause(iterator.next());</span>
+        }
+<span class="nc" id="L465">    }</span>
+
+    public IConstr addAtMost(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L469">        int n = literals.size();</span>
+<span class="nc" id="L470">        IVecInt opliterals = new VecInt(n);</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">        for (IteratorInt iterator = literals.iterator(); iterator.hasNext();) {</span>
+<span class="nc" id="L472">            opliterals.push(-iterator.next());</span>
+        }
+<span class="nc" id="L474">        return addAtLeast(opliterals, n - degree);</span>
+    }
+
+    public IConstr addAtLeast(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L479">        IVecInt vlits = dimacs2internal(literals);</span>
+<span class="nc" id="L480">        return addConstr(</span>
+<span class="nc" id="L481">                this.dsfactory.createCardinalityConstraint(vlits, degree));</span>
+    }
+
+    public IConstr addExactly(IVecInt literals, int n)
+            throws ContradictionException {
+<span class="nc" id="L486">        var group = new ConstrGroup(false);</span>
+<span class="nc" id="L487">        group.add(addAtLeast(literals, n));</span>
+<span class="nc" id="L488">        group.add(addAtMost(literals, n));</span>
+<span class="nc" id="L489">        return group;</span>
+    }
+
+    public IConstr addParity(IVecInt literals, boolean even) {
+<span class="nc" id="L493">        IVecInt vlits = dimacs2internal(literals);</span>
+<span class="nc" id="L494">        return addConstr(Xor.createParityConstraint(vlits, even, voc));</span>
+    }
+
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public boolean simplifyDB() {
+        // Simplifie la base de clauses apres la premiere propagation des
+        // clauses unitaires
+<span class="fc" id="L501">        IVec&lt;Constr&gt;[] cs = new IVec[] { this.constrs, this.learnts };</span>
+<span class="fc bfc" id="L502" title="All 2 branches covered.">        for (var type = 0; type &lt; 2; type++) {</span>
+<span class="fc" id="L503">            var j = 0;</span>
+<span class="fc bfc" id="L504" title="All 2 branches covered.">            for (var i = 0; i &lt; cs[type].size(); i++) {</span>
+<span class="fc bfc" id="L505" title="All 2 branches covered.">                if (cs[type].get(i).simplify()) {</span>
+                    // enleve les contraintes satisfaites de la base
+<span class="fc" id="L507">                    cs[type].get(i).remove(this);</span>
+                } else {
+<span class="fc" id="L509">                    cs[type].moveTo(j++, i);</span>
+                }
+            }
+<span class="fc" id="L512">            cs[type].shrinkTo(j);</span>
+        }
+<span class="fc" id="L514">        return true;</span>
+    }
+
+    /**
+     * Si un mod?le est trouv?, ce vecteur contient le mod?le.
+     * 
+     * @return un mod?le de la formule.
+     */
+    public int[] model() {
+<span class="nc bnc" id="L523" title="All 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc" id="L524">            throw new UnsupportedOperationException(</span>
+                    CALL_THE_SOLVE_METHOD_FIRST);
+        }
+<span class="nc" id="L527">        var nmodel = new int[this.model.length];</span>
+<span class="nc" id="L528">        System.arraycopy(this.model, 0, nmodel, 0, this.model.length);</span>
+<span class="nc" id="L529">        return nmodel;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#enqueue(int)
+     */
+    public boolean enqueue(int p) {
+<span class="fc" id="L538">        return enqueue(p, null);</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#enqueue(int,
+     * org.sat4j.minisat.core.Constr)
+     */
+    public boolean enqueue(int p, Constr from) {
+<span class="pc bpc" id="L548" title="2 of 4 branches missed.">        assert p &gt; 1;</span>
+<span class="fc bfc" id="L549" title="All 2 branches covered.">        if (this.voc.isSatisfied(p)) {</span>
+            // literal is already satisfied. Skipping.
+<span class="fc" id="L551">            return true;</span>
+        }
+<span class="fc bfc" id="L553" title="All 2 branches covered.">        if (this.voc.isFalsified(p)) {</span>
+            // conflicting enqueued assignment
+<span class="fc" id="L555">            return false;</span>
+        }
+<span class="fc" id="L557">        this.slistener.enqueueing(toDimacs(p), from);</span>
+        // new fact, store it
+<span class="fc" id="L559">        this.voc.satisfies(p);</span>
+<span class="fc" id="L560">        this.voc.setLevel(p, decisionLevel());</span>
+<span class="fc" id="L561">        this.voc.setTrailPosition(p, this.trail.size());</span>
+<span class="fc" id="L562">        this.voc.setReason(p, from);</span>
+<span class="fc" id="L563">        this.trail.push(p);</span>
+<span class="fc bfc" id="L564" title="All 4 branches covered.">        if (from != null &amp;&amp; from.learnt()) {</span>
+<span class="fc" id="L565">            this.learnedConstraintsDeletionStrategy.onPropagation(from, p);</span>
+        }
+<span class="fc" id="L567">        return true;</span>
+    }
+
+<span class="fc" id="L570">    private boolean[] mseen = new boolean[0];</span>
+
+<span class="fc" id="L572">    private final IVecInt mpreason = new VecInt();</span>
+
+<span class="fc" id="L574">    private final IVecInt moutLearnt = new VecInt();</span>
+
+    /**
+     * @throws TimeoutException
+     *             if the timeout is reached during conflict analysis.
+     */
+    public void analyze(Constr confl, Pair results) throws TimeoutException {
+<span class="pc bpc" id="L581" title="2 of 4 branches missed.">        assert confl != null;</span>
+
+<span class="fc" id="L583">        final boolean[] seen = this.mseen;</span>
+<span class="fc" id="L584">        final IVecInt outLearnt = this.moutLearnt;</span>
+<span class="fc" id="L585">        final IVecInt preason = this.mpreason;</span>
+
+<span class="fc" id="L587">        outLearnt.clear();</span>
+<span class="pc bpc" id="L588" title="2 of 4 branches missed.">        assert outLearnt.size() == 0;</span>
+<span class="fc bfc" id="L589" title="All 2 branches covered.">        for (var i = 0; i &lt; seen.length; i++) {</span>
+<span class="fc" id="L590">            seen[i] = false;</span>
+        }
+
+<span class="fc" id="L593">        var counter = 0;</span>
+<span class="fc" id="L594">        int p = ILits.UNDEFINED;</span>
+        // placeholder for the asserting literal
+<span class="fc" id="L596">        outLearnt.push(ILits.UNDEFINED);</span>
+<span class="fc" id="L597">        var outBtlevel = 0;</span>
+<span class="fc" id="L598">        IConstr prevConfl = null;</span>
+
+        do {
+<span class="fc" id="L601">            preason.clear();</span>
+<span class="pc bpc" id="L602" title="2 of 4 branches missed.">            assert confl != null;</span>
+<span class="pc bpc" id="L603" title="3 of 4 branches missed.">            if (prevConfl != confl || confl.canBePropagatedMultipleTimes()) {</span>
+<span class="fc" id="L604">                confl.calcReason(p, preason);</span>
+<span class="fc" id="L605">                this.learnedConstraintsDeletionStrategy</span>
+<span class="fc" id="L606">                        .onConflictAnalysis(confl);</span>
+                // Trace reason for p
+<span class="fc bfc" id="L608" title="All 2 branches covered.">                for (var j = 0; j &lt; preason.size(); j++) {</span>
+<span class="fc" id="L609">                    int q = preason.get(j);</span>
+<span class="fc" id="L610">                    this.order.updateVar(q);</span>
+<span class="fc bfc" id="L611" title="All 2 branches covered.">                    if (!seen[q &gt;&gt; 1]) {</span>
+<span class="fc" id="L612">                        seen[q &gt;&gt; 1] = true;</span>
+<span class="fc bfc" id="L613" title="All 2 branches covered.">                        if (this.voc.getLevel(q) == decisionLevel()) {</span>
+<span class="fc" id="L614">                            counter++;</span>
+<span class="fc" id="L615">                            this.order.updateVarAtDecisionLevel(q);</span>
+<span class="fc bfc" id="L616" title="All 2 branches covered.">                        } else if (this.voc.getLevel(q) &gt; 0) {</span>
+                            // only literals assigned after decision level 0
+                            // part of
+                            // the explanation
+<span class="fc" id="L620">                            outLearnt.push(q ^ 1);</span>
+<span class="fc" id="L621">                            outBtlevel = Math.max(outBtlevel,</span>
+<span class="fc" id="L622">                                    this.voc.getLevel(q));</span>
+                        }
+                    }
+                }
+            }
+<span class="fc" id="L627">            prevConfl = confl;</span>
+            // select next reason to look at
+            do {
+<span class="fc" id="L630">                p = this.trail.last();</span>
+<span class="fc" id="L631">                confl = this.voc.getReason(p);</span>
+<span class="fc" id="L632">                undoOne();</span>
+<span class="fc bfc" id="L633" title="All 2 branches covered.">            } while (!seen[p &gt;&gt; 1]);</span>
+            // seen[p.var] indique que p se trouve dans outLearnt ou dans
+            // le dernier niveau de d?cision
+<span class="fc bfc" id="L636" title="All 2 branches covered.">        } while (--counter &gt; 0);</span>
+
+<span class="fc" id="L638">        outLearnt.set(0, p ^ 1);</span>
+<span class="fc" id="L639">        this.simplifier.simplify(outLearnt);</span>
+
+<span class="fc" id="L641">        Constr c = this.dsfactory.createUnregisteredClause(outLearnt);</span>
+<span class="fc" id="L642">        this.learnedConstraintsDeletionStrategy.onClauseLearning(c);</span>
+<span class="fc" id="L643">        results.setReason(c);</span>
+
+<span class="pc bpc" id="L645" title="2 of 4 branches missed.">        assert outBtlevel &gt; -1;</span>
+<span class="fc" id="L646">        results.setBacktrackLevel(outBtlevel);</span>
+<span class="fc" id="L647">    }</span>
+
+    /**
+     * Derive a subset of the assumptions causing the inconsistency.
+     * 
+     * @param confl
+     *            the last conflict of the search, occuring at root level.
+     * @param assumps
+     *            the set of assumption literals
+     * @param conflictingLiteral
+     *            the literal detected conflicting while propagating
+     *            assumptions.
+     * @return a subset of assumps causing the inconsistency.
+     * @since 2.2
+     */
+    public IVecInt analyzeFinalConflictInTermsOfAssumptions(Constr confl,
+            IVecInt assumps, int conflictingLiteral) {
+<span class="fc bfc" id="L664" title="All 2 branches covered.">        if (assumps.size() == 0) {</span>
+<span class="fc" id="L665">            return null;</span>
+        }
+<span class="fc bfc" id="L667" title="All 2 branches covered.">        while (!this.trailLim.isEmpty()</span>
+<span class="fc bfc" id="L668" title="All 2 branches covered.">                &amp;&amp; this.trailLim.last() == this.trail.size()) {</span>
+            // conflict detected when assuming a value
+<span class="fc" id="L670">            this.trailLim.pop();</span>
+        }
+<span class="fc" id="L672">        final boolean[] seen = this.mseen;</span>
+<span class="fc" id="L673">        final IVecInt outLearnt = this.moutLearnt;</span>
+<span class="fc" id="L674">        final IVecInt preason = this.mpreason;</span>
+
+<span class="fc" id="L676">        outLearnt.clear();</span>
+<span class="fc bfc" id="L677" title="All 2 branches covered.">        if (this.trailLim.size() == 0) {</span>
+            // conflict detected on unit clauses
+<span class="fc" id="L679">            return outLearnt;</span>
+        }
+
+<span class="pc bpc" id="L682" title="2 of 4 branches missed.">        assert outLearnt.size() == 0;</span>
+<span class="fc bfc" id="L683" title="All 2 branches covered.">        for (var i = 0; i &lt; seen.length; i++) {</span>
+<span class="fc" id="L684">            seen[i] = false;</span>
+        }
+
+<span class="fc bfc" id="L687" title="All 2 branches covered.">        if (confl == null) {</span>
+<span class="fc" id="L688">            seen[conflictingLiteral &gt;&gt; 1] = true;</span>
+        }
+
+<span class="fc" id="L691">        int p = ILits.UNDEFINED;</span>
+<span class="fc bfc" id="L692" title="All 4 branches covered.">        while (confl == null &amp;&amp; this.trail.size() &gt; 0</span>
+<span class="fc bfc" id="L693" title="All 2 branches covered.">                &amp;&amp; this.trailLim.size() &gt; 0) {</span>
+<span class="fc" id="L694">            p = this.trail.last();</span>
+<span class="fc" id="L695">            confl = this.voc.getReason(p);</span>
+<span class="fc" id="L696">            undoOne();</span>
+<span class="fc bfc" id="L697" title="All 4 branches covered.">            if (confl == null &amp;&amp; p == (conflictingLiteral ^ 1)) {</span>
+<span class="fc" id="L698">                outLearnt.push(toDimacs(p));</span>
+            }
+<span class="fc bfc" id="L700" title="All 2 branches covered.">            if (this.trail.size() &lt;= this.trailLim.last()) {</span>
+<span class="fc" id="L701">                this.trailLim.pop();</span>
+            }
+        }
+<span class="fc bfc" id="L704" title="All 2 branches covered.">        if (confl == null) {</span>
+<span class="fc" id="L705">            return outLearnt;</span>
+        }
+        do {
+
+<span class="fc" id="L709">            preason.clear();</span>
+<span class="fc" id="L710">            confl.calcReason(p, preason);</span>
+            // Trace reason for p
+<span class="fc bfc" id="L712" title="All 2 branches covered.">            for (var j = 0; j &lt; preason.size(); j++) {</span>
+<span class="fc" id="L713">                int q = preason.get(j);</span>
+<span class="fc bfc" id="L714" title="All 2 branches covered.">                if (!seen[q &gt;&gt; 1]) {</span>
+<span class="fc" id="L715">                    seen[q &gt;&gt; 1] = true;</span>
+<span class="fc bfc" id="L716" title="All 2 branches covered.">                    if (this.voc.getReason(q) == null</span>
+<span class="fc bfc" id="L717" title="All 2 branches covered.">                            &amp;&amp; this.voc.getLevel(q) &gt; 0) {</span>
+<span class="pc bpc" id="L718" title="2 of 4 branches missed.">                        assert assumps.contains(toDimacs(q));</span>
+<span class="fc" id="L719">                        outLearnt.push(toDimacs(q));</span>
+                    }
+                }
+            }
+
+            // select next reason to look at
+            do {
+<span class="fc" id="L726">                p = this.trail.last();</span>
+<span class="fc" id="L727">                confl = this.voc.getReason(p);</span>
+<span class="fc" id="L728">                undoOne();</span>
+<span class="pc bpc" id="L729" title="1 of 2 branches missed.">                if (decisionLevel() &gt; 0</span>
+<span class="fc bfc" id="L730" title="All 2 branches covered.">                        &amp;&amp; this.trail.size() &lt;= this.trailLim.last()) {</span>
+<span class="fc" id="L731">                    this.trailLim.pop();</span>
+                }
+<span class="fc bfc" id="L733" title="All 8 branches covered.">            } while (this.trail.size() &gt; 0 &amp;&amp; decisionLevel() &gt; 0</span>
+                    &amp;&amp; (!seen[p &gt;&gt; 1] || confl == null));
+<span class="fc bfc" id="L735" title="All 2 branches covered.">        } while (decisionLevel() &gt; 0);</span>
+<span class="fc" id="L736">        return outLearnt;</span>
+    }
+
+    @Feature(value = &quot;simplifications&quot;, parent = &quot;expert&quot;)
+<span class="fc" id="L740">    public static final ISimplifier NO_SIMPLIFICATION = new ISimplifier() {</span>
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
+        public void simplify(IVecInt outLearnt) {
+<span class="nc" id="L747">        }</span>
+
+        @Override
+        public String toString() {
+<span class="nc" id="L751">            return &quot;No reason simplification&quot;; //$NON-NLS-1$</span>
+        }
+    };
+
+<span class="fc" id="L755">    @Feature(value = &quot;simplifications&quot;, parent = &quot;expert&quot;)</span>
+<span class="fc" id="L756">    public final ISimplifier simpleSimplification = new ISimplifier() {</span>
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
+        public void simplify(IVecInt conflictToReduce) {
+            // MiniSat -- Copyright (c) 2003-2005, Niklas Een, Niklas Sorensson
+            //
+            // Permission is hereby granted, free of charge, to any person
+            // obtaining a
+            // copy of this software and associated documentation files (the
+            // &quot;Software&quot;), to deal in the Software without restriction,
+            // including
+            // without limitation the rights to use, copy, modify, merge,
+            // publish,
+            // distribute, sublicense, and/or sell copies of the Software, and
+            // to
+            // permit persons to whom the Software is furnished to do so,
+            // subject to
+            // the following conditions:
+            //
+            // The above copyright notice and this permission notice shall be
+            // included
+            // in all copies or substantial portions of the Software.
+            //
+            // THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND,
+            // EXPRESS
+            // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+            // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+            // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+            // HOLDERS BE
+            // LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+            // ACTION
+            // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+            // CONNECTION
+            // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+            // Taken from MiniSAT 1.14: Simplify conflict clause (a little):
+
+            int i, j, p;
+<span class="nc" id="L797">            final boolean[] seen = mseen;</span>
+            IConstr r;
+<span class="nc bnc" id="L799" title="All 2 branches missed.">            for (i = j = 1; i &lt; conflictToReduce.size(); i++) {</span>
+<span class="nc" id="L800">                r = voc.getReason(conflictToReduce.get(i));</span>
+<span class="nc bnc" id="L801" title="All 4 branches missed.">                if (r == null || r.canBePropagatedMultipleTimes()) {</span>
+<span class="nc" id="L802">                    conflictToReduce.moveTo(j++, i);</span>
+                } else {
+<span class="nc bnc" id="L804" title="All 2 branches missed.">                    for (var k = 0; k &lt; r.size(); k++) {</span>
+<span class="nc" id="L805">                        p = r.get(k);</span>
+<span class="nc bnc" id="L806" title="All 4 branches missed.">                        if (!seen[p &gt;&gt; 1] &amp;&amp; voc.isFalsified(p)</span>
+<span class="nc bnc" id="L807" title="All 2 branches missed.">                                &amp;&amp; voc.getLevel(p) != 0) {</span>
+<span class="nc" id="L808">                            conflictToReduce.moveTo(j++, i);</span>
+<span class="nc" id="L809">                            break;</span>
+                        }
+                    }
+                }
+            }
+<span class="nc" id="L814">            conflictToReduce.shrink(i - j);</span>
+<span class="nc" id="L815">            stats.incReducedliterals(i - j);</span>
+<span class="nc" id="L816">        }</span>
+
+        @Override
+        public String toString() {
+<span class="nc" id="L820">            return &quot;Simple reason simplification&quot;; //$NON-NLS-1$</span>
+        }
+    };
+
+<span class="fc" id="L824">    @Feature(value = &quot;simplifications&quot;, parent = &quot;expert&quot;)</span>
+<span class="pc bpc" id="L825" title="1 of 2 branches missed.">    public final ISimplifier expensiveSimplification = new ISimplifier() {</span>
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
+        public void simplify(IVecInt conflictToReduce) {
+            // Taken from MiniSAT 1.14
+
+            // Simplify conflict clause (a lot):
+            //
+            int i, j;
+            // (maintain an abstraction of levels involved in conflict)
+<span class="fc" id="L839">            analyzetoclear.clear();</span>
+<span class="fc" id="L840">            conflictToReduce.copyTo(analyzetoclear);</span>
+<span class="fc bfc" id="L841" title="All 2 branches covered.">            for (i = 1, j = 1; i &lt; conflictToReduce.size(); i++) {</span>
+<span class="fc bfc" id="L842" title="All 2 branches covered.">                if (voc.getReason(conflictToReduce.get(i)) == null</span>
+<span class="fc bfc" id="L843" title="All 2 branches covered.">                        || !analyzeRemovable(conflictToReduce.get(i))) {</span>
+<span class="fc" id="L844">                    conflictToReduce.moveTo(j++, i);</span>
+                }
+            }
+<span class="fc" id="L847">            conflictToReduce.shrink(i - j);</span>
+<span class="fc" id="L848">            stats.incReducedliterals(i - j);</span>
+<span class="fc" id="L849">        }</span>
+
+        // Check if 'p' can be removed.' min_level' is used to abort early if
+        // visiting literals at a level that cannot be removed.
+        //
+        private boolean analyzeRemovable(int p) {
+<span class="pc bpc" id="L855" title="2 of 4 branches missed.">            assert voc.getReason(p) != null;</span>
+<span class="fc" id="L856">            ILits lvoc = voc;</span>
+<span class="fc" id="L857">            IVecInt lanalyzestack = analyzestack;</span>
+<span class="fc" id="L858">            IVecInt lanalyzetoclear = analyzetoclear;</span>
+<span class="fc" id="L859">            lanalyzestack.clear();</span>
+<span class="fc" id="L860">            lanalyzestack.push(p);</span>
+<span class="fc" id="L861">            final boolean[] seen = mseen;</span>
+<span class="fc" id="L862">            int top = lanalyzetoclear.size();</span>
+<span class="fc bfc" id="L863" title="All 2 branches covered.">            while (lanalyzestack.size() &gt; 0) {</span>
+<span class="fc" id="L864">                int q = lanalyzestack.last();</span>
+<span class="pc bpc" id="L865" title="2 of 4 branches missed.">                assert lvoc.getReason(q) != null;</span>
+<span class="fc" id="L866">                Constr c = lvoc.getReason(q);</span>
+<span class="fc" id="L867">                lanalyzestack.pop();</span>
+<span class="pc bpc" id="L868" title="1 of 2 branches missed.">                if (c.canBePropagatedMultipleTimes()) {</span>
+<span class="nc bnc" id="L869" title="All 2 branches missed.">                    for (int j = top; j &lt; lanalyzetoclear.size(); j++) {</span>
+<span class="nc" id="L870">                        seen[lanalyzetoclear.get(j) &gt;&gt; 1] = false;</span>
+                    }
+<span class="nc" id="L872">                    lanalyzetoclear.shrink(lanalyzetoclear.size() - top);</span>
+<span class="nc" id="L873">                    return false;</span>
+                }
+<span class="fc bfc" id="L875" title="All 2 branches covered.">                for (var i = 0; i &lt; c.size(); i++) {</span>
+<span class="fc" id="L876">                    int l = c.get(i);</span>
+<span class="pc bpc" id="L877" title="1 of 4 branches missed.">                    if (!seen[var(l)] &amp;&amp; lvoc.isFalsified(l)</span>
+<span class="fc bfc" id="L878" title="All 2 branches covered.">                            &amp;&amp; lvoc.getLevel(l) != 0) {</span>
+<span class="fc bfc" id="L879" title="All 2 branches covered.">                        if (lvoc.getReason(l) == null) {</span>
+<span class="fc bfc" id="L880" title="All 2 branches covered.">                            for (int j = top; j &lt; lanalyzetoclear.size(); j++) {</span>
+<span class="fc" id="L881">                                seen[lanalyzetoclear.get(j) &gt;&gt; 1] = false;</span>
+                            }
+<span class="fc" id="L883">                            lanalyzetoclear</span>
+<span class="fc" id="L884">                                    .shrink(lanalyzetoclear.size() - top);</span>
+<span class="fc" id="L885">                            return false;</span>
+                        }
+<span class="fc" id="L887">                        seen[l &gt;&gt; 1] = true;</span>
+<span class="fc" id="L888">                        lanalyzestack.push(l);</span>
+<span class="fc" id="L889">                        lanalyzetoclear.push(l);</span>
+                    }
+                }
+
+<span class="fc" id="L893">            }</span>
+
+<span class="fc" id="L895">            return true;</span>
+        }
+
+        @Override
+        public String toString() {
+<span class="nc" id="L900">            return &quot;Expensive reason simplification&quot;; //$NON-NLS-1$</span>
+        }
+    };
+
+<span class="fc" id="L904">    @Feature(value = &quot;simplifications&quot;, parent = &quot;expert&quot;)</span>
+<span class="pc bpc" id="L905" title="1 of 2 branches missed.">    public final ISimplifier expensiveSimplificationWLOnly = new ISimplifier() {</span>
+
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+
+        public void simplify(IVecInt conflictToReduce) {
+            // Taken from MiniSAT 1.14
+
+            // Simplify conflict clause (a lot):
+            //
+            int i, j;
+            // (maintain an abstraction of levels involved in conflict)
+<span class="nc" id="L919">            analyzetoclear.clear();</span>
+<span class="nc" id="L920">            conflictToReduce.copyTo(analyzetoclear);</span>
+<span class="nc bnc" id="L921" title="All 2 branches missed.">            for (i = 1, j = 1; i &lt; conflictToReduce.size(); i++) {</span>
+<span class="nc bnc" id="L922" title="All 2 branches missed.">                if (voc.getReason(conflictToReduce.get(i)) == null</span>
+<span class="nc bnc" id="L923" title="All 2 branches missed.">                        || !analyzeRemovableWLOnly(conflictToReduce.get(i))) {</span>
+<span class="nc" id="L924">                    conflictToReduce.moveTo(j++, i);</span>
+                }
+            }
+<span class="nc" id="L927">            conflictToReduce.shrink(i - j);</span>
+<span class="nc" id="L928">            stats.incReducedliterals(i - j);</span>
+<span class="nc" id="L929">        }</span>
+
+        // Check if 'p' can be removed.' min_level' is used to abort early if
+        // visiting literals at a level that cannot be removed.
+        //
+        private boolean analyzeRemovableWLOnly(int p) {
+<span class="nc bnc" id="L935" title="All 4 branches missed.">            assert voc.getReason(p) != null;</span>
+<span class="nc" id="L936">            analyzestack.clear();</span>
+<span class="nc" id="L937">            analyzestack.push(p);</span>
+<span class="nc" id="L938">            final boolean[] seen = mseen;</span>
+<span class="nc" id="L939">            int top = analyzetoclear.size();</span>
+<span class="nc bnc" id="L940" title="All 2 branches missed.">            while (analyzestack.size() &gt; 0) {</span>
+<span class="nc" id="L941">                int q = analyzestack.last();</span>
+<span class="nc bnc" id="L942" title="All 4 branches missed.">                assert voc.getReason(q) != null;</span>
+<span class="nc" id="L943">                Constr c = voc.getReason(q);</span>
+<span class="nc" id="L944">                analyzestack.pop();</span>
+<span class="nc bnc" id="L945" title="All 2 branches missed.">                for (var i = 1; i &lt; c.size(); i++) {</span>
+<span class="nc" id="L946">                    int l = c.get(i);</span>
+<span class="nc bnc" id="L947" title="All 4 branches missed.">                    if (!seen[var(l)] &amp;&amp; voc.getLevel(l) != 0) {</span>
+<span class="nc bnc" id="L948" title="All 2 branches missed.">                        if (voc.getReason(l) == null) {</span>
+<span class="nc bnc" id="L949" title="All 2 branches missed.">                            for (int j = top; j &lt; analyzetoclear.size(); j++) {</span>
+<span class="nc" id="L950">                                seen[analyzetoclear.get(j) &gt;&gt; 1] = false;</span>
+                            }
+<span class="nc" id="L952">                            analyzetoclear.shrink(analyzetoclear.size() - top);</span>
+<span class="nc" id="L953">                            return false;</span>
+                        }
+<span class="nc" id="L955">                        seen[l &gt;&gt; 1] = true;</span>
+<span class="nc" id="L956">                        analyzestack.push(l);</span>
+<span class="nc" id="L957">                        analyzetoclear.push(l);</span>
+                    }
+                }
+<span class="nc" id="L960">            }</span>
+
+<span class="nc" id="L962">            return true;</span>
+        }
+
+        // END Minisat 1.14 cut and paste
+
+        @Override
+        public String toString() {
+<span class="nc" id="L969">            return &quot;Expensive reason simplification specific for WL data structure&quot;; //$NON-NLS-1$</span>
+        }
+    };
+
+<span class="fc" id="L973">    private ISimplifier simplifier = NO_SIMPLIFICATION;</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#setSimplifier(java.lang.String)
+     */
+    public void setSimplifier(SimplificationType simp) {
+        Field f;
+        try {
+<span class="nc" id="L983">            f = Solver.class.getDeclaredField(simp.toString());</span>
+<span class="nc" id="L984">            this.simplifier = (ISimplifier) f.get(this);</span>
+<span class="nc" id="L985">        } catch (Exception e) {</span>
+<span class="nc" id="L986">            Logger.getLogger(&quot;org.sat4j.core&quot;).log(Level.INFO,</span>
+                    &quot;Issue when assigning simplifier: disabling simplification&quot;,
+                    e);
+<span class="nc" id="L989">            this.simplifier = NO_SIMPLIFICATION;</span>
+<span class="nc" id="L990">        }</span>
+<span class="nc" id="L991">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.core.ICDCL#setSimplifier(org.sat4j.minisat.core.Solver
+     * .ISimplifier)
+     */
+    public void setSimplifier(ISimplifier simp) {
+<span class="fc" id="L1001">        this.simplifier = simp;</span>
+<span class="fc" id="L1002">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#getSimplifier()
+     */
+    public ISimplifier getSimplifier() {
+<span class="nc" id="L1010">        return this.simplifier;</span>
+    }
+
+<span class="fc" id="L1013">    private final IVecInt analyzetoclear = new VecInt();</span>
+
+<span class="fc" id="L1015">    private final IVecInt analyzestack = new VecInt();</span>
+
+    /**
+     * 
+     */
+    protected void undoOne() {
+        // gather last assigned literal
+<span class="fc" id="L1022">        int p = this.trail.last();</span>
+<span class="pc bpc" id="L1023" title="2 of 4 branches missed.">        assert p &gt; 1;</span>
+<span class="pc bpc" id="L1024" title="2 of 4 branches missed.">        assert this.voc.getLevel(p) &gt;= 0;</span>
+<span class="fc" id="L1025">        int x = p &gt;&gt; 1;</span>
+        // unassign variable
+<span class="fc" id="L1027">        this.voc.unassign(p);</span>
+<span class="fc" id="L1028">        this.voc.setReason(p, null);</span>
+<span class="fc" id="L1029">        this.voc.setLevel(p, -1);</span>
+<span class="fc" id="L1030">        this.voc.setTrailPosition(p, -1);</span>
+        // update heuristics value
+<span class="fc" id="L1032">        this.order.undo(x);</span>
+        // remove literal from the trail
+<span class="fc" id="L1034">        this.trail.pop();</span>
+        // update constraints on backtrack.
+        // not used if the solver uses watched literals.
+<span class="fc" id="L1037">        IVec&lt;Undoable&gt; undos = this.voc.undos(p);</span>
+<span class="pc bpc" id="L1038" title="2 of 4 branches missed.">        assert undos != null;</span>
+<span class="pc bpc" id="L1039" title="1 of 2 branches missed.">        for (int size = undos.size(); size &gt; 0; size--) {</span>
+<span class="nc" id="L1040">            undos.last().undo(p);</span>
+<span class="nc" id="L1041">            undos.pop();</span>
+        }
+<span class="fc" id="L1043">    }</span>
+
+    /**
+     * Propagate activity to a constraint
+     * 
+     * @param confl
+     *            a constraint
+     */
+    public void claBumpActivity(Constr confl) {
+<span class="nc" id="L1052">        confl.incActivity(this.claInc);</span>
+<span class="nc bnc" id="L1053" title="All 2 branches missed.">        if (confl.getActivity() &gt; CLAUSE_RESCALE_BOUND) {</span>
+<span class="nc" id="L1054">            claRescalActivity();</span>
+        }
+<span class="nc" id="L1056">    }</span>
+
+    public void varBumpActivity(int p) {
+<span class="fc" id="L1059">        this.order.updateVar(p);</span>
+<span class="fc" id="L1060">    }</span>
+
+    public void varBumpActivity(Constr constr, int i, int p,
+            boolean conflicting) {
+<span class="nc" id="L1064">        this.order.updateVar(constr.get(i));</span>
+<span class="nc" id="L1065">    }</span>
+
+    private void claRescalActivity() {
+<span class="nc bnc" id="L1068" title="All 2 branches missed.">        for (var i = 0; i &lt; this.learnts.size(); i++) {</span>
+<span class="nc" id="L1069">            this.learnts.get(i).rescaleBy(CLAUSE_RESCALE_FACTOR);</span>
+        }
+<span class="nc" id="L1071">        this.claInc *= CLAUSE_RESCALE_FACTOR;</span>
+<span class="nc" id="L1072">    }</span>
+
+<span class="fc" id="L1074">    final IVec&lt;Propagatable&gt; watched = new Vec&lt;&gt;();</span>
+
+    /**
+     * @return null if not conflict is found, else a conflicting constraint.
+     */
+    public final Constr propagate() {
+<span class="fc" id="L1080">        IVecInt ltrail = this.trail;</span>
+<span class="fc" id="L1081">        SolverStats lstats = this.stats;</span>
+<span class="fc" id="L1082">        IOrder lorder = this.order;</span>
+<span class="fc" id="L1083">        SearchListener lslistener = this.slistener;</span>
+        // ltrail.size() changes due to propagation
+        // cannot cache that value.
+<span class="fc bfc" id="L1086" title="All 2 branches covered.">        while (this.qhead &lt; ltrail.size()) {</span>
+<span class="fc" id="L1087">            lstats.incPropagations();</span>
+<span class="fc" id="L1088">            int p = ltrail.get(this.qhead++);</span>
+<span class="fc" id="L1089">            lslistener.propagating(toDimacs(p));</span>
+<span class="fc" id="L1090">            lorder.assignLiteral(p);</span>
+<span class="fc" id="L1091">            Constr confl = reduceClausesContainingTheNegationOf(p);</span>
+<span class="fc bfc" id="L1092" title="All 2 branches covered.">            if (confl != null) {</span>
+<span class="fc" id="L1093">                return confl;</span>
+            }
+<span class="fc" id="L1095">        }</span>
+<span class="fc" id="L1096">        return null;</span>
+    }
+
+    private Constr reduceClausesContainingTheNegationOf(int p) {
+        // p is the literal to propagate
+        // Moved original MiniSAT code to dsfactory to avoid
+        // watches manipulation in counter Based clauses for instance.
+<span class="pc bpc" id="L1103" title="2 of 4 branches missed.">        assert p &gt; 1;</span>
+<span class="fc" id="L1104">        IVec&lt;Propagatable&gt; lwatched = this.watched;</span>
+<span class="fc" id="L1105">        lwatched.clear();</span>
+<span class="fc" id="L1106">        this.voc.watches(p).moveTo(lwatched);</span>
+<span class="fc" id="L1107">        final int size = lwatched.size();</span>
+<span class="fc bfc" id="L1108" title="All 2 branches covered.">        for (var i = 0; i &lt; size; i++) {</span>
+<span class="fc" id="L1109">            this.stats.incInspects();</span>
+<span class="fc bfc" id="L1110" title="All 2 branches covered.">            if (!lwatched.get(i).propagate(this, p)) {</span>
+                // Constraint is conflicting: copy remaining watches to
+                // watches[p]
+                // and return constraint
+<span class="fc" id="L1114">                final int sizew = lwatched.size();</span>
+<span class="fc bfc" id="L1115" title="All 2 branches covered.">                for (var j = i + 1; j &lt; sizew; j++) {</span>
+<span class="fc" id="L1116">                    this.voc.watch(p, lwatched.get(j));</span>
+                }
+<span class="fc" id="L1118">                this.qhead = this.trail.size();</span>
+<span class="fc" id="L1119">                return lwatched.get(i).toConstraint();</span>
+            }
+        }
+<span class="fc" id="L1122">        return null;</span>
+    }
+
+    void recordConstraint(Constr constr) {
+<span class="fc" id="L1126">        constr.assertConstraint(this);</span>
+<span class="fc" id="L1127">        int p = toDimacs(constr.get(0));</span>
+<span class="fc" id="L1128">        this.slistener.adding(p);</span>
+<span class="fc bfc" id="L1129" title="All 2 branches covered.">        if (constr.size() == 1) {</span>
+<span class="fc" id="L1130">            this.stats.incLearnedliterals();</span>
+<span class="fc" id="L1131">            this.slistener.learnUnit(p);</span>
+<span class="fc" id="L1132">            this.unitClauseConsumer.learnUnit(p);</span>
+        } else {
+<span class="fc" id="L1134">            this.learner.learns(constr);</span>
+        }
+<span class="fc" id="L1136">    }</span>
+
+    /**
+     * @return false ssi conflit imm?diat.
+     */
+    public boolean assume(int p) {
+        // Precondition: assume propagation queue is empty
+        // assert this.trail.size() == this.qhead; no longer true with computing
+        // PI
+<span class="pc bpc" id="L1145" title="2 of 4 branches missed.">        assert !this.trailLim.contains(this.trail.size());</span>
+<span class="fc" id="L1146">        this.trailLim.push(this.trail.size());</span>
+<span class="fc" id="L1147">        return enqueue(p);</span>
+    }
+
+    /**
+     * Revert to the state before the last assume()
+     */
+    void cancel() {
+<span class="fc" id="L1154">        int decisionvar = this.trail.unsafeGet(this.trailLim.last());</span>
+<span class="fc" id="L1155">        this.slistener.backtracking(toDimacs(decisionvar));</span>
+<span class="fc bfc" id="L1156" title="All 2 branches covered.">        for (int c = this.trail.size() - this.trailLim.last(); c &gt; 0; c--) {</span>
+<span class="fc" id="L1157">            undoOne();</span>
+        }
+<span class="fc" id="L1159">        this.trailLim.pop();</span>
+<span class="fc" id="L1160">        this.qhead = this.trail.size();</span>
+<span class="fc" id="L1161">    }</span>
+
+    /**
+     * Restore literals
+     */
+    private void cancelLearntLiterals(int learnedLiteralsLimit) {
+<span class="fc" id="L1167">        this.learnedLiterals.clear();</span>
+<span class="fc bfc" id="L1168" title="All 2 branches covered.">        while (this.trail.size() &gt; learnedLiteralsLimit) {</span>
+<span class="fc" id="L1169">            this.learnedLiterals.push(this.trail.last());</span>
+<span class="fc" id="L1170">            undoOne();</span>
+        }
+<span class="fc" id="L1172">    }</span>
+
+    /**
+     * Cancel several levels of assumptions
+     * 
+     * @param level
+     */
+    protected void cancelUntil(int level) {
+<span class="fc bfc" id="L1180" title="All 2 branches covered.">        while (decisionLevel() &gt; level) {</span>
+<span class="fc" id="L1181">            cancel();</span>
+        }
+<span class="fc" id="L1183">    }</span>
+
+    protected void cancelUntilTrailLevel(int level) {
+<span class="nc bnc" id="L1186" title="All 4 branches missed.">        while (!trail.isEmpty() &amp;&amp; trail.size() &gt; level) {</span>
+<span class="nc" id="L1187">            undoOne();</span>
+<span class="nc bnc" id="L1188" title="All 4 branches missed.">            if (!trailLim.isEmpty() &amp;&amp; trailLim.last() == trail.size()) {</span>
+<span class="nc" id="L1189">                trailLim.pop();</span>
+<span class="nc" id="L1190">                decisions.pop();</span>
+            }
+        }
+<span class="nc" id="L1193">    }</span>
+
+<span class="fc" id="L1195">    private final Pair analysisResult = new Pair();</span>
+
+    private boolean[] userbooleanmodel;
+
+    private IVecInt unsatExplanationInTermsOfAssumptions;
+
+    private Lbool search(IVecInt assumps) {
+<span class="pc bpc" id="L1202" title="2 of 4 branches missed.">        assert this.rootLevel == decisionLevel();</span>
+<span class="fc" id="L1203">        this.stats.incStarts();</span>
+        int backjumpLevel;
+
+<span class="fc" id="L1206">        this.order.setVarDecay(1 / this.params.getVarDecay());</span>
+<span class="fc" id="L1207">        this.claDecay = 1 / this.params.getClaDecay();</span>
+
+        do {
+<span class="fc" id="L1210">            this.slistener.beginLoop();</span>
+            // propagate unit clauses and other constraints
+<span class="fc" id="L1212">            Constr confl = propagate();</span>
+<span class="pc bpc" id="L1213" title="2 of 4 branches missed.">            assert this.trail.size() == this.qhead;</span>
+
+<span class="fc bfc" id="L1215" title="All 2 branches covered.">            if (confl == null) {</span>
+                // No conflict found
+<span class="fc bfc" id="L1217" title="All 4 branches covered.">                if (decisionLevel() == 0 &amp;&amp; this.isDBSimplificationAllowed) {</span>
+<span class="fc" id="L1218">                    this.stats.incRootSimplifications();</span>
+<span class="fc" id="L1219">                    boolean ret = simplifyDB();</span>
+<span class="pc bpc" id="L1220" title="2 of 4 branches missed.">                    assert ret;</span>
+                }
+<span class="pc bpc" id="L1222" title="2 of 4 branches missed.">                assert nAssigns() &lt;= this.voc.realnVars();</span>
+<span class="fc bfc" id="L1223" title="All 2 branches covered.">                if (nAssigns() == this.voc.realnVars()) {</span>
+<span class="fc" id="L1224">                    modelFound();</span>
+<span class="fc" id="L1225">                    this.slistener.solutionFound(</span>
+<span class="pc bpc" id="L1226" title="1 of 2 branches missed.">                            (this.fullmodel != null) ? this.fullmodel</span>
+<span class="pc" id="L1227">                                    : this.model,</span>
+                            this);
+<span class="pc bpc" id="L1229" title="1 of 2 branches missed.">                    if (this.sharedConflict == null) {</span>
+<span class="fc" id="L1230">                        cancelUntil(this.rootLevel);</span>
+<span class="fc" id="L1231">                        return Lbool.TRUE;</span>
+                    } else {
+<span class="nc bnc" id="L1233" title="All 2 branches missed.">                        if (decisionLevel() == rootLevel) {</span>
+<span class="nc" id="L1234">                            confl = this.sharedConflict;</span>
+<span class="nc" id="L1235">                            this.sharedConflict = null;</span>
+                        } else {
+<span class="nc" id="L1237">                            int level = this.sharedConflict</span>
+<span class="nc" id="L1238">                                    .getAssertionLevel(trail, decisionLevel());</span>
+<span class="nc" id="L1239">                            cancelUntilTrailLevel(level);</span>
+<span class="nc" id="L1240">                            this.qhead = this.trail.size();</span>
+<span class="nc" id="L1241">                            this.sharedConflict.assertConstraint(this);</span>
+<span class="nc" id="L1242">                            this.sharedConflict = null;</span>
+
+<span class="nc" id="L1244">                            continue;</span>
+                        }
+                    }
+                } else {
+<span class="fc bfc" id="L1248" title="All 2 branches covered.">                    if (this.restarter.shouldRestart()) {</span>
+<span class="fc" id="L1249">                        cancelUntil(this.rootLevel);</span>
+<span class="fc" id="L1250">                        return Lbool.UNDEFINED;</span>
+                    }
+<span class="pc bpc" id="L1252" title="1 of 2 branches missed.">                    if (this.needToReduceDB) {</span>
+<span class="nc" id="L1253">                        reduceDB();</span>
+<span class="nc" id="L1254">                        this.needToReduceDB = false;</span>
+                    }
+<span class="pc bpc" id="L1256" title="1 of 2 branches missed.">                    if (this.sharedConflict == null) {</span>
+                        // New variable decision
+<span class="fc" id="L1258">                        this.stats.incDecisions();</span>
+<span class="fc bfc" id="L1259" title="All 2 branches covered.">                        if (this.stats.getConflicts() &gt; 0L) {</span>
+<span class="fc" id="L1260">                            this.stats.setNoDecisionAfterFirstConflict(false);</span>
+                        }
+<span class="fc" id="L1262">                        int p = this.order.select();</span>
+<span class="pc bpc" id="L1263" title="1 of 2 branches missed.">                        if (p == ILits.UNDEFINED) {</span>
+                            // check (expensive) if all the constraints are not
+                            // satisfied
+<span class="nc" id="L1266">                            var allsat = true;</span>
+<span class="nc bnc" id="L1267" title="All 2 branches missed.">                            for (var i = 0; i &lt; this.constrs.size(); i++) {</span>
+<span class="nc bnc" id="L1268" title="All 2 branches missed.">                                if (!this.constrs.get(i).isSatisfied()) {</span>
+<span class="nc" id="L1269">                                    allsat = false;</span>
+<span class="nc" id="L1270">                                    break;</span>
+                                }
+                            }
+<span class="nc bnc" id="L1273" title="All 2 branches missed.">                            if (allsat) {</span>
+<span class="nc" id="L1274">                                modelFound();</span>
+<span class="nc" id="L1275">                                this.slistener</span>
+<span class="nc bnc" id="L1276" title="All 2 branches missed.">                                        .solutionFound((this.fullmodel != null)</span>
+<span class="nc" id="L1277">                                                ? this.fullmodel</span>
+<span class="nc" id="L1278">                                                : this.model, this);</span>
+<span class="nc" id="L1279">                                return Lbool.TRUE;</span>
+                            } else {
+<span class="nc" id="L1281">                                confl = preventTheSameDecisionsToBeMade();</span>
+<span class="nc" id="L1282">                                this.lastConflictMeansUnsat = false;</span>
+                            }
+<span class="nc" id="L1284">                        } else {</span>
+<span class="pc bpc" id="L1285" title="2 of 4 branches missed.">                            assert p &gt; 1;</span>
+<span class="fc" id="L1286">                            this.slistener.assuming(toDimacs(p));</span>
+<span class="fc" id="L1287">                            boolean ret = assume(p);</span>
+<span class="pc bpc" id="L1288" title="2 of 4 branches missed.">                            assert ret;</span>
+                        }
+<span class="fc" id="L1290">                    } else {</span>
+<span class="nc" id="L1291">                        confl = this.sharedConflict;</span>
+<span class="nc" id="L1292">                        this.sharedConflict = null;</span>
+                    }
+                }
+            }
+<span class="fc bfc" id="L1296" title="All 2 branches covered.">            if (confl != null) {</span>
+                // conflict found
+<span class="fc" id="L1298">                this.stats.incConflicts();</span>
+<span class="fc" id="L1299">                this.slistener.conflictFound(confl, decisionLevel(),</span>
+<span class="fc" id="L1300">                        this.trail.size());</span>
+<span class="fc" id="L1301">                this.conflictCount.newConflict();</span>
+
+<span class="fc bfc" id="L1303" title="All 2 branches covered.">                if (decisionLevel() == this.rootLevel) {</span>
+<span class="pc bpc" id="L1304" title="1 of 2 branches missed.">                    if (this.lastConflictMeansUnsat) {</span>
+                        // conflict at root level, the formula is inconsistent
+<span class="fc" id="L1306">                        this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(</span>
+                                confl, assumps, ILits.UNDEFINED);
+<span class="fc" id="L1308">                        return Lbool.FALSE;</span>
+                    }
+<span class="nc" id="L1310">                    return Lbool.UNDEFINED;</span>
+                }
+<span class="fc" id="L1312">                int conflictTrailLevel = this.trail.size();</span>
+                // analyze conflict
+                try {
+<span class="fc" id="L1315">                    analyze(confl, this.analysisResult);</span>
+<span class="nc" id="L1316">                } catch (TimeoutException e) {</span>
+<span class="nc" id="L1317">                    return Lbool.UNDEFINED;</span>
+<span class="fc" id="L1318">                }</span>
+<span class="pc bpc" id="L1319" title="1 of 2 branches missed.">                assert this.analysisResult</span>
+<span class="pc bpc" id="L1320" title="1 of 2 branches missed.">                        .getBacktrackLevel() &lt; decisionLevel();</span>
+<span class="fc" id="L1321">                backjumpLevel = Math.max(</span>
+<span class="fc" id="L1322">                        this.analysisResult.getBacktrackLevel(),</span>
+                        this.rootLevel);
+<span class="fc" id="L1324">                this.slistener.backjump(backjumpLevel);</span>
+<span class="fc" id="L1325">                cancelUntil(backjumpLevel);</span>
+<span class="fc bfc" id="L1326" title="All 2 branches covered.">                if (backjumpLevel == this.rootLevel) {</span>
+<span class="fc" id="L1327">                    this.restarter.onBackjumpToRootLevel();</span>
+                }
+<span class="pc bpc" id="L1329" title="2 of 4 branches missed.">                assert decisionLevel() &gt;= this.rootLevel</span>
+<span class="fc" id="L1330">                        &amp;&amp; decisionLevel() &gt;= this.analysisResult</span>
+<span class="pc bpc" id="L1331" title="1 of 2 branches missed.">                                .getBacktrackLevel();</span>
+<span class="pc bpc" id="L1332" title="1 of 2 branches missed.">                if (this.analysisResult.getReason() == null) {</span>
+<span class="nc" id="L1333">                    return Lbool.FALSE;</span>
+                }
+<span class="fc" id="L1335">                recordConstraint(this.analysisResult.getReason());</span>
+<span class="fc" id="L1336">                this.restarter.newLearnedClause(this.analysisResult.getReason(),</span>
+                        conflictTrailLevel);
+<span class="fc" id="L1338">                this.analysisResult.setReason(null);</span>
+<span class="fc" id="L1339">                decayActivities();</span>
+            }
+<span class="pc bpc" id="L1341" title="1 of 2 branches missed.">        } while (this.undertimeout);</span>
+<span class="nc" id="L1342">        return Lbool.UNDEFINED; // timeout occured</span>
+    }
+
+    private Constr preventTheSameDecisionsToBeMade() {
+<span class="nc" id="L1346">        IVecInt clause = new VecInt(nVars());</span>
+        int p;
+<span class="nc bnc" id="L1348" title="All 2 branches missed.">        for (int i = this.trail.size() - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L1349">            p = this.trail.get(i);</span>
+<span class="nc bnc" id="L1350" title="All 2 branches missed.">            if (this.voc.getReason(p) == null) {</span>
+<span class="nc" id="L1351">                clause.push(p ^ 1);</span>
+            }
+        }
+<span class="nc" id="L1354">        return this.dsfactory.createUnregisteredClause(clause);</span>
+    }
+
+    protected void analyzeAtRootLevel(Constr conflict) {
+<span class="fc" id="L1358">    }</span>
+
+<span class="fc" id="L1360">    protected final IVecInt implied = new VecInt();</span>
+<span class="fc" id="L1361">    protected final IVecInt decisions = new VecInt();</span>
+
+    private AssignmentOrigin[] assignmentOrigins;
+    int[] fullmodel;
+
+    @Override
+    public AssignmentOrigin getOriginInModel(int p) {
+<span class="nc" id="L1368">        return assignmentOrigins[Math.abs(p) - 1];</span>
+    }
+
+    /**
+     * 
+     */
+    void modelFound() {
+<span class="fc" id="L1375">        decisions.clear();</span>
+<span class="fc" id="L1376">        IVecInt tempmodel = new VecInt(nVars());</span>
+<span class="fc" id="L1377">        assignmentOrigins = new AssignmentOrigin[realNumberOfVariables()];</span>
+<span class="fc" id="L1378">        this.userbooleanmodel = new boolean[realNumberOfVariables()];</span>
+<span class="fc" id="L1379">        this.fullmodel = null;</span>
+        AssignmentOrigin origin;
+
+        Constr reason;
+<span class="pc bpc" id="L1383" title="1 of 2 branches missed.">        if (classifyLiterals) {</span>
+<span class="nc" id="L1384">            var stb = new StringBuilder(getLogPrefix());</span>
+            int q;
+            String str;
+<span class="nc bnc" id="L1387" title="All 2 branches missed.">            for (var i = 0; i &lt; trailLim.size(); i++) {</span>
+<span class="nc" id="L1388">                q = trail.get(trailLim.get(i));</span>
+<span class="nc" id="L1389">                stb.append(LiteralsUtils.toDimacs(q));</span>
+<span class="nc" id="L1390">                this.voc.unassign(q);</span>
+<span class="nc" id="L1391">                this.voc.satisfies(q ^ 1);</span>
+                // can change invariants in constraints data
+                // structures
+                // should only be used with care
+<span class="nc bnc" id="L1395" title="All 2 branches missed.">                if ((reason = reduceClausesContainingTheNegationOf(</span>
+                        q ^ 1)) != null) {
+<span class="nc bnc" id="L1397" title="All 2 branches missed.">                    if (reason.learnt()) {</span>
+<span class="nc" id="L1398">                        origin = AssignmentOrigin.DECIDED_PROPAGATED_LEARNED;</span>
+                    } else {
+<span class="nc" id="L1400">                        origin = AssignmentOrigin.DECIDED_PROPAGATED;</span>
+                    }
+                    int r;
+<span class="nc" id="L1403">                    TreeSet&lt;Integer&gt; levels = new TreeSet&lt;&gt;();</span>
+<span class="nc bnc" id="L1404" title="All 2 branches missed.">                    for (var j = 0; j &lt; reason.size(); j++) {</span>
+<span class="nc" id="L1405">                        r = reason.get(j);</span>
+<span class="nc bnc" id="L1406" title="All 2 branches missed.">                        if (r != q) {</span>
+<span class="nc" id="L1407">                            levels.add(this.voc.getLevel(r));</span>
+                        }
+                    }
+
+<span class="nc" id="L1411">                    stb.append(&quot;:&quot;);</span>
+<span class="nc" id="L1412">                    str = levels.toString().replace(&quot; &quot;, &quot;&quot;);</span>
+<span class="nc" id="L1413">                    stb.append(str.substring(1, str.length() - 1));</span>
+<span class="nc bnc" id="L1414" title="All 2 branches missed.">                    if (voc.getLevel(q) == levels.last()) {</span>
+<span class="nc" id="L1415">                        origin = AssignmentOrigin.DECIDED_CYCLE;</span>
+                    }
+<span class="nc" id="L1417">                } else {</span>
+<span class="nc" id="L1418">                    origin = AssignmentOrigin.DECIDED;</span>
+                }
+
+<span class="nc" id="L1421">                this.voc.unassign(q);</span>
+<span class="nc" id="L1422">                this.voc.satisfies(q);</span>
+<span class="nc" id="L1423">                stb.append(&quot; &quot;);</span>
+<span class="nc" id="L1424">                this.assignmentOrigins[(q &gt;&gt; 1) - 1] = origin;</span>
+            }
+<span class="nc" id="L1426">            System.out.println(stb);</span>
+        }
+<span class="fc bfc" id="L1428" title="All 2 branches covered.">        for (var i = 1; i &lt;= nVars(); i++) {</span>
+<span class="fc bfc" id="L1429" title="All 2 branches covered.">            if (this.voc.belongsToPool(i)) {</span>
+<span class="fc" id="L1430">                int p = this.voc.getFromPool(i);</span>
+<span class="pc bpc" id="L1431" title="1 of 2 branches missed.">                if (!this.voc.isUnassigned(p)) {</span>
+<span class="fc bfc" id="L1432" title="All 2 branches covered.">                    tempmodel.push(this.voc.isSatisfied(p) ? i : -i);</span>
+<span class="fc" id="L1433">                    this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);</span>
+<span class="fc" id="L1434">                    reason = this.voc.getReason(p);</span>
+<span class="fc bfc" id="L1435" title="All 6 branches covered.">                    if (reason == null &amp;&amp; this.voc.getLevel(p) &gt; 0</span>
+                            // we consider literals propagated by learned
+                            // clauses
+                            // as decisions to allow blocking models by
+                            // decisions.
+<span class="fc bfc" id="L1440" title="All 2 branches covered.">                            || reason != null &amp;&amp; reason.learnt()) {</span>
+<span class="fc" id="L1441">                        this.decisions.push(tempmodel.last());</span>
+<span class="fc bfc" id="L1442" title="All 2 branches covered.">                        if (reason != null) {</span>
+<span class="fc" id="L1443">                            this.assignmentOrigins[i</span>
+                                    - 1] = AssignmentOrigin.PROPAGATED_LEARNED;
+                        }
+                    } else {
+<span class="fc" id="L1447">                        this.implied.push(tempmodel.last());</span>
+<span class="fc" id="L1448">                        this.assignmentOrigins[i</span>
+                                - 1] = AssignmentOrigin.PROPAGATED_ORIGINAL;
+                    }
+                }
+            }
+        }
+<span class="fc" id="L1454">        this.model = new int[tempmodel.size()];</span>
+<span class="fc" id="L1455">        tempmodel.copyTo(this.model);</span>
+<span class="pc bpc" id="L1456" title="1 of 2 branches missed.">        if (realNumberOfVariables() &gt; nVars()) {</span>
+<span class="nc bnc" id="L1457" title="All 2 branches missed.">            for (int i = nVars() + 1; i &lt;= realNumberOfVariables(); i++) {</span>
+<span class="nc bnc" id="L1458" title="All 2 branches missed.">                if (this.voc.belongsToPool(i)) {</span>
+<span class="nc" id="L1459">                    int p = this.voc.getFromPool(i);</span>
+<span class="nc bnc" id="L1460" title="All 2 branches missed.">                    if (!this.voc.isUnassigned(p)) {</span>
+<span class="nc bnc" id="L1461" title="All 2 branches missed.">                        tempmodel.push(this.voc.isSatisfied(p) ? i : -i);</span>
+<span class="nc" id="L1462">                        this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);</span>
+<span class="nc bnc" id="L1463" title="All 2 branches missed.">                        if (this.voc.getReason(p) == null) {</span>
+<span class="nc" id="L1464">                            this.decisions.push(tempmodel.last());</span>
+                        } else {
+<span class="nc" id="L1466">                            this.implied.push(tempmodel.last());</span>
+<span class="nc bnc" id="L1467" title="All 2 branches missed.">                            if (this.voc.getReason(p).learnt()) {</span>
+<span class="nc" id="L1468">                                this.assignmentOrigins[i</span>
+                                        - 1] = AssignmentOrigin.PROPAGATED_LEARNED;
+                            } else {
+<span class="nc" id="L1471">                                this.assignmentOrigins[i</span>
+                                        - 1] = AssignmentOrigin.PROPAGATED_ORIGINAL;
+                            }
+                        }
+                    }
+<span class="nc" id="L1476">                } else {</span>
+<span class="nc" id="L1477">                    this.assignmentOrigins[i - 1] = AssignmentOrigin.UNASSIGNED;</span>
+                }
+            }
+<span class="nc" id="L1480">            this.fullmodel = new int[tempmodel.size()];</span>
+<span class="nc" id="L1481">            tempmodel.moveTo(this.fullmodel);</span>
+        } else {
+<span class="fc" id="L1483">            this.fullmodel = this.model;</span>
+        }
+<span class="fc" id="L1485">    }</span>
+
+    /**
+     * Forget a variable in the formula by falsifying both its positive and
+     * negative literals.
+     * 
+     * @param variable
+     *            a variable
+     * @return a conflicting constraint resulting from the removal of those
+     *         literals.
+     */
+    Constr forget(int variable) {
+<span class="nc" id="L1497">        boolean satisfied = this.voc.isSatisfied(toInternal(variable));</span>
+<span class="nc" id="L1498">        this.voc.forgets(variable);</span>
+        Constr confl;
+<span class="nc bnc" id="L1500" title="All 2 branches missed.">        if (satisfied) {</span>
+<span class="nc" id="L1501">            confl = reduceClausesContainingTheNegationOf(</span>
+<span class="nc" id="L1502">                    LiteralsUtils.toInternal(-variable));</span>
+        } else {
+<span class="nc" id="L1504">            confl = reduceClausesContainingTheNegationOf(</span>
+<span class="nc" id="L1505">                    LiteralsUtils.toInternal(variable));</span>
+        }
+<span class="nc" id="L1507">        return confl;</span>
+    }
+
+    protected int[] prime;
+
+    public int[] primeImplicant() {
+<span class="nc" id="L1513">        String primeApproach = System.getProperty(&quot;prime&quot;);</span>
+        PrimeImplicantStrategy strategy;
+<span class="nc bnc" id="L1515" title="All 2 branches missed.">        if (&quot;OLD&quot;.equals(primeApproach)) {</span>
+<span class="nc" id="L1516">            strategy = new QuadraticPrimeImplicantStrategy();</span>
+<span class="nc bnc" id="L1517" title="All 2 branches missed.">        } else if (&quot;ALGO2&quot;.equals(primeApproach)) {</span>
+<span class="nc" id="L1518">            strategy = new CounterBasedPrimeImplicantStrategy();</span>
+        } else {
+<span class="nc" id="L1520">            strategy = new WatcherBasedPrimeImplicantStrategy();</span>
+        }
+<span class="nc" id="L1522">        int[] implicant = strategy.compute(this);</span>
+<span class="nc" id="L1523">        this.prime = strategy.getPrimeImplicantAsArrayWithHoles();</span>
+<span class="nc" id="L1524">        return implicant;</span>
+    }
+
+    public boolean primeImplicant(int p) {
+<span class="nc bnc" id="L1528" title="All 4 branches missed.">        if (p == 0 || Math.abs(p) &gt; realNumberOfVariables()) {</span>
+<span class="nc" id="L1529">            throw new IllegalArgumentException(</span>
+                    &quot;Use a valid Dimacs var id as argument!&quot;); //$NON-NLS-1$
+        }
+<span class="nc bnc" id="L1532" title="All 2 branches missed.">        if (this.prime == null) {</span>
+<span class="nc" id="L1533">            throw new UnsupportedOperationException(</span>
+                    &quot;Call the primeImplicant method first!!!&quot;); //$NON-NLS-1$
+        }
+<span class="nc bnc" id="L1536" title="All 2 branches missed.">        return this.prime[Math.abs(p)] == p;</span>
+    }
+
+    public boolean model(int variable) {
+<span class="nc bnc" id="L1540" title="All 4 branches missed.">        if (variable &lt;= 0 || variable &gt; realNumberOfVariables()) {</span>
+<span class="nc" id="L1541">            throw new IllegalArgumentException(</span>
+                    &quot;Use a valid Dimacs var id as argument!&quot;); //$NON-NLS-1$
+        }
+<span class="nc bnc" id="L1544" title="All 2 branches missed.">        if (this.userbooleanmodel == null) {</span>
+<span class="nc" id="L1545">            throw new UnsupportedOperationException(</span>
+                    CALL_THE_SOLVE_METHOD_FIRST);
+        }
+<span class="nc" id="L1548">        return this.userbooleanmodel[variable - 1];</span>
+    }
+
+    public void clearLearntClauses() {
+<span class="nc" id="L1552">        for (Iterator&lt;Constr&gt; iterator = this.learnts.iterator(); iterator</span>
+<span class="nc bnc" id="L1553" title="All 2 branches missed.">                .hasNext();) {</span>
+<span class="nc" id="L1554">            iterator.next().remove(this);</span>
+        }
+<span class="nc" id="L1556">        this.learnts.clear();</span>
+<span class="nc" id="L1557">        this.learnedLiterals.clear();</span>
+<span class="nc" id="L1558">    }</span>
+
+    protected final void reduceDB() {
+<span class="nc" id="L1561">        this.stats.incReduceddb();</span>
+<span class="nc" id="L1562">        this.slistener.cleaning();</span>
+<span class="nc" id="L1563">        this.learnedConstraintsDeletionStrategy.reduce(this.learnts);</span>
+<span class="nc" id="L1564">    }</span>
+
+    protected ActivityComparator getActivityComparator() {
+<span class="nc" id="L1567">        return this.comparator;</span>
+    }
+
+    /**
+     * 
+     */
+    protected void decayActivities() {
+<span class="fc" id="L1574">        this.order.varDecayActivity();</span>
+<span class="fc" id="L1575">        claDecayActivity();</span>
+<span class="fc" id="L1576">    }</span>
+
+    /**
+     * 
+     */
+    private void claDecayActivity() {
+<span class="fc" id="L1582">        this.claInc *= this.claDecay;</span>
+<span class="fc" id="L1583">    }</span>
+
+    /**
+     * @return true iff the set of constraints is satisfiable, else false.
+     */
+    public boolean isSatisfiable() throws TimeoutException {
+<span class="fc" id="L1589">        return isSatisfiable(VecInt.EMPTY);</span>
+    }
+
+    /**
+     * @return true iff the set of constraints is satisfiable, else false.
+     */
+    public boolean isSatisfiable(boolean global) throws TimeoutException {
+<span class="nc" id="L1596">        return isSatisfiable(VecInt.EMPTY, global);</span>
+    }
+
+<span class="fc" id="L1599">    private double timebegin = 0;</span>
+
+    private boolean needToReduceDB;
+
+    private ConflictTimerContainer conflictCount;
+
+    private transient Timer timer;
+
+    public boolean isSatisfiable(IVecInt assumps) throws TimeoutException {
+<span class="fc" id="L1608">        return isSatisfiable(assumps, false);</span>
+    }
+
+    @Feature(value = &quot;deletion&quot;, parent = &quot;expert&quot;)
+    public final LearnedConstraintsDeletionStrategy fixedSize(
+            final int maxsize) {
+<span class="nc" id="L1614">        return new LearnedConstraintsDeletionStrategy() {</span>
+
+            private static final long serialVersionUID = 1L;
+<span class="nc" id="L1617">            private final ConflictTimer aTimer = new ConflictTimerAdapter(</span>
+<span class="nc" id="L1618">                    Solver.this, maxsize) {</span>
+
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public void run() {
+<span class="nc" id="L1624">                    getSolver().setNeedToReduceDB(true);</span>
+<span class="nc" id="L1625">                }</span>
+            };
+
+            public void reduce(IVec&lt;Constr&gt; learnedConstrs) {
+                int i, j, k;
+<span class="nc bnc" id="L1630" title="All 2 branches missed.">                for (i = j = k = 0; i &lt; Solver.this.learnts.size()</span>
+<span class="nc bnc" id="L1631" title="All 2 branches missed.">                        &amp;&amp; Solver.this.learnts.size() - k &gt; maxsize; i++) {</span>
+<span class="nc" id="L1632">                    Constr c = Solver.this.learnts.get(i);</span>
+<span class="nc bnc" id="L1633" title="All 4 branches missed.">                    if (c.locked() || c.size() == 2) {</span>
+<span class="nc" id="L1634">                        Solver.this.learnts.set(j++,</span>
+<span class="nc" id="L1635">                                Solver.this.learnts.get(i));</span>
+                    } else {
+<span class="nc" id="L1637">                        c.remove(Solver.this);</span>
+<span class="nc" id="L1638">                        k++;</span>
+                    }
+                }
+<span class="nc bnc" id="L1641" title="All 2 branches missed.">                for (; i &lt; Solver.this.learnts.size(); i++) {</span>
+<span class="nc" id="L1642">                    Solver.this.learnts.set(j++, Solver.this.learnts.get(i));</span>
+                }
+<span class="nc bnc" id="L1644" title="All 2 branches missed.">                if (Solver.this.verbose) {</span>
+<span class="nc" id="L1645">                    Solver.this.out.log(getLogPrefix() + &quot;cleaning &quot; //$NON-NLS-1$</span>
+<span class="nc" id="L1646">                            + (Solver.this.learnts.size() - j)</span>
+<span class="nc" id="L1647">                            + &quot; clauses out of &quot; + Solver.this.learnts.size()); //$NON-NLS-1$</span>
+                }
+<span class="nc" id="L1649">                Solver.this.learnts.shrinkTo(j);</span>
+<span class="nc" id="L1650">            }</span>
+
+            @Override
+            public String toString() {
+<span class="nc" id="L1654">                return &quot;Fixed size (&quot; + maxsize</span>
+                        + &quot;) learned constraints deletion strategy&quot;;
+            }
+
+            public ConflictTimer getTimer() {
+<span class="nc" id="L1659">                return this.aTimer;</span>
+            }
+        };
+    }
+
+<span class="fc" id="L1664">    private final ConflictTimer memoryTimer = new MemoryBasedConflictTimer(this,</span>
+            500);
+
+    /**
+     * @since 2.1
+     */
+<span class="fc" id="L1670">    public final LearnedConstraintsDeletionStrategy activityBasedLowMemory = new ActivityLCDS(</span>
+            this, this.memoryTimer);
+
+<span class="fc" id="L1673">    private final ConflictTimer glucoseTimer = new GlucoseConflictTimer(this,</span>
+            1000);
+
+    /**
+     * @since 2.1
+     */
+<span class="fc" id="L1679">    public final LearnedConstraintsDeletionStrategy lbdBased = new Glucose2LCDS&lt;D&gt;(</span>
+            this, this.glucoseTimer);
+
+    /**
+     * @since 2.3.6
+     */
+<span class="fc" id="L1685">    public final LearnedConstraintsDeletionStrategy ageBased = new AgeLCDS(this,</span>
+            this.glucoseTimer);
+
+    /**
+     * @since 2.3.6
+     */
+<span class="fc" id="L1691">    public final LearnedConstraintsDeletionStrategy activityBased = new ActivityLCDS(</span>
+            this, this.glucoseTimer);
+
+    /**
+     * @since 2.3.6
+     */
+<span class="fc" id="L1697">    public final LearnedConstraintsDeletionStrategy sizeBased = new SizeLCDS(</span>
+            this, this.glucoseTimer);
+
+<span class="fc" id="L1700">    private LearnedConstraintsDeletionStrategy learnedConstraintsDeletionStrategy = this.lbdBased;</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.sat4j.minisat.core.ICDCL#setLearnedConstraintsDeletionStrategy(org
+     * .sat4j.minisat.core.Solver.LearnedConstraintsDeletionStrategy)
+     */
+    public void setLearnedConstraintsDeletionStrategy(
+            LearnedConstraintsDeletionStrategy lcds) {
+<span class="pc bpc" id="L1711" title="1 of 2 branches missed.">        if (this.conflictCount != null) {</span>
+<span class="nc" id="L1712">            this.conflictCount.add(lcds.getTimer());</span>
+<span class="nc bnc" id="L1713" title="All 4 branches missed.">            assert this.learnedConstraintsDeletionStrategy != null;</span>
+<span class="nc" id="L1714">            this.conflictCount</span>
+<span class="nc" id="L1715">                    .remove(this.learnedConstraintsDeletionStrategy.getTimer());</span>
+        }
+<span class="fc" id="L1717">        this.learnedConstraintsDeletionStrategy = lcds;</span>
+<span class="fc" id="L1718">    }</span>
+
+    private boolean lastConflictMeansUnsat;
+
+    public boolean isSatisfiable(IVecInt assumps, boolean global)
+            throws TimeoutException {
+<span class="fc" id="L1724">        Lbool status = Lbool.UNDEFINED;</span>
+<span class="fc bfc" id="L1725" title="All 2 branches covered.">        boolean alreadylaunched = this.conflictCount != null;</span>
+<span class="fc" id="L1726">        final int howmany = this.voc.nVars();</span>
+<span class="pc bpc" id="L1727" title="1 of 2 branches missed.">        if (this.mseen.length &lt;= howmany) {</span>
+<span class="fc" id="L1728">            this.mseen = new boolean[howmany + 1];</span>
+        }
+<span class="fc" id="L1730">        this.trail.ensure(howmany);</span>
+<span class="fc" id="L1731">        this.trailLim.ensure(howmany);</span>
+<span class="fc" id="L1732">        this.learnedLiterals.ensure(howmany);</span>
+<span class="fc" id="L1733">        this.decisions.clear();</span>
+<span class="fc" id="L1734">        this.implied.clear();</span>
+<span class="fc" id="L1735">        this.slistener.init(this);</span>
+<span class="fc" id="L1736">        this.slistener.start();</span>
+<span class="fc" id="L1737">        this.model = null; // forget about previous model</span>
+<span class="fc" id="L1738">        this.fullmodel = null;</span>
+<span class="fc" id="L1739">        this.userbooleanmodel = null;</span>
+<span class="fc" id="L1740">        this.prime = null;</span>
+<span class="fc" id="L1741">        this.unsatExplanationInTermsOfAssumptions = null;</span>
+        // To make sure that new literals in the assumptions appear in the
+        // solver data structures
+<span class="fc" id="L1744">        IVecInt localAssumps = new VecInt(assumps.size());</span>
+<span class="fc bfc" id="L1745" title="All 2 branches covered.">        for (IteratorInt iterator = assumps.iterator(); iterator.hasNext();) {</span>
+<span class="fc" id="L1746">            int assump = iterator.next();</span>
+<span class="fc" id="L1747">            localAssumps.push(this.voc.getFromPool(assump));</span>
+<span class="fc" id="L1748">        }</span>
+<span class="pc bpc" id="L1749" title="1 of 4 branches missed.">        if (!alreadylaunched || !this.keepHot) {</span>
+<span class="fc" id="L1750">            this.order.init();</span>
+        }
+<span class="fc" id="L1752">        this.learnedConstraintsDeletionStrategy.init();</span>
+<span class="fc" id="L1753">        int learnedLiteralsLimit = this.trail.size();</span>
+
+        // Fix for Bug SAT37
+<span class="fc" id="L1756">        this.qhead = 0;</span>
+        // Apply undos on unit literals because they are getting propagated
+        // again now that qhead is 0.
+<span class="fc bfc" id="L1759" title="All 2 branches covered.">        for (int i = learnedLiteralsLimit - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L1760">            int p = this.trail.get(i);</span>
+<span class="fc" id="L1761">            IVec&lt;Undoable&gt; undos = this.voc.undos(p);</span>
+<span class="pc bpc" id="L1762" title="2 of 4 branches missed.">            assert undos != null;</span>
+<span class="pc bpc" id="L1763" title="1 of 2 branches missed.">            for (int size = undos.size(); size &gt; 0; size--) {</span>
+<span class="nc" id="L1764">                undos.last().undo(p);</span>
+<span class="nc" id="L1765">                undos.pop();</span>
+            }
+        }
+        // push previously learned literals
+<span class="fc" id="L1769">        for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator</span>
+<span class="fc bfc" id="L1770" title="All 2 branches covered.">                .hasNext();) {</span>
+<span class="fc" id="L1771">            enqueue(iterator.next());</span>
+        }
+
+        // propagate constraints
+<span class="fc" id="L1775">        Constr confl = propagate();</span>
+<span class="fc bfc" id="L1776" title="All 2 branches covered.">        if (confl != null) {</span>
+<span class="fc" id="L1777">            analyzeAtRootLevel(confl);</span>
+<span class="fc" id="L1778">            this.slistener.conflictFound(confl, 0, 0);</span>
+<span class="fc" id="L1779">            this.slistener.end(Lbool.FALSE);</span>
+<span class="fc" id="L1780">            cancelUntil(0);</span>
+<span class="fc" id="L1781">            cancelLearntLiterals(learnedLiteralsLimit);</span>
+<span class="fc" id="L1782">            return false;</span>
+        }
+
+        // push incremental assumptions
+<span class="fc" id="L1786">        for (IteratorInt iterator = localAssumps.iterator(); iterator</span>
+<span class="fc bfc" id="L1787" title="All 2 branches covered.">                .hasNext();) {</span>
+<span class="fc" id="L1788">            int p = iterator.next();</span>
+<span class="fc bfc" id="L1789" title="All 4 branches covered.">            if (!this.voc.isSatisfied(p) &amp;&amp; !assume(p)</span>
+<span class="fc bfc" id="L1790" title="All 2 branches covered.">                    || (confl = propagate()) != null) {</span>
+<span class="fc bfc" id="L1791" title="All 2 branches covered.">                if (confl == null) {</span>
+<span class="fc" id="L1792">                    this.slistener.conflictFound(p);</span>
+<span class="fc" id="L1793">                    this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(</span>
+                            null, assumps, p);
+<span class="fc" id="L1795">                    this.unsatExplanationInTermsOfAssumptions.push(toDimacs(p));</span>
+                } else {
+<span class="fc" id="L1797">                    this.slistener.conflictFound(confl, decisionLevel(),</span>
+<span class="fc" id="L1798">                            this.trail.size());</span>
+<span class="fc" id="L1799">                    this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(</span>
+                            confl, assumps, ILits.UNDEFINED);
+                }
+
+<span class="fc" id="L1803">                this.slistener.end(Lbool.FALSE);</span>
+<span class="fc" id="L1804">                cancelUntil(0);</span>
+<span class="fc" id="L1805">                cancelLearntLiterals(learnedLiteralsLimit);</span>
+<span class="fc" id="L1806">                return false;</span>
+            }
+<span class="fc" id="L1808">        }</span>
+<span class="fc" id="L1809">        this.rootLevel = decisionLevel();</span>
+        // moved initialization here if new literals are added in the
+        // assumptions.
+<span class="fc" id="L1812">        this.learner.init();</span>
+
+<span class="fc bfc" id="L1814" title="All 2 branches covered.">        if (!alreadylaunched) {</span>
+<span class="fc" id="L1815">            this.conflictCount = new ConflictTimerContainer();</span>
+<span class="fc" id="L1816">            this.conflictCount.add(this.restarter);</span>
+<span class="fc" id="L1817">            this.conflictCount</span>
+<span class="fc" id="L1818">                    .add(this.learnedConstraintsDeletionStrategy.getTimer());</span>
+        }
+<span class="fc" id="L1820">        var firstTimeGlobal = false;</span>
+<span class="pc bpc" id="L1821" title="1 of 2 branches missed.">        if (this.timeBasedTimeout) {</span>
+<span class="pc bpc" id="L1822" title="3 of 4 branches missed.">            if (!global || this.timer == null) {</span>
+<span class="fc" id="L1823">                firstTimeGlobal = true;</span>
+<span class="fc" id="L1824">                this.undertimeout = true;</span>
+<span class="fc" id="L1825">                TimerTask stopMe = new TimerTask() {</span>
+                    @Override
+                    public void run() {
+<span class="nc" id="L1828">                        Solver.this.undertimeout = false;</span>
+<span class="nc" id="L1829">                        synchronized (Solver.this) {</span>
+<span class="nc bnc" id="L1830" title="All 2 branches missed.">                            if (Solver.this.timer != null) {</span>
+<span class="nc" id="L1831">                                Solver.this.timer.cancel();</span>
+<span class="nc" id="L1832">                                Solver.this.timer = null;</span>
+                            }
+<span class="nc" id="L1834">                        }</span>
+<span class="nc" id="L1835">                    }</span>
+                };
+<span class="fc" id="L1837">                this.timer = new Timer(true);</span>
+<span class="fc" id="L1838">                this.timer.schedule(stopMe, this.timeout);</span>
+
+<span class="fc" id="L1840">            }</span>
+        } else {
+<span class="nc bnc" id="L1842" title="All 4 branches missed.">            if (!global || !alreadylaunched) {</span>
+<span class="nc" id="L1843">                firstTimeGlobal = true;</span>
+<span class="nc" id="L1844">                this.undertimeout = true;</span>
+<span class="nc" id="L1845">                ConflictTimer conflictTimeout = new ConflictTimerAdapter(this,</span>
+<span class="nc" id="L1846">                        (int) this.timeout) {</span>
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public void run() {
+<span class="nc" id="L1852">                        getSolver().expireTimeout();</span>
+<span class="nc" id="L1853">                    }</span>
+                };
+<span class="nc" id="L1855">                this.conflictCount.add(conflictTimeout);</span>
+            }
+        }
+<span class="pc bpc" id="L1858" title="3 of 4 branches missed.">        if (!global || firstTimeGlobal) {</span>
+<span class="fc" id="L1859">            this.restarter.init(this.params, this.stats);</span>
+<span class="fc" id="L1860">            this.timebegin = System.currentTimeMillis();</span>
+        }
+<span class="fc" id="L1862">        this.needToReduceDB = false;</span>
+        // this is used to allow the solver to be incomplete,
+        // when using a heuristics limited to a subset of variables
+<span class="fc" id="L1865">        this.lastConflictMeansUnsat = true;</span>
+        // Solve
+<span class="pc bpc" id="L1867" title="2 of 6 branches missed.">        while (status == Lbool.UNDEFINED &amp;&amp; this.undertimeout</span>
+                &amp;&amp; this.lastConflictMeansUnsat) {
+
+<span class="fc" id="L1870">            int before = this.trail.size();</span>
+<span class="fc" id="L1871">            unitClauseProvider.provideUnitClauses(this);</span>
+<span class="fc" id="L1872">            this.stats.incImportedUnits(this.trail.size() - before);</span>
+<span class="fc" id="L1873">            status = search(assumps);</span>
+<span class="fc bfc" id="L1874" title="All 2 branches covered.">            if (status == Lbool.UNDEFINED) {</span>
+<span class="fc" id="L1875">                this.restarter.onRestart();</span>
+<span class="fc" id="L1876">                this.slistener.restarting();</span>
+            }
+<span class="fc" id="L1878">        }</span>
+
+<span class="fc" id="L1880">        cancelUntil(0);</span>
+<span class="fc" id="L1881">        cancelLearntLiterals(learnedLiteralsLimit);</span>
+<span class="pc bpc" id="L1882" title="2 of 4 branches missed.">        if (!global &amp;&amp; this.timeBasedTimeout) {</span>
+<span class="fc" id="L1883">            synchronized (this) {</span>
+<span class="pc bpc" id="L1884" title="1 of 2 branches missed.">                if (this.timer != null) {</span>
+<span class="fc" id="L1885">                    this.timer.cancel();</span>
+<span class="fc" id="L1886">                    this.timer = null;</span>
+                }
+<span class="fc" id="L1888">            }</span>
+        }
+<span class="fc" id="L1890">        this.slistener.end(status);</span>
+<span class="pc bpc" id="L1891" title="1 of 2 branches missed.">        if (!this.undertimeout) {</span>
+<span class="nc" id="L1892">            String message = &quot; Timeout (&quot; + this.timeout</span>
+<span class="nc bnc" id="L1893" title="All 2 branches missed.">                    + (this.timeBasedTimeout ? &quot;ms&quot; : &quot; conflicts&quot;)</span>
+                    + &quot;) exceeded&quot;;
+<span class="nc" id="L1895">            throw new TimeoutException(message);</span>
+        }
+<span class="pc bpc" id="L1897" title="3 of 4 branches missed.">        if (status == Lbool.UNDEFINED &amp;&amp; !this.lastConflictMeansUnsat) {</span>
+<span class="nc" id="L1898">            throw new TimeoutException(&quot;Cannot decide the satisfiability&quot;);</span>
+        }
+        // When using a search enumerator (to compute all models)
+        // the final answer is FALSE, however we are aware of at least one model
+        // (the last one)
+<span class="fc bfc" id="L1903" title="All 2 branches covered.">        return model != null;</span>
+    }
+
+    public void printInfos(PrintWriter out) {
+<span class="nc" id="L1907">        printInfos(out, prefix);</span>
+<span class="nc" id="L1908">    }</span>
+
+    public void printInfos(PrintWriter out, String prefix) {
+<span class="nc" id="L1911">        out.print(prefix);</span>
+<span class="nc" id="L1912">        out.println(&quot;constraints type &quot;);</span>
+<span class="nc" id="L1913">        long total = 0;</span>
+<span class="nc bnc" id="L1914" title="All 2 branches missed.">        for (Map.Entry&lt;String, Counter&gt; entry : this.constrTypes.entrySet()) {</span>
+<span class="nc" id="L1915">            out.println(prefix + entry.getKey() + &quot; =&gt; &quot; + entry.getValue());</span>
+<span class="nc" id="L1916">            total += entry.getValue().getValue();</span>
+<span class="nc" id="L1917">        }</span>
+<span class="nc" id="L1918">        out.print(prefix);</span>
+<span class="nc" id="L1919">        out.print(total);</span>
+<span class="nc" id="L1920">        out.println(&quot; constraints processed.&quot;);</span>
+<span class="nc" id="L1921">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    public void printLearntClausesInfos(PrintWriter out, String prefix) {
+<span class="nc bnc" id="L1927" title="All 2 branches missed.">        if (this.learnts.isEmpty()) {</span>
+<span class="nc" id="L1928">            return;</span>
+        }
+<span class="nc" id="L1930">        Map&lt;String, Counter&gt; learntTypes = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L1931" title="All 2 branches missed.">        for (Iterator&lt;Constr&gt; it = this.learnts.iterator(); it.hasNext();) {</span>
+<span class="nc" id="L1932">            String type = it.next().getClass().getName();</span>
+<span class="nc" id="L1933">            Counter count = learntTypes.get(type);</span>
+<span class="nc bnc" id="L1934" title="All 2 branches missed.">            if (count == null) {</span>
+<span class="nc" id="L1935">                learntTypes.put(type, new Counter());</span>
+            } else {
+<span class="nc" id="L1937">                count.inc();</span>
+            }
+<span class="nc" id="L1939">        }</span>
+<span class="nc bnc" id="L1940" title="All 2 branches missed.">        for (Map.Entry&lt;String, Counter&gt; entry : learntTypes.entrySet()) {</span>
+<span class="nc" id="L1941">            out.println(prefix + &quot;learnt constraints type &quot; + entry.getKey()</span>
+<span class="nc" id="L1942">                    + &quot;\t: &quot; + entry.getValue());</span>
+<span class="nc" id="L1943">        }</span>
+<span class="nc" id="L1944">    }</span>
+
+    public SolverStats getStats() {
+<span class="nc" id="L1947">        return this.stats;</span>
+    }
+
+    /**
+     * 
+     * @param myStats
+     * @since 2.2
+     */
+    protected void initStats(SolverStats myStats) {
+<span class="nc" id="L1956">        this.stats = myStats;</span>
+<span class="nc" id="L1957">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#getOrder()
+     */
+    public IOrder getOrder() {
+<span class="nc" id="L1965">        return this.order;</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.minisat.core.ICDCL#setOrder(org.sat4j.minisat.core.IOrder)
+     */
+    public void setOrder(IOrder h) {
+<span class="fc" id="L1974">        this.order = h;</span>
+<span class="fc" id="L1975">        this.order.setLits(this.voc);</span>
+<span class="fc" id="L1976">    }</span>
+
+    public ILits getVocabulary() {
+<span class="nc" id="L1979">        return this.voc;</span>
+    }
+
+    public void reset() {
+<span class="nc bnc" id="L1983" title="All 2 branches missed.">        if (this.timer != null) {</span>
+<span class="nc" id="L1984">            this.timer.cancel();</span>
+<span class="nc" id="L1985">            this.timer = null;</span>
+        }
+<span class="nc" id="L1987">        this.trail.clear();</span>
+<span class="nc" id="L1988">        this.trailLim.clear();</span>
+<span class="nc" id="L1989">        this.qhead = 0;</span>
+<span class="nc" id="L1990">        for (Iterator&lt;Constr&gt; iterator = this.constrs.iterator(); iterator</span>
+<span class="nc bnc" id="L1991" title="All 2 branches missed.">                .hasNext();) {</span>
+<span class="nc" id="L1992">            iterator.next().remove(this);</span>
+        }
+<span class="nc" id="L1994">        this.constrs.clear();</span>
+<span class="nc" id="L1995">        clearLearntClauses();</span>
+<span class="nc" id="L1996">        this.voc.resetPool();</span>
+<span class="nc" id="L1997">        this.dsfactory.reset();</span>
+<span class="nc" id="L1998">        this.stats.reset();</span>
+<span class="nc" id="L1999">        this.constrTypes.clear();</span>
+<span class="nc" id="L2000">        this.undertimeout = true;</span>
+<span class="nc" id="L2001">        this.declaredMaxVarId = 0;</span>
+<span class="nc" id="L2002">    }</span>
+
+    public int nVars() {
+<span class="pc bpc" id="L2005" title="1 of 2 branches missed.">        if (this.declaredMaxVarId == 0) {</span>
+<span class="fc" id="L2006">            return this.voc.nVars();</span>
+        }
+<span class="nc" id="L2008">        return this.declaredMaxVarId;</span>
+    }
+
+    /**
+     * @param constr
+     *            a constraint implementing the Constr interface.
+     * @return a reference to the constraint for external use.
+     */
+    public IConstr addConstr(Constr constr) {
+<span class="fc bfc" id="L2017" title="All 2 branches covered.">        if (constr == null) {</span>
+<span class="fc" id="L2018">            Counter count = this.constrTypes</span>
+<span class="fc" id="L2019">                    .get(&quot;ignored satisfied constraints&quot;);</span>
+<span class="fc bfc" id="L2020" title="All 2 branches covered.">            if (count == null) {</span>
+<span class="fc" id="L2021">                this.constrTypes.put(&quot;ignored satisfied constraints&quot;,</span>
+                        new Counter());
+            } else {
+<span class="fc" id="L2024">                count.inc();</span>
+            }
+<span class="fc" id="L2026">        } else {</span>
+<span class="fc" id="L2027">            this.constrs.push(constr);</span>
+<span class="fc" id="L2028">            String type = constr.getClass().getName();</span>
+<span class="fc" id="L2029">            Counter count = this.constrTypes.get(type);</span>
+<span class="fc bfc" id="L2030" title="All 2 branches covered.">            if (count == null) {</span>
+<span class="fc" id="L2031">                this.constrTypes.put(type, new Counter());</span>
+            } else {
+<span class="fc" id="L2033">                count.inc();</span>
+            }
+        }
+<span class="fc" id="L2036">        return constr;</span>
+    }
+
+    public DataStructureFactory getDSFactory() {
+<span class="fc" id="L2040">        return this.dsfactory;</span>
+    }
+
+    public IVecInt getOutLearnt() {
+<span class="nc" id="L2044">        return this.moutLearnt;</span>
+    }
+
+    /**
+     * returns the ith constraint in the solver.
+     * 
+     * @param i
+     *            the constraint number (begins at 0)
+     * @return the ith constraint
+     */
+    public IConstr getIthConstr(int i) {
+<span class="nc" id="L2055">        return this.constrs.get(i);</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.sat4j.specs.ISolver#printStat(java.io.PrintStream,
+     * java.lang.String)
+     */
+    public void printStat(PrintStream out, String prefix) {
+<span class="nc" id="L2065">        printStat(new PrintWriter(out, true), prefix);</span>
+<span class="nc" id="L2066">    }</span>
+
+    public void printStat(PrintWriter out) {
+<span class="nc" id="L2069">        printStat(out, prefix);</span>
+<span class="nc" id="L2070">    }</span>
+
+    public void printStat(PrintWriter out, String prefix) {
+<span class="nc" id="L2073">        this.stats.printStat(out, prefix);</span>
+<span class="nc" id="L2074">        double cputime = (System.currentTimeMillis() - this.timebegin) / 1000;</span>
+<span class="nc" id="L2075">        out.println(prefix + &quot;speed (assignments/second)\t: &quot; //$NON-NLS-1$</span>
+<span class="nc" id="L2076">                + this.stats.getPropagations() / cputime);</span>
+<span class="nc" id="L2077">        this.order.printStat(out, prefix);</span>
+<span class="nc" id="L2078">        printLearntClausesInfos(out, prefix);</span>
+<span class="nc" id="L2079">    }</span>
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    public String toString(String prefix) {
+<span class="nc" id="L2087">        var stb = new StringBuilder();</span>
+<span class="nc" id="L2088">        Object[] objs = { this.dsfactory, this.learner, this.params, this.order,</span>
+                this.simplifier, this.restarter,
+                this.learnedConstraintsDeletionStrategy };
+<span class="nc" id="L2091">        stb.append(prefix);</span>
+<span class="nc" id="L2092">        stb.append(&quot;--- Begin Solver configuration ---&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L2093">        stb.append(&quot;\n&quot;); //$NON-NLS-1$</span>
+<span class="nc bnc" id="L2094" title="All 2 branches missed.">        for (Object o : objs) {</span>
+<span class="nc" id="L2095">            stb.append(prefix);</span>
+<span class="nc" id="L2096">            stb.append(o.toString());</span>
+<span class="nc" id="L2097">            stb.append(&quot;\n&quot;); //$NON-NLS-1$</span>
+        }
+<span class="nc" id="L2099">        stb.append(prefix);</span>
+<span class="nc" id="L2100">        stb.append(&quot;timeout=&quot;);</span>
+<span class="nc bnc" id="L2101" title="All 2 branches missed.">        if (this.timeBasedTimeout) {</span>
+<span class="nc" id="L2102">            stb.append(this.timeout / 1000);</span>
+<span class="nc" id="L2103">            stb.append(&quot;s\n&quot;);</span>
+        } else {
+<span class="nc" id="L2105">            stb.append(this.timeout);</span>
+<span class="nc" id="L2106">            stb.append(&quot; conflicts\n&quot;);</span>
+        }
+<span class="nc" id="L2108">        stb.append(prefix);</span>
+<span class="nc" id="L2109">        stb.append(&quot;DB Simplification allowed=&quot;);</span>
+<span class="nc" id="L2110">        stb.append(this.isDBSimplificationAllowed);</span>
+<span class="nc" id="L2111">        stb.append(&quot;\n&quot;);</span>
+<span class="nc" id="L2112">        stb.append(prefix);</span>
+<span class="nc bnc" id="L2113" title="All 2 branches missed.">        if (isSolverKeptHot()) {</span>
+<span class="nc" id="L2114">            stb.append(</span>
+                    &quot;Heuristics kept accross calls (keep the solver \&quot;hot\&quot;)\n&quot;);
+<span class="nc" id="L2116">            stb.append(prefix);</span>
+        }
+<span class="nc" id="L2118">        stb.append(&quot;Listener: &quot;);</span>
+<span class="nc" id="L2119">        stb.append(slistener);</span>
+<span class="nc" id="L2120">        stb.append(&quot;\n&quot;);</span>
+<span class="nc" id="L2121">        stb.append(prefix);</span>
+<span class="nc" id="L2122">        stb.append(&quot;--- End Solver configuration ---&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L2123">        return stb.toString();</span>
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+<span class="nc" id="L2133">        return toString(&quot;&quot;); //$NON-NLS-1$</span>
+    }
+
+    public int getTimeout() {
+<span class="nc bnc" id="L2137" title="All 2 branches missed.">        return (int) (this.timeBasedTimeout ? this.timeout / 1000</span>
+<span class="nc" id="L2138">                : this.timeout);</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public long getTimeoutMs() {
+<span class="nc bnc" id="L2145" title="All 2 branches missed.">        if (!this.timeBasedTimeout) {</span>
+<span class="nc" id="L2146">            throw new UnsupportedOperationException(</span>
+                    &quot;The timeout is given in number of conflicts!&quot;);
+        }
+<span class="nc" id="L2149">        return this.timeout;</span>
+    }
+
+    public void setExpectedNumberOfClauses(int nb) {
+<span class="nc" id="L2153">        this.constrs.ensure(nb);</span>
+<span class="nc" id="L2154">    }</span>
+
+    public Map&lt;String, Number&gt; getStat() {
+<span class="fc" id="L2157">        return this.stats.toMap();</span>
+    }
+
+    public int[] findModel() throws TimeoutException {
+<span class="nc bnc" id="L2161" title="All 2 branches missed.">        if (isSatisfiable()) {</span>
+<span class="nc" id="L2162">            return model();</span>
+        }
+        // DLB findbugs ok
+        // A zero length array would mean that the formula is a tautology.
+<span class="nc" id="L2166">        return null;</span>
+    }
+
+    public int[] findModel(IVecInt assumps) throws TimeoutException {
+<span class="nc bnc" id="L2170" title="All 2 branches missed.">        if (isSatisfiable(assumps)) {</span>
+<span class="nc" id="L2171">            return model();</span>
+        }
+        // DLB findbugs ok
+        // A zero length array would mean that the formula is a tautology.
+<span class="nc" id="L2175">        return null;</span>
+    }
+
+    public boolean isDBSimplificationAllowed() {
+<span class="nc" id="L2179">        return this.isDBSimplificationAllowed;</span>
+    }
+
+    public void setDBSimplificationAllowed(boolean status) {
+<span class="fc" id="L2183">        this.isDBSimplificationAllowed = status;</span>
+<span class="fc" id="L2184">    }</span>
+
+    /**
+     * @since 2.1
+     */
+    public int nextFreeVarId(boolean reserve) {
+<span class="nc" id="L2190">        return this.voc.nextFreeVarId(reserve);</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public IConstr addBlockingClause(IVecInt literals)
+            throws ContradictionException {
+<span class="nc" id="L2198">        return addClause(literals);</span>
+    }
+
+    public IConstr discardCurrentModel() throws ContradictionException {
+<span class="nc" id="L2202">        IVecInt blockingClause = createBlockingClauseForCurrentModel();</span>
+<span class="nc bnc" id="L2203" title="All 2 branches missed.">        if (blockingClause.isEmpty()) {</span>
+<span class="nc" id="L2204">            throw new ContradictionException();</span>
+        }
+<span class="nc" id="L2206">        return addBlockingClause(blockingClause);</span>
+    }
+
+    public IVecInt createBlockingClauseForCurrentModel() {
+<span class="nc" id="L2210">        IVecInt clause = new VecInt(decisions.size());</span>
+<span class="nc bnc" id="L2211" title="All 2 branches missed.">        if (realNumberOfVariables() &gt; nVars()) {</span>
+            // we rely on the model projection in that case
+<span class="nc bnc" id="L2213" title="All 2 branches missed.">            for (int p : this.model) {</span>
+<span class="nc" id="L2214">                clause.push(-p);</span>
+            }
+        } else {
+<span class="nc bnc" id="L2217" title="All 2 branches missed.">            for (var i = 0; i &lt; decisions.size(); i++) {</span>
+<span class="nc" id="L2218">                clause.push(-decisions.get(i));</span>
+            }
+        }
+
+<span class="nc" id="L2222">        return clause;</span>
+    }
+
+    /**
+     * @since 2.1
+     */
+    public void unset(int p) {
+        // the literal might already have been
+        // removed from the trail.
+<span class="nc bnc" id="L2231" title="All 4 branches missed.">        if (this.voc.isUnassigned(p) || this.trail.isEmpty()) {</span>
+<span class="nc" id="L2232">            return;</span>
+        }
+<span class="nc" id="L2234">        int current = this.trail.last();</span>
+<span class="nc bnc" id="L2235" title="All 2 branches missed.">        while (current != p) {</span>
+<span class="nc" id="L2236">            undoOne();</span>
+<span class="nc bnc" id="L2237" title="All 2 branches missed.">            if (this.trail.isEmpty()) {</span>
+<span class="nc" id="L2238">                return;</span>
+            }
+<span class="nc bnc" id="L2240" title="All 4 branches missed.">            if (!trailLim.isEmpty() &amp;&amp; trailLim.last() == trail.size()) {</span>
+<span class="nc" id="L2241">                trailLim.pop();</span>
+            }
+<span class="nc" id="L2243">            current = this.trail.last();</span>
+        }
+<span class="nc" id="L2245">        undoOne();</span>
+<span class="nc bnc" id="L2246" title="All 4 branches missed.">        if (!trailLim.isEmpty() &amp;&amp; trailLim.last() == trail.size()) {</span>
+<span class="nc" id="L2247">            trailLim.pop();</span>
+        }
+<span class="nc" id="L2249">        this.qhead = this.trail.size();</span>
+<span class="nc" id="L2250">    }</span>
+
+    /**
+     * @since 2.3.6
+     */
+    public int getPropagationLevel() {
+<span class="nc" id="L2256">        return trail.size();</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public void setLogPrefix(String prefix) {
+<span class="nc" id="L2263">        this.prefix = prefix;</span>
+<span class="nc" id="L2264">    }</span>
+
+    /**
+     * @since 2.2
+     */
+    public String getLogPrefix() {
+<span class="nc" id="L2270">        return this.prefix;</span>
+    }
+
+    /**
+     * @since 2.2
+     */
+    public IVecInt unsatExplanation() {
+<span class="nc bnc" id="L2277" title="All 2 branches missed.">        if (this.unsatExplanationInTermsOfAssumptions == null) {</span>
+<span class="nc" id="L2278">            return null;</span>
+        }
+<span class="nc" id="L2280">        IVecInt copy = new VecInt(</span>
+<span class="nc" id="L2281">                this.unsatExplanationInTermsOfAssumptions.size());</span>
+<span class="nc" id="L2282">        this.unsatExplanationInTermsOfAssumptions.copyTo(copy);</span>
+<span class="nc" id="L2283">        return copy;</span>
+    }
+
+    /**
+     * @since 2.3.1
+     */
+    public int[] modelWithInternalVariables() {
+<span class="nc bnc" id="L2290" title="All 2 branches missed.">        if (this.model == null) {</span>
+<span class="nc" id="L2291">            throw new UnsupportedOperationException(</span>
+                    CALL_THE_SOLVE_METHOD_FIRST);
+        }
+        int[] nmodel;
+<span class="nc bnc" id="L2295" title="All 2 branches missed.">        if (nVars() == realNumberOfVariables()) {</span>
+<span class="nc" id="L2296">            nmodel = new int[this.model.length];</span>
+<span class="nc" id="L2297">            System.arraycopy(this.model, 0, nmodel, 0, nmodel.length);</span>
+        } else {
+<span class="nc" id="L2299">            nmodel = new int[this.fullmodel.length];</span>
+<span class="nc" id="L2300">            System.arraycopy(this.fullmodel, 0, nmodel, 0, nmodel.length);</span>
+        }
+
+<span class="nc" id="L2303">        return nmodel;</span>
+    }
+
+    /**
+     * @since 2.3.1
+     */
+    public int realNumberOfVariables() {
+<span class="fc" id="L2310">        return this.voc.nVars();</span>
+    }
+
+    /**
+     * @since 2.3.2
+     */
+    public void stop() {
+<span class="nc" id="L2317">        expireTimeout();</span>
+<span class="nc" id="L2318">    }</span>
+
+    protected Constr sharedConflict;
+
+    /**
+     * @since 2.3.2
+     */
+    public void backtrack(int[] reason) {
+<span class="nc" id="L2326">        IVecInt clause = new VecInt(reason.length);</span>
+<span class="nc bnc" id="L2327" title="All 2 branches missed.">        for (int d : reason) {</span>
+<span class="nc" id="L2328">            clause.push(LiteralsUtils.toInternal(d));</span>
+        }
+<span class="nc" id="L2330">        this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);</span>
+<span class="nc" id="L2331">        learn(this.sharedConflict);</span>
+<span class="nc" id="L2332">    }</span>
+
+    /**
+     * @since 2.3.2
+     */
+    public Lbool truthValue(int literal) {
+<span class="nc" id="L2338">        var p = LiteralsUtils.toInternal(literal);</span>
+<span class="nc bnc" id="L2339" title="All 2 branches missed.">        if (this.voc.isFalsified(p)) {</span>
+<span class="nc" id="L2340">            return Lbool.FALSE;</span>
+        }
+<span class="nc bnc" id="L2342" title="All 2 branches missed.">        if (this.voc.isSatisfied(p)) {</span>
+<span class="nc" id="L2343">            return Lbool.TRUE;</span>
+        }
+<span class="nc" id="L2345">        return Lbool.UNDEFINED;</span>
+    }
+
+    /**
+     * @since 2.3.2
+     */
+    public int currentDecisionLevel() {
+<span class="nc" id="L2352">        return decisionLevel();</span>
+    }
+
+    /**
+     * @since 2.3.2
+     */
+    public int[] getLiteralsPropagatedAt(int decisionLevel) {
+<span class="nc" id="L2359">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    /**
+     * @since 2.3.2
+     */
+    public void suggestNextLiteralToBranchOn(int l) {
+<span class="nc" id="L2366">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    protected boolean isNeedToReduceDB() {
+<span class="nc" id="L2370">        return this.needToReduceDB;</span>
+    }
+
+    public void setNeedToReduceDB(boolean needToReduceDB) {
+<span class="nc" id="L2374">        this.needToReduceDB = needToReduceDB;</span>
+<span class="nc" id="L2375">    }</span>
+
+    public void setLogger(ILogAble out) {
+<span class="nc" id="L2378">        this.out = out;</span>
+<span class="nc" id="L2379">    }</span>
+
+    public ILogAble getLogger() {
+<span class="nc" id="L2382">        return this.out;</span>
+    }
+
+    public double[] getVariableHeuristics() {
+<span class="nc" id="L2386">        return this.order.getVariableHeuristics();</span>
+    }
+
+    public IVec&lt;Constr&gt; getLearnedConstraints() {
+<span class="nc" id="L2390">        return this.learnts;</span>
+    }
+
+    /**
+     * @return the current deletion strategy for learned constraints
+     * @since 2.3.6
+     */
+    public LearnedConstraintsDeletionStrategy getLearnedConstraintsDeletionStrategy() {
+<span class="nc" id="L2398">        return learnedConstraintsDeletionStrategy;</span>
+    }
+
+    /**
+     * @since 2.3.2
+     */
+    public void setLearnedConstraintsDeletionStrategy(ConflictTimer timer,
+            LearnedConstraintsEvaluationType evaluation) {
+<span class="nc bnc" id="L2406" title="All 2 branches missed.">        if (this.conflictCount != null) {</span>
+<span class="nc" id="L2407">            this.conflictCount.add(timer);</span>
+<span class="nc" id="L2408">            this.conflictCount</span>
+<span class="nc" id="L2409">                    .remove(this.learnedConstraintsDeletionStrategy.getTimer());</span>
+        }
+<span class="nc bnc" id="L2411" title="All 4 branches missed.">        switch (evaluation) {</span>
+        case ACTIVITY:
+<span class="nc" id="L2413">            this.learnedConstraintsDeletionStrategy = new ActivityLCDS(this,</span>
+                    timer);
+<span class="nc" id="L2415">            break;</span>
+        case LBD:
+<span class="nc" id="L2417">            this.learnedConstraintsDeletionStrategy = new GlucoseLCDS&lt;D&gt;(this,</span>
+                    timer);
+<span class="nc" id="L2419">            break;</span>
+        case LBD2:
+<span class="nc" id="L2421">            this.learnedConstraintsDeletionStrategy = new Glucose2LCDS&lt;D&gt;(this,</span>
+                    timer);
+            break;
+        }
+<span class="nc bnc" id="L2425" title="All 2 branches missed.">        if (this.conflictCount != null) {</span>
+<span class="nc" id="L2426">            this.learnedConstraintsDeletionStrategy.init();</span>
+        }
+<span class="nc" id="L2428">    }</span>
+
+    /**
+     * @since 2.3.2
+     */
+    public void setLearnedConstraintsDeletionStrategy(
+            LearnedConstraintsEvaluationType evaluation) {
+<span class="nc" id="L2435">        ConflictTimer aTimer = this.learnedConstraintsDeletionStrategy</span>
+<span class="nc" id="L2436">                .getTimer();</span>
+<span class="nc bnc" id="L2437" title="All 4 branches missed.">        switch (evaluation) {</span>
+        case ACTIVITY:
+<span class="nc" id="L2439">            this.learnedConstraintsDeletionStrategy = new ActivityLCDS(this,</span>
+                    aTimer);
+<span class="nc" id="L2441">            break;</span>
+        case LBD:
+<span class="nc" id="L2443">            this.learnedConstraintsDeletionStrategy = new GlucoseLCDS&lt;D&gt;(this,</span>
+                    aTimer);
+<span class="nc" id="L2445">            break;</span>
+        case LBD2:
+<span class="nc" id="L2447">            this.learnedConstraintsDeletionStrategy = new Glucose2LCDS&lt;D&gt;(this,</span>
+                    aTimer);
+            break;
+        }
+<span class="nc bnc" id="L2451" title="All 2 branches missed.">        if (this.conflictCount != null) {</span>
+<span class="nc" id="L2452">            this.learnedConstraintsDeletionStrategy.init();</span>
+        }
+<span class="nc" id="L2454">    }</span>
+
+    public boolean isSolverKeptHot() {
+<span class="nc" id="L2457">        return this.keepHot;</span>
+    }
+
+    public void setKeepSolverHot(boolean keepHot) {
+<span class="nc" id="L2461">        this.keepHot = keepHot;</span>
+<span class="nc" id="L2462">    }</span>
+
+    private final Comparator&lt;Integer&gt; trailComparator() {
+<span class="nc" id="L2465">        return new Comparator&lt;Integer&gt;() {</span>
+
+<span class="nc" id="L2467">            private final Map&lt;Integer, Integer&gt; trailLevel = new HashMap&lt;&gt;();</span>
+
+            {
+<span class="nc bnc" id="L2470" title="All 2 branches missed.">                for (int i = 0; i &lt; trail.size(); i++) {</span>
+<span class="nc" id="L2471">                    trailLevel.put(var(trail.get(i)), i);</span>
+                }
+<span class="nc" id="L2473">            }</span>
+
+            public int compare(Integer i1, Integer i2) {
+<span class="nc" id="L2476">                Integer trail1 = trailLevel.get(Math.abs(i1));</span>
+<span class="nc" id="L2477">                Integer trail2 = trailLevel.get(Math.abs(i2));</span>
+<span class="nc bnc" id="L2478" title="All 2 branches missed.">                if (trail1 == null) {</span>
+<span class="nc" id="L2479">                    return -1;</span>
+                }
+<span class="nc bnc" id="L2481" title="All 2 branches missed.">                if (trail2 == null) {</span>
+<span class="nc" id="L2482">                    return -1;</span>
+                }
+<span class="nc" id="L2484">                return trail2 - trail1;</span>
+            }
+        };
+    }
+
+    public IConstr addClauseOnTheFly(int[] literals) {
+<span class="nc" id="L2490">        List&lt;Integer&gt; lliterals = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L2491" title="All 2 branches missed.">        for (Integer d : literals) {</span>
+<span class="nc" id="L2492">            lliterals.add(d);</span>
+        }
+<span class="nc" id="L2494">        Collections.sort(lliterals, trailComparator());</span>
+<span class="nc" id="L2495">        IVecInt clause = new VecInt(literals.length);</span>
+<span class="nc bnc" id="L2496" title="All 2 branches missed.">        for (int d : lliterals) {</span>
+<span class="nc" id="L2497">            clause.push(LiteralsUtils.toInternal(d));</span>
+<span class="nc" id="L2498">        }</span>
+<span class="nc" id="L2499">        this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);</span>
+<span class="nc" id="L2500">        this.sharedConflict.register();</span>
+<span class="nc" id="L2501">        addConstr(this.sharedConflict);</span>
+<span class="nc" id="L2502">        return this.sharedConflict;</span>
+    }
+
+    public ISolver getSolvingEngine() {
+<span class="nc" id="L2506">        return this;</span>
+    }
+
+    /**
+     * 
+     * @param literals
+     */
+    public IConstr addAtMostOnTheFly(int[] literals, int degree) {
+<span class="nc" id="L2514">        IVecInt clause = new VecInt(literals.length);</span>
+<span class="nc bnc" id="L2515" title="All 2 branches missed.">        for (int d : literals) {</span>
+<span class="nc" id="L2516">            clause.push(LiteralsUtils.toInternal(-d));</span>
+        }
+<span class="nc" id="L2518">        IVecInt copy = new VecInt(clause.size());</span>
+<span class="nc" id="L2519">        clause.copyTo(copy);</span>
+<span class="nc" id="L2520">        this.sharedConflict = this.dsfactory</span>
+<span class="nc" id="L2521">                .createUnregisteredCardinalityConstraint(copy,</span>
+                        literals.length - degree);
+<span class="nc" id="L2523">        this.sharedConflict.register();</span>
+<span class="nc" id="L2524">        addConstr(this.sharedConflict);</span>
+<span class="nc" id="L2525">        return this.sharedConflict;</span>
+    }
+
+    protected Set&lt;Integer&gt; fromLastDecisionLevel(IVecInt lits) {
+<span class="nc" id="L2529">        Set&lt;Integer&gt; subset = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L2530">        int max = -1, q, level;</span>
+<span class="nc bnc" id="L2531" title="All 2 branches missed.">        for (var i = 0; i &lt; lits.size(); i++) {</span>
+<span class="nc" id="L2532">            q = lits.get(i);</span>
+<span class="nc" id="L2533">            level = voc.getLevel(q);</span>
+<span class="nc bnc" id="L2534" title="All 2 branches missed.">            if (level &gt; max) {</span>
+<span class="nc" id="L2535">                subset.clear();</span>
+<span class="nc" id="L2536">                subset.add(q);</span>
+<span class="nc" id="L2537">                max = level;</span>
+<span class="nc bnc" id="L2538" title="All 2 branches missed.">            } else if (level == max) {</span>
+<span class="nc" id="L2539">                subset.add(q);</span>
+            }
+        }
+<span class="nc" id="L2542">        return subset;</span>
+    }
+
+    public void setUnitClauseProvider(UnitClauseProvider ucp) {
+<span class="nc" id="L2546">        this.unitClauseProvider = ucp;</span>
+<span class="nc" id="L2547">    }</span>
+
+    @Override
+    public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
+<span class="nc" id="L2551">        this.unitClauseConsumer = ucc;</span>
+<span class="nc" id="L2552">    }</span>
+
+    @Override
+    public void postBumpActivity(Constr constr) {
+        // Nothing to do by default.
+<span class="nc" id="L2557">    }</span>
+
+    @Override
+    public int[] decisions() {
+<span class="nc bnc" id="L2561" title="All 2 branches missed.">        if (model == null) {</span>
+<span class="nc" id="L2562">            throw new IllegalStateException(</span>
+                    &quot;Can only call that method when the problem is satisfiable!&quot;);
+        }
+<span class="nc" id="L2565">        int n = decisions.size();</span>
+<span class="nc" id="L2566">        var outdecisions = new int[n];</span>
+<span class="nc" id="L2567">        System.arraycopy(decisions.toArray(), 0, outdecisions, 0, n);</span>
+<span class="nc" id="L2568">        return outdecisions;</span>
+    }
+
+    @Override
+    public void preprocessing() {
+<span class="nc" id="L2573">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

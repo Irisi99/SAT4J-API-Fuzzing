@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmptySolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.tools</a> &gt; <span class="el_source">EmptySolver.java</span></div><h1>EmptySolver.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.tools;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.Map;
+
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.FakeConstr;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVec;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.SearchListener;
+import org.sat4j.specs.TimeoutException;
+import org.sat4j.specs.UnitClauseProvider;
+
+/**
+ * Empty solver meant to be specialized to be used instead of real solvers
+ * inside e.g. parsers.
+ * 
+ * 
+ * @author leberre
+ * @since 2.3.6
+ */
+<span class="nc" id="L58">public abstract class EmptySolver implements ISolver {</span>
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    private int nbVars;
+
+    private int nbClauses;
+
+    public int[] model() {
+<span class="nc" id="L70">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int[] primeImplicant() {
+<span class="nc" id="L74">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean primeImplicant(int p) {
+<span class="nc" id="L78">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSatisfiable() throws TimeoutException {
+<span class="nc" id="L82">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSatisfiable(IVecInt assumps, boolean globalTimeout)
+            throws TimeoutException {
+<span class="nc" id="L87">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSatisfiable(boolean globalTimeout)
+            throws TimeoutException {
+<span class="nc" id="L92">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSatisfiable(IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L96">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int[] findModel() throws TimeoutException {
+<span class="nc" id="L100">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int[] findModel(IVecInt assumps) throws TimeoutException {
+<span class="nc" id="L104">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int nConstraints() {
+<span class="nc" id="L108">        return nbClauses;</span>
+    }
+
+    public int newVar(int howmany) {
+<span class="nc" id="L112">        this.nbVars = howmany;</span>
+<span class="nc" id="L113">        return howmany;</span>
+    }
+
+    public int nVars() {
+<span class="nc" id="L117">        return nbVars;</span>
+    }
+
+    public void printInfos(PrintWriter out, String prefix) {
+<span class="nc" id="L121">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void printInfos(PrintWriter out) {
+<span class="nc" id="L125">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean model(int variable) {
+<span class="nc" id="L129">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int newVar() {
+<span class="nc" id="L133">        nbVars++;</span>
+<span class="nc" id="L134">        return nbVars;</span>
+    }
+
+    public int nextFreeVarId(boolean reserve) {
+<span class="nc" id="L138">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void registerLiteral(int p) {
+<span class="nc" id="L142">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void setExpectedNumberOfClauses(int nb) {
+<span class="nc" id="L146">        this.nbClauses = nb;</span>
+<span class="nc" id="L147">    }</span>
+
+    public IConstr addClause(IVecInt literals) throws ContradictionException {
+<span class="nc" id="L150">        return FakeConstr.instance();</span>
+    }
+
+    public IConstr addBlockingClause(IVecInt literals)
+            throws ContradictionException {
+<span class="nc" id="L155">        return FakeConstr.instance();</span>
+    }
+
+    public IConstr discardCurrentModel() throws ContradictionException {
+<span class="nc" id="L159">        return FakeConstr.instance();</span>
+    }
+
+    public IVecInt createBlockingClauseForCurrentModel() {
+<span class="nc" id="L163">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean removeConstr(IConstr c) {
+<span class="nc" id="L167">        return false;</span>
+    }
+
+    public boolean removeSubsumedConstr(IConstr c) {
+<span class="nc" id="L171">        return false;</span>
+    }
+
+    public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
+            throws ContradictionException {
+<span class="nc" id="L176">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public IConstr addAtMost(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L181">        return FakeConstr.instance();</span>
+    }
+
+    public IConstr addAtLeast(IVecInt literals, int degree)
+            throws ContradictionException {
+<span class="nc" id="L186">        return FakeConstr.instance();</span>
+    }
+
+    public IConstr addExactly(IVecInt literals, int n)
+            throws ContradictionException {
+<span class="nc" id="L191">        return FakeConstr.instance();</span>
+    }
+
+    public IConstr addConstr(Constr constr) {
+<span class="nc" id="L195">        return FakeConstr.instance();</span>
+    }
+
+    public void setTimeout(int t) {
+
+<span class="nc" id="L200">    }</span>
+
+    public void setTimeoutOnConflicts(int count) {
+
+<span class="nc" id="L204">    }</span>
+
+    public void setTimeoutMs(long t) {
+
+<span class="nc" id="L208">    }</span>
+
+    public int getTimeout() {
+<span class="nc" id="L211">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public long getTimeoutMs() {
+<span class="nc" id="L215">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void expireTimeout() {
+<span class="nc" id="L219">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void reset() {
+
+<span class="nc" id="L224">    }</span>
+
+    public void printStat(PrintStream out, String prefix) {
+<span class="nc" id="L227">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void printStat(PrintWriter out, String prefix) {
+<span class="nc" id="L231">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void printStat(PrintWriter out) {
+<span class="nc" id="L235">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public Map&lt;String, Number&gt; getStat() {
+<span class="nc" id="L239">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public String toString(String prefix) {
+<span class="nc" id="L243">        return &quot;Empty Solver&quot;;</span>
+    }
+
+    public void clearLearntClauses() {
+
+<span class="nc" id="L248">    }</span>
+
+    public void setDBSimplificationAllowed(boolean status) {
+
+<span class="nc" id="L252">    }</span>
+
+    public boolean isDBSimplificationAllowed() {
+<span class="nc" id="L255">        return false;</span>
+    }
+
+    public &lt;S extends ISolverService&gt; void setSearchListener(
+            SearchListener&lt;S&gt; sl) {
+<span class="nc" id="L260">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void setUnitClauseProvider(UnitClauseProvider ucp) {
+<span class="nc" id="L264">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public &lt;S extends ISolverService&gt; SearchListener&lt;S&gt; getSearchListener() {
+<span class="nc" id="L268">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isVerbose() {
+<span class="nc" id="L272">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void setVerbose(boolean value) {
+
+<span class="nc" id="L277">    }</span>
+
+    public void setLogPrefix(String prefix) {
+<span class="nc" id="L280">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public String getLogPrefix() {
+<span class="nc" id="L284">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public IVecInt unsatExplanation() {
+<span class="nc" id="L288">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int[] modelWithInternalVariables() {
+<span class="nc" id="L292">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public int realNumberOfVariables() {
+<span class="nc" id="L296">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public boolean isSolverKeptHot() {
+<span class="nc" id="L300">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public void setKeepSolverHot(boolean keepHot) {
+<span class="nc" id="L304">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    public ISolver getSolvingEngine() {
+<span class="nc" id="L308">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

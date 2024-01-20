@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ASolverFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.core</a> &gt; <span class="el_source">ASolverFactory.java</span></div><h1>ASolverFactory.java</h1><pre class="source lang-java linenums">/*******************************************************************************
+ * SAT4J: a SATisfiability library for Java Copyright (C) 2004, 2012 Artois University and CNRS
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ *  http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either the GNU Lesser General Public License Version 2.1 or later (the
+ * &quot;LGPL&quot;), in which case the provisions of the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of the LGPL, and not to allow others to use your version of
+ * this file under the terms of the EPL, indicate your decision by deleting
+ * the provisions above and replace them with the notice and other provisions
+ * required by the LGPL. If you do not delete the provisions above, a recipient
+ * may use your version of this file under the terms of the EPL or the LGPL.
+ *
+ * Based on the original MiniSat specification from:
+ *
+ * An extensible SAT solver. Niklas Een and Niklas Sorensson. Proceedings of the
+ * Sixth International Conference on Theory and Applications of Satisfiability
+ * Testing, LNCS 2919, pp 502-518, 2003.
+ *
+ * See www.minisat.se for the original solver in C++.
+ *
+ * Contributors:
+ *   CRIL - initial API and implementation
+ *******************************************************************************/
+package org.sat4j.core;
+
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.sat4j.specs.ISolver;
+
+/**
+ * A solver factory is responsible for providing prebuilt solvers to the end
+ * user.
+ * 
+ * @author bourgeois
+ */
+<span class="fc" id="L47">public abstract class ASolverFactory&lt;T extends ISolver&gt;</span>
+        implements Serializable {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * This methods returns names of solvers to be used with the method
+     * getSolverByName().
+     * 
+     * @return an array containing the names of all the solvers available in the
+     *         library.
+     * @see #createSolverByName(String)
+     */
+    public String[] solverNames() {
+<span class="nc" id="L64">        List&lt;String&gt; l = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L65">        Method[] solvers = this.getClass().getDeclaredMethods();</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (Method solver : solvers) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (solver.getParameterTypes().length == 0</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                    &amp;&amp; solver.getName().startsWith(&quot;new&quot;)) { //$NON-NLS-1$</span>
+<span class="nc" id="L69">                l.add(solver.getName().substring(3));</span>
+            }
+        }
+<span class="nc" id="L72">        Collections.sort(l);</span>
+<span class="nc" id="L73">        var names = new String[l.size()];</span>
+<span class="nc" id="L74">        l.toArray(names);</span>
+<span class="nc" id="L75">        return names;</span>
+    }
+
+    /**
+     * create a solver from its String name. the solvername Xxxx must map one of
+     * the newXxxx methods.
+     * 
+     * @param solvername
+     *            the name of the solver
+     * @return an ISolver built using newSolvername. &lt;code&gt;null&lt;/code&gt; if the
+     *         solvername doesn't map one of the method of the factory.
+     */
+    @SuppressWarnings(&quot;unchecked&quot;)
+    public Optional&lt;T&gt; createSolverByName(String solvername) {
+        try {
+<span class="fc" id="L90">            Class&lt;?&gt;[] paramtypes = {};</span>
+<span class="nc" id="L91">            var m = this.getClass().getMethod(&quot;new&quot; + solvername, //$NON-NLS-1$</span>
+                    paramtypes);
+<span class="nc" id="L93">            return Optional.of((T) m.invoke(null, (Object[]) null));</span>
+<span class="fc" id="L94">        } catch (SecurityException | IllegalArgumentException</span>
+                | ReflectiveOperationException e) {
+<span class="fc" id="L96">            return Optional.empty();</span>
+        }
+    }
+
+    /**
+     * To obtain the default solver of the library. The solver is suitable to
+     * solve huge SAT benchmarks. It should reflect state-of-the-art SAT
+     * technologies.
+     * 
+     * For solving small/easy SAT benchmarks, use lightSolver() instead.
+     * 
+     * @return a solver from the factory
+     * @see #lightSolver()
+     */
+    public abstract T defaultSolver();
+
+    /**
+     * To obtain a solver that is suitable for solving many small instances of
+     * SAT problems.
+     * 
+     * The solver is not using sophisticated but costly reasoning and avoids to
+     * allocate too much memory.
+     * 
+     * For solving bigger SAT benchmarks, use defaultSolver() instead.
+     * 
+     * @return a solver from the factory
+     * @see #defaultSolver()
+     */
+    public abstract T lightSolver();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Xor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.minisat.constraints.xor</a> &gt; <span class="el_source">Xor.java</span></div><h1>Xor.java</h1><pre class="source lang-java linenums">package org.sat4j.minisat.constraints.xor;
+
+import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
+
+import org.sat4j.annotations.Feature;
+import org.sat4j.core.LiteralsUtils;
+import org.sat4j.minisat.core.ILits;
+import org.sat4j.specs.Constr;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.MandatoryLiteralListener;
+import org.sat4j.specs.Propagatable;
+import org.sat4j.specs.UnitPropagationListener;
+import org.sat4j.specs.VarMapper;
+
+/**
+ * A simple implementation of a xor constraint to be handled in Sat4j CDCL
+ * solver.
+ * 
+ * As for each constraint in the solver, the propagation and conflict analysis
+ * is performed locally for each constraint, not globally like in the SMT
+ * framework.
+ * 
+ * As such, the constraint uses an extended form of watched literals, basic
+ * analysis in case of conflicts (it will typically return a clause of the CNF
+ * encoding), so think about that implementation as a lazy clause generation of
+ * the full CNF encoding.
+ *
+ * The normalized for of the constraint is:
+ * 
+ * v1 xor v2 xor v3 xor ... xor vn = (true | false)
+ * 
+ * where v1 are dimacs positive literals (using Sat4j internal representation)
+ * 
+ * if rhs is false, then an even number of literals must be satisfied, else an
+ * odd number of literals must be satisfied (thus the name parity constraints).
+ * 
+ * @author leberre
+ * @since 2.3.6
+ */
+<span class="nc bnc" id="L40" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+public class Xor implements Constr, Propagatable {
+
+    private final int[] lits;
+    private final boolean parity;
+    private final ILits voc;
+
+    public static Xor createParityConstraint(IVecInt lits, boolean parity,
+            ILits voc) {
+<span class="nc" id="L49">        var xor = new Xor(lits, parity, voc);</span>
+<span class="nc" id="L50">        xor.register();</span>
+<span class="nc" id="L51">        return xor;</span>
+    }
+
+<span class="nc" id="L54">    public Xor(IVecInt lits, boolean parity, ILits voc) {</span>
+<span class="nc" id="L55">        this.lits = new int[lits.size()];</span>
+<span class="nc" id="L56">        lits.copyTo(this.lits);</span>
+<span class="nc" id="L57">        this.parity = parity;</span>
+<span class="nc" id="L58">        this.voc = voc;</span>
+<span class="nc" id="L59">    }</span>
+
+    @Override
+    public boolean learnt() {
+<span class="nc" id="L63">        return false;</span>
+    }
+
+    @Override
+    public int size() {
+<span class="nc" id="L68">        return lits.length;</span>
+    }
+
+    @Override
+    public int get(int i) {
+<span class="nc" id="L73">        return lits[i];</span>
+    }
+
+    @Override
+    public double getActivity() {
+<span class="nc" id="L78">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public boolean canBePropagatedMultipleTimes() {
+<span class="nc" id="L83">        return false;</span>
+    }
+
+    @Override
+    public String toString(VarMapper mapper) {
+<span class="nc" id="L88">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public boolean propagate(UnitPropagationListener s, int p) {
+        // we use the same trick as for clauses: we move the variables inside
+        // the constraint
+        // to keep the two doubly watched literals in front of the constraints
+<span class="nc" id="L96">        int tmp, nbSatisfied = 0;</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">        if (p == lits[0] || LiteralsUtils.neg(p) == lits[0]) {</span>
+<span class="nc" id="L98">            tmp = lits[1];</span>
+<span class="nc" id="L99">            lits[1] = lits[0];</span>
+<span class="nc" id="L100">            lits[0] = tmp;</span>
+        }
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (this.voc.isSatisfied(lits[1])) {</span>
+<span class="nc" id="L103">            nbSatisfied = 1;</span>
+        }
+        // look for new literal to watch and counting satisfied literals
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        for (var i = 2; i &lt; lits.length; i++) {</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (this.voc.isSatisfied(lits[i])) {</span>
+<span class="nc" id="L108">                nbSatisfied++;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            } else if (this.voc.isUnassigned(lits[i])) {</span>
+<span class="nc" id="L110">                tmp = lits[1];</span>
+<span class="nc" id="L111">                lits[1] = lits[i];</span>
+<span class="nc" id="L112">                lits[i] = tmp;</span>
+<span class="nc" id="L113">                this.voc.watch(lits[1] ^ 1, this);</span>
+<span class="nc" id="L114">                this.voc.watch(lits[1], this);</span>
+<span class="nc" id="L115">                this.voc.watches(p ^ 1).remove(this);</span>
+<span class="nc" id="L116">                return true;</span>
+            }
+        }
+<span class="nc" id="L119">        this.voc.watch(p, this);</span>
+        // propagates first watched literal, depending on the number of
+        // satisfied literals
+<span class="nc bnc" id="L122" title="All 4 branches missed.">        int toPropagate = ((nbSatisfied &amp; 1) == 1) == parity ? lits[0]</span>
+<span class="nc" id="L123">                : LiteralsUtils.neg(lits[0]);</span>
+<span class="nc" id="L124">        return s.enqueue(toPropagate, this);</span>
+    }
+
+    @Override
+    public void propagatePI(MandatoryLiteralListener l, int p) {
+<span class="nc" id="L129">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public Constr toConstraint() {
+<span class="nc" id="L134">        return this;</span>
+    }
+
+    @Override
+    public void remove(UnitPropagationListener upl) {
+<span class="nc" id="L139">        this.voc.watches(this.lits[0]).remove(this);</span>
+<span class="nc" id="L140">        this.voc.watches(this.lits[0] ^ 1).remove(this);</span>
+<span class="nc" id="L141">        this.voc.watches(this.lits[1]).remove(this);</span>
+<span class="nc" id="L142">        this.voc.watches(this.lits[1] ^ 1).remove(this);</span>
+<span class="nc" id="L143">    }</span>
+
+    @Override
+    public boolean simplify() {
+<span class="nc" id="L147">        return false;</span>
+    }
+
+    @Override
+    public void calcReason(int p, IVecInt outReason) {
+<span class="nc" id="L152">        var nbUnassigned = 0;</span>
+<span class="nc bnc" id="L153" title="All 2 branches missed.">        for (var i = 0; i &lt; lits.length; i++) {</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">            if (this.voc.isFalsified(lits[i])) {</span>
+<span class="nc" id="L155">                outReason.push(lits[i] ^ 1);</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            } else if (this.voc.isSatisfied(lits[i])) {</span>
+<span class="nc" id="L157">                outReason.push(lits[i]);</span>
+            } else {
+<span class="nc" id="L159">                nbUnassigned++;</span>
+            }
+        }
+<span class="nc bnc" id="L162" title="All 6 branches missed.">        assert nbUnassigned == (p == ILits.UNDEFINED ? 0 : 1);</span>
+<span class="nc" id="L163">    }</span>
+
+    @Override
+    public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
+<span class="nc" id="L167">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public boolean locked() {
+<span class="nc" id="L172">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public void setLearnt() {
+<span class="nc" id="L177">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public void register() {
+<span class="nc" id="L182">        this.voc.watch(this.lits[0], this);</span>
+<span class="nc" id="L183">        this.voc.watch(this.lits[0] ^ 1, this);</span>
+<span class="nc" id="L184">        this.voc.watch(this.lits[1], this);</span>
+<span class="nc" id="L185">        this.voc.watch(this.lits[1] ^ 1, this);</span>
+<span class="nc" id="L186">    }</span>
+
+    @Override
+    public void assertConstraint(UnitPropagationListener s) {
+<span class="nc" id="L190">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public void assertConstraintIfNeeded(UnitPropagationListener s) {
+<span class="nc" id="L195">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public boolean canBeSatisfiedByCountingLiterals() {
+<span class="nc" id="L200">        return true;</span>
+    }
+
+    @Override
+    public int requiredNumberOfSatisfiedLiterals() {
+<span class="nc" id="L205">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public boolean isSatisfied() {
+<span class="nc" id="L210">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+<span class="nc" id="L215">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public String dump() {
+<span class="nc" id="L220">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L225">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        for (int l : lits) {</span>
+<span class="nc" id="L227">            stb.append(LiteralsUtils.toDimacs(l));</span>
+<span class="nc" id="L228">            stb.append(&quot; &quot;);</span>
+<span class="nc bnc" id="L229" title="All 2 branches missed.">            if (voc.isUnassigned(l)) {</span>
+<span class="nc" id="L230">                stb.append(&quot;U&quot;);</span>
+            } else {
+<span class="nc bnc" id="L232" title="All 2 branches missed.">                stb.append(voc.isFalsified(l) ? &quot;F&quot; : &quot;T&quot;);</span>
+            }
+<span class="nc" id="L234">            stb.append(&quot; x &quot;);</span>
+        }
+<span class="nc" id="L236">        stb.append(parity);</span>
+<span class="nc" id="L237">        return stb.toString();</span>
+    }
+
+    /**
+     * Activates this Xor constraint.
+     */
+    public void activate() {
+<span class="nc" id="L244">        this.register();</span>
+<span class="nc" id="L245">    }</span>
+
+    /**
+     * Deactivates (i.e., forgets) a constraint, as there is no easy way to use
+     * selectors with parity constraints.
+     */
+    public void deactivate() {
+<span class="nc" id="L252">        this.remove(null);</span>
+<span class="nc" id="L253">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
