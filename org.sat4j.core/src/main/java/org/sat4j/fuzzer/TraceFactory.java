@@ -8,8 +8,12 @@ import java.util.Map;
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.ICDCL;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.orders.RandomWalkDecorator;
+import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
+
 public class TraceFactory {
 
     static Random masterRandomGenerator;
@@ -286,14 +290,15 @@ public class TraceFactory {
     public static void initializeOptions(){
 
         // OPTIONS.add("kleast");
-        // OPTIONS.add("optimize");
-        // OPTIONS.add("randomWalk");
-        OPTIONS.add("hot");
+        // OPTIONS.add("optimize"); used for MAXSAT
+        OPTIONS.add("randomWalk");
+        // OPTIONS.add("hot"); is not usable with incremental API fuzzing
         OPTIONS.add("simplify");
         // OPTIONS.add("lower");
         // OPTIONS.add("equivalence");
         // OPTIONS.add("incomplete");
         OPTIONS.add("solver");
+        // OPTIONS.add("conflictbased");
 
         SOLVERS.add("DFS");
         SOLVERS.add("LEARNING");
@@ -310,6 +315,7 @@ public class TraceFactory {
         // Check Launcher.java inside 'org.sat4j.sat' folder
         trace.addToTrace(index + " init");
         index++;
+
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         ICDCL<?> asolver = (ICDCL<?>) factory.defaultSolver();
 
@@ -322,16 +328,20 @@ public class TraceFactory {
                 trace.addToTrace(index + " using solver " + solverName);
                 index++;
                 asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+
+                trace.addToTrace(index + " Random Walk");
+                index++;
+                double proba = slaveRandomGenerator.nextDouble();
+                IOrder order = asolver.getOrder();
+                order = new RandomWalkDecorator((VarOrderHeap) order, proba);
+                asolver.setOrder(order);
                 
-                // asolver.setKeepSolverHot(true);
                 trace.addToTrace(index + " DBS simplification allowed");
                 index++;
                 asolver.setDBSimplificationAllowed(true);
                
                 if(verbose){
-                    System.out.println("SOLVER: "+solverName); 
-                    // System.out.println("KEEP SOLVER HOT");
-                    System.out.println("DBS SIMPLIFICATION ALLOWED");
+                    System.out.println("SOLVER: "+solverName);
                 }
 
             } else {
@@ -347,21 +357,19 @@ public class TraceFactory {
                     }
                 }
 
-                // if (slaveRandomGenerator.nextBoolean()) {
-                //     asolver.setKeepSolverHot(true);
-                //     if(verbose){
-                //         System.out.println("KEEP SOLVER HOT");
-                //     }
-                // }
+                if(slaveRandomGenerator.nextBoolean()){
+                    trace.addToTrace(index + " Random Walk");
+                    index++;
+                    double proba = slaveRandomGenerator.nextDouble();
+                    IOrder order = asolver.getOrder();
+                    order = new RandomWalkDecorator((VarOrderHeap) order, proba);
+                    asolver.setOrder(order);
+                }
 
                 if (slaveRandomGenerator.nextBoolean()) {
-                    trace.addToTrace(index + " DBS simplification allowed");
+                    trace.addToTrace(index + " DBS simplification");
                     index++;
                     asolver.setDBSimplificationAllowed(true);
-                    
-                    if(verbose){
-                        System.out.println("DBS SIMPLIFICATION ALLOWED");
-                    }
                 }
             }
         }

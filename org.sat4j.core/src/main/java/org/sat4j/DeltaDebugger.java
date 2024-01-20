@@ -16,11 +16,12 @@ public class DeltaDebugger {
 
     public static void main(final String[] args) throws TimeoutException, ContradictionException {
 
-        // Give seed of Trace in comandline 
-        String seedHEX = String.valueOf(args[0]);
+        // Give name of File in comandline 
+        String fileName = String.valueOf(args[0]);
 
         try {
-            List<String> content = Files.readAllLines(Paths.get("./traces/" + seedHEX + ".txt"));
+            List<String> content = Files.readAllLines(Paths.get("./traces/" + fileName));
+            String seedHEX = fileName.split(".txt")[0];
             content.remove(0); //remove 'init' since we can't debug without initializing the solver
 
             String errorMessage = TraceRunner.runTrace(content, false);
