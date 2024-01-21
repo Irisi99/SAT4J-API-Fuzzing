@@ -329,9 +329,9 @@ public class TraceFactory {
                 index++;
                 asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
 
-                trace.addToTrace(index + " Random Walk");
-                index++;
                 double proba = slaveRandomGenerator.nextDouble();
+                trace.addToTrace(index + " Random Walk "+proba);
+                index++;
                 IOrder order = asolver.getOrder();
                 order = new RandomWalkDecorator((VarOrderHeap) order, proba);
                 asolver.setOrder(order);
@@ -358,9 +358,9 @@ public class TraceFactory {
                 }
 
                 if(slaveRandomGenerator.nextBoolean()){
-                    trace.addToTrace(index + " Random Walk");
-                    index++;
                     double proba = slaveRandomGenerator.nextDouble();
+                    trace.addToTrace(index + " Random Walk "+proba);
+                    index++;
                     IOrder order = asolver.getOrder();
                     order = new RandomWalkDecorator((VarOrderHeap) order, proba);
                     asolver.setOrder(order);

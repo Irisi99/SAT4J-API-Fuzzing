@@ -9,6 +9,9 @@ import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
 import org.sat4j.fuzzer.TraceFactory;
 import org.sat4j.minisat.core.ICDCL;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.orders.RandomWalkDecorator;
+import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ISolver;
 
 public class TraceRunner {
@@ -36,7 +39,9 @@ public class TraceRunner {
 
     public static String runTrace(List<String> apiCalls, boolean verbose){
 
-        ISolver solver = initSolver("Default");
+        double proba = 0.0;
+        String solverName = "Default";
+        ISolver solver = initSolver(solverName, proba);
 
         try{
             for(int i = 0; i < apiCalls.size(); i++){
@@ -46,10 +51,14 @@ public class TraceRunner {
 
                 if(apiCalls.get(i).contains("using solver")){
                     String[] t = apiCalls.get(i).split(" ");
-                    String solverName = t[t.length-1];
-                    solver = initSolver(solverName);
+                    solverName = t[t.length-1];
+                    solver = initSolver(solverName, proba);
 
-                } else if(apiCalls.get(i).contains("DBS simplification allowed")){
+                }else if(apiCalls.get(i).contains("Random Walk")){
+                    proba = Double.parseDouble(apiCalls.get(i).split(" ")[3]);
+                    solver = initSolver(solverName, proba);
+
+                }else if(apiCalls.get(i).contains("DBS simplification")){
                     solver.setDBSimplificationAllowed(true);
 
                 } else if(apiCalls.get(i).contains("addClause")){
@@ -72,13 +81,23 @@ public class TraceRunner {
         return null;
     }
 
-    private static ISolver initSolver(String solverName){
+    private static ISolver initSolver(String solverName, double proba){
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
+        ICDCL<?> asolver;
+
         if(solverName == "Default"){
-            return (ICDCL<?>) factory.defaultSolver();
+            asolver = (ICDCL<?>) factory.defaultSolver();
         } else {
-            return (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+            asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
         }
+
+        if(proba != 0.0){
+            IOrder order = asolver.getOrder();
+            order = new RandomWalkDecorator((VarOrderHeap) order, proba);
+            asolver.setOrder(order);
+        }
+
+        return asolver;
     }
 
     private static int[] getClause(String line){

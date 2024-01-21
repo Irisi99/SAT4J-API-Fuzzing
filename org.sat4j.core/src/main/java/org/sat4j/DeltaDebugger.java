@@ -58,7 +58,6 @@ public class DeltaDebugger {
                     output = TraceRunner.runTrace(temp, false);
 
                     if(output != null && output.compareTo(errorMessage) == 0){
-                        createFile(temp, seedHEX);
                         reduced = true;
                         System.out.println("reduced: true");
                     } else {
