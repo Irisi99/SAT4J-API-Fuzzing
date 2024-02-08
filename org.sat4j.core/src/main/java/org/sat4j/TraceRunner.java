@@ -30,7 +30,6 @@ public class TraceRunner {
                 List<String> content = Files.readAllLines(Paths.get("./traces/" + fileName));
                 content.remove(0);
                 runTrace(content, true);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -75,9 +74,8 @@ public class TraceRunner {
             if(verbose){
                 e.printStackTrace();
             }
-            return e.getMessage();
+            return e.getClass().getName();
         }
-
         return null;
     }
 

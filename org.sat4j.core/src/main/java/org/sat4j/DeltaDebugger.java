@@ -24,7 +24,7 @@ public class DeltaDebugger {
             String seedHEX = fileName.split(".txt")[0];
             content.remove(0); //remove 'init' since we can't debug without initializing the solver
 
-            String errorMessage = TraceRunner.runTrace(content, false);
+            String errorType = TraceRunner.runTrace(content, false);
 
             int granularity = 2;
             int size = content.size();
@@ -55,9 +55,10 @@ public class DeltaDebugger {
                         temp.set(j, null);
                     }
                     // temp.removeAll(content.subList(start, end));
+                    // match the exception class not the error message
                     output = TraceRunner.runTrace(temp, false);
 
-                    if(output != null && output.compareTo(errorMessage) == 0){
+                    if(output != null && output.compareTo(errorType) == 0){
                         reduced = true;
                         System.out.println("reduced: true");
                     } else {
@@ -73,15 +74,19 @@ public class DeltaDebugger {
                     fileCreated = true;
                     reduced = false;
                     temp.removeAll(Collections.singletonList(null));
+                    int old_size = content.size();
                     content = new ArrayList<String>(temp);
                     createFile(content, seedHEX);
                     size = content.size();
+                    if(section > 1){
+                        section = (int) (size/granularity);
+                    }
+                    else if(old_size == size)
+                        break;
                 }else {
                     granularity = granularity * 2;
+                    section = (int) (size/granularity);
                 }
-                if(section == 1)
-                    break;
-                section = (int) (size/granularity);
             }
 
             if(fileCreated){

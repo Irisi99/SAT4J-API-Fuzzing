@@ -26,8 +26,7 @@ public class TraceFactory {
     static int NUMBER_OF_CLAUSES;
     static double coeficient;
     static ISolver solver;
-    static int index;
-    static ArrayList<String> OPTIONS = new ArrayList<String>();    
+    static int index; 
     static ArrayList<String> SOLVERS = new ArrayList<String>();
 
     // sanity check - verbose - print all variables you are choosing
@@ -96,7 +95,7 @@ public class TraceFactory {
                     System.out.print(" --- Inisde Exception from initializeSolver()");
                     System.out.println(" --- " + e.getMessage());
                 }
-                errorMessage = e.getMessage();
+                errorMessage = e.getClass().getName();
                 if(verbose){
                     e.printStackTrace(System.out);
                 }
@@ -128,7 +127,7 @@ public class TraceFactory {
                         System.out.print(" --- Inisde Exception from addClause()");
                         System.out.println(" --- " + e.getMessage());
                     }
-                    errorMessage = e.getMessage();
+                    errorMessage = e.getClass().getName();
                     if(verbose){
                         e.printStackTrace(System.out);
                     }
@@ -149,12 +148,9 @@ public class TraceFactory {
 
                         for (int i=0 ; i < size; i++) {
                             // Need to see if variable is used as well - is throwing errors 
-                            int lit = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
-                            if(isAlreadyPresent(assumption, i) || lit == 0){
-                                i--;
-                            }
-                            else{
-                                assumption[i] = lit;
+                            assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                            while(isAlreadyPresent(assumption, i) || assumption[i] == 0){
+                                assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                             }
                         }
                         if(verbose){
@@ -202,7 +198,7 @@ public class TraceFactory {
                         System.out.print(" --- Inisde Exception from isSatisfiable()");
                         System.out.println(" --- " + e.getMessage());
                     }
-                    errorMessage = e.getMessage();
+                    errorMessage = e.getClass().getName();
                     if(verbose){
                         e.printStackTrace(System.out);
                     }
@@ -288,18 +284,6 @@ public class TraceFactory {
     }
 
     public static void initializeOptions(){
-
-        // OPTIONS.add("kleast");
-        // OPTIONS.add("optimize"); used for MAXSAT
-        OPTIONS.add("randomWalk");
-        // OPTIONS.add("hot"); is not usable with incremental API fuzzing
-        OPTIONS.add("simplify");
-        // OPTIONS.add("lower");
-        // OPTIONS.add("equivalence");
-        // OPTIONS.add("incomplete");
-        OPTIONS.add("solver");
-        // OPTIONS.add("conflictbased");
-
         SOLVERS.add("DFS");
         SOLVERS.add("LEARNING");
         SOLVERS.add("ORDERS");
