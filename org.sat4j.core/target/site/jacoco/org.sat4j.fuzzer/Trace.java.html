@@ -11,47 +11,60 @@ public class Trace {
     private String ID;
     private List&lt;String&gt; traceCalls;
 
+    // Create Trace with seed 0
     public Trace() {
-<span class="nc" id="L15">        this(&quot;0&quot;);</span>
-<span class="nc" id="L16">    }</span>
+<span class="nc" id="L16">        this(&quot;0&quot;);</span>
+<span class="nc" id="L17">        traceCalls = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L18">    }</span>
 
-<span class="fc" id="L18">    public Trace(String Id) {</span>
-<span class="fc" id="L19">        ID = Id;</span>
-<span class="fc" id="L20">        traceCalls = new ArrayList&lt;String&gt;();</span>
-<span class="fc" id="L21">    }</span>
+    // Create Trace with seed from argument
+<span class="fc" id="L21">    public Trace(String Id) {</span>
+<span class="fc" id="L22">        ID = Id;</span>
+<span class="fc" id="L23">        traceCalls = new ArrayList&lt;String&gt;();</span>
+<span class="fc" id="L24">    }</span>
 
+    // Set the seed of the Trace
     public void setId(String Id) {
-<span class="nc" id="L24">        ID = Id;</span>
-<span class="nc" id="L25">    }</span>
+<span class="nc" id="L28">        ID = Id;</span>
+<span class="nc" id="L29">    }</span>
 
+    // Return the seed of the Trace
     public String getId() {
-<span class="nc" id="L28">        return ID;</span>
+<span class="nc" id="L33">        return ID;</span>
     }
 
+    // Add new API call to the Trace
     public void addToTrace(String call) {
-<span class="fc" id="L32">        traceCalls.add(call);</span>
-<span class="fc" id="L33">    }</span>
+<span class="fc" id="L38">        traceCalls.add(call);</span>
+<span class="fc" id="L39">    }</span>
 
+    // Remove API call from the Trace
     public void removeFromTrace(String call) {
-<span class="nc" id="L36">        traceCalls.remove(call);</span>
-<span class="nc" id="L37">    }</span>
+<span class="nc" id="L43">        traceCalls.remove(call);</span>
+<span class="nc" id="L44">    }</span>
 
+    // Create Trace file
     public void toFile() {
-<span class="nc" id="L40">        String path = &quot;./traces/&quot; + ID + &quot;.txt&quot;;</span>
 
-<span class="nc" id="L42">        File traceFile = new File(path);</span>
+        // Defines the path to the file - currently pointing to the 'trcaes' folder
+<span class="nc" id="L50">        String path = &quot;./traces/&quot; + ID + &quot;.txt&quot;;</span>
+
+<span class="nc" id="L52">        File traceFile = new File(path);</span>
         try {
-<span class="nc" id="L44">            traceFile.createNewFile();</span>
-<span class="nc" id="L45">            FileWriter myWriter = new FileWriter(path);</span>
-<span class="nc bnc" id="L46" title="All 2 branches missed.">            for (int i = 0; i &lt; traceCalls.size(); i++)</span>
-<span class="nc" id="L47">                myWriter.write(traceCalls.get(i) + &quot;\n&quot;);</span>
-<span class="nc" id="L48">            myWriter.close();</span>
-<span class="nc" id="L49">        } catch (IOException e) {</span>
-<span class="nc" id="L50">            e.printStackTrace(System.out);</span>
-<span class="nc" id="L51">        }</span>
+<span class="nc" id="L54">            traceFile.createNewFile();</span>
+<span class="nc" id="L55">            FileWriter myWriter = new FileWriter(path);</span>
 
-<span class="nc" id="L53">        System.out.print(&quot;Created trace file &quot; + ID + &quot;.txt&quot;);</span>
-<span class="nc" id="L54">    }</span>
+            // Write all the API calls of the trace in the file seperated by a new line
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            for (int i = 0; i &lt; traceCalls.size(); i++)</span>
+<span class="nc" id="L59">                myWriter.write(traceCalls.get(i) + &quot;\n&quot;);</span>
+<span class="nc" id="L60">            myWriter.close();</span>
+            
+<span class="nc" id="L62">        } catch (IOException e) {</span>
+<span class="nc" id="L63">            e.printStackTrace(System.out);</span>
+<span class="nc" id="L64">        }</span>
+
+<span class="nc" id="L66">        System.out.print(&quot;Created trace file &quot; + ID + &quot;.txt&quot;);</span>
+<span class="nc" id="L67">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

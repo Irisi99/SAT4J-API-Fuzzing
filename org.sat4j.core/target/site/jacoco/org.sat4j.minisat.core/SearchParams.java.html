@@ -60,12 +60,12 @@ public class SearchParams implements Serializable {
      *            the initial conflict bound for the first restart.
      */
     public SearchParams(int conflictBound) {
-<span class="nc" id="L63">        this(0.95, 0.999, 1.5, conflictBound);</span>
-<span class="nc" id="L64">    }</span>
+<span class="fc" id="L63">        this(0.95, 0.999, 1.5, conflictBound);</span>
+<span class="fc" id="L64">    }</span>
 
     public SearchParams(double confincfactor, int conflictBound) {
-<span class="nc" id="L67">        this(0.95, 0.999, confincfactor, conflictBound);</span>
-<span class="nc" id="L68">    }</span>
+<span class="fc" id="L67">        this(0.95, 0.999, confincfactor, conflictBound);</span>
+<span class="fc" id="L68">    }</span>
 
     /**
      * @param d
@@ -155,14 +155,14 @@ public class SearchParams implements Serializable {
      * @return the conflictBoundIncFactor
      */
     public double getConflictBoundIncFactor() {
-<span class="nc" id="L158">        return this.conflictBoundIncFactor;</span>
+<span class="fc" id="L158">        return this.conflictBoundIncFactor;</span>
     }
 
     /**
      * @return the initConflictBound
      */
     public int getInitConflictBound() {
-<span class="nc" id="L165">        return this.initConflictBound;</span>
+<span class="fc" id="L165">        return this.initConflictBound;</span>
     }
 
     /**

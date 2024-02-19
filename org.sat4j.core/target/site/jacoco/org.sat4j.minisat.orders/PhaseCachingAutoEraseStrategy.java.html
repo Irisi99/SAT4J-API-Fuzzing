@@ -37,7 +37,7 @@ import org.sat4j.annotations.Feature;
  * @since 2.2
  */
 @Feature(value = &quot;phaseheuristics&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L40">public final class PhaseCachingAutoEraseStrategy</span>
+<span class="fc" id="L40">public final class PhaseCachingAutoEraseStrategy</span>
         extends AbstractPhaserecordingSelectionStrategy {
 
     /**
@@ -47,13 +47,13 @@ import org.sat4j.annotations.Feature;
 
     @Override
     public void assignLiteral(int p) {
-<span class="nc" id="L50">        this.phase[var(p)] = p;</span>
-<span class="nc" id="L51">    }</span>
+<span class="fc" id="L50">        this.phase[var(p)] = p;</span>
+<span class="fc" id="L51">    }</span>
 
     @Override
     public void updateVar(int p) {
-<span class="nc" id="L55">        this.phase[var(p)] = p;</span>
-<span class="nc" id="L56">    }</span>
+<span class="fc" id="L55">        this.phase[var(p)] = p;</span>
+<span class="fc" id="L56">    }</span>
 
     @Override
     public String toString() {

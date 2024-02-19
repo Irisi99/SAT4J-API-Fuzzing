@@ -311,10 +311,10 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc" id="L311">    }</span>
 
     public void setTimeout(int t) {
-<span class="nc" id="L314">        this.timeout = t * 1000L;</span>
-<span class="nc" id="L315">        this.timeBasedTimeout = true;</span>
-<span class="nc" id="L316">        this.undertimeout = true;</span>
-<span class="nc" id="L317">    }</span>
+<span class="fc" id="L314">        this.timeout = t * 1000L;</span>
+<span class="fc" id="L315">        this.timeBasedTimeout = true;</span>
+<span class="fc" id="L316">        this.undertimeout = true;</span>
+<span class="fc" id="L317">    }</span>
 
     public void setTimeoutMs(long t) {
 <span class="nc" id="L320">        this.timeout = t;</span>
@@ -335,8 +335,8 @@ import org.sat4j.specs.UnitClauseProvider;
      * SearchParams)
      */
     public void setSearchParams(SearchParams sp) {
-<span class="nc" id="L338">        this.params = sp;</span>
-<span class="nc" id="L339">    }</span>
+<span class="fc" id="L338">        this.params = sp;</span>
+<span class="fc" id="L339">    }</span>
 
     public SearchParams getSearchParams() {
 <span class="nc" id="L342">        return this.params;</span>
@@ -363,18 +363,18 @@ import org.sat4j.specs.UnitClauseProvider;
     }
 
     public void expireTimeout() {
-<span class="nc" id="L366">        this.undertimeout = false;</span>
-<span class="nc bnc" id="L367" title="All 2 branches missed.">        if (this.timeBasedTimeout) {</span>
-<span class="nc bnc" id="L368" title="All 2 branches missed.">            if (this.timer != null) {</span>
-<span class="nc" id="L369">                this.timer.cancel();</span>
-<span class="nc" id="L370">                this.timer = null;</span>
+<span class="fc" id="L366">        this.undertimeout = false;</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">        if (this.timeBasedTimeout) {</span>
+<span class="fc bfc" id="L368" title="All 2 branches covered.">            if (this.timer != null) {</span>
+<span class="fc" id="L369">                this.timer.cancel();</span>
+<span class="fc" id="L370">                this.timer = null;</span>
             }
         } else {
 <span class="nc bnc" id="L373" title="All 2 branches missed.">            if (this.conflictCount != null) {</span>
 <span class="nc" id="L374">                this.conflictCount = null;</span>
             }
         }
-<span class="nc" id="L377">    }</span>
+<span class="fc" id="L377">    }</span>
 
     protected int nAssigns() {
 <span class="fc" id="L380">        return this.trail.size();</span>
@@ -664,7 +664,7 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc bfc" id="L664" title="All 2 branches covered.">        if (assumps.size() == 0) {</span>
 <span class="fc" id="L665">            return null;</span>
         }
-<span class="fc bfc" id="L667" title="All 2 branches covered.">        while (!this.trailLim.isEmpty()</span>
+<span class="pc bpc" id="L667" title="1 of 2 branches missed.">        while (!this.trailLim.isEmpty()</span>
 <span class="fc bfc" id="L668" title="All 2 branches covered.">                &amp;&amp; this.trailLim.last() == this.trail.size()) {</span>
             // conflict detected when assuming a value
 <span class="fc" id="L670">            this.trailLim.pop();</span>
@@ -674,9 +674,9 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc" id="L674">        final IVecInt preason = this.mpreason;</span>
 
 <span class="fc" id="L676">        outLearnt.clear();</span>
-<span class="fc bfc" id="L677" title="All 2 branches covered.">        if (this.trailLim.size() == 0) {</span>
+<span class="pc bpc" id="L677" title="1 of 2 branches missed.">        if (this.trailLim.size() == 0) {</span>
             // conflict detected on unit clauses
-<span class="fc" id="L679">            return outLearnt;</span>
+<span class="nc" id="L679">            return outLearnt;</span>
         }
 
 <span class="pc bpc" id="L682" title="2 of 4 branches missed.">        assert outLearnt.size() == 0;</span>
@@ -744,7 +744,7 @@ import org.sat4j.specs.UnitClauseProvider;
         private static final long serialVersionUID = 1L;
 
         public void simplify(IVecInt outLearnt) {
-<span class="nc" id="L747">        }</span>
+<span class="fc" id="L747">        }</span>
 
         @Override
         public String toString() {
@@ -794,26 +794,26 @@ import org.sat4j.specs.UnitClauseProvider;
             // Taken from MiniSAT 1.14: Simplify conflict clause (a little):
 
             int i, j, p;
-<span class="nc" id="L797">            final boolean[] seen = mseen;</span>
+<span class="fc" id="L797">            final boolean[] seen = mseen;</span>
             IConstr r;
-<span class="nc bnc" id="L799" title="All 2 branches missed.">            for (i = j = 1; i &lt; conflictToReduce.size(); i++) {</span>
-<span class="nc" id="L800">                r = voc.getReason(conflictToReduce.get(i));</span>
-<span class="nc bnc" id="L801" title="All 4 branches missed.">                if (r == null || r.canBePropagatedMultipleTimes()) {</span>
-<span class="nc" id="L802">                    conflictToReduce.moveTo(j++, i);</span>
+<span class="fc bfc" id="L799" title="All 2 branches covered.">            for (i = j = 1; i &lt; conflictToReduce.size(); i++) {</span>
+<span class="fc" id="L800">                r = voc.getReason(conflictToReduce.get(i));</span>
+<span class="pc bpc" id="L801" title="1 of 4 branches missed.">                if (r == null || r.canBePropagatedMultipleTimes()) {</span>
+<span class="fc" id="L802">                    conflictToReduce.moveTo(j++, i);</span>
                 } else {
-<span class="nc bnc" id="L804" title="All 2 branches missed.">                    for (var k = 0; k &lt; r.size(); k++) {</span>
-<span class="nc" id="L805">                        p = r.get(k);</span>
-<span class="nc bnc" id="L806" title="All 4 branches missed.">                        if (!seen[p &gt;&gt; 1] &amp;&amp; voc.isFalsified(p)</span>
-<span class="nc bnc" id="L807" title="All 2 branches missed.">                                &amp;&amp; voc.getLevel(p) != 0) {</span>
-<span class="nc" id="L808">                            conflictToReduce.moveTo(j++, i);</span>
-<span class="nc" id="L809">                            break;</span>
+<span class="fc bfc" id="L804" title="All 2 branches covered.">                    for (var k = 0; k &lt; r.size(); k++) {</span>
+<span class="fc" id="L805">                        p = r.get(k);</span>
+<span class="pc bpc" id="L806" title="1 of 4 branches missed.">                        if (!seen[p &gt;&gt; 1] &amp;&amp; voc.isFalsified(p)</span>
+<span class="fc bfc" id="L807" title="All 2 branches covered.">                                &amp;&amp; voc.getLevel(p) != 0) {</span>
+<span class="fc" id="L808">                            conflictToReduce.moveTo(j++, i);</span>
+<span class="fc" id="L809">                            break;</span>
                         }
                     }
                 }
             }
-<span class="nc" id="L814">            conflictToReduce.shrink(i - j);</span>
-<span class="nc" id="L815">            stats.incReducedliterals(i - j);</span>
-<span class="nc" id="L816">        }</span>
+<span class="fc" id="L814">            conflictToReduce.shrink(i - j);</span>
+<span class="fc" id="L815">            stats.incReducedliterals(i - j);</span>
+<span class="fc" id="L816">        }</span>
 
         @Override
         public String toString() {
@@ -1049,11 +1049,11 @@ import org.sat4j.specs.UnitClauseProvider;
      *            a constraint
      */
     public void claBumpActivity(Constr confl) {
-<span class="nc" id="L1052">        confl.incActivity(this.claInc);</span>
-<span class="nc bnc" id="L1053" title="All 2 branches missed.">        if (confl.getActivity() &gt; CLAUSE_RESCALE_BOUND) {</span>
+<span class="fc" id="L1052">        confl.incActivity(this.claInc);</span>
+<span class="pc bpc" id="L1053" title="1 of 2 branches missed.">        if (confl.getActivity() &gt; CLAUSE_RESCALE_BOUND) {</span>
 <span class="nc" id="L1054">            claRescalActivity();</span>
         }
-<span class="nc" id="L1056">    }</span>
+<span class="fc" id="L1056">    }</span>
 
     public void varBumpActivity(int p) {
 <span class="fc" id="L1059">        this.order.updateVar(p);</span>
@@ -1338,8 +1338,8 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc" id="L1338">                this.analysisResult.setReason(null);</span>
 <span class="fc" id="L1339">                decayActivities();</span>
             }
-<span class="pc bpc" id="L1341" title="1 of 2 branches missed.">        } while (this.undertimeout);</span>
-<span class="nc" id="L1342">        return Lbool.UNDEFINED; // timeout occured</span>
+<span class="fc bfc" id="L1341" title="All 2 branches covered.">        } while (this.undertimeout);</span>
+<span class="fc" id="L1342">        return Lbool.UNDEFINED; // timeout occured</span>
     }
 
     private Constr preventTheSameDecisionsToBeMade() {
@@ -1864,7 +1864,7 @@ import org.sat4j.specs.UnitClauseProvider;
         // when using a heuristics limited to a subset of variables
 <span class="fc" id="L1865">        this.lastConflictMeansUnsat = true;</span>
         // Solve
-<span class="pc bpc" id="L1867" title="2 of 6 branches missed.">        while (status == Lbool.UNDEFINED &amp;&amp; this.undertimeout</span>
+<span class="pc bpc" id="L1867" title="1 of 6 branches missed.">        while (status == Lbool.UNDEFINED &amp;&amp; this.undertimeout</span>
                 &amp;&amp; this.lastConflictMeansUnsat) {
 
 <span class="fc" id="L1870">            int before = this.trail.size();</span>
@@ -1881,18 +1881,18 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc" id="L1881">        cancelLearntLiterals(learnedLiteralsLimit);</span>
 <span class="pc bpc" id="L1882" title="2 of 4 branches missed.">        if (!global &amp;&amp; this.timeBasedTimeout) {</span>
 <span class="fc" id="L1883">            synchronized (this) {</span>
-<span class="pc bpc" id="L1884" title="1 of 2 branches missed.">                if (this.timer != null) {</span>
+<span class="fc bfc" id="L1884" title="All 2 branches covered.">                if (this.timer != null) {</span>
 <span class="fc" id="L1885">                    this.timer.cancel();</span>
 <span class="fc" id="L1886">                    this.timer = null;</span>
                 }
 <span class="fc" id="L1888">            }</span>
         }
 <span class="fc" id="L1890">        this.slistener.end(status);</span>
-<span class="pc bpc" id="L1891" title="1 of 2 branches missed.">        if (!this.undertimeout) {</span>
-<span class="nc" id="L1892">            String message = &quot; Timeout (&quot; + this.timeout</span>
-<span class="nc bnc" id="L1893" title="All 2 branches missed.">                    + (this.timeBasedTimeout ? &quot;ms&quot; : &quot; conflicts&quot;)</span>
+<span class="fc bfc" id="L1891" title="All 2 branches covered.">        if (!this.undertimeout) {</span>
+<span class="fc" id="L1892">            String message = &quot; Timeout (&quot; + this.timeout</span>
+<span class="pc bpc" id="L1893" title="1 of 2 branches missed.">                    + (this.timeBasedTimeout ? &quot;ms&quot; : &quot; conflicts&quot;)</span>
                     + &quot;) exceeded&quot;;
-<span class="nc" id="L1895">            throw new TimeoutException(message);</span>
+<span class="fc" id="L1895">            throw new TimeoutException(message);</span>
         }
 <span class="pc bpc" id="L1897" title="3 of 4 branches missed.">        if (status == Lbool.UNDEFINED &amp;&amp; !this.lastConflictMeansUnsat) {</span>
 <span class="nc" id="L1898">            throw new TimeoutException(&quot;Cannot decide the satisfiability&quot;);</span>
@@ -1944,7 +1944,7 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="nc" id="L1944">    }</span>
 
     public SolverStats getStats() {
-<span class="nc" id="L1947">        return this.stats;</span>
+<span class="fc" id="L1947">        return this.stats;</span>
     }
 
     /**
@@ -1962,7 +1962,7 @@ import org.sat4j.specs.UnitClauseProvider;
      * @see org.sat4j.minisat.core.ICDCL#getOrder()
      */
     public IOrder getOrder() {
-<span class="fc" id="L1965">        return this.order;</span>
+<span class="nc" id="L1965">        return this.order;</span>
     }
 
     /*
@@ -1976,7 +1976,7 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc" id="L1976">    }</span>
 
     public ILits getVocabulary() {
-<span class="nc" id="L1979">        return this.voc;</span>
+<span class="fc" id="L1979">        return this.voc;</span>
     }
 
     public void reset() {
@@ -2548,8 +2548,8 @@ import org.sat4j.specs.UnitClauseProvider;
 
     @Override
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
-<span class="nc" id="L2551">        this.unitClauseConsumer = ucc;</span>
-<span class="nc" id="L2552">    }</span>
+<span class="fc" id="L2551">        this.unitClauseConsumer = ucc;</span>
+<span class="fc" id="L2552">    }</span>
 
     @Override
     public void postBumpActivity(Constr constr) {

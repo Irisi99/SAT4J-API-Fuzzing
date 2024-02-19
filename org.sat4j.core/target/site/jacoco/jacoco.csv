@@ -12,28 +12,28 @@ SAT4J core,org.sat4j.minisat.core,Solver.new LearnedConstraintsDeletionStrategy(
 SAT4J core,org.sat4j.minisat.core,Solver.new TimerTask() {...},25,6,2,0,7,1,2,1,1,1
 SAT4J core,org.sat4j.minisat.core,Solver.new ISimplifier() {...},36,188,9,25,5,39,9,13,1,4
 SAT4J core,org.sat4j.minisat.core,Solver.new ISimplifier() {...},201,12,27,1,33,1,17,2,3,2
-SAT4J core,org.sat4j.minisat.core,Solver.new ISimplifier() {...},3,3,0,0,2,1,2,1,2,1
-SAT4J core,org.sat4j.minisat.core,Solver.new ISimplifier() {...},84,6,14,0,15,1,9,1,2,1
-SAT4J core,org.sat4j.minisat.core,SearchParams,103,32,6,0,28,11,12,5,9,5
+SAT4J core,org.sat4j.minisat.core,Solver.new ISimplifier() {...},2,4,0,0,1,2,1,2,1,2
+SAT4J core,org.sat4j.minisat.core,Solver.new ISimplifier() {...},2,88,2,12,1,15,3,7,1,2
+SAT4J core,org.sat4j.minisat.core,SearchParams,83,52,6,0,22,17,8,9,5,9
 SAT4J core,org.sat4j.minisat.core,AgeLCDS,105,9,10,0,16,4,8,1,3,1
-SAT4J core,org.sat4j.minisat.core,Solver,2204,2142,281,244,494,523,272,133,92,48
+SAT4J core,org.sat4j.minisat.core,Solver,2139,2207,274,251,473,544,263,142,86,54
 SAT4J core,org.sat4j.minisat.core,ConflictTimerAdapter,0,39,0,2,0,14,0,6,0,5
 SAT4J core,org.sat4j.minisat.core,MemoryBasedConflictTimer,33,8,4,0,8,3,5,1,3,1
 SAT4J core,org.sat4j.minisat.core,CircularBuffer,12,114,3,7,3,27,2,8,0,5
-SAT4J core,org.sat4j.minisat.core,IPhaseSelectionStrategy,3,2,0,0,3,2,3,2,3,2
+SAT4J core,org.sat4j.minisat.core,IPhaseSelectionStrategy,1,4,0,0,1,4,1,4,1,4
 SAT4J core,org.sat4j.minisat.core,Solver.5.new ConflictTimerAdapter() {...},13,0,0,0,3,0,2,0,2,0
 SAT4J core,org.sat4j.minisat.core,Heap,64,306,24,30,5,60,21,24,2,16
 SAT4J core,org.sat4j.minisat.core,CounterBasedPrimeImplicantStrategy,353,0,38,0,62,0,22,0,3,0
 SAT4J core,org.sat4j.minisat.core,Counter,14,17,0,0,4,7,3,3,3,3
 SAT4J core,org.sat4j.minisat.core,LearnedConstraintsEvaluationType,34,0,0,0,4,0,1,0,1,0
-SAT4J core,org.sat4j.minisat.core,ActivityLCDS,102,9,12,0,22,4,11,1,5,1
+SAT4J core,org.sat4j.minisat.core,ActivityLCDS,91,20,10,2,18,8,8,4,3,3
 SAT4J core,org.sat4j.minisat.core,ConflictTimerContainer,22,31,2,2,5,7,3,4,2,3
 SAT4J core,org.sat4j.minisat.core,ActivityComparator,0,23,0,2,0,5,0,3,0,2
-SAT4J core,org.sat4j.minisat.core,SolverStats,237,163,0,8,62,43,22,22,22,18
-SAT4J core,org.sat4j.minisat.core,RestartStrategy,3,1,0,0,3,1,3,1,3,1
+SAT4J core,org.sat4j.minisat.core,SolverStats,230,170,0,8,60,45,21,23,21,19
+SAT4J core,org.sat4j.minisat.core,RestartStrategy,0,4,0,0,0,4,0,4,0,4
 SAT4J core,org.sat4j.minisat.core,QuadraticPrimeImplicantStrategy,460,0,76,0,82,0,43,0,5,0
-SAT4J core,org.sat4j.minisat.core,LearnedConstraintsDeletionStrategy,3,1,0,0,3,1,3,1,3,1
-SAT4J core,org.sat4j.minisat.core,GlucoseConflictTimer,11,48,1,3,3,14,2,4,1,3
+SAT4J core,org.sat4j.minisat.core,LearnedConstraintsDeletionStrategy,0,4,0,0,0,4,0,4,0,4
+SAT4J core,org.sat4j.minisat.core,GlucoseConflictTimer,4,55,0,4,1,16,1,5,1,3
 SAT4J core,org.sat4j.minisat.core,WatcherBasedPrimeImplicantStrategy,397,0,46,0,70,0,31,0,8,0
 SAT4J core,org.sat4j.tools.counting,ParityConstraintGenerator,155,0,20,0,41,0,20,0,10,0
 SAT4J core,org.sat4j.tools.counting,AbstractApproxMC,119,0,8,0,33,0,12,0,8,0
@@ -43,18 +43,18 @@ SAT4J core,org.sat4j.tools.counting,ApproxMC,112,0,6,0,20,0,11,0,8,0
 SAT4J core,org.sat4j.tools.counting,ApproxMC2,260,0,14,0,53,0,17,0,10,0
 SAT4J core,org.sat4j.tools.counting,ModelCounterAdapter,59,0,0,0,20,0,8,0,8,0
 SAT4J core,org.sat4j.tools.counting,SamplingSetAdapter,25,0,0,0,7,0,5,0,5,0
-SAT4J core,org.sat4j.fuzzer,DeltaDebugger,233,0,24,0,65,0,15,0,3,0
-SAT4J core,org.sat4j.fuzzer,TraceFactory,114,675,26,70,40,167,20,36,1,7
-SAT4J core,org.sat4j.fuzzer,Trace,64,17,2,0,19,6,6,2,5,2
-SAT4J core,org.sat4j.fuzzer,TraceRunner,250,0,26,0,54,0,18,0,5,0
-SAT4J core,org.sat4j.fuzzer,BasicSolutionEnumerator,130,0,10,0,37,0,7,0,2,0
+SAT4J core,org.sat4j.fuzzer,DeltaDebugger,250,0,30,0,69,0,18,0,3,0
+SAT4J core,org.sat4j.fuzzer,TraceFactory,124,612,29,69,44,153,22,35,1,7
+SAT4J core,org.sat4j.fuzzer,Trace,69,17,2,0,20,6,6,2,5,2
+SAT4J core,org.sat4j.fuzzer,TraceRunner,210,0,22,0,47,0,16,0,5,0
+SAT4J core,org.sat4j.fuzzer,BasicSolutionEnumerator,106,0,6,0,30,0,5,0,2,0
 SAT4J core,org.sat4j.fuzzer,APIFuzzer,12,21,3,1,2,6,3,1,1,1
-SAT4J core,org.sat4j.minisat.restarts,LubyRestarts,107,0,4,0,31,0,15,0,13,0
+SAT4J core,org.sat4j.minisat.restarts,LubyRestarts,15,92,0,4,6,25,4,11,4,9
 SAT4J core,org.sat4j.minisat.restarts,FixedPeriodRestarts,43,0,2,0,14,0,10,0,9,0
-SAT4J core,org.sat4j.minisat.restarts,ArminRestarts,90,0,4,0,22,0,10,0,8,0
-SAT4J core,org.sat4j.minisat.restarts,MiniSATRestarts,49,3,2,0,14,1,8,1,7,1
-SAT4J core,org.sat4j.minisat.restarts,Glucose21Restarts,2,106,0,10,1,23,1,12,1,7
-SAT4J core,org.sat4j.minisat.restarts,NoRestarts,9,0,0,0,5,0,5,0,5,0
+SAT4J core,org.sat4j.minisat.restarts,ArminRestarts,6,84,0,4,3,19,2,8,2,6
+SAT4J core,org.sat4j.minisat.restarts,MiniSATRestarts,6,46,0,2,3,12,2,7,2,6
+SAT4J core,org.sat4j.minisat.restarts,Glucose21Restarts,2,106,1,9,1,23,2,11,1,7
+SAT4J core,org.sat4j.minisat.restarts,NoRestarts,3,6,0,0,2,3,2,3,2,3
 SAT4J core,org.sat4j.minisat.restarts,EMARestarts,92,0,4,0,19,0,10,0,8,0
 SAT4J core,org.sat4j.minisat.constraints.card,MaxWatchCard,834,0,110,0,155,0,84,0,29,0
 SAT4J core,org.sat4j.minisat.constraints.card,AtLeast,775,0,90,0,150,0,73,0,28,0
@@ -65,18 +65,18 @@ SAT4J core,org.sat4j.minisat.constraints,CardinalityDataStructureYanMax,37,0,0,0
 SAT4J core,org.sat4j.minisat.constraints,AbstractCardinalityDataStructure,7,0,0,0,2,0,2,0,2,0
 SAT4J core,org.sat4j.minisat.constraints,CardinalityDataStructureYanMin,37,0,0,0,5,0,5,0,5,0
 SAT4J core,org.sat4j.minisat.constraints,MixedDataStructureSingleWL,65,0,6,0,13,0,9,0,6,0
-SAT4J core,org.sat4j.minisat.constraints,MixedDataStructureDanielHT,87,0,10,0,17,0,11,0,6,0
-SAT4J core,org.sat4j.minisat.constraints,MixedDataStructureDanielWLConciseBinary,228,0,24,0,35,0,20,0,8,0
+SAT4J core,org.sat4j.minisat.constraints,MixedDataStructureDanielHT,41,46,4,6,6,11,6,5,2,4
+SAT4J core,org.sat4j.minisat.constraints,MixedDataStructureDanielWLConciseBinary,191,37,19,5,27,8,15,5,4,4
 SAT4J core,org.sat4j.minisat.constraints,ClausalDataStructureWL,49,0,6,0,11,0,7,0,4,0
 SAT4J core,org.sat4j.minisat.constraints,MixedDataStructureDanielWL,16,71,0,10,2,15,2,9,2,4
-SAT4J core,org.sat4j.opt,MinOneDecorator,156,0,12,0,43,0,21,0,15,0
+SAT4J core,org.sat4j.opt,MinOneDecorator,130,26,11,1,34,9,18,3,12,3
 SAT4J core,org.sat4j.opt,AbstractSelectorVariablesDecorator,130,0,4,0,38,0,22,0,20,0
 SAT4J core,org.sat4j.opt,MaxSatDecorator,203,0,14,0,53,0,21,0,14,0
 SAT4J core,org.sat4j.core,EmptyVecInt.new IteratorInt() {...},4,8,0,0,1,2,1,2,1,2
-SAT4J core,org.sat4j.core,ASolverFactory,67,9,6,0,12,4,4,2,1,2
-SAT4J core,org.sat4j.core,ConstrGroup,127,0,12,0,30,0,19,0,13,0
-SAT4J core,org.sat4j.core,LiteralsUtils,22,50,5,7,2,7,6,8,2,6
-SAT4J core,org.sat4j.core,VecInt,729,363,78,22,159,84,64,37,24,27
+SAT4J core,org.sat4j.core,ASolverFactory,3,73,0,6,2,14,0,6,0,3
+SAT4J core,org.sat4j.core,ConstrGroup,105,22,9,3,23,7,16,3,11,2
+SAT4J core,org.sat4j.core,LiteralsUtils,18,54,5,7,1,8,5,9,1,7
+SAT4J core,org.sat4j.core,VecInt,728,364,79,21,158,85,64,37,23,28
 SAT4J core,org.sat4j.core,DefaultComparator,7,0,0,0,2,0,2,0,2,0
 SAT4J core,org.sat4j.core,Vec,489,328,49,23,103,72,49,27,24,16
 SAT4J core,org.sat4j.core,EmptyVecInt,99,10,2,0,38,3,37,3,36,3
@@ -84,12 +84,12 @@ SAT4J core,org.sat4j.core,Vec.new Iterator() {...},41,0,4,0,6,0,5,0,3,0
 SAT4J core,org.sat4j.core,VecInt.new IteratorInt() {...},4,37,1,3,1,5,1,4,0,3
 SAT4J core,org.sat4j.core,ReadOnlyVec,157,0,0,0,41,0,33,0,33,0
 SAT4J core,org.sat4j.core,ReadOnlyVecInt,182,0,0,0,47,0,39,0,39,0
-SAT4J core,org.sat4j.minisat,SolverFactory,473,74,1,3,102,22,34,11,33,10
+SAT4J core,org.sat4j.minisat,SolverFactory,66,481,1,3,22,102,10,35,9,34
 SAT4J core,org.sat4j.specs,Lbool,6,31,0,0,2,10,2,2,2,2
 SAT4J core,org.sat4j.specs,UnitClauseConsumer,0,6,0,0,0,2,0,2,0,2
 SAT4J core,org.sat4j.specs,ContradictionException,12,4,0,0,6,2,3,1,3,1
 SAT4J core,org.sat4j.specs,FakeConstr,39,0,0,0,9,0,9,0,9,0
-SAT4J core,org.sat4j.specs,TimeoutException,16,0,0,0,8,0,4,0,4,0
+SAT4J core,org.sat4j.specs,TimeoutException,12,4,0,0,6,2,3,1,3,1
 SAT4J core,org.sat4j.specs,Constr,3,5,0,0,3,1,3,1,3,1
 SAT4J core,org.sat4j.specs,AssignmentOrigin,3,89,0,0,1,10,1,2,1,2
 SAT4J core,org.sat4j.specs,IConstr,9,0,0,0,3,0,3,0,3,0
@@ -120,22 +120,22 @@ SAT4J core,org.sat4j.minisat.constraints.cnf,OriginalBinaryClause,1,17,0,0,1,6,1
 SAT4J core,org.sat4j.minisat.constraints.cnf,BinaryClauses,188,0,14,0,47,0,35,0,28,0
 SAT4J core,org.sat4j.minisat.constraints.cnf,UnitClauses,186,0,10,0,42,0,29,0,24,0
 SAT4J core,org.sat4j.minisat.constraints.cnf,UnitClause,106,40,7,1,34,16,23,9,19,9
-SAT4J core,org.sat4j.minisat.constraints.cnf,OriginalHTClause,196,0,28,0,38,0,22,0,8,0
+SAT4J core,org.sat4j.minisat.constraints.cnf,OriginalHTClause,143,53,27,1,25,13,16,6,2,6
 SAT4J core,org.sat4j.minisat.constraints.cnf,CBClause,538,0,68,0,89,0,66,0,32,0
-SAT4J core,org.sat4j.minisat.constraints.cnf,LearntWLClause,20,98,4,8,5,20,6,7,2,5
-SAT4J core,org.sat4j.minisat.constraints.cnf,LearntHTClause,98,0,8,0,24,0,11,0,7,0
+SAT4J core,org.sat4j.minisat.constraints.cnf,LearntWLClause,13,105,4,8,3,22,5,8,1,6
+SAT4J core,org.sat4j.minisat.constraints.cnf,LearntHTClause,12,86,2,6,3,21,4,7,2,5
 SAT4J core,org.sat4j.minisat.constraints.cnf,WLClause,388,273,45,25,72,52,40,23,14,14
-SAT4J core,org.sat4j.minisat.constraints.cnf,HTClause,907,0,116,0,170,0,85,0,27,0
+SAT4J core,org.sat4j.minisat.constraints.cnf,HTClause,614,293,74,42,107,63,63,22,17,10
 SAT4J core,org.sat4j.minisat.constraints.xor,Xor,473,0,36,0,84,0,47,0,29,0
 SAT4J core,org.sat4j.minisat.learning,NoLearningNoHeuristics,4,0,0,0,2,0,2,0,2,0
-SAT4J core,org.sat4j.minisat.learning,AbstractLearning,10,36,3,5,2,9,4,6,1,5
-SAT4J core,org.sat4j.minisat.learning,PercentLengthLearning,47,0,2,0,15,0,9,0,8,0
+SAT4J core,org.sat4j.minisat.learning,AbstractLearning,6,40,3,5,0,11,3,7,0,6
+SAT4J core,org.sat4j.minisat.learning,PercentLengthLearning,15,32,0,2,6,9,4,5,4,4
 SAT4J core,org.sat4j.minisat.learning,FixedLengthLearning,39,0,2,0,14,0,9,0,8,0
 SAT4J core,org.sat4j.minisat.learning,ClauseOnlyLearning,8,0,0,0,3,0,3,0,3,0
-SAT4J core,org.sat4j.minisat.learning,NoLearningButHeuristics,7,0,0,0,3,0,2,0,2,0
-SAT4J core,org.sat4j.minisat.learning,LimitedLearning,65,0,4,0,21,0,7,0,5,0
+SAT4J core,org.sat4j.minisat.learning,NoLearningButHeuristics,0,7,0,0,0,3,0,2,0,2
+SAT4J core,org.sat4j.minisat.learning,LimitedLearning,0,65,1,3,0,21,1,6,0,5
 SAT4J core,org.sat4j.minisat.learning,ActiveLearning,76,0,6,0,22,0,13,0,10,0
-SAT4J core,org.sat4j.minisat.learning,MiniSATLearning,6,21,1,1,3,8,3,3,2,3
+SAT4J core,org.sat4j.minisat.learning,MiniSATLearning,2,25,1,1,1,10,2,4,1,4
 SAT4J core,org.sat4j.tools.encoding,EncodingStrategy,92,0,0,0,7,0,3,0,3,0
 SAT4J core,org.sat4j.tools.encoding,Policy,346,0,47,0,99,0,52,0,26,0
 SAT4J core,org.sat4j.tools.encoding,Product,629,0,44,0,112,0,29,0,7,0
@@ -149,14 +149,14 @@ SAT4J core,org.sat4j.tools,CheckMUSSolutionListener,188,0,22,0,46,0,15,0,4,0
 SAT4J core,org.sat4j.tools,TimeoutIsolator,7,0,0,0,5,0,4,0,4,0
 SAT4J core,org.sat4j.tools,LearnedClauseSizeTracing,29,0,0,0,9,0,3,0,3,0
 SAT4J core,org.sat4j.tools,RupSearchListener,96,0,6,0,29,0,10,0,7,0
-SAT4J core,org.sat4j.tools,ManyCore,1262,0,110,0,248,0,128,0,73,0
+SAT4J core,org.sat4j.tools,ManyCore,983,279,84,26,189,59,104,24,59,14
 SAT4J core,org.sat4j.tools,MultiTracing,315,0,36,0,79,0,38,0,20,0
 SAT4J core,org.sat4j.tools,GroupClauseSelectorSolver,182,0,18,0,39,0,18,0,9,0
 SAT4J core,org.sat4j.tools,DimacsStringSolver,406,0,42,0,94,0,52,0,31,0
 SAT4J core,org.sat4j.tools,FileBasedVisualizationTool,52,0,0,0,20,0,8,0,8,0
 SAT4J core,org.sat4j.tools,Backbone,101,0,4,0,24,0,14,0,12,0
 SAT4J core,org.sat4j.tools,HeuristicsTracing,46,0,2,0,16,0,6,0,5,0
-SAT4J core,org.sat4j.tools,RunnableSolver,43,0,0,0,13,0,2,0,2,0
+SAT4J core,org.sat4j.tools,RunnableSolver,0,43,0,0,0,13,0,2,0,2
 SAT4J core,org.sat4j.tools,SingleSolutionDetector,80,0,10,0,17,0,9,0,4,0
 SAT4J core,org.sat4j.tools,ExtendedDimacsArrayReader,150,0,27,0,31,0,20,0,3,0
 SAT4J core,org.sat4j.tools,FullClauseSelectorSolver,143,0,12,0,36,0,18,0,12,0
@@ -172,8 +172,8 @@ SAT4J core,org.sat4j.tools,Backbone.new Backbone.Backboner() {...},94,0,8,0,27,0
 SAT4J core,org.sat4j.tools,AbstractClauseSelectorSolver,92,0,6,0,24,0,12,0,9,0
 SAT4J core,org.sat4j.tools,Backbone.new Backbone.Backboner() {...},71,0,4,0,19,0,4,0,2,0
 SAT4J core,org.sat4j.tools,ClausalCardinalitiesDecorator,81,0,6,0,17,0,10,0,7,0
-SAT4J core,org.sat4j.tools,SolutionFoundListener,8,0,0,0,4,0,4,0,4,0
-SAT4J core,org.sat4j.tools,SolverDecorator,300,0,0,0,88,0,64,0,64,0
+SAT4J core,org.sat4j.tools,SolutionFoundListener,3,5,0,0,3,1,3,1,3,1
+SAT4J core,org.sat4j.tools,SolverDecorator,269,31,0,0,78,10,58,6,58,6
 SAT4J core,org.sat4j.tools,DecisionTracing,169,0,2,0,39,0,8,0,7,0
 SAT4J core,org.sat4j.tools,SpeedTracing,243,0,6,0,52,0,9,0,6,0
 SAT4J core,org.sat4j.tools,LearnedTracing,50,0,2,0,19,0,7,0,6,0
@@ -191,8 +191,8 @@ SAT4J core,org.sat4j.tools,LearnedClausesSizeTracing,131,0,2,0,33,0,7,0,6,0
 SAT4J core,org.sat4j.tools,DotSearchTracing,321,0,18,0,88,0,28,0,19,0
 SAT4J core,org.sat4j.tools,Minimal4InclusionModel,132,0,10,0,37,0,11,0,6,0
 SAT4J core,org.sat4j.tools,ModelIteratorToSATAdapter,63,0,4,0,21,0,7,0,5,0
-SAT4J core,org.sat4j.tools,OptToSatAdapter,158,0,14,0,47,0,20,0,13,0
-SAT4J core,org.sat4j.tools,SolutionFoundListener.new SolutionFoundListener() {...},3,0,0,0,1,0,1,0,1,0
+SAT4J core,org.sat4j.tools,OptToSatAdapter,117,41,12,2,34,13,17,3,10,3
+SAT4J core,org.sat4j.tools,SolutionFoundListener.new SolutionFoundListener() {...},0,3,0,0,0,1,0,1,0,1
 SAT4J core,org.sat4j.tools,IBackboneProgressListener.new IBackboneProgressListener() {...},6,0,0,0,4,0,4,0,4,0
 SAT4J core,org.sat4j.tools,AllMUSes,492,0,36,0,121,0,37,0,19,0
 SAT4J core,org.sat4j.tools,LexicoDecorator,306,0,30,0,79,0,37,0,22,0
@@ -210,21 +210,21 @@ SAT4J core,org.sat4j.minisat.orders,SolutionPhaseSelectionStrategy,62,0,8,0,12,0
 SAT4J core,org.sat4j.minisat.orders,NaturalStaticOrder,80,0,6,0,28,0,20,0,17,0
 SAT4J core,org.sat4j.minisat.orders,TabuListDecorator,175,0,10,0,52,0,23,0,18,0
 SAT4J core,org.sat4j.minisat.orders,ValuedLit,53,0,10,0,16,0,10,0,5,0
-SAT4J core,org.sat4j.minisat.orders,PhaseCachingAutoEraseStrategy,19,0,0,0,6,0,4,0,4,0
+SAT4J core,org.sat4j.minisat.orders,PhaseCachingAutoEraseStrategy,2,17,0,0,1,5,1,3,1,3
 SAT4J core,org.sat4j.minisat.orders,PositiveLiteralSelectionStrategy,8,0,0,0,3,0,3,0,3,0
 SAT4J core,org.sat4j.minisat.orders,NegativeLiteralSelectionStrategy,8,0,0,0,3,0,3,0,3,0
 SAT4J core,org.sat4j.minisat.orders,ActivityBasedVariableComparator,2,20,0,2,1,4,1,3,1,2
-SAT4J core,org.sat4j.minisat.orders,PhaseInLastLearnedClauseSelectionStrategy,9,3,0,0,3,1,2,1,2,1
+SAT4J core,org.sat4j.minisat.orders,PhaseInLastLearnedClauseSelectionStrategy,2,10,0,0,1,3,1,2,1,2
 SAT4J core,org.sat4j.minisat.orders,SubsetVarOrder,145,0,22,0,24,0,15,0,4,0
 SAT4J core,org.sat4j.minisat.orders,RSATPhaseSelectionStrategy,2,10,0,0,1,3,1,2,1,2
 SAT4J core,org.sat4j.minisat.orders,VarOrderHeap,65,250,12,24,14,62,17,25,7,17
-SAT4J core,org.sat4j.minisat.orders,RandomWalkDecorator,52,115,2,6,15,35,11,14,9,12
-SAT4J core,org.sat4j.minisat.orders,RSATLastLearnedClausesPhaseSelectionStrategy,19,0,0,0,6,0,4,0,4,0
+SAT4J core,org.sat4j.minisat.orders,RandomWalkDecorator,47,120,2,6,13,37,10,15,8,13
+SAT4J core,org.sat4j.minisat.orders,RSATLastLearnedClausesPhaseSelectionStrategy,2,17,0,0,1,5,1,3,1,3
 SAT4J core,org.sat4j.minisat.orders,PureOrder,75,0,10,0,19,0,11,0,6,0
 SAT4J core,org.sat4j.minisat.orders,AbstractPhaserecordingSelectionStrategy,6,34,1,5,2,7,2,5,1,3
 SAT4J core,org.sat4j.minisat.orders,UserFixedPhaseSelectionStrategy,5,0,0,0,2,0,2,0,2,0
 SAT4J core,org.sat4j.minisat.orders,OrientedOrder,187,0,14,0,51,0,24,0,17,0
-SAT4J core,org.sat4j.minisat.orders,RandomLiteralSelectionStrategy,27,0,4,0,8,0,6,0,4,0
+SAT4J core,org.sat4j.minisat.orders,RandomLiteralSelectionStrategy,5,22,1,3,1,7,2,4,1,3
 SAT4J core,org.sat4j.tools.xplain,HighLevelXplain,176,0,12,0,43,0,22,0,16,0
 SAT4J core,org.sat4j.tools.xplain,InsertionStrategy,298,0,54,0,67,0,32,0,5,0
 SAT4J core,org.sat4j.tools.xplain,QuickXplainStrategy,274,0,34,0,63,0,22,0,5,0

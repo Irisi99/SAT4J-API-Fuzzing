@@ -3,6 +3,6 @@
   <target name="main">
     <echo>Changing C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\target/META-INF/MANIFEST.MF</echo>
     <copy file="META-INF/MANIFEST.MF" tofile="C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\target/META-INF/MANIFEST.MF" failonerror="false" overwrite="true" />
-    <replace file="C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\target/META-INF/MANIFEST.MF" value="3.0.0-SNAPSHOT.v20240218" token="9.9.9.token"></replace>
+    <replace file="C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\target/META-INF/MANIFEST.MF" value="3.0.0-SNAPSHOT.v20240219" token="9.9.9.token"></replace>
   </target>
 </project>

@@ -95,7 +95,10 @@ public class DeltaDebugger {
                     // Update the size parameter and calculate the new section size if section size is not down to 1
                     size = content.size();
                     if(section > 1){
-                        section = (int) (size/granularity);
+                        if((int) (size/granularity) == 0)
+                            section = 1;
+                        else
+                            section = (int) (size/granularity);
                     }
                     // If section size is down to 1 but we are still reducing then go over the API calls until we don't remove any
                     else if(old_size == size)
@@ -103,7 +106,10 @@ public class DeltaDebugger {
                 // If trace was not reduced then increase granularity and calculate the new section size
                 }else {
                     granularity = granularity * 2;
-                    section = (int) (size/granularity);
+                    if( section > 1 && (int) (size/granularity) == 0)
+                        section = 1;
+                    else
+                        section = (int) (size/granularity);
                 }
             }
 

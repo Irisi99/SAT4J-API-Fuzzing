@@ -55,7 +55,7 @@ public interface RestartStrategy extends Serializable, ConflictTimer {
      */
     default void init(SearchParams params, SolverStats stats) {
 
-<span class="nc" id="L58">    }</span>
+<span class="fc" id="L58">    }</span>
 
     /**
      * Ask the strategy if the solver should restart.
@@ -71,7 +71,7 @@ public interface RestartStrategy extends Serializable, ConflictTimer {
      */
     default void onRestart() {
 
-<span class="nc" id="L74">    }</span>
+<span class="fc" id="L74">    }</span>
 
     /**
      * Called when the solver backjumps to the root level.
@@ -94,6 +94,6 @@ public interface RestartStrategy extends Serializable, ConflictTimer {
      */
     default void newLearnedClause(Constr learned, int trailLevel) {
 
-<span class="nc" id="L97">    }</span>
+<span class="fc" id="L97">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

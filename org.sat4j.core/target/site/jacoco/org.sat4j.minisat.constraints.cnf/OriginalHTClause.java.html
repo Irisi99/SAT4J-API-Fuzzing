@@ -40,12 +40,12 @@ import org.sat4j.specs.UnitPropagationListener;
 /**
  * @since 2.1
  */
-<span class="nc bnc" id="L43" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+<span class="pc bpc" id="L43" title="1 of 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
 public class OriginalHTClause extends HTClause {
 
     public OriginalHTClause(IVecInt ps, ILits voc) {
-<span class="nc" id="L47">        super(ps, voc);</span>
-<span class="nc" id="L48">    }</span>
+<span class="fc" id="L47">        super(ps, voc);</span>
+<span class="fc" id="L48">    }</span>
 
     /**
      * 
@@ -58,12 +58,12 @@ public class OriginalHTClause extends HTClause {
      * @see org.sat4j.minisat.constraints.cnf.WLClause#register()
      */
     public void register() {
-<span class="nc" id="L61">        this.voc.watch(neg(this.head), this);</span>
-<span class="nc" id="L62">        this.voc.watch(neg(this.tail), this);</span>
-<span class="nc" id="L63">    }</span>
+<span class="fc" id="L61">        this.voc.watch(neg(this.head), this);</span>
+<span class="fc" id="L62">        this.voc.watch(neg(this.tail), this);</span>
+<span class="fc" id="L63">    }</span>
 
     public boolean learnt() {
-<span class="nc" id="L66">        return false;</span>
+<span class="fc" id="L66">        return false;</span>
     }
 
     public void setLearnt() {
@@ -82,9 +82,9 @@ public class OriginalHTClause extends HTClause {
      *         (tautology for example)
      */
     public static OriginalHTClause brandNewClause(ILits voc, IVecInt literals) {
-<span class="nc" id="L85">        var c = new OriginalHTClause(literals, voc);</span>
-<span class="nc" id="L86">        c.register();</span>
-<span class="nc" id="L87">        return c;</span>
+<span class="fc" id="L85">        var c = new OriginalHTClause(literals, voc);</span>
+<span class="fc" id="L86">        c.register();</span>
+<span class="fc" id="L87">        return c;</span>
     }
 
     public void propagatePI(MandatoryLiteralListener l, int p) {
@@ -127,9 +127,9 @@ public class OriginalHTClause extends HTClause {
 
     @Override
     public boolean propagate(UnitPropagationListener s, int p) {
-<span class="nc" id="L130">        this.savedindexhead = 0;</span>
-<span class="nc" id="L131">        this.savedindextail = middleLits.length - 1;</span>
-<span class="nc" id="L132">        return super.propagate(s, p);</span>
+<span class="fc" id="L130">        this.savedindexhead = 0;</span>
+<span class="fc" id="L131">        this.savedindextail = middleLits.length - 1;</span>
+<span class="fc" id="L132">        return super.propagate(s, p);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

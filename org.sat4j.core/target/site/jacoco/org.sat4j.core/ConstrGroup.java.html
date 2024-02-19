@@ -50,7 +50,7 @@ public class ConstrGroup implements IConstr {
      * 
      */
     private static final long serialVersionUID = 1L;
-<span class="nc" id="L53">    private final IVec&lt;IConstr&gt; constrs = new Vec&lt;&gt;();</span>
+<span class="fc" id="L53">    private final IVec&lt;IConstr&gt; constrs = new Vec&lt;&gt;();</span>
     private final boolean disallowNullConstraints;
 
     /**
@@ -67,17 +67,17 @@ public class ConstrGroup implements IConstr {
      *            should be set to false to allow adding null constraints to the
      *            group.
      */
-<span class="nc" id="L70">    public ConstrGroup(boolean disallowNullConstraints) {</span>
-<span class="nc" id="L71">        this.disallowNullConstraints = disallowNullConstraints;</span>
-<span class="nc" id="L72">    }</span>
+<span class="fc" id="L70">    public ConstrGroup(boolean disallowNullConstraints) {</span>
+<span class="fc" id="L71">        this.disallowNullConstraints = disallowNullConstraints;</span>
+<span class="fc" id="L72">    }</span>
 
     public void add(IConstr constr) {
-<span class="nc bnc" id="L75" title="All 4 branches missed.">        if (constr == null &amp;&amp; this.disallowNullConstraints) {</span>
+<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        if (constr == null &amp;&amp; this.disallowNullConstraints) {</span>
 <span class="nc" id="L76">            throw new IllegalArgumentException(</span>
                     &quot;The constraint you entered cannot be removed from the solver.&quot;);
         }
-<span class="nc" id="L79">        this.constrs.push(constr);</span>
-<span class="nc" id="L80">    }</span>
+<span class="fc" id="L79">        this.constrs.push(constr);</span>
+<span class="fc" id="L80">    }</span>
 
     public void clear() {
 <span class="nc" id="L83">        this.constrs.clear();</span>

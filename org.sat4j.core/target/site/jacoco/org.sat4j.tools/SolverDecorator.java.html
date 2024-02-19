@@ -64,8 +64,8 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
     }
 
     public void setDBSimplificationAllowed(boolean status) {
-<span class="nc" id="L67">        this.solver.setDBSimplificationAllowed(status);</span>
-<span class="nc" id="L68">    }</span>
+<span class="fc" id="L67">        this.solver.setDBSimplificationAllowed(status);</span>
+<span class="fc" id="L68">    }</span>
 
     /*
      * (non-Javadoc)
@@ -103,7 +103,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      */
     public boolean isSatisfiable(IVecInt assumps, boolean global)
             throws TimeoutException {
-<span class="nc" id="L106">        return this.solver.isSatisfiable(assumps, global);</span>
+<span class="fc" id="L106">        return this.solver.isSatisfiable(assumps, global);</span>
     }
 
     /*
@@ -185,9 +185,9 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
     /**
      * 
      */
-<span class="nc" id="L188">    protected SolverDecorator(T solver) {</span>
-<span class="nc" id="L189">        this.solver = solver;</span>
-<span class="nc" id="L190">    }</span>
+<span class="fc" id="L188">    protected SolverDecorator(T solver) {</span>
+<span class="fc" id="L189">        this.solver = solver;</span>
+<span class="fc" id="L190">    }</span>
 
     /*
      * (non-Javadoc)
@@ -204,7 +204,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#addClause(org.sat4j.datatype.VecInt)
      */
     public IConstr addClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L207">        return this.solver.addClause(literals);</span>
+<span class="fc" id="L207">        return this.solver.addClause(literals);</span>
     }
 
     public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
@@ -291,8 +291,8 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#setTimeout(int)
      */
     public void setTimeout(int t) {
-<span class="nc" id="L294">        this.solver.setTimeout(t);</span>
-<span class="nc" id="L295">    }</span>
+<span class="fc" id="L294">        this.solver.setTimeout(t);</span>
+<span class="fc" id="L295">    }</span>
 
     /*
      * (non-Javadoc)
@@ -374,7 +374,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.specs.ISolver#getStat()
      */
     public Map&lt;String, Number&gt; getStat() {
-<span class="nc" id="L377">        return this.solver.getStat();</span>
+<span class="fc" id="L377">        return this.solver.getStat();</span>
     }
 
     /**

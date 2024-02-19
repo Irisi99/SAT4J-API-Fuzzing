@@ -17,56 +17,52 @@ import org.sat4j.specs.ISolver;
 
     public static void run(String[] args) {
 
-<span class="nc" id="L20">        ISolver solver = SolverFactory.newDefault();</span>
-<span class="nc" id="L21">        solver.setTimeout(3600); // 1 hour timeout</span>
-<span class="nc" id="L22">        Reader reader = new DimacsReader(solver);</span>
-<span class="nc" id="L23">        Boolean SAT = false;</span>
-<span class="nc" id="L24">        int i = 0;</span>
+        // Initialize a new solver
+<span class="nc" id="L21">        ISolver solver = SolverFactory.newDefault();</span>
+        // Set a 10 minute timeout
+<span class="nc" id="L23">        solver.setTimeout(600);</span>
+        // Initialize a new Reader that will parse the cnf file
+<span class="nc" id="L25">        Reader reader = new DimacsReader(solver);</span>
+
+<span class="nc" id="L27">        int i = 0;</span>
         try {
             // CNF filename is given on the command line
-<span class="nc" id="L27">            reader.parseInstance(args[0]);</span>
-<span class="nc" id="L28">            Boolean is_sat = false;</span>
+<span class="nc" id="L30">            reader.parseInstance(args[0]);</span>
+<span class="nc" id="L31">            Boolean is_sat = false;</span>
             do{
-<span class="nc" id="L30">                is_sat = solver.isSatisfiable();</span>
-<span class="nc bnc" id="L31" title="All 2 branches missed.">                if (!is_sat)</span>
-<span class="nc" id="L32">                    break;</span>
-<span class="nc bnc" id="L33" title="All 2 branches missed.">                if (!SAT) {</span>
-<span class="nc" id="L34">                    SAT = true;</span>
-<span class="nc" id="L35">                    System.out.println(&quot;Satisfiable !\n&quot;);</span>
+                // Check if cnf is SAT
+<span class="nc" id="L34">                is_sat = solver.isSatisfiable();</span>
+
+                // If it is UNSAT end computation
+<span class="nc bnc" id="L37" title="All 2 branches missed.">                if (!is_sat)</span>
+<span class="nc" id="L38">                    break;</span>
+
+<span class="nc" id="L40">                i++;</span>
+                // Get the proof of SAT from the solver
+<span class="nc" id="L42">                int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);</span>
+<span class="nc" id="L43">                System.out.println(&quot;c Solution &quot; + i + &quot; : &quot; + TraceFactory.toString(lits) + &quot;\n&quot;);</span>
+
+                // Swap the sign of the literals and add them as a new clause in the solver in order to find other solutions
+<span class="nc bnc" id="L46" title="All 2 branches missed.">                for (int j = 0; j &lt; lits.length; j++) {</span>
+<span class="nc" id="L47">                    lits[j] = lits[j] * -1;</span>
                 }
-<span class="nc" id="L37">                i++;</span>
-
-<span class="nc" id="L39">                int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);</span>
-
-<span class="nc bnc" id="L41" title="All 2 branches missed.">                for (int j = 0; j &lt; lits.length; j++) {</span>
-<span class="nc" id="L42">                    lits[j] = lits[j] * -1;</span>
-                }
-
-<span class="nc" id="L45">                System.out.println(&quot;c Solution &quot; + i + &quot; : &quot;</span>
-<span class="nc" id="L46">                                + Arrays.toString(lits).substring(1, Arrays.toString(lits).length() - 1)</span>
-                                + &quot;\n&quot;);
-
 <span class="nc" id="L49">                solver.addClause(new VecInt(lits));</span>
 
 <span class="nc bnc" id="L51" title="All 2 branches missed.">            } while (is_sat);</span>
 
-<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (!SAT) {</span>
-<span class="nc" id="L54">                System.out.println(&quot;c UNSATISFIABLE!&quot;);</span>
-            } else {
-<span class="nc" id="L56">                System.out.println(&quot;No other solution&quot;);</span>
-            }
-            
-<span class="nc" id="L59">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L53">            System.out.println(&quot;No other solution&quot;);</span>
+
+<span class="nc" id="L55">        } catch (FileNotFoundException e) {</span>
+<span class="nc" id="L56">            System.out.println(e.getMessage());</span>
+<span class="nc" id="L57">        } catch (ParseFormatException e) {</span>
+<span class="nc" id="L58">            System.out.println(e.getMessage());</span>
+<span class="nc" id="L59">        } catch (IOException e) {</span>
 <span class="nc" id="L60">            System.out.println(e.getMessage());</span>
-<span class="nc" id="L61">        } catch (ParseFormatException e) {</span>
+<span class="nc" id="L61">        } catch (ContradictionException e) {</span>
 <span class="nc" id="L62">            System.out.println(e.getMessage());</span>
-<span class="nc" id="L63">        } catch (IOException e) {</span>
+<span class="nc" id="L63">        } catch (TimeoutException e) {</span>
 <span class="nc" id="L64">            System.out.println(e.getMessage());</span>
-<span class="nc" id="L65">        } catch (ContradictionException e) {</span>
-<span class="nc" id="L66">            System.out.println(&quot;Unsatisfiable (trivial)!&quot;);</span>
-<span class="nc" id="L67">        } catch (TimeoutException e) {</span>
-<span class="nc" id="L68">            System.out.println(&quot;Timeout, sorry!&quot;);</span>
-<span class="nc" id="L69">        }</span>
-<span class="nc" id="L70">    }</span>
+<span class="nc" id="L65">        }</span>
+<span class="nc" id="L66">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -7,102 +7,105 @@ import java.util.List;
 
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
-import org.sat4j.minisat.core.ICDCL;
-import org.sat4j.minisat.core.IOrder;
-import org.sat4j.minisat.orders.RandomWalkDecorator;
-import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ISolver;
 
-<span class="nc" id="L16">public class TraceRunner {</span>
+<span class="nc" id="L12">public class TraceRunner {</span>
 
     public static void main(final String[] args) {
 
-        // Give name of Trace File in comandline 
-<span class="nc" id="L21">        String argument = String.valueOf(args[0]);</span>
+        // Give name of Trace file or Seed in comandline 
+<span class="nc" id="L17">        String argument = String.valueOf(args[0]);</span>
 
-<span class="nc bnc" id="L23" title="All 2 branches missed.">        if(!argument.contains(&quot;.txt&quot;)){</span>
-<span class="nc" id="L24">            long value = Long.parseUnsignedLong(argument, 16);</span>
-<span class="nc" id="L25">            TraceFactory.run(value, true, true);</span>
-<span class="nc" id="L26">        } else {</span>
+        // If we pass a Seed then call TraceFactory to generate the Trace file
+<span class="nc bnc" id="L20" title="All 2 branches missed.">        if(!argument.contains(&quot;.txt&quot;)){</span>
+<span class="nc" id="L21">            long value = Long.parseUnsignedLong(argument, 16);</span>
+<span class="nc" id="L22">            TraceFactory.run(value, true, true);</span>
+
+        // If we pass the file of a Trace then we read the file and run all the API calls inside
+<span class="nc" id="L25">        } else {</span>
             try {
-<span class="nc" id="L28">                List&lt;String&gt; content = Files.readAllLines(Paths.get(&quot;./traces/&quot; + argument));</span>
-<span class="nc" id="L29">                content.remove(0);</span>
-<span class="nc" id="L30">                runTrace(content, true);</span>
-<span class="nc" id="L31">            } catch (IOException e) {</span>
-<span class="nc" id="L32">                e.printStackTrace();</span>
-<span class="nc" id="L33">            }</span>
+<span class="nc" id="L27">                List&lt;String&gt; content = Files.readAllLines(Paths.get(&quot;./traces/&quot; + argument));</span>
+<span class="nc" id="L28">                content.remove(0);</span>
+<span class="nc" id="L29">                runTrace(content, true);</span>
+<span class="nc" id="L30">            } catch (IOException e) {</span>
+<span class="nc" id="L31">                e.printStackTrace();</span>
+<span class="nc" id="L32">            }</span>
         }
-<span class="nc" id="L35">    }</span>
+<span class="nc" id="L34">    }</span>
 
     public static String runTrace(List&lt;String&gt; apiCalls, boolean verbose){
 
-<span class="nc" id="L39">        double proba = 0.0;</span>
-<span class="nc" id="L40">        String solverName = &quot;Default&quot;;</span>
-<span class="nc" id="L41">        ISolver solver = initSolver(solverName, proba);</span>
+<span class="nc" id="L38">        double proba = 0.0;</span>
+<span class="nc" id="L39">        String solverName = &quot;Default&quot;;</span>
+<span class="nc" id="L40">        ISolver solver = initSolver(solverName, proba);</span>
 
         try{
+            // Iterates over all the API calls
 <span class="nc bnc" id="L44" title="All 2 branches missed.">            for(int i = 0; i &lt; apiCalls.size(); i++){</span>
 
 <span class="nc bnc" id="L46" title="All 2 branches missed.">                if(apiCalls.get(i) == null)</span>
 <span class="nc" id="L47">                    continue;</span>
 
-<span class="nc bnc" id="L49" title="All 2 branches missed.">                if(apiCalls.get(i).contains(&quot;using solver&quot;)){</span>
-<span class="nc" id="L50">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
-<span class="nc" id="L51">                    solverName = t[t.length-1];</span>
-<span class="nc" id="L52">                    solver = initSolver(solverName, proba);</span>
+                // If API call is defining the Solver used then parse the name of the solver from the trace
+                // and initialize the specified solver
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                if(apiCalls.get(i).contains(&quot;using solver&quot;)){</span>
+<span class="nc" id="L52">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L53">                    solverName = t[t.length-1];</span>
+<span class="nc" id="L54">                    solver = initSolver(solverName, proba);</span>
 
-<span class="nc bnc" id="L54" title="All 2 branches missed.">                }else if(apiCalls.get(i).contains(&quot;Random Walk&quot;)){</span>
-<span class="nc" id="L55">                    proba = Double.parseDouble(apiCalls.get(i).split(&quot; &quot;)[3]);</span>
-<span class="nc" id="L56">                    solver = initSolver(solverName, proba);</span>
+                // If API call is setting DBS simplification to true then set it true for the local solver
+<span class="nc bnc" id="L57" title="All 2 branches missed.">                }else if(apiCalls.get(i).contains(&quot;DBS simplification&quot;)){</span>
+<span class="nc" id="L58">                    solver.setDBSimplificationAllowed(true);</span>
 
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                }else if(apiCalls.get(i).contains(&quot;DBS simplification&quot;)){</span>
-<span class="nc" id="L59">                    solver.setDBSimplificationAllowed(true);</span>
-
+                // If API call is adding a clause then parse the clause from the trace and create a clause
 <span class="nc bnc" id="L61" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;addClause&quot;)){</span>
 <span class="nc" id="L62">                    solver.addClause(new VecInt(getClause(apiCalls.get(i)))); </span>
                       
-<span class="nc bnc" id="L64" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;assuming&quot;)){</span>
-<span class="nc" id="L65">                    solver.isSatisfiable(new VecInt(getClause(apiCalls.get(i))));</span>
+                // If API call is solving with assumptions then parse the assumptions from the trace and try to solve
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;assuming&quot;)){</span>
+<span class="nc" id="L66">                    solver.isSatisfiable(new VecInt(getClause(apiCalls.get(i))));</span>
 
-<span class="nc bnc" id="L67" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;solve&quot;)){</span>
-<span class="nc" id="L68">                    solver.isSatisfiable();</span>
+                // If API call is trying to solve the formula then try to solve
+<span class="nc bnc" id="L69" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;solve&quot;)){</span>
+<span class="nc" id="L70">                    solver.isSatisfiable();</span>
                 }
             }
-<span class="nc" id="L71">        } catch (Exception e){</span>
-<span class="nc bnc" id="L72" title="All 2 branches missed.">            if(verbose){</span>
-<span class="nc" id="L73">                e.printStackTrace();</span>
+
+<span class="nc" id="L74">        } catch (Exception e){</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if(verbose){</span>
+<span class="nc" id="L76">                e.printStackTrace();</span>
             }
-<span class="nc" id="L75">            return e.getClass().getName();</span>
-<span class="nc" id="L76">        }</span>
-<span class="nc" id="L77">        return null;</span>
+            // Return the class of the error that happened while running the trace
+<span class="nc" id="L79">            return e.getClass().getName();</span>
+<span class="nc" id="L80">        }</span>
+<span class="nc" id="L81">        return null;</span>
     }
 
+    // Method to initialize solver with the options specified
     private static ISolver initSolver(String solverName, double proba){
-<span class="nc" id="L81">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
-        ICDCL&lt;?&gt; asolver;
 
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if(solverName == &quot;Default&quot;){</span>
-<span class="nc" id="L85">            asolver = (ICDCL&lt;?&gt;) factory.defaultSolver();</span>
+<span class="nc" id="L87">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
+        ISolver asolver;
+
+        // Initialize default solver if no specific solver is passed as argument
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if(solverName == &quot;Default&quot;){</span>
+<span class="nc" id="L92">            asolver = factory.defaultSolver();</span>
         } else {
-<span class="nc" id="L87">            asolver = (ICDCL&lt;?&gt;) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
+<span class="nc" id="L94">            asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
         }
-
-<span class="nc bnc" id="L90" title="All 2 branches missed.">        if(proba != 0.0){</span>
-<span class="nc" id="L91">            IOrder order = asolver.getOrder();</span>
-<span class="nc" id="L92">            order = new RandomWalkDecorator((VarOrderHeap) order, proba);</span>
-<span class="nc" id="L93">            asolver.setOrder(order);</span>
-        }
-
-<span class="nc" id="L96">        return asolver;</span>
+        
+<span class="nc" id="L97">        return asolver;</span>
     }
 
+    // Method to parse clause / assumptions from trace 
+    // and remove any redundant information from the trace line such as index
     private static int[] getClause(String line){
-<span class="nc" id="L100">        String[] t = line.split(&quot; &quot;);</span>
-<span class="nc" id="L101">        int[] clause = new int[t.length-2];</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        for(int j=2; j &lt; t.length; j++){</span>
-<span class="nc" id="L103">            clause[j-2] = Integer.parseInt(t[j]);</span>
+<span class="nc" id="L103">        String[] t = line.split(&quot; &quot;);</span>
+<span class="nc" id="L104">        int[] clause = new int[t.length-2];</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">        for(int j=2; j &lt; t.length; j++){</span>
+<span class="nc" id="L106">            clause[j-2] = Integer.parseInt(t[j]);</span>
         }
-<span class="nc" id="L105">        return clause;</span>
+<span class="nc" id="L108">        return clause;</span>
     }
 
 }

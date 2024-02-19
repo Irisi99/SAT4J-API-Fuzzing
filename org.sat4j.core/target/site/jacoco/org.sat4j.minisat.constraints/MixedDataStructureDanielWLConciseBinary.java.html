@@ -46,7 +46,7 @@ import org.sat4j.specs.IVecInt;
  * @author leberre
  * @since 2.1
  */
-<span class="nc bnc" id="L49" title="All 2 branches missed.">public class MixedDataStructureDanielWLConciseBinary</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">public class MixedDataStructureDanielWLConciseBinary</span>
         extends AbstractDataStructureFactory {
 
     private BinaryClauses[] binaryClauses;
@@ -81,18 +81,18 @@ import org.sat4j.specs.IVecInt;
      * .VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L84">        IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);</span>
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (v == null) {</span>
+<span class="fc" id="L84">        IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (v == null) {</span>
             // tautological clause
-<span class="nc" id="L87">            return null;</span>
+<span class="fc" id="L87">            return null;</span>
         }
-<span class="nc bnc" id="L89" title="All 2 branches missed.">        if (v.size() == 1) {</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (v.size() == 1) {</span>
 <span class="nc" id="L90">            return new UnitClause(v.last());</span>
         }
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (v.size() == 2) {</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (v.size() == 2) {</span>
 <span class="nc" id="L93">            return createConciseBinaryClause(v);</span>
         }
-<span class="nc" id="L95">        return OriginalWLClause.brandNewClause(getVocabulary(), v);</span>
+<span class="fc" id="L95">        return OriginalWLClause.brandNewClause(getVocabulary(), v);</span>
     }
 
     private Constr createConciseBinaryClause(IVecInt literals) {
@@ -134,7 +134,7 @@ import org.sat4j.specs.IVecInt;
 
     @Override
     protected ILits createLits() {
-<span class="nc" id="L137">        return new Lits();</span>
+<span class="fc" id="L137">        return new Lits();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

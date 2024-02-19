@@ -7,10 +7,6 @@ import java.util.List;
 
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
-import org.sat4j.minisat.core.ICDCL;
-import org.sat4j.minisat.core.IOrder;
-import org.sat4j.minisat.orders.RandomWalkDecorator;
-import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ISolver;
 
 public class TraceRunner {
@@ -57,11 +53,6 @@ public class TraceRunner {
                     solverName = t[t.length-1];
                     solver = initSolver(solverName, proba);
 
-                // If API call is setting the Random Walk probaility then parse the % from the trace and pass it to the solver
-                }else if(apiCalls.get(i).contains("Random Walk")){
-                    proba = Double.parseDouble(apiCalls.get(i).split(" ")[3]);
-                    solver = initSolver(solverName, proba);
-
                 // If API call is setting DBS simplification to true then set it true for the local solver
                 }else if(apiCalls.get(i).contains("DBS simplification")){
                     solver.setDBSimplificationAllowed(true);
@@ -94,22 +85,15 @@ public class TraceRunner {
     private static ISolver initSolver(String solverName, double proba){
 
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
-        ICDCL<?> asolver;
+        ISolver asolver;
 
         // Initialize default solver if no specific solver is passed as argument
         if(solverName == "Default"){
-            asolver = (ICDCL<?>) factory.defaultSolver();
+            asolver = factory.defaultSolver();
         } else {
-            asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+            asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
         }
-
-        // If Random Walk probability is passed as argument then pass it to the solver
-        if(proba != 0.0){
-            IOrder order = asolver.getOrder();
-            order = new RandomWalkDecorator((VarOrderHeap) order, proba);
-            asolver.setOrder(order);
-        }
-
+        
         return asolver;
     }
 

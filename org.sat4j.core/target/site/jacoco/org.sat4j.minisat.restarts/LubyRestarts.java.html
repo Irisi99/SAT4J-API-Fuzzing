@@ -51,9 +51,9 @@ public final class LubyRestarts implements RestartStrategy {
     // computing luby values the way presented by Donald Knuth in his invited
     // talk at the SAT 2012 conference
     // u1
-<span class="nc" id="L54">    private int un = 1;</span>
+<span class="fc" id="L54">    private int un = 1;</span>
     // v1
-<span class="nc" id="L56">    private int vn = 1;</span>
+<span class="fc" id="L56">    private int vn = 1;</span>
 
     /**
      * returns the current value of the luby sequence.
@@ -61,7 +61,7 @@ public final class LubyRestarts implements RestartStrategy {
      * @return the current value of the luby sequence.
      */
     public int luby() {
-<span class="nc" id="L64">        return this.vn;</span>
+<span class="fc" id="L64">        return this.vn;</span>
     }
 
     /**
@@ -73,13 +73,13 @@ public final class LubyRestarts implements RestartStrategy {
      * @see #luby()
      */
     public int nextLuby() {
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if ((this.un &amp; -this.un) == this.vn) {</span>
-<span class="nc" id="L77">            this.un = this.un + 1;</span>
-<span class="nc" id="L78">            this.vn = 1;</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if ((this.un &amp; -this.un) == this.vn) {</span>
+<span class="fc" id="L77">            this.un = this.un + 1;</span>
+<span class="fc" id="L78">            this.vn = 1;</span>
         } else {
-<span class="nc" id="L80">            this.vn = this.vn &lt;&lt; 1;</span>
+<span class="fc" id="L80">            this.vn = this.vn &lt;&lt; 1;</span>
         }
-<span class="nc" id="L82">        return this.vn;</span>
+<span class="fc" id="L82">        return this.vn;</span>
     }
 
     private int factor;
@@ -96,13 +96,13 @@ public final class LubyRestarts implements RestartStrategy {
      *            the factor used for the Luby series.
      * @since 2.1
      */
-<span class="nc" id="L99">    public LubyRestarts(int factor) {</span>
-<span class="nc" id="L100">        setFactor(factor);</span>
-<span class="nc" id="L101">    }</span>
+<span class="fc" id="L99">    public LubyRestarts(int factor) {</span>
+<span class="fc" id="L100">        setFactor(factor);</span>
+<span class="fc" id="L101">    }</span>
 
     public void setFactor(int factor) {
-<span class="nc" id="L104">        this.factor = factor;</span>
-<span class="nc" id="L105">    }</span>
+<span class="fc" id="L104">        this.factor = factor;</span>
+<span class="fc" id="L105">    }</span>
 
     public int getFactor() {
 <span class="nc" id="L108">        return this.factor;</span>
@@ -110,16 +110,16 @@ public final class LubyRestarts implements RestartStrategy {
 
     @Override
     public void init(SearchParams params, SolverStats stats) {
-<span class="nc" id="L113">        this.un = 1;</span>
-<span class="nc" id="L114">        this.vn = 1;</span>
-<span class="nc" id="L115">        this.bound = luby() * this.factor;</span>
-<span class="nc" id="L116">    }</span>
+<span class="fc" id="L113">        this.un = 1;</span>
+<span class="fc" id="L114">        this.vn = 1;</span>
+<span class="fc" id="L115">        this.bound = luby() * this.factor;</span>
+<span class="fc" id="L116">    }</span>
 
     @Override
     public void onRestart() {
-<span class="nc" id="L120">        this.bound = nextLuby() * this.factor;</span>
-<span class="nc" id="L121">        this.conflictcount = 0;</span>
-<span class="nc" id="L122">    }</span>
+<span class="fc" id="L120">        this.bound = nextLuby() * this.factor;</span>
+<span class="fc" id="L121">        this.conflictcount = 0;</span>
+<span class="fc" id="L122">    }</span>
 
     @Override
     public String toString() {
@@ -128,20 +128,20 @@ public final class LubyRestarts implements RestartStrategy {
     }
 
     public boolean shouldRestart() {
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        return this.conflictcount &gt;= this.bound;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        return this.conflictcount &gt;= this.bound;</span>
     }
 
     @Override
     public void onBackjumpToRootLevel() {
-<span class="nc" id="L136">        this.conflictcount = 0;</span>
-<span class="nc" id="L137">    }</span>
+<span class="fc" id="L136">        this.conflictcount = 0;</span>
+<span class="fc" id="L137">    }</span>
 
     public void reset() {
 <span class="nc" id="L140">        this.conflictcount = 0;</span>
 <span class="nc" id="L141">    }</span>
 
     public void newConflict() {
-<span class="nc" id="L144">        this.conflictcount++;</span>
-<span class="nc" id="L145">    }</span>
+<span class="fc" id="L144">        this.conflictcount++;</span>
+<span class="fc" id="L145">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

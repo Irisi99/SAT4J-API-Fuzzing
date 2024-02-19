@@ -3,14 +3,11 @@ package org.sat4j.fuzzer;
 import java.util.Random;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
-import org.sat4j.minisat.core.ICDCL;
-import org.sat4j.minisat.core.IOrder;
-import org.sat4j.minisat.orders.RandomWalkDecorator;
-import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 
@@ -18,9 +15,9 @@ public class TraceFactory {
 
     static Random masterRandomGenerator;
     static Random slaveRandomGenerator;
-    // For every call of APIGenerator it creates MAX_ITERATIONS traces 
+    // For every call of APIFUzzer it creates MAX_ITERATIONS traces 
     // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 500;
+    static int MAX_ITERATIONS = 100;
     static int MAXVAR;
     static int CLAUSE_LENGTH = 3;    
     static boolean UNIFORM;    
@@ -35,7 +32,7 @@ public class TraceFactory {
     // sanity check - verbose - print all variables you are choosing
     public static void run(long seed, boolean isTraceSeed, boolean verbose) {
 
-        initializeOptions();
+        initializeOptions(verbose);
 
         // If we want to generate a specific Trace we do not need the master random generator
         if(!isTraceSeed){
@@ -92,6 +89,8 @@ public class TraceFactory {
             try {
                 // Initialize the Solver with randomized Options
                 solver = initializeSolver(trace, verbose);
+                // Set 10 min time-out per trace
+                solver.setTimeout(600);
             } catch (Exception e) {
                 if(!isTraceSeed){
                     trace.toFile();
@@ -161,7 +160,7 @@ public class TraceFactory {
                         for (int i=0 ; i < size; i++) {
                             assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                             // Need to check if that literal is assumed before, if we are assuming 0
-                            // Or if that literal is not used in a clause anywhere in the trace
+                            // Or if that literal is not used in a clause anywhere in the trace 
                             while(isAlreadyPresent(assumption, i) || assumption[i] == 0 || !usedLiterals.contains(assumption[i])){
                                 assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                             }
@@ -225,11 +224,16 @@ public class TraceFactory {
             }
 
             // Get statistics from the Solver for the trace and updated the local ones
-            stats = solver.getStat();
-            LearnedClauses += (long) stats.get("learnedclauses");            
-            NrConflicts += (long) stats.get("conflicts");
-            SolverRunTime += endTime - startTime;
-
+            try {
+                stats = solver.getStat();
+                LearnedClauses += (long) stats.get("learnedclauses");            
+                NrConflicts += (long) stats.get("conflicts");
+                SolverRunTime += endTime - startTime;
+            } catch (Exception e) {
+                if(verbose){
+                    System.out.println("Error when retrieveing Statistics");
+                }
+            }
             if(isTraceSeed){
                 break;
             }
@@ -311,17 +315,20 @@ public class TraceFactory {
 
     }
 
-    public static void initializeOptions(){
+    public static void initializeOptions(boolean verbose){
 
         // All the Pre-Defined Solver Configurations for Minisat
-        SOLVERS.add("DFS");
-        SOLVERS.add("LEARNING");
-        SOLVERS.add("ORDERS");
-        SOLVERS.add("PHASE");
-        SOLVERS.add("RESTARTS");
-        SOLVERS.add("SIMP");        
-        SOLVERS.add("PARAMS");
-        SOLVERS.add("CLEANING");
+        // RandomWalk is one of the solvers so there is no need to fuzz the option anymore
+        ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
+        SOLVERS.addAll(Arrays.asList(factory.solverNames()));
+
+        // Not real solvers
+        SOLVERS.remove("Statistics");
+        SOLVERS.remove("DimacsOutput");
+
+        if(verbose){
+            System.out.println("Available Solvers are : " + SOLVERS);
+        }
     }
 
     public static ISolver initializeSolver(Trace trace, boolean verbose) throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
@@ -331,7 +338,7 @@ public class TraceFactory {
 
         // Initialize deafult solver for Minisat
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
-        ICDCL<?> asolver = (ICDCL<?>) factory.defaultSolver();
+        ISolver asolver = factory.defaultSolver();
 
         // Use no Options
         if(slaveRandomGenerator.nextBoolean()){
@@ -342,15 +349,7 @@ public class TraceFactory {
                 String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
                 trace.addToTrace(index + " using solver " + solverName);
                 index++;
-                asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
-
-                // Set Random Walk probability in %
-                double proba = slaveRandomGenerator.nextDouble();
-                trace.addToTrace(index + " Random Walk " + proba);
-                index++;
-                IOrder order = asolver.getOrder();
-                order = new RandomWalkDecorator((VarOrderHeap) order, proba);
-                asolver.setOrder(order);
+                asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
                 
                 // Use DBS (Dependency Based) Simplification
                 trace.addToTrace(index + " DBS simplification allowed");
@@ -369,21 +368,11 @@ public class TraceFactory {
                     String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
                     trace.addToTrace(index + " using solver " + solverName);
                     index++;
-                    asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+                    asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
                     
                     if(verbose){
                         System.out.println("SOLVER: "+solverName);
                     }
-                }
-
-                // Flip coin to set Random Walk probability or use default from solver
-                if(slaveRandomGenerator.nextBoolean()){
-                    double proba = slaveRandomGenerator.nextDouble();
-                    trace.addToTrace(index + " Random Walk " + proba);
-                    index++;
-                    IOrder order = asolver.getOrder();
-                    order = new RandomWalkDecorator((VarOrderHeap) order, proba);
-                    asolver.setOrder(order);
                 }
 
                 // Flip coin to use DBS simplification or not

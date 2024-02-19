@@ -42,7 +42,7 @@ import org.sat4j.minisat.core.SolverStats;
  * 
  */
 @Feature(value = &quot;restarts&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L45">public final class ArminRestarts implements RestartStrategy {</span>
+<span class="fc" id="L45">public final class ArminRestarts implements RestartStrategy {</span>
 
     /**
      * 
@@ -54,27 +54,27 @@ import org.sat4j.minisat.core.SolverStats;
     private long conflicts;
     private SearchParams params;
 
-<span class="nc" id="L57">    private long conflictcount = 0;</span>
+<span class="fc" id="L57">    private long conflictcount = 0;</span>
 
     @Override
     public void init(SearchParams theParams, SolverStats stats) {
-<span class="nc" id="L61">        this.params = theParams;</span>
-<span class="nc" id="L62">        this.inner = theParams.getInitConflictBound();</span>
-<span class="nc" id="L63">        this.outer = theParams.getInitConflictBound();</span>
-<span class="nc" id="L64">        this.conflicts = Math.round(this.inner);</span>
-<span class="nc" id="L65">    }</span>
+<span class="fc" id="L61">        this.params = theParams;</span>
+<span class="fc" id="L62">        this.inner = theParams.getInitConflictBound();</span>
+<span class="fc" id="L63">        this.outer = theParams.getInitConflictBound();</span>
+<span class="fc" id="L64">        this.conflicts = Math.round(this.inner);</span>
+<span class="fc" id="L65">    }</span>
 
     @Override
     public void onRestart() {
-<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.inner &gt;= this.outer) {</span>
-<span class="nc" id="L70">            this.outer *= this.params.getConflictBoundIncFactor();</span>
-<span class="nc" id="L71">            this.inner = this.params.getInitConflictBound();</span>
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (this.inner &gt;= this.outer) {</span>
+<span class="fc" id="L70">            this.outer *= this.params.getConflictBoundIncFactor();</span>
+<span class="fc" id="L71">            this.inner = this.params.getInitConflictBound();</span>
         } else {
-<span class="nc" id="L73">            this.inner *= this.params.getConflictBoundIncFactor();</span>
+<span class="fc" id="L73">            this.inner *= this.params.getConflictBoundIncFactor();</span>
         }
-<span class="nc" id="L75">        this.conflicts = Math.round(this.inner);</span>
-<span class="nc" id="L76">        this.conflictcount = 0;</span>
-<span class="nc" id="L77">    }</span>
+<span class="fc" id="L75">        this.conflicts = Math.round(this.inner);</span>
+<span class="fc" id="L76">        this.conflictcount = 0;</span>
+<span class="fc" id="L77">    }</span>
 
     @Override
     public String toString() {
@@ -82,20 +82,20 @@ import org.sat4j.minisat.core.SolverStats;
     }
 
     public boolean shouldRestart() {
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        return this.conflictcount &gt;= this.conflicts;</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        return this.conflictcount &gt;= this.conflicts;</span>
     }
 
     @Override
     public void onBackjumpToRootLevel() {
-<span class="nc" id="L90">        this.conflictcount = 0;</span>
-<span class="nc" id="L91">    }</span>
+<span class="fc" id="L90">        this.conflictcount = 0;</span>
+<span class="fc" id="L91">    }</span>
 
     public void reset() {
 <span class="nc" id="L94">        this.conflictcount = 0;</span>
 <span class="nc" id="L95">    }</span>
 
     public void newConflict() {
-<span class="nc" id="L98">        this.conflictcount++;</span>
-<span class="nc" id="L99">    }</span>
+<span class="fc" id="L98">        this.conflictcount++;</span>
+<span class="fc" id="L99">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

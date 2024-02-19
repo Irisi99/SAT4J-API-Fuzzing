@@ -56,15 +56,15 @@ import org.sat4j.minisat.core.SolverStats;
 
     @Override
     public void init(SearchParams theParams, SolverStats stats) {
-<span class="nc" id="L59">        this.params = theParams;</span>
-<span class="nc" id="L60">        this.nofConflicts = theParams.getInitConflictBound();</span>
-<span class="nc" id="L61">        this.conflictcount = 0;</span>
-<span class="nc" id="L62">    }</span>
+<span class="fc" id="L59">        this.params = theParams;</span>
+<span class="fc" id="L60">        this.nofConflicts = theParams.getInitConflictBound();</span>
+<span class="fc" id="L61">        this.conflictcount = 0;</span>
+<span class="fc" id="L62">    }</span>
 
     @Override
     public void onRestart() {
-<span class="nc" id="L66">        this.nofConflicts *= this.params.getConflictBoundIncFactor();</span>
-<span class="nc" id="L67">    }</span>
+<span class="fc" id="L66">        this.nofConflicts *= this.params.getConflictBoundIncFactor();</span>
+<span class="fc" id="L67">    }</span>
 
     @Override
     public String toString() {
@@ -72,20 +72,20 @@ import org.sat4j.minisat.core.SolverStats;
     }
 
     public boolean shouldRestart() {
-<span class="nc bnc" id="L75" title="All 2 branches missed.">        return this.conflictcount &gt;= this.nofConflicts;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        return this.conflictcount &gt;= this.nofConflicts;</span>
     }
 
     @Override
     public void onBackjumpToRootLevel() {
-<span class="nc" id="L80">        this.conflictcount = 0;</span>
-<span class="nc" id="L81">    }</span>
+<span class="fc" id="L80">        this.conflictcount = 0;</span>
+<span class="fc" id="L81">    }</span>
 
     public void reset() {
 <span class="nc" id="L84">        this.conflictcount = 0;</span>
 <span class="nc" id="L85">    }</span>
 
     public void newConflict() {
-<span class="nc" id="L88">        this.conflictcount++;</span>
-<span class="nc" id="L89">    }</span>
+<span class="fc" id="L88">        this.conflictcount++;</span>
+<span class="fc" id="L89">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

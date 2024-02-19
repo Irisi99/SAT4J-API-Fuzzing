@@ -55,9 +55,9 @@ public final class PercentLengthLearning&lt;D extends DataStructureFactory&gt;
 <span class="nc" id="L55">        this(10);</span>
 <span class="nc" id="L56">    }</span>
 
-<span class="nc" id="L58">    public PercentLengthLearning(int percent) {</span>
-<span class="nc" id="L59">        this.maxpercent = percent;</span>
-<span class="nc" id="L60">    }</span>
+<span class="fc" id="L58">    public PercentLengthLearning(int percent) {</span>
+<span class="fc" id="L59">        this.maxpercent = percent;</span>
+<span class="fc" id="L60">    }</span>
 
     public void setLimit(int percent) {
 <span class="nc" id="L63">        this.maxpercent = percent;</span>
@@ -69,9 +69,9 @@ public final class PercentLengthLearning&lt;D extends DataStructureFactory&gt;
 
     @Override
     public void init() {
-<span class="nc" id="L72">        super.init();</span>
-<span class="nc" id="L73">        setBound(this.lits.realnVars() * this.maxpercent / 100);</span>
-<span class="nc" id="L74">    }</span>
+<span class="fc" id="L72">        super.init();</span>
+<span class="fc" id="L73">        setBound(this.lits.realnVars() * this.maxpercent / 100);</span>
+<span class="fc" id="L74">    }</span>
 
     @Override
     public String toString() {
@@ -80,12 +80,12 @@ public final class PercentLengthLearning&lt;D extends DataStructureFactory&gt;
     }
 
     protected void setBound(int newbound) {
-<span class="nc" id="L83">        this.bound = newbound;</span>
-<span class="nc" id="L84">    }</span>
+<span class="fc" id="L83">        this.bound = newbound;</span>
+<span class="fc" id="L84">    }</span>
 
     @Override
     protected boolean learningCondition(Constr constr) {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        return constr.size() &lt;= this.bound;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        return constr.size() &lt;= this.bound;</span>
     }
 
 }

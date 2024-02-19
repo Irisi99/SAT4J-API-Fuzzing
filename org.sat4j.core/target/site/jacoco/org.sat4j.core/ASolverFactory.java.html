@@ -61,18 +61,18 @@ import org.sat4j.specs.ISolver;
      * @see #createSolverByName(String)
      */
     public String[] solverNames() {
-<span class="nc" id="L64">        List&lt;String&gt; l = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L65">        Method[] solvers = this.getClass().getDeclaredMethods();</span>
-<span class="nc bnc" id="L66" title="All 2 branches missed.">        for (Method solver : solvers) {</span>
-<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (solver.getParameterTypes().length == 0</span>
-<span class="nc bnc" id="L68" title="All 2 branches missed.">                    &amp;&amp; solver.getName().startsWith(&quot;new&quot;)) { //$NON-NLS-1$</span>
-<span class="nc" id="L69">                l.add(solver.getName().substring(3));</span>
+<span class="fc" id="L64">        List&lt;String&gt; l = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L65">        Method[] solvers = this.getClass().getDeclaredMethods();</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        for (Method solver : solvers) {</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">            if (solver.getParameterTypes().length == 0</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">                    &amp;&amp; solver.getName().startsWith(&quot;new&quot;)) { //$NON-NLS-1$</span>
+<span class="fc" id="L69">                l.add(solver.getName().substring(3));</span>
             }
         }
-<span class="nc" id="L72">        Collections.sort(l);</span>
-<span class="nc" id="L73">        var names = new String[l.size()];</span>
-<span class="nc" id="L74">        l.toArray(names);</span>
-<span class="nc" id="L75">        return names;</span>
+<span class="fc" id="L72">        Collections.sort(l);</span>
+<span class="fc" id="L73">        var names = new String[l.size()];</span>
+<span class="fc" id="L74">        l.toArray(names);</span>
+<span class="fc" id="L75">        return names;</span>
     }
 
     /**
@@ -88,12 +88,12 @@ import org.sat4j.specs.ISolver;
     public Optional&lt;T&gt; createSolverByName(String solvername) {
         try {
 <span class="fc" id="L90">            Class&lt;?&gt;[] paramtypes = {};</span>
-<span class="nc" id="L91">            var m = this.getClass().getMethod(&quot;new&quot; + solvername, //$NON-NLS-1$</span>
+<span class="fc" id="L91">            var m = this.getClass().getMethod(&quot;new&quot; + solvername, //$NON-NLS-1$</span>
                     paramtypes);
-<span class="nc" id="L93">            return Optional.of((T) m.invoke(null, (Object[]) null));</span>
-<span class="fc" id="L94">        } catch (SecurityException | IllegalArgumentException</span>
+<span class="fc" id="L93">            return Optional.of((T) m.invoke(null, (Object[]) null));</span>
+<span class="nc" id="L94">        } catch (SecurityException | IllegalArgumentException</span>
                 | ReflectiveOperationException e) {
-<span class="fc" id="L96">            return Optional.empty();</span>
+<span class="nc" id="L96">            return Optional.empty();</span>
         }
     }
 
