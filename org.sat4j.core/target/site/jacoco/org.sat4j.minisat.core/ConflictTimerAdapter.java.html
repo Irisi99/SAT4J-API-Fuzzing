@@ -62,20 +62,20 @@ public abstract class ConflictTimerAdapter implements ConflictTimer {
 
     public void newConflict() {
 <span class="fc" id="L64">        this.counter++;</span>
-<span class="pc bpc" id="L65" title="1 of 2 branches missed.">        if (this.counter == this.bound) {</span>
-<span class="nc" id="L66">            run();</span>
-<span class="nc" id="L67">            this.counter = 0;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        if (this.counter == this.bound) {</span>
+<span class="fc" id="L66">            run();</span>
+<span class="fc" id="L67">            this.counter = 0;</span>
         }
 <span class="fc" id="L69">    }</span>
 
     public abstract void run();
 
     public Solver&lt;? extends DataStructureFactory&gt; getSolver() {
-<span class="nc" id="L74">        return this.solver;</span>
+<span class="fc" id="L74">        return this.solver;</span>
     }
 
     public int bound() {
-<span class="nc" id="L78">        return this.bound;</span>
+<span class="fc" id="L78">        return this.bound;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

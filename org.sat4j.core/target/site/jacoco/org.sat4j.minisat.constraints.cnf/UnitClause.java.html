@@ -75,10 +75,10 @@ public class UnitClause implements Constr {
 <span class="nc" id="L75">    }</span>
 
     public void calcReason(int p, IVecInt outReason) {
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (p == ILits.UNDEFINED) {</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (p == ILits.UNDEFINED) {</span>
 <span class="nc" id="L79">            outReason.push(LiteralsUtils.neg(this.literal));</span>
         }
-<span class="fc" id="L81">    }</span>
+<span class="nc" id="L81">    }</span>
 
     @Override
     public double getActivity() {
@@ -149,7 +149,7 @@ public class UnitClause implements Constr {
     }
 
     public boolean canBePropagatedMultipleTimes() {
-<span class="fc" id="L152">        return false;</span>
+<span class="nc" id="L152">        return false;</span>
     }
 
     public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {

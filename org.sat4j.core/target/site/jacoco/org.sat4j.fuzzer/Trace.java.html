@@ -37,21 +37,21 @@ public class Trace {
 <span class="nc" id="L37">    }</span>
 
     public void toFile() {
-<span class="fc" id="L40">        String path = &quot;./traces/&quot; + ID + &quot;.txt&quot;;</span>
+<span class="nc" id="L40">        String path = &quot;./traces/&quot; + ID + &quot;.txt&quot;;</span>
 
-<span class="fc" id="L42">        File traceFile = new File(path);</span>
+<span class="nc" id="L42">        File traceFile = new File(path);</span>
         try {
 <span class="nc" id="L44">            traceFile.createNewFile();</span>
 <span class="nc" id="L45">            FileWriter myWriter = new FileWriter(path);</span>
 <span class="nc bnc" id="L46" title="All 2 branches missed.">            for (int i = 0; i &lt; traceCalls.size(); i++)</span>
 <span class="nc" id="L47">                myWriter.write(traceCalls.get(i) + &quot;\n&quot;);</span>
 <span class="nc" id="L48">            myWriter.close();</span>
-<span class="fc" id="L49">        } catch (IOException e) {</span>
-<span class="fc" id="L50">            e.printStackTrace(System.out);</span>
+<span class="nc" id="L49">        } catch (IOException e) {</span>
+<span class="nc" id="L50">            e.printStackTrace(System.out);</span>
 <span class="nc" id="L51">        }</span>
 
-<span class="fc" id="L53">        System.out.print(&quot;Created trace file &quot; + ID + &quot;.txt&quot;);</span>
-<span class="fc" id="L54">    }</span>
+<span class="nc" id="L53">        System.out.print(&quot;Created trace file &quot; + ID + &quot;.txt&quot;);</span>
+<span class="nc" id="L54">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

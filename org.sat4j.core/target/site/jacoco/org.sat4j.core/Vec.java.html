@@ -235,8 +235,8 @@ public final class Vec&lt;T&gt; implements IVec&lt;T&gt; {
     }
 
     public void set(int index, T elem) {
-<span class="nc" id="L238">        this.myarray[index] = elem;</span>
-<span class="nc" id="L239">    }</span>
+<span class="fc" id="L238">        this.myarray[index] = elem;</span>
+<span class="fc" id="L239">    }</span>
 
     /**
      * Remove an element that belongs to the Vector.
@@ -368,50 +368,50 @@ public final class Vec&lt;T&gt; implements IVec&lt;T&gt; {
         int i, j, besti;
         T tmp;
 
-<span class="nc bnc" id="L371" title="All 2 branches missed.">        for (i = from; i &lt; to - 1; i++) {</span>
-<span class="nc" id="L372">            besti = i;</span>
-<span class="nc bnc" id="L373" title="All 2 branches missed.">            for (j = i + 1; j &lt; to; j++) {</span>
-<span class="nc bnc" id="L374" title="All 2 branches missed.">                if (cmp.compare(this.myarray[j], this.myarray[besti]) &lt; 0) {</span>
-<span class="nc" id="L375">                    besti = j;</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">        for (i = from; i &lt; to - 1; i++) {</span>
+<span class="fc" id="L372">            besti = i;</span>
+<span class="fc bfc" id="L373" title="All 2 branches covered.">            for (j = i + 1; j &lt; to; j++) {</span>
+<span class="fc bfc" id="L374" title="All 2 branches covered.">                if (cmp.compare(this.myarray[j], this.myarray[besti]) &lt; 0) {</span>
+<span class="fc" id="L375">                    besti = j;</span>
                 }
             }
-<span class="nc" id="L378">            tmp = this.myarray[i];</span>
-<span class="nc" id="L379">            this.myarray[i] = this.myarray[besti];</span>
-<span class="nc" id="L380">            this.myarray[besti] = tmp;</span>
+<span class="fc" id="L378">            tmp = this.myarray[i];</span>
+<span class="fc" id="L379">            this.myarray[i] = this.myarray[besti];</span>
+<span class="fc" id="L380">            this.myarray[besti] = tmp;</span>
         }
-<span class="nc" id="L382">    }</span>
+<span class="fc" id="L382">    }</span>
 
     void sort(int from, int to, Comparator&lt;T&gt; cmp) {
-<span class="nc" id="L385">        int width = to - from;</span>
-<span class="nc bnc" id="L386" title="All 2 branches missed.">        if (width &lt;= 15) {</span>
-<span class="nc" id="L387">            selectionSort(from, to, cmp);</span>
+<span class="fc" id="L385">        int width = to - from;</span>
+<span class="fc bfc" id="L386" title="All 2 branches covered.">        if (width &lt;= 15) {</span>
+<span class="fc" id="L387">            selectionSort(from, to, cmp);</span>
         } else {
-<span class="nc" id="L389">            var pivot = this.myarray[width / 2 + from];</span>
+<span class="fc" id="L389">            var pivot = this.myarray[width / 2 + from];</span>
             T tmp;
-<span class="nc" id="L391">            int i = from - 1;</span>
-<span class="nc" id="L392">            int j = to;</span>
+<span class="fc" id="L391">            int i = from - 1;</span>
+<span class="fc" id="L392">            int j = to;</span>
 
             for (;;) {
                 do {
-<span class="nc" id="L396">                    i++;</span>
-<span class="nc bnc" id="L397" title="All 2 branches missed.">                } while (cmp.compare(this.myarray[i], pivot) &lt; 0);</span>
+<span class="fc" id="L396">                    i++;</span>
+<span class="fc bfc" id="L397" title="All 2 branches covered.">                } while (cmp.compare(this.myarray[i], pivot) &lt; 0);</span>
                 do {
-<span class="nc" id="L399">                    j--;</span>
-<span class="nc bnc" id="L400" title="All 2 branches missed.">                } while (cmp.compare(pivot, this.myarray[j]) &lt; 0);</span>
+<span class="fc" id="L399">                    j--;</span>
+<span class="fc bfc" id="L400" title="All 2 branches covered.">                } while (cmp.compare(pivot, this.myarray[j]) &lt; 0);</span>
 
-<span class="nc bnc" id="L402" title="All 2 branches missed.">                if (i &gt;= j) {</span>
-<span class="nc" id="L403">                    break;</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">                if (i &gt;= j) {</span>
+<span class="fc" id="L403">                    break;</span>
                 }
 
-<span class="nc" id="L406">                tmp = this.myarray[i];</span>
-<span class="nc" id="L407">                this.myarray[i] = this.myarray[j];</span>
-<span class="nc" id="L408">                this.myarray[j] = tmp;</span>
+<span class="fc" id="L406">                tmp = this.myarray[i];</span>
+<span class="fc" id="L407">                this.myarray[i] = this.myarray[j];</span>
+<span class="fc" id="L408">                this.myarray[j] = tmp;</span>
             }
 
-<span class="nc" id="L411">            sort(from, i, cmp);</span>
-<span class="nc" id="L412">            sort(i, to, cmp);</span>
+<span class="fc" id="L411">            sort(from, i, cmp);</span>
+<span class="fc" id="L412">            sort(i, to, cmp);</span>
         }
-<span class="nc" id="L414">    }</span>
+<span class="fc" id="L414">    }</span>
 
     /**
      * Sort the vector according to a given order on the elements.
@@ -420,8 +420,8 @@ public final class Vec&lt;T&gt; implements IVec&lt;T&gt; {
      *            a way to order the elements of the vector
      */
     public void sort(Comparator&lt;T&gt; comparator) {
-<span class="nc" id="L423">        sort(0, this.nbelem, comparator);</span>
-<span class="nc" id="L424">    }</span>
+<span class="fc" id="L423">        sort(0, this.nbelem, comparator);</span>
+<span class="fc" id="L424">    }</span>
 
     public void sortUnique(Comparator&lt;T&gt; cmp) {
         int i, j;

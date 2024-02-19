@@ -1,8 +1,8 @@
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\orders\RSATPhaseSelectionStrategy.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\specs\RandomAccessModel.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\encoding\Binomial.java
-C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\DeltaDebugger.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\DotSearchTracing.java
+C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\fuzzer\APIFuzzer.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\core\Learner.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\specs\Constr.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\RemiUtils.java
@@ -44,13 +44,13 @@ C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\specs\SearchListener.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\LBDTracing.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\SolverFactory.java
+C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\fuzzer\BasicSolutionEnumerator.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\reader\JSONReader.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\specs\ISolverService.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\core\ActivityLCDS.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\reader\AIGReader.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\reader\Reader.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\OutputPrefix.java
-C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\BasicSolutionEnumerator.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\cnf\Clauses.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\FileBasedVisualizationTool.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\specs\Lbool.java
@@ -115,7 +115,6 @@ C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\ClausalCardinalitiesDecorator.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\opt\MaxSatDecorator.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\counting\package-info.java
-C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\TraceRunner.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\cnf\OriginalWLClause.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\LearnedClausesSizeTracing.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\core\Vec.java
@@ -142,6 +141,7 @@ C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\card\MaxWatchCard.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\orders\PureOrder.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\core\ISimplifier.java
+C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\fuzzer\DeltaDebugger.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\learning\MiniSATLearning.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\AllMUSes.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\MixedDataStructureDanielHT.java
@@ -180,6 +180,7 @@ C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\core\SearchParams.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\FullClauseSelectorSolver.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\orders\NaturalStaticOrder.java
+C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\fuzzer\TraceRunner.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\xplain\HighLevelXplain.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\SpeedTracing.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\CardinalityDataStructureYanMax.java
@@ -194,7 +195,6 @@ C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\DimacsStringSolver.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\tools\counting\ApproxMC2.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\cnf\CBClause.java
-C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\APIFuzzer.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\restarts\MiniSATRestarts.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\specs\IVecInt.java
 C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\src\main\java\org\sat4j\minisat\constraints\MixedDataStructureDanielWLConciseBinary.java

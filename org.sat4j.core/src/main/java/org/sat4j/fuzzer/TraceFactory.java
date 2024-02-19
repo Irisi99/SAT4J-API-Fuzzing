@@ -18,7 +18,9 @@ public class TraceFactory {
 
     static Random masterRandomGenerator;
     static Random slaveRandomGenerator;
-    static int MAX_ITERATIONS = 2000;
+    // For every call of APIGenerator it creates MAX_ITERATIONS traces 
+    // Should probably make it run for a ceratin time or until it finds X errors
+    static int MAX_ITERATIONS = 500;
     static int MAXVAR;
     static int CLAUSE_LENGTH = 3;    
     static boolean UNIFORM;    
@@ -27,13 +29,15 @@ public class TraceFactory {
     static double coeficient;
     static ISolver solver;
     static int index; 
+    static ArrayList<Integer> usedLiterals = new ArrayList<Integer>();
     static ArrayList<String> SOLVERS = new ArrayList<String>();
 
     // sanity check - verbose - print all variables you are choosing
-    public static String run(long seed, boolean isTraceSeed, boolean verbose) {
+    public static void run(long seed, boolean isTraceSeed, boolean verbose) {
 
         initializeOptions();
 
+        // If we want to generate a specific Trace we do not need the master random generator
         if(!isTraceSeed){
             //  The Random class uses a 48-bit seed
             masterRandomGenerator = new Random(seed);
@@ -41,9 +45,9 @@ public class TraceFactory {
 
         int iteration = 0;
         int increments = 0;
+        int totalIncrements = 5;
         Trace trace;
         Boolean isSAT;
-        String errorMessage = "";
         // STATISTICS
         Map<String, Number> stats;
         int SATinstances = 0;
@@ -63,60 +67,65 @@ public class TraceFactory {
             if(!isTraceSeed){
                 slaveSeed = masterRandomGenerator.nextLong();
             } else {
+                // Or get it from the arguments (of the comandline from TraceRunner)
                 slaveSeed = seed;
-                // verbose = true;
             }
 
             slaveRandomGenerator = new Random(slaveSeed); 
             
             MAXVAR = 0;
             NUMBER_OF_CLAUSES = 0;
-            // (3.8/4.5) * MAXVAR - about 50/50 SAT/UNSAT
-            coeficient = 2.5;
+            // Higher coeficient (more clauses) means more UNSAT instances
+            coeficient = 3;
 
-            // Uniform or not - 1 to max length
+            // Uniform Clause length or not -> ranges from 1 to max length
             UNIFORM = slaveRandomGenerator.nextBoolean();
             if(UNIFORM && verbose){
-                System.out.println("CLAUSE_LENGTH: " + CLAUSE_LENGTH);
+                System.out.println("c CLAUSE_LENGTH: " + CLAUSE_LENGTH);
             }
-            // Higher Length of clause means more SAT (shorter solve time, less conflicts and less learned clauses)
-            // Higher coeficient (more clauses) means more UNSAT
 
             // HEX ID for Trace
             trace = new Trace(Long.toHexString(slaveSeed));
-
+            usedLiterals.clear();
             index = 1;
 
             try {
+                // Initialize the Solver with randomized Options
                 solver = initializeSolver(trace, verbose);
             } catch (Exception e) {
                 if(!isTraceSeed){
                     trace.toFile();
-                    System.out.print(" --- Inisde Exception from initializeSolver()");
+                    System.out.print(" --- Inside Exception from initializeSolver()");
                     System.out.println(" --- " + e.getMessage());
                 }
-                errorMessage = e.getClass().getName();
                 if(verbose){
                     e.printStackTrace(System.out);
                 }
                 continue;
             }
 
-            // Incremental -> add clauses - solve - repeat (increase number of variables and clauses)
-            // flip assumptions - randomly generate assumptions not old solutions
+            // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
+
+            // Incremental -> add clauses - solve - repeat (increase number of variables and clauses)
             increments = 0;
 
-            while(increments < 3){ // not fixed number of increments
+            // Increments range from 1 to 5
+            totalIncrements = slaveRandomGenerator.nextInt(5) + 1;
+
+            while(increments < totalIncrements){
                 increments ++;
 
+                // Add 20 - 200 to the Number of Variables on each increment
                 int OLDMAXVAR = MAXVAR;
-                MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR; // add 20 - 200
+                MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR;
+
+                // Add Coeficient * newVariables new Clauses each increment
                 NUMBER_OF_CLAUSES = (int) (coeficient * (MAXVAR - OLDMAXVAR));
 
                 if(verbose){
-                    System.out.println("MAXVAR: " + MAXVAR);                    
-                    System.out.println("NUMBER_OF_CLAUSES: " + NUMBER_OF_CLAUSES);
+                    System.out.println("c MAXVAR: " + MAXVAR);                    
+                    System.out.println("c NUMBER_OF_CLAUSES: " + NUMBER_OF_CLAUSES);
                 }
 
                 try{
@@ -124,10 +133,9 @@ public class TraceFactory {
                 } catch (final Exception e) {
                     if(!isTraceSeed){
                         trace.toFile();
-                        System.out.print(" --- Inisde Exception from addClause()");
+                        System.out.print(" --- Inside Exception from addClause()");
                         System.out.println(" --- " + e.getMessage());
                     }
-                    errorMessage = e.getClass().getName();
                     if(verbose){
                         e.printStackTrace(System.out);
                     }
@@ -136,9 +144,13 @@ public class TraceFactory {
 
                 try {
                     startTime = System.currentTimeMillis();
+
+                    // If Assumptions flag is true then solve with assumptions
                     if(ASSUMPTIONS){
                         int[] assumption;
-                        // power law for assumptions as well
+
+                        // Power law for the number of literals we are assuming
+                        // Start with assuming 1/10 of variables and then increase by 1/10 with probability 1/6 
                         int size = MAXVAR/10;
                         while(slaveRandomGenerator.nextDouble() < 1.0/6.0){
                             size += MAXVAR/10;
@@ -147,46 +159,53 @@ public class TraceFactory {
                         assumption = new int[size];
 
                         for (int i=0 ; i < size; i++) {
-                            // Need to see if variable is used as well - is throwing errors 
                             assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
-                            while(isAlreadyPresent(assumption, i) || assumption[i] == 0){
+                            // Need to check if that literal is assumed before, if we are assuming 0
+                            // Or if that literal is not used in a clause anywhere in the trace
+                            while(isAlreadyPresent(assumption, i) || assumption[i] == 0 || !usedLiterals.contains(assumption[i])){
                                 assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                             }
                         }
                         if(verbose){
-                            System.out.println("ASSUMPTIONS: " + toString(assumption));
+                            System.out.println("c ASSUMPTIONS: " + toString(assumption));
                         }
 
                         trace.addToTrace(index + " assuming " + toString(assumption));
                         index++;
 
+                        // Call solver and pass the generated assumptions
                         isSAT = solver.isSatisfiable(new VecInt(assumption));
 
+                    // If Assumptions flag is false then simply try to solve the formula
                     } else {
 
                         trace.addToTrace(index + " solve");
                         index++;
 
+                        // Call the solver
                         isSAT = solver.isSatisfiable(); 
                     }
                     
                     endTime = System.currentTimeMillis();
 
+                    // If it is SAT then we continue with next iteration
                     if (isSAT) {
-                        if(increments == 3){
+                        // If this was the last iteration update statistics and continue to next trace
+                        if(increments == totalIncrements){
                             SATinstances++;
                             if(verbose){
-                                System.out.println("SATISFIABLE!");
-                                System.out.println("SOLUTION: "+toString(solver.model()));
+                                System.out.println("c SATISFIABLE!");
+                                System.out.println("c SOLUTION: "+toString(solver.model()));
                             }
                         }
+                    // If it is UNSAT no need to continue with the other increments, update statistics and continue to next trace
                     } else{
                         UNSATinstances ++;
                         if(verbose){
-                            System.out.println("UNSATISFIABLE!");
+                            System.out.println("c UNSATISFIABLE!");
                             if(ASSUMPTIONS){
-                                // ask for explanation why it is UNSAT - array of failed assumptions
-                                System.out.println("EXPLANATION: "+solver.unsatExplanation());
+                                // Ask for explanation why it is UNSAT - array of failed assumptions
+                                System.out.println("c EXPLANATION: " + solver.unsatExplanation());
                             }
                         }
                         break;
@@ -195,10 +214,9 @@ public class TraceFactory {
                 } catch (final Exception e) {
                     if(!isTraceSeed){
                         trace.toFile();
-                        System.out.print(" --- Inisde Exception from isSatisfiable()");
+                        System.out.print(" --- Inside Exception from isSatisfiable()");
                         System.out.println(" --- " + e.getMessage());
                     }
-                    errorMessage = e.getClass().getName();
                     if(verbose){
                         e.printStackTrace(System.out);
                     }
@@ -206,28 +224,24 @@ public class TraceFactory {
                 }
             }
 
+            // Get statistics from the Solver for the trace and updated the local ones
             stats = solver.getStat();
-            // System.out.println(stats.keySet());
             LearnedClauses += (long) stats.get("learnedclauses");            
             NrConflicts += (long) stats.get("conflicts");
             SolverRunTime += endTime - startTime;
 
-            if(isTraceSeed || verbose){
+            if(isTraceSeed){
                 break;
-            }
-
-            if(iteration % 1000 == 0){
-                // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
-                System.out.println("Statistics for "+ iteration +" iterations : ");
-                System.out.println("SAT Instances : " + SATinstances);
-                System.out.println("UNSAT Instances : " + UNSATinstances);        
-                System.out.println("Average Leanred Clauses : " + LearnedClauses/iteration);        
-                System.out.println("Average Nr Conflicts : " + NrConflicts/iteration);
-                System.out.println("Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
             }
         }
 
-        return errorMessage;
+        // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
+        System.out.println("c Statistics for "+ iteration +" iterations : ");
+        System.out.println("c SAT Instances : " + SATinstances);
+        System.out.println("c UNSAT Instances : " + UNSATinstances);        
+        System.out.println("c Average Leanred Clauses : " + LearnedClauses/iteration);        
+        System.out.println("c Average Nr Conflicts : " + NrConflicts/iteration);
+        System.out.println("c Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
     }
 
     private static void addClauses(Trace trace) throws ContradictionException{
@@ -236,10 +250,13 @@ public class TraceFactory {
 
             int[] clause;
 
-            // Uniform or not
+            // Start with default clause length 3
             CLAUSE_LENGTH = 3;
+
+            // Check if Clauses are uniform or if we need to generate a length
             if(!UNIFORM){
-                // flip a coin if to make it shorter / longer and keep repeating
+
+                // Flip a coin if we need to make it shorter / longer and keep repeating
                 Double percentage = slaveRandomGenerator.nextDouble();
                 
                 if(percentage < 0.01){
@@ -249,7 +266,7 @@ public class TraceFactory {
                     // 10% binary clause
                     CLAUSE_LENGTH = 2;
                 } else {
-                    // 1/6 + longer clauses
+                    // ~ 17% longer clauses
                     while (percentage < 1.0/6.0) {
                         CLAUSE_LENGTH += 1;
                         percentage = slaveRandomGenerator.nextDouble();
@@ -259,21 +276,32 @@ public class TraceFactory {
             clause = new int[CLAUSE_LENGTH];
 
             for (int j = 0; j < CLAUSE_LENGTH; j++) {
+                // Generate a literal that is a valid variable but could be positive or negative
                 clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+
+                // Check that this literal is not used before in the clause and that it is not 0
                 while (clause[j] == 0 || isAlreadyPresent(clause, j)) {
                     clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);
+                }
+
+                // We need to know which literals we can assume if we have assumptions on so we keep track of all literals
+                if(ASSUMPTIONS && !usedLiterals.contains(clause[j])){
+                    usedLiterals.add(clause[j]);
                 }
             }
 
             try {
-
-                // clauses are just for development purpopses, remove later
                 trace.addToTrace(index + " addClause " + toString(clause));
                 index++;
 
-                solver.addClause(new VecInt(clause));            
+                solver.addClause(new VecInt(clause));
+
             } catch (ContradictionException e) {
+                // We do not create empty clauses but if all literals in our clause are already
+                // assigned a value through unit propagation then they are not considered and it throws an error
+                // Almost only happens when we have unit or binary clauses
                 if(e.getMessage().contains("Creating Empty clause ?")){
+                    // If it does happen we generate the clause again
                     NUMBER_OF_CLAUSES += 1;
                 } else {
                     throw e;
@@ -284,6 +312,8 @@ public class TraceFactory {
     }
 
     public static void initializeOptions(){
+
+        // All the Pre-Defined Solver Configurations for Minisat
         SOLVERS.add("DFS");
         SOLVERS.add("LEARNING");
         SOLVERS.add("ORDERS");
@@ -296,30 +326,33 @@ public class TraceFactory {
 
     public static ISolver initializeSolver(Trace trace, boolean verbose) throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 
-        // Check Launcher.java inside 'org.sat4j.sat' folder
         trace.addToTrace(index + " init");
         index++;
 
+        // Initialize deafult solver for Minisat
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         ICDCL<?> asolver = (ICDCL<?>) factory.defaultSolver();
 
-        // do nothing or
+        // Use no Options
         if(slaveRandomGenerator.nextBoolean()){
-            // change all from default
+            // Use all Options
             if(slaveRandomGenerator.nextBoolean()){
                 
+                // Choose one of the Solvers predifined
                 String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
                 trace.addToTrace(index + " using solver " + solverName);
                 index++;
                 asolver = (ICDCL<?>) factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
 
+                // Set Random Walk probability in %
                 double proba = slaveRandomGenerator.nextDouble();
-                trace.addToTrace(index + " Random Walk "+proba);
+                trace.addToTrace(index + " Random Walk " + proba);
                 index++;
                 IOrder order = asolver.getOrder();
                 order = new RandomWalkDecorator((VarOrderHeap) order, proba);
                 asolver.setOrder(order);
                 
+                // Use DBS (Dependency Based) Simplification
                 trace.addToTrace(index + " DBS simplification allowed");
                 index++;
                 asolver.setDBSimplificationAllowed(true);
@@ -328,8 +361,10 @@ public class TraceFactory {
                     System.out.println("SOLVER: "+solverName);
                 }
 
+            // Use some Options
             } else {
-                // change some
+                
+                //Flip coin to choose one of the Solvers predifined or use default solver
                 if (slaveRandomGenerator.nextBoolean()) {
                     String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));
                     trace.addToTrace(index + " using solver " + solverName);
@@ -341,15 +376,17 @@ public class TraceFactory {
                     }
                 }
 
+                // Flip coin to set Random Walk probability or use default from solver
                 if(slaveRandomGenerator.nextBoolean()){
                     double proba = slaveRandomGenerator.nextDouble();
-                    trace.addToTrace(index + " Random Walk "+proba);
+                    trace.addToTrace(index + " Random Walk " + proba);
                     index++;
                     IOrder order = asolver.getOrder();
                     order = new RandomWalkDecorator((VarOrderHeap) order, proba);
                     asolver.setOrder(order);
                 }
 
+                // Flip coin to use DBS simplification or not
                 if (slaveRandomGenerator.nextBoolean()) {
                     trace.addToTrace(index + " DBS simplification");
                     index++;
@@ -364,7 +401,7 @@ public class TraceFactory {
         return asolver;
     }
 
-    // Make sure all lits in the clause are all different from each other
+    // Make sure all literals in the clause / assumption are different from each other
     public static Boolean isAlreadyPresent(int[] clause, int index){
         for(int i = 0; i < index; i++){
             if(clause[i] == clause[index])
@@ -373,6 +410,7 @@ public class TraceFactory {
         return false;
     }
 
+    // Custom toString method for array for easier parsing when rurning trace file
     public static String toString( int[] clause){
         String stringClause = "";
         for(int i=0; i < clause.length; i++){

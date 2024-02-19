@@ -95,7 +95,7 @@ public class VarOrderHeap implements IOrder, Serializable {
 <span class="nc" id="L95">    }</span>
 
     public IPhaseSelectionStrategy getPhaseSelectionStrategy() {
-<span class="nc" id="L98">        return this.phaseStrategy;</span>
+<span class="fc" id="L98">        return this.phaseStrategy;</span>
     }
 
     public void setLits(ILits lits) {
@@ -164,8 +164,8 @@ public class VarOrderHeap implements IOrder, Serializable {
 <span class="fc" id="L164">    }</span>
 
     protected void updateActivity(final int variable, double inc) {
-<span class="pc bpc" id="L167" title="1 of 2 branches missed.">        if ((this.activity[variable] += (inc * varInc)) &gt; VAR_RESCALE_BOUND) {</span>
-<span class="nc" id="L168">            varRescaleActivity();</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">        if ((this.activity[variable] += (inc * varInc)) &gt; VAR_RESCALE_BOUND) {</span>
+<span class="fc" id="L168">            varRescaleActivity();</span>
         }
 <span class="fc" id="L170">    }</span>
 
@@ -180,11 +180,11 @@ public class VarOrderHeap implements IOrder, Serializable {
      * 
      */
     private void varRescaleActivity() {
-<span class="nc bnc" id="L183" title="All 2 branches missed.">        for (var i = 1; i &lt; this.activity.length; i++) {</span>
-<span class="nc" id="L184">            this.activity[i] *= VAR_RESCALE_FACTOR;</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">        for (var i = 1; i &lt; this.activity.length; i++) {</span>
+<span class="fc" id="L184">            this.activity[i] *= VAR_RESCALE_FACTOR;</span>
         }
-<span class="nc" id="L186">        this.varInc *= VAR_RESCALE_FACTOR;</span>
-<span class="nc" id="L187">    }</span>
+<span class="fc" id="L186">        this.varInc *= VAR_RESCALE_FACTOR;</span>
+<span class="fc" id="L187">    }</span>
 
     public double varActivity(int p) {
 <span class="nc" id="L190">        return this.activity[var(p)];</span>

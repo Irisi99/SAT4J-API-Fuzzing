@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeltaDebugger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.fuzzer</a> &gt; <span class="el_source">DeltaDebugger.java</span></div><h1>DeltaDebugger.java</h1><pre class="source lang-java linenums">package org.sat4j.fuzzer;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.TimeoutException;
+
+<span class="nc" id="L15">public class DeltaDebugger {</span>
+
+    public static void main(final String[] args) throws TimeoutException, ContradictionException {
+
+        // Give name of File in comandline 
+<span class="nc" id="L20">        String fileName = String.valueOf(args[0]);</span>
+
+        try {
+<span class="nc" id="L23">            List&lt;String&gt; content = Files.readAllLines(Paths.get(&quot;./traces/&quot; + fileName));</span>
+<span class="nc" id="L24">            String seedHEX = fileName.split(&quot;.txt&quot;)[0];</span>
+<span class="nc" id="L25">            content.remove(0); //remove 'init' since we can't debug without initializing the solver</span>
+
+<span class="nc" id="L27">            String errorType = TraceRunner.runTrace(content, false);</span>
+
+<span class="nc" id="L29">            int granularity = 2;</span>
+<span class="nc" id="L30">            int size = content.size();</span>
+<span class="nc" id="L31">            int section = (int) (size/granularity);</span>
+<span class="nc" id="L32">            int start = 0;</span>
+<span class="nc" id="L33">            int end = size;</span>
+            List&lt;String&gt; temp;
+            String output;
+<span class="nc" id="L36">            boolean reduced = false;</span>
+<span class="nc" id="L37">            boolean fileCreated = false;</span>
+
+<span class="nc bnc" id="L39" title="All 2 branches missed.">            while(section &gt;= 1){</span>
+
+<span class="nc" id="L41">                temp = new ArrayList&lt;String&gt;(content);;</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">                for(int i = 0; i &lt; granularity; i++ ){</span>
+
+<span class="nc" id="L45">                    start = i * section;</span>
+<span class="nc" id="L46">                    end = start + section;</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                    if(end &gt; size)</span>
+<span class="nc" id="L48">                        end = size;</span>
+
+<span class="nc" id="L50">                    System.out.print(&quot;section size: &quot;+section+&quot; --- &quot;);</span>
+<span class="nc" id="L51">                    System.out.print(&quot;start: &quot;+start+&quot; --- &quot;);</span>
+<span class="nc" id="L52">                    System.out.print(&quot;end: &quot;+end+&quot; --- &quot;);</span>
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">                    for(int j = start; j &lt; end; j++){</span>
+<span class="nc" id="L55">                        temp.set(j, null);</span>
+                    }
+                    // temp.removeAll(content.subList(start, end));
+                    // match the exception class not the error message
+<span class="nc" id="L59">                    output = TraceRunner.runTrace(temp, false);</span>
+
+<span class="nc bnc" id="L61" title="All 4 branches missed.">                    if(output != null &amp;&amp; output.compareTo(errorType) == 0){</span>
+<span class="nc" id="L62">                        reduced = true;</span>
+<span class="nc" id="L63">                        System.out.println(&quot;reduced: true&quot;);</span>
+                    } else {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                        for(int j = start; j &lt; end; j++){</span>
+<span class="nc" id="L66">                            temp.set(j, content.get(j));</span>
+                        }
+                        // temp.addAll(content.subList(start, end));
+<span class="nc" id="L69">                        System.out.println(&quot;reduced: false&quot;);</span>
+                    }
+                }
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                if(reduced){</span>
+<span class="nc" id="L74">                    fileCreated = true;</span>
+<span class="nc" id="L75">                    reduced = false;</span>
+<span class="nc" id="L76">                    temp.removeAll(Collections.singletonList(null));</span>
+<span class="nc" id="L77">                    int old_size = content.size();</span>
+<span class="nc" id="L78">                    content = new ArrayList&lt;String&gt;(temp);</span>
+<span class="nc" id="L79">                    createFile(content, seedHEX);</span>
+<span class="nc" id="L80">                    size = content.size();</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">                    if(section &gt; 1){</span>
+<span class="nc" id="L82">                        section = (int) (size/granularity);</span>
+                    }
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                    else if(old_size == size)</span>
+<span class="nc" id="L85">                        break;</span>
+<span class="nc" id="L86">                }else {</span>
+<span class="nc" id="L87">                    granularity = granularity * 2;</span>
+<span class="nc" id="L88">                    section = (int) (size/granularity);</span>
+                }
+            }
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if(fileCreated){</span>
+<span class="nc" id="L93">                System.out.print(&quot;Created trace file &quot; + seedHEX + &quot;_dd.txt&quot;);</span>
+            }
+
+<span class="nc" id="L96">        } catch (Exception e) {</span>
+<span class="nc" id="L97">            e.printStackTrace(System.out);</span>
+<span class="nc" id="L98">        }</span>
+
+<span class="nc" id="L100">    }</span>
+
+    private static void createFile(List&lt;String&gt; trace, String seedHEX){
+<span class="nc" id="L103">        String path = &quot;./traces/&quot; + seedHEX + &quot;_dd.txt&quot;;</span>
+<span class="nc" id="L104">        final File traceFile = new File(path);</span>
+        try {
+<span class="nc" id="L106">            traceFile.createNewFile();</span>
+<span class="nc" id="L107">            final FileWriter myWriter = new FileWriter(path);</span>
+<span class="nc" id="L108">            myWriter.write(&quot;1 init\n&quot;);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            for (int j = 0; j &lt; trace.size(); j++){</span>
+<span class="nc" id="L110">                myWriter.write(trace.get(j) + &quot;\n&quot;);</span>
+            }
+<span class="nc" id="L112">            myWriter.close();</span>
+<span class="nc" id="L113">        } catch (final IOException e) {</span>
+<span class="nc" id="L114">            e.printStackTrace(System.out);</span>
+<span class="nc" id="L115">        }</span>
+<span class="nc" id="L116">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

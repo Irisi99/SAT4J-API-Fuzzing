@@ -7,7 +7,6 @@ org\sat4j\AbstractLauncher.class
 org\sat4j\tools\RemiUtils.class
 org\sat4j\minisat\core\ConflictTimerContainer.class
 org\sat4j\tools\counting\ApproxMC.class
-org\sat4j\DeltaDebugger.class
 org\sat4j\fuzzer\TraceFactory.class
 org\sat4j\minisat\orders\SolutionPhaseSelectionStrategy.class
 org\sat4j\MUSLauncher.class
@@ -61,7 +60,6 @@ org\sat4j\minisat\core\LearningStrategy.class
 org\sat4j\minisat\orders\TabuListDecorator.class
 org\sat4j\reader\LecteurDimacs.class
 org\sat4j\annotations\Feature.class
-org\sat4j\TraceRunner.class
 org\sat4j\tools\counting\SamplingSetAdapter.class
 org\sat4j\minisat\core\Solver$7.class
 org\sat4j\minisat\core\Counter.class
@@ -80,7 +78,6 @@ org\sat4j\tools\encoding\Product.class
 org\sat4j\minisat\core\ISimplifier.class
 org\sat4j\minisat\orders\PhaseInLastLearnedClauseSelectionStrategy.class
 org\sat4j\core\LiteralsUtils.class
-org\sat4j\BasicSolutionEnumerator.class
 org\sat4j\tools\HeuristicsTracing.class
 org\sat4j\tools\AbstractMinimalModel.class
 org\sat4j\tools\counting\IModelCounter.class
@@ -102,6 +99,7 @@ org\sat4j\minisat\constraints\CardinalityDataStructureYanMin.class
 org\sat4j\minisat\constraints\cnf\LearntHTClause.class
 org\sat4j\minisat\orders\RSATPhaseSelectionStrategy.class
 org\sat4j\tools\IVisualizationTool.class
+org\sat4j\fuzzer\BasicSolutionEnumerator.class
 org\sat4j\minisat\learning\FixedLengthLearning.class
 org\sat4j\specs\ISolverService.class
 org\sat4j\minisat\constraints\card\MaxWatchCard.class
@@ -191,7 +189,6 @@ org\sat4j\minisat\core\Undoable.class
 org\sat4j\MUSLauncher$2.class
 org\sat4j\specs\Constr$1.class
 org\sat4j\minisat\core\IPhaseSelectionStrategy.class
-org\sat4j\APIFuzzer.class
 org\sat4j\minisat\core\Solver$6.class
 org\sat4j\core\VecInt$1.class
 org\sat4j\minisat\constraints\card\MinWatchCard.class
@@ -227,12 +224,14 @@ org\sat4j\tools\StatisticsSolver.class
 org\sat4j\minisat\constraints\card\AtLeast.class
 org\sat4j\specs\UnitClauseConsumer.class
 org\sat4j\tools\encoding\Binomial.class
+org\sat4j\fuzzer\TraceRunner.class
 org\sat4j\specs\IProblem.class
 org\sat4j\tools\counting\ApproxMC2.class
 org\sat4j\minisat\core\ILits.class
 org\sat4j\minisat\core\LearnedConstraintsDeletionStrategy.class
 org\sat4j\tools\CheckMUSSolutionListener.class
 org\sat4j\tools\IBackboneProgressListener$1.class
+org\sat4j\fuzzer\APIFuzzer.class
 org\sat4j\tools\ConflictLevelTracing.class
 org\sat4j\tools\GroupClauseSelectorSolver.class
 org\sat4j\OptimizationMode.class
@@ -268,6 +267,7 @@ org\sat4j\reader\AIGReader.class
 org\sat4j\minisat\learning\ActiveLearning.class
 org\sat4j\minisat\restarts\EMARestarts.class
 org\sat4j\tools\ProblemDecorator.class
+org\sat4j\fuzzer\DeltaDebugger.class
 org\sat4j\tools\GateTranslator.class
 org\sat4j\minisat\learning\MiniSATLearning.class
 org\sat4j\LightFactory.class

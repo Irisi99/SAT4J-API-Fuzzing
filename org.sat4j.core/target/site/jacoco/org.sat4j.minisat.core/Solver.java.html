@@ -264,7 +264,7 @@ import org.sat4j.specs.UnitClauseProvider;
      * @since 2.2
      */
     public boolean isVerbose() {
-<span class="nc" id="L267">        return this.verbose;</span>
+<span class="fc" id="L267">        return this.verbose;</span>
     }
 
     /**
@@ -1249,9 +1249,9 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="fc" id="L1249">                        cancelUntil(this.rootLevel);</span>
 <span class="fc" id="L1250">                        return Lbool.UNDEFINED;</span>
                     }
-<span class="pc bpc" id="L1252" title="1 of 2 branches missed.">                    if (this.needToReduceDB) {</span>
-<span class="nc" id="L1253">                        reduceDB();</span>
-<span class="nc" id="L1254">                        this.needToReduceDB = false;</span>
+<span class="fc bfc" id="L1252" title="All 2 branches covered.">                    if (this.needToReduceDB) {</span>
+<span class="fc" id="L1253">                        reduceDB();</span>
+<span class="fc" id="L1254">                        this.needToReduceDB = false;</span>
                     }
 <span class="pc bpc" id="L1256" title="1 of 2 branches missed.">                    if (this.sharedConflict == null) {</span>
                         // New variable decision
@@ -1558,13 +1558,13 @@ import org.sat4j.specs.UnitClauseProvider;
 <span class="nc" id="L1558">    }</span>
 
     protected final void reduceDB() {
-<span class="nc" id="L1561">        this.stats.incReduceddb();</span>
-<span class="nc" id="L1562">        this.slistener.cleaning();</span>
-<span class="nc" id="L1563">        this.learnedConstraintsDeletionStrategy.reduce(this.learnts);</span>
-<span class="nc" id="L1564">    }</span>
+<span class="fc" id="L1561">        this.stats.incReduceddb();</span>
+<span class="fc" id="L1562">        this.slistener.cleaning();</span>
+<span class="fc" id="L1563">        this.learnedConstraintsDeletionStrategy.reduce(this.learnts);</span>
+<span class="fc" id="L1564">    }</span>
 
     protected ActivityComparator getActivityComparator() {
-<span class="nc" id="L1567">        return this.comparator;</span>
+<span class="fc" id="L1567">        return this.comparator;</span>
     }
 
     /**
@@ -1962,7 +1962,7 @@ import org.sat4j.specs.UnitClauseProvider;
      * @see org.sat4j.minisat.core.ICDCL#getOrder()
      */
     public IOrder getOrder() {
-<span class="nc" id="L1965">        return this.order;</span>
+<span class="fc" id="L1965">        return this.order;</span>
     }
 
     /*
@@ -2371,8 +2371,8 @@ import org.sat4j.specs.UnitClauseProvider;
     }
 
     public void setNeedToReduceDB(boolean needToReduceDB) {
-<span class="nc" id="L2374">        this.needToReduceDB = needToReduceDB;</span>
-<span class="nc" id="L2375">    }</span>
+<span class="fc" id="L2374">        this.needToReduceDB = needToReduceDB;</span>
+<span class="fc" id="L2375">    }</span>
 
     public void setLogger(ILogAble out) {
 <span class="nc" id="L2378">        this.out = out;</span>

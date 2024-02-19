@@ -1,4 +1,4 @@
-package org.sat4j;
+package org.sat4j.fuzzer;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,16 +16,22 @@ public class DeltaDebugger {
 
     public static void main(final String[] args) throws TimeoutException, ContradictionException {
 
-        // Give name of File in comandline 
+        // Get File name from comandline 
         String fileName = String.valueOf(args[0]);
 
         try {
+            // Read all the API calls from the trace
             List<String> content = Files.readAllLines(Paths.get("./traces/" + fileName));
             String seedHEX = fileName.split(".txt")[0];
-            content.remove(0); //remove 'init' since we can't debug without initializing the solver
+            
+            // Remove 'init' since we can't run the calls without initializing the solver
+            // we do this step every time and add it back to the trace in the end
+            content.remove(0);
 
+            // Run the full trace to get the error type
             String errorType = TraceRunner.runTrace(content, false);
 
+            // Delta Debugging parameters
             int granularity = 2;
             int size = content.size();
             int section = (int) (size/granularity);
@@ -38,7 +44,8 @@ public class DeltaDebugger {
 
             while(section >= 1){
 
-                temp = new ArrayList<String>(content);;
+                // Copy API calls into a temporary List
+                temp = new ArrayList<String>(content);
 
                 for(int i = 0; i < granularity; i++ ){
 
@@ -51,21 +58,24 @@ public class DeltaDebugger {
                     System.out.print("start: "+start+" --- ");
                     System.out.print("end: "+end+" --- ");
 
+                    // Remove a section of the API calls in the temporary list
                     for(int j = start; j < end; j++){
                         temp.set(j, null);
                     }
-                    // temp.removeAll(content.subList(start, end));
-                    // match the exception class not the error message
+
+                    // Store the error of the API calls if there is any
                     output = TraceRunner.runTrace(temp, false);
 
+                    // Compare the errors and only reduce the trace if the error is the same
                     if(output != null && output.compareTo(errorType) == 0){
                         reduced = true;
                         System.out.println("reduced: true");
+
+                    // If the errors are different then restore the section of API calls that were removed
                     } else {
                         for(int j = start; j < end; j++){
                             temp.set(j, content.get(j));
                         }
-                        // temp.addAll(content.subList(start, end));
                         System.out.println("reduced: false");
                     }
                 }
@@ -75,14 +85,22 @@ public class DeltaDebugger {
                     reduced = false;
                     temp.removeAll(Collections.singletonList(null));
                     int old_size = content.size();
+
+                    // Update the main list of API calls
                     content = new ArrayList<String>(temp);
+
+                    // Create the new file with the reduced trace
                     createFile(content, seedHEX);
+
+                    // Update the size parameter and calculate the new section size if section size is not down to 1
                     size = content.size();
                     if(section > 1){
                         section = (int) (size/granularity);
                     }
+                    // If section size is down to 1 but we are still reducing then go over the API calls until we don't remove any
                     else if(old_size == size)
                         break;
+                // If trace was not reduced then increase granularity and calculate the new section size
                 }else {
                     granularity = granularity * 2;
                     section = (int) (size/granularity);
@@ -99,8 +117,13 @@ public class DeltaDebugger {
 
     }
 
+    // Mehtod to create file with remining API calls from the trace after Delta Debugging
     private static void createFile(List<String> trace, String seedHEX){
+
+        // Method is similar to that of Trace.toFile except the fact that 
+        // the file name now contains a postfix of '_dd' to distinguish it from the original trace file
         String path = "./traces/" + seedHEX + "_dd.txt";
+
         final File traceFile = new File(path);
         try {
             traceFile.createNewFile();

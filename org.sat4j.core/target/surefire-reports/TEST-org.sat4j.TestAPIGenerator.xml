@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="org.sat4j.TestAPIGenerator" time="3.304" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="org.sat4j.TestAPIGenerator" time="44.014" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="sun.desktop" value="windows"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -18,7 +18,7 @@
     <property name="user.country" value="US"/>
     <property name="test.pbprefix" value="C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core/src/test/testfiles/"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-11.0.2\bin"/>
-    <property name="sun.java.command" value="C:\Users\U755531\AppData\Local\Temp\surefire1432826520314746140\surefirebooter18313269082212406724.jar C:\Users\U755531\AppData\Local\Temp\surefire1432826520314746140 2024-01-20T01-21-02_295-jvmRun1 surefire15578719118927656266tmp surefire_06419616068966221532tmp"/>
+    <property name="sun.java.command" value="C:\Users\U755531\AppData\Local\Temp\surefire10332325787724827022\surefirebooter4215115633809836918.jar C:\Users\U755531\AppData\Local\Temp\surefire10332325787724827022 2024-02-18T23-16-27_975-jvmRun1 surefire4426092306383416366tmp surefire_015808605577973991612tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="test" value="TestAPIGenerator#runAPIFuzzerForCoverage"/>
     <property name="surefire.test.class.path" value="C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\target\test-classes;C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core\target\classes;C:\Users\U755531\.m2\repository\junit\junit\4.13.2\junit-4.13.2.jar;C:\Users\U755531\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\U755531\.m2\repository\org\mockito\mockito-core\4.3.1\mockito-core-4.3.1.jar;C:\Users\U755531\.m2\repository\net\bytebuddy\byte-buddy\1.12.7\byte-buddy-1.12.7.jar;C:\Users\U755531\.m2\repository\net\bytebuddy\byte-buddy-agent\1.12.7\byte-buddy-agent-1.12.7.jar;C:\Users\U755531\.m2\repository\org\objenesis\objenesis\3.2\objenesis-3.2.jar;"/>
@@ -36,7 +36,7 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
     <property name="test.prefix" value="C:\Users\U755531\OneDrive - Lufthansa Group\Desktop\UNI\Project\sat4j-master\org.sat4j.core/src/test/testfiles/"/>
-    <property name="surefire.real.class.path" value="C:\Users\U755531\AppData\Local\Temp\surefire1432826520314746140\surefirebooter18313269082212406724.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\U755531\AppData\Local\Temp\surefire10332325787724827022\surefirebooter4215115633809836918.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="11.0.2+9"/>
@@ -63,5 +63,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="runAPIFuzzerForCoverage" classname="org.sat4j.TestAPIGenerator" time="3.168"/>
+  <testcase name="runAPIFuzzerForCoverage" classname="org.sat4j.TestAPIGenerator" time="43.844"/>
 </testsuite>
