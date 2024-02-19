@@ -11,9 +11,9 @@ In order to run following comands you need to go to the created folder (dist/CUS
 
 Basic Enumerator of solutions is run with following comand : java -cp org.sta4j.core.jar org/sat4j/fuzzer/BasicSolutionEnumerator file.cnf
 
-API Fuzzer is run with following command : java -cp org.sta4j.core.jar org/sat4j/fuzzer/APIFuzzer
-
 Create 'traces' folder inside ant build folder for the following commands
+
+API Fuzzer is run with following command : java -cp org.sta4j.core.jar org/sat4j/fuzzer/APIFuzzer
 
 API Trace Runner is run with following command : java -cp org.sta4j.core.jar org/sat4j/fuzzer/TraceRunner argument
 If the argument is a seed then it will run the TraceFactory and generate a trace file for it
