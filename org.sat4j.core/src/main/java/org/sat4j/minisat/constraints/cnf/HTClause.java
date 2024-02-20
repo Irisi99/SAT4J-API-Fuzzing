@@ -348,7 +348,7 @@ public abstract class HTClause implements Propagatable, Constr, Serializable {
         return false;
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         for (int i = trail.size() - 1; i >= 0; i--) {
             if (var(trail.get(i)) == var(this.head)) {
                 return i;

@@ -173,8 +173,12 @@ public class UnitClause implements Constr {
         return true;
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-        return 0;
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+            int decisionLevel, ILits voc) {
+        if (trailLim.size() > 0) {
+            return trailLim.get(0);
+        }
+        return -1;
     }
 
     public String toString(VarMapper mapper) {

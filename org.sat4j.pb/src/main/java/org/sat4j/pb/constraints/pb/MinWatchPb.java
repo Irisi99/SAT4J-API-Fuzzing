@@ -492,7 +492,7 @@ public class MinWatchPb extends WatchPb {
 
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("To be done");
     }

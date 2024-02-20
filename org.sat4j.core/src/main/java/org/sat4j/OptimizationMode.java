@@ -180,10 +180,12 @@ public final class OptimizationMode implements ILauncherMode {
     @Override
     public void onSolutionFound(int[] solution) {
         this.nbSolutions++;
-        this.out.printf("c Found solution #%d  (%.2f)s%n", nbSolutions,
-                (System.currentTimeMillis() - beginTime) / 1000.0);
-        this.out.println("c Value of objective function : "
-                + problem.getObjectiveValue());
+        if (System.getProperty("silentmode") == null) {
+            this.out.printf("c Found solution #%d  (%.2f)s%n", nbSolutions,
+                    (System.currentTimeMillis() - beginTime) / 1000.0);
+            this.out.println("c Value of objective function : "
+                    + problem.getObjectiveValue());
+        }
         if (System.getProperty("printallmodels") != null) {
             this.out.println(
                     new VecInt(solution).toString().replace(",", " ") + " 0");

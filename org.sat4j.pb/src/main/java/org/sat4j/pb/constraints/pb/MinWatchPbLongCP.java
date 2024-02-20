@@ -484,8 +484,9 @@ public class MinWatchPbLongCP extends WatchPbLongCP {
         return maxCoef;
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-        // TODO Auto-generated method stub
+    @Override
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+            int decisionLevel, ILits voc) {
         throw new UnsupportedOperationException("To be done");
     }
 }

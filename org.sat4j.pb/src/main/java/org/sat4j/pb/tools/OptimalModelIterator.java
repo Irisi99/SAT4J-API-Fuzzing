@@ -6,6 +6,8 @@ import org.sat4j.pb.IPBSolver;
 import org.sat4j.pb.ObjectiveFunction;
 import org.sat4j.pb.PBSolverDecorator;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.FakeConstr;
+import org.sat4j.specs.IConstr;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
 
@@ -77,7 +79,8 @@ public class OptimalModelIterator extends PBSolverDecorator {
             ObjectiveFunction obj = this.getObjectiveFunction();
             if (isFirstModel && obj != null) {
                 objectiveValue = obj.calculateDegree(solver);
-                solver.addAtMost(obj.getVars(), obj.getCoeffs(), objectiveValue);
+                solver.addAtMost(obj.getVars(), obj.getCoeffs(),
+                        objectiveValue);
                 isFirstModel = false;
             }
         } catch (ContradictionException e) {
@@ -101,6 +104,11 @@ public class OptimalModelIterator extends PBSolverDecorator {
         return super.isSatisfiable(true);
     }
 
+    @Override
+    public boolean isSatisfiable(boolean global) throws TimeoutException {
+        return isSatisfiable();
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -115,6 +123,12 @@ public class OptimalModelIterator extends PBSolverDecorator {
         return super.isSatisfiable(assumps, true);
     }
 
+    @Override
+    public boolean isSatisfiable(IVecInt assumps, boolean global)
+            throws TimeoutException {
+        return isSatisfiable(assumps);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -127,4 +141,13 @@ public class OptimalModelIterator extends PBSolverDecorator {
         super.reset();
     }
 
+    @Override
+    public IConstr discardCurrentModel() throws ContradictionException {
+        try {
+            return super.discardCurrentModel();
+        } catch (ContradictionException ce) {
+            this.trivialfalsity = true;
+            return FakeConstr.instance();
+        }
+    }
 }

@@ -36,6 +36,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.core.VecInt;
@@ -74,6 +75,8 @@ public class LecteurDimacs extends Reader implements Serializable {
     private int nbClauses = -1;
 
     private static final char EOF = (char) -1;
+
+    private IVecInt subsetOfVariables;
 
     /*
      * nomFichier repr?sente le nom du fichier ? lire
@@ -267,6 +270,14 @@ public class LecteurDimacs extends Reader implements Serializable {
             }
             s = new Minimal4InclusionModel(s, p);
             System.out.println("c computing p-minimal model for p=" + p);
+        } else if (str.startsWith("p show")) {
+            String[] tokens = str.split(" ");
+            IVecInt p = new VecInt(tokens.length - 2);
+            for (var i = 2; i < tokens.length - 1; i++) {
+                p.push(Integer.parseInt(tokens[i]));
+            }
+            System.out.println("c enumerating model for p=" + p);
+            this.subsetOfVariables = p;
         } else if (isUsingMapping()) {
             String[] values = str.split("=");
             if (values.length == 2) {
@@ -276,6 +287,14 @@ public class LecteurDimacs extends Reader implements Serializable {
             }
         }
         return car;
+    }
+
+    @Override
+    public Optional<IVecInt> getSubsetOfVariable() {
+        if (this.subsetOfVariables == null) {
+            return Optional.empty();
+        }
+        return Optional.of(this.subsetOfVariables);
     }
 
     /** passe tout les caract?re jusqu'? rencontrer un chiffre */

@@ -44,6 +44,7 @@ import org.sat4j.specs.IteratorInt;
  * 
  * <pre>
  * IVecInt subsetVars = new VecInt();
+ * // select a subset of variables
  * ISolver solver = new SubModelIterator(SolverFactory.OneSolver(), subsetVars);
  * boolean unsat = true;
  * while (solver.isSatisfiable()) {
@@ -59,7 +60,7 @@ import org.sat4j.specs.IteratorInt;
  * It is also possible to limit the number of models returned:
  * 
  * <pre>
- * ISolver solver = new OneModelIterator(SolverFactory.OneSolver(), subsetVars,
+ * ISolver solver = new SubModelIterator(SolverFactory.OneSolver(), subsetVars,
  *         10);
  * </pre>
  * 
@@ -73,6 +74,40 @@ public class SubModelIterator extends ModelIterator {
     private static final long serialVersionUID = 1L;
 
     private final Set<Integer> subsetVars;
+
+    /**
+     * Create an iterator over the solutions available in <code>solver</code>.
+     * The iterator will look for one new model at each call to isSatisfiable()
+     * and will discard that model at each call to model().
+     * 
+     * @param solver
+     *            a solver containing the constraints to satisfy.
+     * @see #isSatisfiable()
+     * @see #isSatisfiable(boolean)
+     * @see #isSatisfiable(IVecInt)
+     * @see #isSatisfiable(IVecInt, boolean)
+     * @see #model()
+     */
+    public SubModelIterator(ISolver solver) {
+        this(solver, VecInt.EMPTY, Long.MAX_VALUE);
+    }
+
+    /**
+     * Create an iterator over the solutions available in <code>solver</code>.
+     * The iterator will look for one new model at each call to isSatisfiable()
+     * and will discard that model at each call to model().
+     * 
+     * @param solver
+     *            a solver containing the constraints to satisfy.
+     * @see #isSatisfiable()
+     * @see #isSatisfiable(boolean)
+     * @see #isSatisfiable(IVecInt)
+     * @see #isSatisfiable(IVecInt, boolean)
+     * @see #model()
+     */
+    public SubModelIterator(ISolver solver, long bound) {
+        this(solver, VecInt.EMPTY, bound);
+    }
 
     /**
      * Create an iterator over the solutions available in <code>solver</code>.
@@ -111,6 +146,10 @@ public class SubModelIterator extends ModelIterator {
     public SubModelIterator(ISolver solver, IVecInt subsetVars, long bound) {
         super(solver, bound);
         this.subsetVars = new TreeSet<>();
+        appendProjectionVariables(subsetVars);
+    }
+
+    public void appendProjectionVariables(IVecInt subsetVars) {
         for (IteratorInt it = subsetVars.iterator(); it.hasNext();) {
             this.subsetVars.add(it.next());
         }
@@ -123,7 +162,10 @@ public class SubModelIterator extends ModelIterator {
      */
     @Override
     public int[] model() {
-        int[] last = super.model();
+        if (subsetVars.isEmpty()) {
+            return super.model();
+        }
+        int[] last = decorated().model();
         this.nbModelFound++;
         var sub = new int[subsetVars.size()];
         IVecInt clause = new VecInt(sub.length);

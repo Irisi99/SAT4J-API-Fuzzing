@@ -314,7 +314,7 @@ public class CBClause implements Constr, Undoable, Propagatable, Serializable {
         return false;
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 

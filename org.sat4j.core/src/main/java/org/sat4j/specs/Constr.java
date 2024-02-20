@@ -30,6 +30,7 @@
 package org.sat4j.specs;
 
 import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
 
 /*
  * Created on 16 oct. 2003
@@ -132,7 +133,7 @@ public interface Constr extends IConstr {
             return true;
         }
 
-        public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+        public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
             return 0;
         }
 
@@ -309,12 +310,14 @@ public interface Constr extends IConstr {
      * 
      * @param trail
      *            the internal solver trail
+     * @param trailLim TODO
      * @param decisionLevel
      *            the current decision level
+     * @param voc TODO
      * @return the decision level under which the constraint becomes assertive,
      *         else -1.
      * @since 2.3.6
      * @see #canBePropagatedMultipleTimes()
      */
-    int getAssertionLevel(IVecInt trail, int decisionLevel);
+    int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc);
 }

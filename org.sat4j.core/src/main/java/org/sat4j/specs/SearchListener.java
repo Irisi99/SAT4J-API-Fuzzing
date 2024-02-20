@@ -52,6 +52,11 @@ public interface SearchListener<S extends ISolverService>
              * 
              */
             private static final long serialVersionUID = 1L;
+
+            @Override
+            public String toString() {
+                return "none";
+            }
         };
     }
 

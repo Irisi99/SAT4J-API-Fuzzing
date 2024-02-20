@@ -272,7 +272,7 @@ public abstract class BinaryClause
         return voc.isSatisfied(this.tail);
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         for (int i = trail.size() - 1; i >= 0; i--) {
             if (var(trail.get(i)) == var(this.head)) {
                 return i;

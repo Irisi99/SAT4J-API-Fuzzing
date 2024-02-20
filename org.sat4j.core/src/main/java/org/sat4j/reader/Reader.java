@@ -37,11 +37,13 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
+import org.sat4j.specs.IVecInt;
 
 /**
  * A reader is responsible to feed an ISolver from a text file and to convert
@@ -210,5 +212,16 @@ public abstract class Reader implements Serializable {
      */
     public void setUseMapping(boolean b) {
         this.useMapping = b;
+    }
+
+    /**
+     * Access projection variables if any
+     * 
+     * @return a set of literals of interest (i.e. only the truth value of those
+     *         literals matters)
+     * @since 3.0.0
+     */
+    public Optional<IVecInt> getSubsetOfVariable() {
+        return Optional.empty();
     }
 }

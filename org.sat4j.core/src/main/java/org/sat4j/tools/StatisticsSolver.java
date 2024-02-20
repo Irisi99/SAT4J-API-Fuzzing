@@ -272,7 +272,6 @@ public class StatisticsSolver implements ISolver {
     }
 
     public void expireTimeout() {
-        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 
     public void reset() {

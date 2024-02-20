@@ -232,7 +232,7 @@ public class BinaryClauses implements Constr, Propagatable, Serializable {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 

@@ -188,8 +188,10 @@ public final class DecisionMode implements ILauncherMode {
     public void onSolutionFound(int[] solution) {
         this.nbSolutionFound++;
         this.exitCode = ExitCode.SATISFIABLE;
-        this.out.printf("c Found solution #%d  (%.2f)s%n", nbSolutionFound,
-                (System.currentTimeMillis() - beginTime) / 1000.0);
+        if (System.getProperty("silentmode") == null) {
+            this.out.printf("c Found solution #%d  (%.2f)s%n", nbSolutionFound,
+                    (System.currentTimeMillis() - beginTime) / 1000.0);
+        }
         if (System.getProperty("printallmodels") != null) {
             printSolution(solver, out, reader, solution);
         }

@@ -223,6 +223,18 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
                         + "Forcing heuristics using file " + orderFile);
             }
         }
+        if (reader.getSubsetOfVariable().isPresent()) {
+            if ("external".equals(System.getProperty("all"))) {
+                ((ModelIteratorToSATAdapter) decorator)
+                        .appendProjectionVariables(
+                                reader.getSubsetOfVariable().get());
+            }
+            if (!this.isSilent()) {
+                System.out.println(this.solver.getLogPrefix()
+                        + "Found projection variables "
+                        + reader.getSubsetOfVariable().get());
+            }
+        }
         if (feedWithDecorated) {
             return decorator;
         }

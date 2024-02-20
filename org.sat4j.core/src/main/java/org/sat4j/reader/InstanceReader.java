@@ -34,11 +34,13 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
 
 /**
  * An reader having the responsibility to choose the right reader according to
@@ -182,5 +184,10 @@ public class InstanceReader extends Reader {
     @Override
     public Map<Integer, String> getMapping() {
         return this.reader.getMapping();
+    }
+
+    @Override
+    public Optional<IVecInt> getSubsetOfVariable() {
+        return this.reader.getSubsetOfVariable();
     }
 }

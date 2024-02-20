@@ -32,6 +32,7 @@ package org.sat4j.minisat.constraints.cnf;
 import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
 
 import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
 import org.sat4j.specs.Constr;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.MandatoryLiteralListener;
@@ -143,7 +144,7 @@ public class UnitClauses implements Constr {
         return true;
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);
     }
 

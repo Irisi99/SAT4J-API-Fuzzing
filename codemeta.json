@@ -1,31 +1,82 @@
 {
-    "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+    "@context": [
+        "https://doi.org/10.5063/schema/codemeta-2.0",
+        "https://w3id.org/software-iodata",
+        "https://raw.githubusercontent.com/jantman/repostatus.org/master/badges/latest/ontology.jsonld",
+        "https://schema.org",
+        "https://w3id.org/software-types"
+    ],
     "@type": "SoftwareSourceCode",
-    "license": [
-        "https://spdx.org/licenses/EPL-1.0",
-        "https://spdx.org/licenses/LGPL-2.1"
+    "author": [
+        {
+            "@type": "Person",
+            "email": "leberre@cril-lab.fr",
+            "familyName": "Le Berre",
+            "givenName": "Daniel",
+            "url": "http://www.cril.univ-artois.fr/~leberre"
+        },
+        {
+            "@type": "Person",
+            "email": "parrain@cril.fr",
+            "familyName": "Parrain",
+            "givenName": "Anne",
+            "url": "http://www.cril.univ-artois.fr/~parrain"
+        },
+        {
+            "@type": "Person",
+            "email": "sroussel@cril.fr",
+            "familyName": "Roussel",
+            "givenName": "Stéphanie",
+            "url": "http://www.cril.univ-artois.fr/~sroussel/"
+        },
+        {
+            "@type": "Person",
+            "email": "lonca@cril.fr",
+            "familyName": "Lonca",
+            "givenName": "Emmanuel",
+            "url": "http://www.cril.univ-artois.fr/~lonca/"
+        },
+        {
+            "@type": "Person",
+            "email": "wallon@cril.fr",
+            "familyName": "Wallon",
+            "givenName": "Romain",
+            "url": "http://www.cril.univ-artois.fr/~wallon/"
+        }
     ],
     "codeRepository": "https://gitlab.ow2.org/sat4j/sat4j/",
-    "contIntegration": "https://gitlab.ow2.org/sat4j/sat4j/-/pipelines",
-    "dateCreated": "2004-01-01",
-    "datePublished": "2004-06-01",
-    "dateModified": "2020-12-14",
-    "downloadUrl": "https://gitlab.ow2.org/sat4j/sat4j/-/releases/2_3_6",
-    "issueTracker": "https://gitlab.ow2.org/sat4j/sat4j/-/issues",
-    "name": "Sat4j",
-    "version": "2.3.6",
-    "description": "SAT4J is a library of boolean reasoners for the Java platform. The library has been designed to be easy to use and targets SAT instances coming from real problems translated into SAT. The library supports also pseudo boolean constraints, and provides solutions for various decision and optimization problems by translation into SAT of Pseudo-Boolean problems (MAXSAT, CSP).",
-    "applicationCategory": "Computer Science",
-    "developmentStatus": "active",
-    "referencePublication": "https://doi.org/10.3233/SAT190075",
-    "funder": {
-        "@type": "Organization",
-        "name": "Université d'Artois and CNRS"
-    },
-    "programmingLanguage": [
-        "Java"
+    "description": "\nSat4j is a full featured boolean reasoning library designed to bring state-of-the-art SAT technologies to the Java Virtual Machine.\n  ",
+    "email": [
+        "sat4j-commits@ow2.org",
+        "sat4j-dev@ow2.org"
     ],
-    "runtimePlatform": [
-        "JVM"
-    ]
+    "identifier": "org.ow2.sat4j.org.ow2.sat4j.pom",
+    "issueTracker": "https://gitlab.ow2.org/sat4j/sat4j/issues",
+    "license": [
+        "http://spdx.org/licenses/EPL-1.0",
+        "http://spdx.org/licenses/GPL-2.0-or-later"
+    ],
+    "name": "SAT4J",
+    "producer": {
+        "@type": "Organization",
+        "name": "Centre de Recherche en Informatique de Lens (CRIL)",
+        "url": "http://www.cril.univ-artois.fr/"
+    },
+    "programmingLanguage": "Java",
+    "runtimePlatform": "Java",
+    "softwareRequirements": [
+        {
+            "@type": "SoftwareApplication",
+            "identifier": "junit.junit",
+            "name": "junit",
+            "version": "4.13.2"
+        },
+        {
+            "@type": "SoftwareApplication",
+            "identifier": "org.mockito.mockito-core",
+            "name": "mockito-core",
+            "version": "4.3.1"
+        }
+    ],
+    "version": "3.0.0-SNAPSHOT"
 }

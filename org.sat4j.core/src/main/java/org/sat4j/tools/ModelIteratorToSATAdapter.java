@@ -38,7 +38,7 @@ import org.sat4j.specs.TimeoutException;
  * 
  * @author lonca
  */
-public class ModelIteratorToSATAdapter extends ModelIterator {
+public class ModelIteratorToSATAdapter extends SubModelIterator {
 
     /**
      * 

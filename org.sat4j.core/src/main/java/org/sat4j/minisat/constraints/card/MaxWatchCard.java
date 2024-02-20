@@ -440,7 +440,7 @@ public final class MaxWatchCard
         return moreThan ? sum >= degree : sum <= degree;
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
         var nUnsat = 0;
         Set<Integer> litsSet = new HashSet<>();
         for (var i : this.lits)

@@ -285,6 +285,10 @@ public class PseudoOptDecorator extends PBSolverDecorator
 
     @Override
     public int[] model() {
+        if (this.prevmodel == null) {
+            throw new IllegalStateException(
+                    "model() called while model not found (i.e. prevmodel == null)");
+        }
         // DLB findbugs ok
         if (this.prevmodel.length <= nVars()) {
             return this.prevmodel;

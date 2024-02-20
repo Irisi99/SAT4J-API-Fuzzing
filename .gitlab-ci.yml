@@ -40,6 +40,16 @@ maven39-java17:
   - mvn $MAVEN_CLI_OPTS clean package -Dmaven.javadoc.skip=true -Djacoco.skip=true
   allow_failure: true
 
+jars-j17:
+    image: dleberre/dlb-ant
+    stage: build
+    script: 
+      - ant -Drelease=NIGHTLY sat
+    artifacts:
+       paths:
+        - dist/NIGHTLY/*.jar
+       expire_in: 4 weeks
+
 sast:
   stage: test
 
