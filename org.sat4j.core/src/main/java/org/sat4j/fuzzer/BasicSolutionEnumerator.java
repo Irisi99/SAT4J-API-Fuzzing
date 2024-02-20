@@ -15,7 +15,7 @@ import org.sat4j.specs.ISolver;
 
 public class BasicSolutionEnumerator {
 
-    public static void run(String[] args) {
+    public static void main(String[] args) {
 
         // Initialize a new solver
         ISolver solver = SolverFactory.newDefault();
