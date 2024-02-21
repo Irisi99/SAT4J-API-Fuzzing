@@ -245,7 +245,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      */
     public IConstr addAtMost(IVecInt literals, int degree)
             throws ContradictionException {
-<span class="nc" id="L248">        return this.solver.addAtMost(literals, degree);</span>
+<span class="fc" id="L248">        return this.solver.addAtMost(literals, degree);</span>
     }
 
     /*
@@ -264,7 +264,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#model()
      */
     public int[] model() {
-<span class="nc" id="L267">        return this.solver.model();</span>
+<span class="fc" id="L267">        return this.solver.model();</span>
     }
 
     /*
@@ -309,8 +309,8 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#expireTimeout()
      */
     public void expireTimeout() {
-<span class="nc" id="L312">        this.solver.expireTimeout();</span>
-<span class="nc" id="L313">    }</span>
+<span class="fc" id="L312">        this.solver.expireTimeout();</span>
+<span class="fc" id="L313">    }</span>
 
     /*
      * (non-Javadoc)
@@ -327,7 +327,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#nVars()
      */
     public int nVars() {
-<span class="nc" id="L330">        return this.solver.nVars();</span>
+<span class="fc" id="L330">        return this.solver.nVars();</span>
     }
 
     /*
@@ -410,7 +410,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @since 2.2
      */
     public boolean isVerbose() {
-<span class="nc" id="L413">        return this.solver.isVerbose();</span>
+<span class="fc" id="L413">        return this.solver.isVerbose();</span>
     }
 
     /**
@@ -460,7 +460,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @since 2.3.1
      */
     public int[] modelWithInternalVariables() {
-<span class="nc" id="L463">        return this.solver.modelWithInternalVariables();</span>
+<span class="fc" id="L463">        return this.solver.modelWithInternalVariables();</span>
     }
 
     /**

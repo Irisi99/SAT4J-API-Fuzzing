@@ -130,16 +130,16 @@ public abstract class HTClause implements Propagatable, Constr, Serializable {
      * @see Constr#simplify(Solver)
      */
     public boolean simplify() {
-<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (this.voc.isSatisfied(this.head)</span>
-<span class="nc bnc" id="L134" title="All 2 branches missed.">                || this.voc.isSatisfied(this.tail)) {</span>
+<span class="pc bpc" id="L133" title="1 of 2 branches missed.">        if (this.voc.isSatisfied(this.head)</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">                || this.voc.isSatisfied(this.tail)) {</span>
 <span class="nc" id="L135">            return true;</span>
         }
-<span class="nc bnc" id="L137" title="All 2 branches missed.">        for (int middleLit : this.middleLits) {</span>
-<span class="nc bnc" id="L138" title="All 2 branches missed.">            if (this.voc.isSatisfied(middleLit)) {</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">        for (int middleLit : this.middleLits) {</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">            if (this.voc.isSatisfied(middleLit)) {</span>
 <span class="nc" id="L139">                return true;</span>
             }
         }
-<span class="nc" id="L142">        return false;</span>
+<span class="fc" id="L142">        return false;</span>
     }
 
     public boolean propagate(UnitPropagationListener s, int p) {

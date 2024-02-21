@@ -580,8 +580,8 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 
     @Override
     public synchronized void learnUnit(int p) {
-<span class="nc" id="L583">        sharedUnitClauses.push(LiteralsUtils.toInternal(p));</span>
-<span class="nc" id="L584">    }</span>
+<span class="fc" id="L583">        sharedUnitClauses.push(LiteralsUtils.toInternal(p));</span>
+<span class="fc" id="L584">    }</span>
 
     @Override
     @Feature(value = &quot;unitclauseprovider&quot;, parent = &quot;expert&quot;)

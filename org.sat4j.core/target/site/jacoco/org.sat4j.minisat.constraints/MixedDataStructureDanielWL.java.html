@@ -60,7 +60,7 @@ import org.sat4j.specs.IVecInt;
     @Override
     public Constr createCardinalityConstraint(IVecInt literals, int degree)
             throws ContradictionException {
-<span class="nc" id="L63">        return AtLeast.atLeastNew(this.solver, getVocabulary(), literals,</span>
+<span class="fc" id="L63">        return AtLeast.atLeastNew(this.solver, getVocabulary(), literals,</span>
                 degree);
     }
 

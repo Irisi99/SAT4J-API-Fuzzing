@@ -231,7 +231,7 @@ public class TraceFactory {
                 SolverRunTime += endTime - startTime;
             } catch (Exception e) {
                 if(verbose){
-                    System.out.println("Error when retrieveing Statistics");
+                    System.out.println("c Error when retrieveing Statistics");
                 }
             }
             if(isTraceSeed){
@@ -322,12 +322,15 @@ public class TraceFactory {
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         SOLVERS.addAll(Arrays.asList(factory.solverNames()));
 
+        // No point in keeping it as an option
+        SOLVERS.remove("Default");
+
         // Not real solvers
         SOLVERS.remove("Statistics");
         SOLVERS.remove("DimacsOutput");
 
         if(verbose){
-            System.out.println("Available Solvers are : " + SOLVERS);
+            System.out.println("c Available Solvers are : " + SOLVERS);
         }
     }
 
@@ -357,7 +360,7 @@ public class TraceFactory {
                 asolver.setDBSimplificationAllowed(true);
                
                 if(verbose){
-                    System.out.println("SOLVER: "+solverName);
+                    System.out.println("c SOLVER: "+solverName);
                 }
 
             // Use some Options
@@ -371,7 +374,7 @@ public class TraceFactory {
                     asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
                     
                     if(verbose){
-                        System.out.println("SOLVER: "+solverName);
+                        System.out.println("c SOLVER: "+solverName);
                     }
                 }
 

@@ -75,10 +75,10 @@ public final class MinOneDecorator extends SolverDecorator&lt;ISolver&gt;
             throws TimeoutException {
 <span class="fc" id="L76">        this.isSolutionOptimal = false;</span>
 <span class="fc" id="L77">        boolean result = isSatisfiable(assumps, true);</span>
-<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (result) {</span>
-<span class="nc" id="L79">            this.prevmodel = super.model();</span>
-<span class="nc" id="L80">            this.prevmodelWithInternalVariables = super.modelWithInternalVariables();</span>
-<span class="nc" id="L81">            calculateObjectiveValue();</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">        if (result) {</span>
+<span class="fc" id="L79">            this.prevmodel = super.model();</span>
+<span class="fc" id="L80">            this.prevmodelWithInternalVariables = super.modelWithInternalVariables();</span>
+<span class="fc" id="L81">            calculateObjectiveValue();</span>
         } else {
 <span class="fc" id="L83">            this.isSolutionOptimal = true;</span>
         }
@@ -101,13 +101,13 @@ public final class MinOneDecorator extends SolverDecorator&lt;ISolver&gt;
     }
 
     private void calculateObjectiveValue() {
-<span class="nc" id="L104">        this.counter = 0;</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (int p : this.prevmodel) {</span>
-<span class="nc bnc" id="L106" title="All 2 branches missed.">            if (p &gt; 0) {</span>
-<span class="nc" id="L107">                this.counter++;</span>
+<span class="fc" id="L104">        this.counter = 0;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (int p : this.prevmodel) {</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            if (p &gt; 0) {</span>
+<span class="fc" id="L107">                this.counter++;</span>
             }
         }
-<span class="nc" id="L110">    }</span>
+<span class="fc" id="L110">    }</span>
 
 <span class="fc" id="L112">    private final IVecInt literals = new VecInt();</span>
 
@@ -117,21 +117,21 @@ public final class MinOneDecorator extends SolverDecorator&lt;ISolver&gt;
      * @since 2.1
      */
     public void discardCurrentSolution() throws ContradictionException {
-<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (this.literals.isEmpty()) {</span>
-<span class="nc bnc" id="L121" title="All 2 branches missed.">            for (var i = 1; i &lt;= nVars(); i++) {</span>
-<span class="nc" id="L122">                this.literals.push(i);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        if (this.literals.isEmpty()) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">            for (var i = 1; i &lt;= nVars(); i++) {</span>
+<span class="fc" id="L122">                this.literals.push(i);</span>
             }
         }
-<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (this.previousConstr != null) {</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        if (this.previousConstr != null) {</span>
 <span class="nc" id="L126">            super.removeConstr(this.previousConstr);</span>
         }
-<span class="nc" id="L128">        this.previousConstr = addAtMost(this.literals, this.counter - 1);</span>
-<span class="nc" id="L129">    }</span>
+<span class="fc" id="L128">        this.previousConstr = addAtMost(this.literals, this.counter - 1);</span>
+<span class="fc" id="L129">    }</span>
 
     @Override
     public int[] model() {
         // DLB findbugs ok
-<span class="nc" id="L134">        return this.prevmodel;</span>
+<span class="fc" id="L134">        return this.prevmodel;</span>
     }
 
     @Override

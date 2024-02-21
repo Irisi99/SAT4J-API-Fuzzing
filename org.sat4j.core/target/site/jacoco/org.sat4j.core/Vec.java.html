@@ -155,8 +155,8 @@ public final class Vec&lt;T&gt; implements IVec&lt;T&gt; {
      * empty!
      */
     public void pop() {
-<span class="nc" id="L158">        this.myarray[--this.nbelem] = null;</span>
-<span class="nc" id="L159">    }</span>
+<span class="fc" id="L158">        this.myarray[--this.nbelem] = null;</span>
+<span class="fc" id="L159">    }</span>
 
     public void growTo(final int newsize, final T pad) {
 <span class="nc" id="L162">        ensure(newsize);</span>
@@ -227,7 +227,7 @@ public final class Vec&lt;T&gt; implements IVec&lt;T&gt; {
      * @return the last element on the stack (the one on the top)
      */
     public T last() {
-<span class="nc" id="L230">        return this.myarray[this.nbelem - 1];</span>
+<span class="fc" id="L230">        return this.myarray[this.nbelem - 1];</span>
     }
 
     public T get(final int index) {

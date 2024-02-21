@@ -231,7 +231,7 @@ import org.sat4j.specs.ISolver;
 <span class="fc" id="L231">                SolverRunTime += endTime - startTime;</span>
 <span class="nc" id="L232">            } catch (Exception e) {</span>
 <span class="nc bnc" id="L233" title="All 2 branches missed.">                if(verbose){</span>
-<span class="nc" id="L234">                    System.out.println(&quot;Error when retrieveing Statistics&quot;);</span>
+<span class="nc" id="L234">                    System.out.println(&quot;c Error when retrieveing Statistics&quot;);</span>
                 }
 <span class="fc" id="L236">            }</span>
 <span class="pc bpc" id="L237" title="1 of 2 branches missed.">            if(isTraceSeed){</span>
@@ -322,90 +322,93 @@ import org.sat4j.specs.ISolver;
 <span class="fc" id="L322">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
 <span class="fc" id="L323">        SOLVERS.addAll(Arrays.asList(factory.solverNames()));</span>
 
-        // Not real solvers
-<span class="fc" id="L326">        SOLVERS.remove(&quot;Statistics&quot;);</span>
-<span class="fc" id="L327">        SOLVERS.remove(&quot;DimacsOutput&quot;);</span>
+        // No point in keeping it as an option
+<span class="fc" id="L326">        SOLVERS.remove(&quot;Default&quot;);</span>
 
-<span class="pc bpc" id="L329" title="1 of 2 branches missed.">        if(verbose){</span>
-<span class="nc" id="L330">            System.out.println(&quot;Available Solvers are : &quot; + SOLVERS);</span>
+        // Not real solvers
+<span class="fc" id="L329">        SOLVERS.remove(&quot;Statistics&quot;);</span>
+<span class="fc" id="L330">        SOLVERS.remove(&quot;DimacsOutput&quot;);</span>
+
+<span class="pc bpc" id="L332" title="1 of 2 branches missed.">        if(verbose){</span>
+<span class="nc" id="L333">            System.out.println(&quot;c Available Solvers are : &quot; + SOLVERS);</span>
         }
-<span class="fc" id="L332">    }</span>
+<span class="fc" id="L335">    }</span>
 
     public static ISolver initializeSolver(Trace trace, boolean verbose) throws ClassNotFoundException, NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException{
 
-<span class="fc" id="L336">        trace.addToTrace(index + &quot; init&quot;);</span>
-<span class="fc" id="L337">        index++;</span>
+<span class="fc" id="L339">        trace.addToTrace(index + &quot; init&quot;);</span>
+<span class="fc" id="L340">        index++;</span>
 
         // Initialize deafult solver for Minisat
-<span class="fc" id="L340">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
-<span class="fc" id="L341">        ISolver asolver = factory.defaultSolver();</span>
+<span class="fc" id="L343">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
+<span class="fc" id="L344">        ISolver asolver = factory.defaultSolver();</span>
 
         // Use no Options
-<span class="fc bfc" id="L344" title="All 2 branches covered.">        if(slaveRandomGenerator.nextBoolean()){</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">        if(slaveRandomGenerator.nextBoolean()){</span>
             // Use all Options
-<span class="fc bfc" id="L346" title="All 2 branches covered.">            if(slaveRandomGenerator.nextBoolean()){</span>
+<span class="fc bfc" id="L349" title="All 2 branches covered.">            if(slaveRandomGenerator.nextBoolean()){</span>
                 
                 // Choose one of the Solvers predifined
-<span class="fc" id="L349">                String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));</span>
-<span class="fc" id="L350">                trace.addToTrace(index + &quot; using solver &quot; + solverName);</span>
-<span class="fc" id="L351">                index++;</span>
-<span class="fc" id="L352">                asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
+<span class="fc" id="L352">                String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));</span>
+<span class="fc" id="L353">                trace.addToTrace(index + &quot; using solver &quot; + solverName);</span>
+<span class="fc" id="L354">                index++;</span>
+<span class="fc" id="L355">                asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
                 
                 // Use DBS (Dependency Based) Simplification
-<span class="fc" id="L355">                trace.addToTrace(index + &quot; DBS simplification allowed&quot;);</span>
-<span class="fc" id="L356">                index++;</span>
-<span class="fc" id="L357">                asolver.setDBSimplificationAllowed(true);</span>
+<span class="fc" id="L358">                trace.addToTrace(index + &quot; DBS simplification allowed&quot;);</span>
+<span class="fc" id="L359">                index++;</span>
+<span class="fc" id="L360">                asolver.setDBSimplificationAllowed(true);</span>
                
-<span class="pc bpc" id="L359" title="1 of 2 branches missed.">                if(verbose){</span>
-<span class="nc" id="L360">                    System.out.println(&quot;SOLVER: &quot;+solverName);</span>
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">                if(verbose){</span>
+<span class="nc" id="L363">                    System.out.println(&quot;c SOLVER: &quot;+solverName);</span>
                 }
 
             // Use some Options
-<span class="fc" id="L364">            } else {</span>
+<span class="fc" id="L367">            } else {</span>
                 
                 //Flip coin to choose one of the Solvers predifined or use default solver
-<span class="fc bfc" id="L367" title="All 2 branches covered.">                if (slaveRandomGenerator.nextBoolean()) {</span>
-<span class="fc" id="L368">                    String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));</span>
-<span class="fc" id="L369">                    trace.addToTrace(index + &quot; using solver &quot; + solverName);</span>
-<span class="fc" id="L370">                    index++;</span>
-<span class="fc" id="L371">                    asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
+<span class="fc bfc" id="L370" title="All 2 branches covered.">                if (slaveRandomGenerator.nextBoolean()) {</span>
+<span class="fc" id="L371">                    String solverName = SOLVERS.get(slaveRandomGenerator.nextInt(SOLVERS.size()));</span>
+<span class="fc" id="L372">                    trace.addToTrace(index + &quot; using solver &quot; + solverName);</span>
+<span class="fc" id="L373">                    index++;</span>
+<span class="fc" id="L374">                    asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
                     
-<span class="pc bpc" id="L373" title="1 of 2 branches missed.">                    if(verbose){</span>
-<span class="nc" id="L374">                        System.out.println(&quot;SOLVER: &quot;+solverName);</span>
+<span class="pc bpc" id="L376" title="1 of 2 branches missed.">                    if(verbose){</span>
+<span class="nc" id="L377">                        System.out.println(&quot;c SOLVER: &quot;+solverName);</span>
                     }
                 }
 
                 // Flip coin to use DBS simplification or not
-<span class="fc bfc" id="L379" title="All 2 branches covered.">                if (slaveRandomGenerator.nextBoolean()) {</span>
-<span class="fc" id="L380">                    trace.addToTrace(index + &quot; DBS simplification&quot;);</span>
-<span class="fc" id="L381">                    index++;</span>
-<span class="fc" id="L382">                    asolver.setDBSimplificationAllowed(true);</span>
+<span class="fc bfc" id="L382" title="All 2 branches covered.">                if (slaveRandomGenerator.nextBoolean()) {</span>
+<span class="fc" id="L383">                    trace.addToTrace(index + &quot; DBS simplification&quot;);</span>
+<span class="fc" id="L384">                    index++;</span>
+<span class="fc" id="L385">                    asolver.setDBSimplificationAllowed(true);</span>
                 }
             }
         }
 
-<span class="pc bpc" id="L387" title="1 of 2 branches missed.">        if(verbose){</span>
-<span class="nc" id="L388">            System.out.println(asolver.toString());</span>
+<span class="pc bpc" id="L390" title="1 of 2 branches missed.">        if(verbose){</span>
+<span class="nc" id="L391">            System.out.println(asolver.toString());</span>
         }
-<span class="fc" id="L390">        return asolver;</span>
+<span class="fc" id="L393">        return asolver;</span>
     }
 
     // Make sure all literals in the clause / assumption are different from each other
     public static Boolean isAlreadyPresent(int[] clause, int index){
-<span class="fc bfc" id="L395" title="All 2 branches covered.">        for(int i = 0; i &lt; index; i++){</span>
-<span class="fc bfc" id="L396" title="All 2 branches covered.">            if(clause[i] == clause[index])</span>
-<span class="fc" id="L397">                return true;</span>
+<span class="fc bfc" id="L398" title="All 2 branches covered.">        for(int i = 0; i &lt; index; i++){</span>
+<span class="fc bfc" id="L399" title="All 2 branches covered.">            if(clause[i] == clause[index])</span>
+<span class="fc" id="L400">                return true;</span>
         }
-<span class="fc" id="L399">        return false;</span>
+<span class="fc" id="L402">        return false;</span>
     }
 
     // Custom toString method for array for easier parsing when rurning trace file
     public static String toString( int[] clause){
-<span class="fc" id="L404">        String stringClause = &quot;&quot;;</span>
-<span class="fc bfc" id="L405" title="All 2 branches covered.">        for(int i=0; i &lt; clause.length; i++){</span>
-<span class="fc" id="L406">            stringClause += clause[i]+&quot; &quot;;</span>
+<span class="fc" id="L407">        String stringClause = &quot;&quot;;</span>
+<span class="fc bfc" id="L408" title="All 2 branches covered.">        for(int i=0; i &lt; clause.length; i++){</span>
+<span class="fc" id="L409">            stringClause += clause[i]+&quot; &quot;;</span>
         }
-<span class="fc" id="L408">        return stringClause;</span>
+<span class="fc" id="L411">        return stringClause;</span>
     }
 
 }

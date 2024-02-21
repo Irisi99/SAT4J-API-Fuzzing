@@ -64,7 +64,7 @@ public class OptToSatAdapter extends SolverDecorator&lt;ISolver&gt; {
 
     @Override
     public boolean isSatisfiable() throws TimeoutException {
-<span class="nc" id="L67">        return isSatisfiable(VecInt.EMPTY);</span>
+<span class="fc" id="L67">        return isSatisfiable(VecInt.EMPTY);</span>
     }
 
     @Override
@@ -86,23 +86,23 @@ public class OptToSatAdapter extends SolverDecorator&lt;ISolver&gt; {
 <span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (this.problem.hasNoObjectiveFunction()) {</span>
 <span class="nc" id="L87">            return this.problem.isSatisfiable(myAssumps);</span>
         }
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (!this.problem.admitABetterSolution(myAssumps)) {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (!this.problem.admitABetterSolution(myAssumps)) {</span>
 <span class="fc" id="L90">            return false;</span>
         }
         try {
             do {
-<span class="nc" id="L94">                sfl.onSolutionFound(this.problem.model());</span>
-<span class="nc" id="L95">                this.problem.discardCurrentSolution();</span>
-<span class="nc bnc" id="L96" title="All 2 branches missed.">                if (isVerbose()) {</span>
+<span class="fc" id="L94">                sfl.onSolutionFound(this.problem.model());</span>
+<span class="fc" id="L95">                this.problem.discardCurrentSolution();</span>
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">                if (isVerbose()) {</span>
 <span class="nc" id="L97">                    System.out.println(getLogPrefix()</span>
                             + &quot;Current objective function value: &quot;
 <span class="nc" id="L99">                            + this.problem.getObjectiveValue() + &quot;(&quot;</span>
 <span class="nc" id="L100">                            + (System.currentTimeMillis() - begin) / 1000.0</span>
                             + &quot;s)&quot;);
                 }
-<span class="nc bnc" id="L103" title="All 2 branches missed.">            } while (this.problem.admitABetterSolution(myAssumps));</span>
-<span class="nc" id="L104">            expireTimeout();</span>
-<span class="nc" id="L105">            sfl.onUnsatTermination();</span>
+<span class="pc bpc" id="L103" title="1 of 2 branches missed.">            } while (this.problem.admitABetterSolution(myAssumps));</span>
+<span class="fc" id="L104">            expireTimeout();</span>
+<span class="fc" id="L105">            sfl.onUnsatTermination();</span>
 <span class="nc" id="L106">        } catch (TimeoutException e) {</span>
 <span class="nc bnc" id="L107" title="All 2 branches missed.">            if (isVerbose()) {</span>
 <span class="nc" id="L108">                System.out.println(getLogPrefix() + &quot;Solver timed out after &quot;</span>
@@ -111,8 +111,8 @@ public class OptToSatAdapter extends SolverDecorator&lt;ISolver&gt; {
 <span class="nc" id="L111">        } catch (ContradictionException ce) {</span>
 <span class="nc" id="L112">            expireTimeout();</span>
 <span class="nc" id="L113">            sfl.onUnsatTermination();</span>
-<span class="nc" id="L114">        }</span>
-<span class="nc" id="L115">        return true;</span>
+<span class="pc" id="L114">        }</span>
+<span class="fc" id="L115">        return true;</span>
     }
 
     @Override

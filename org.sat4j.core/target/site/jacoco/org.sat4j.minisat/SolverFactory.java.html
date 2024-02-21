@@ -131,10 +131,10 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
     }
 
     public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeapRsatExpSimpBiere() {
-<span class="fc" id="L134">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
-<span class="fc" id="L135">        solver.setRestartStrategy(new ArminRestarts());</span>
-<span class="fc" id="L136">        solver.setSearchParams(new SearchParams(1.1, 100));</span>
-<span class="fc" id="L137">        return solver;</span>
+<span class="nc" id="L134">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
+<span class="nc" id="L135">        solver.setRestartStrategy(new ArminRestarts());</span>
+<span class="nc" id="L136">        solver.setSearchParams(new SearchParams(1.1, 100));</span>
+<span class="nc" id="L137">        return solver;</span>
     }
 
     public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapRsatExpSimpLuby() {
@@ -181,15 +181,15 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @since 2.3.6
      */
     public static ICDCL&lt;DataStructureFactory&gt; newRandomSolver() {
-<span class="fc" id="L184">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
-<span class="fc" id="L185">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+<span class="nc" id="L184">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="nc" id="L185">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
                 new MixedDataStructureDanielWL(),
                 new RandomWalkDecorator(
                         new VarOrderHeap(new RandomLiteralSelectionStrategy()),
                         1.0),
                 new NoRestarts());
-<span class="fc" id="L191">        solver.setSimplifier(solver.expensiveSimplification);</span>
-<span class="fc" id="L192">        return solver;</span>
+<span class="nc" id="L191">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="nc" id="L192">        return solver;</span>
     }
 
     /**
@@ -233,15 +233,15 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @since 2.2
      */
     public static ICDCL&lt;DataStructureFactory&gt; newBest17() {
-<span class="nc" id="L236">        Solver&lt;DataStructureFactory&gt; solver = newBestCurrentSolverConfiguration(</span>
+<span class="fc" id="L236">        Solver&lt;DataStructureFactory&gt; solver = newBestCurrentSolverConfiguration(</span>
                 new MixedDataStructureSingleWL());
-<span class="nc" id="L238">        solver.setSimplifier(solver.expensiveSimplificationWLOnly);</span>
-<span class="nc" id="L239">        solver.setLearnedConstraintsDeletionStrategy(</span>
+<span class="fc" id="L238">        solver.setSimplifier(solver.expensiveSimplificationWLOnly);</span>
+<span class="fc" id="L239">        solver.setLearnedConstraintsDeletionStrategy(</span>
                 solver.activityBasedLowMemory);
-<span class="nc" id="L241">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
+<span class="fc" id="L241">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
                 10);
-<span class="nc" id="L243">        solver.setLearningStrategy(learning);</span>
-<span class="nc" id="L244">        return solver;</span>
+<span class="fc" id="L243">        solver.setLearningStrategy(learning);</span>
+<span class="fc" id="L244">        return solver;</span>
     }
 
     /**
@@ -371,9 +371,9 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return the default solver with an aggressive LCDS based on age
      */
     public static ISolver newAgeLCDS() {
-<span class="nc" id="L374">        Solver&lt;?&gt; solver = newGlucose21();</span>
-<span class="nc" id="L375">        solver.setLearnedConstraintsDeletionStrategy(solver.ageBased);</span>
-<span class="nc" id="L376">        return solver;</span>
+<span class="fc" id="L374">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="fc" id="L375">        solver.setLearnedConstraintsDeletionStrategy(solver.ageBased);</span>
+<span class="fc" id="L376">        return solver;</span>
     }
 
     /**
@@ -391,9 +391,9 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return the default solver with an aggressive LCDS based on size
      */
     public static ISolver newSizeLCDS() {
-<span class="nc" id="L394">        Solver&lt;?&gt; solver = newGlucose21();</span>
-<span class="nc" id="L395">        solver.setLearnedConstraintsDeletionStrategy(solver.sizeBased);</span>
-<span class="nc" id="L396">        return solver;</span>
+<span class="fc" id="L394">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="fc" id="L395">        solver.setLearnedConstraintsDeletionStrategy(solver.sizeBased);</span>
+<span class="fc" id="L396">        return solver;</span>
     }
 
     /**
@@ -421,7 +421,7 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      *      instance of ASolverFactory.
      */
     public static ISolver newLight() {
-<span class="nc" id="L424">        return newMiniLearningHeap();</span>
+<span class="fc" id="L424">        return newMiniLearningHeap();</span>
     }
 
     @Override
@@ -481,17 +481,17 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
     }
 
     public static Solver&lt;DataStructureFactory&gt; newConcise() {
-<span class="fc" id="L484">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
-<span class="fc" id="L485">        solver.setDataStructureFactory(</span>
+<span class="nc" id="L484">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="nc" id="L485">        solver.setDataStructureFactory(</span>
                 new MixedDataStructureDanielWLConciseBinary());
-<span class="fc" id="L487">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
-<span class="fc" id="L488">        return solver;</span>
+<span class="nc" id="L487">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
+<span class="nc" id="L488">        return solver;</span>
     }
 
     public static Solver&lt;DataStructureFactory&gt; newNoSimplification() {
-<span class="nc" id="L492">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
-<span class="nc" id="L493">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
-<span class="nc" id="L494">        return solver;</span>
+<span class="fc" id="L492">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="fc" id="L493">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
+<span class="fc" id="L494">        return solver;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

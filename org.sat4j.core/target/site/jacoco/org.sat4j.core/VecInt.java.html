@@ -369,25 +369,25 @@ public final class VecInt implements IVecInt {
 
     void sort(int from, int to) {
 <span class="fc" id="L371">        int width = to - from;</span>
-<span class="pc bpc" id="L372" title="1 of 2 branches missed.">        if (width &lt;= 15) {</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">        if (width &lt;= 15) {</span>
 <span class="fc" id="L373">            selectionSort(from, to);</span>
         } else {
-<span class="nc" id="L375">            final int[] locarray = this.myarray;</span>
-<span class="nc" id="L376">            int pivot = locarray[width / 2 + from];</span>
+<span class="fc" id="L375">            final int[] locarray = this.myarray;</span>
+<span class="fc" id="L376">            int pivot = locarray[width / 2 + from];</span>
             int tmp;
-<span class="nc" id="L378">            int i = from - 1;</span>
-<span class="nc" id="L379">            int j = to;</span>
+<span class="fc" id="L378">            int i = from - 1;</span>
+<span class="fc" id="L379">            int j = to;</span>
 
             for (;;) {
                 do {
-<span class="nc" id="L383">                    i++;</span>
-<span class="nc bnc" id="L384" title="All 2 branches missed.">                } while (locarray[i] &lt; pivot);</span>
+<span class="fc" id="L383">                    i++;</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">                } while (locarray[i] &lt; pivot);</span>
                 do {
-<span class="nc" id="L386">                    j--;</span>
-<span class="nc bnc" id="L387" title="All 2 branches missed.">                } while (pivot &lt; locarray[j]);</span>
+<span class="fc" id="L386">                    j--;</span>
+<span class="fc bfc" id="L387" title="All 2 branches covered.">                } while (pivot &lt; locarray[j]);</span>
 
-<span class="nc bnc" id="L389" title="All 2 branches missed.">                if (i &gt;= j) {</span>
-<span class="nc" id="L390">                    break;</span>
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">                if (i &gt;= j) {</span>
+<span class="fc" id="L390">                    break;</span>
                 }
 
 <span class="nc" id="L393">                tmp = locarray[i];</span>
@@ -395,8 +395,8 @@ public final class VecInt implements IVecInt {
 <span class="nc" id="L395">                locarray[j] = tmp;</span>
             }
 
-<span class="nc" id="L398">            sort(from, i);</span>
-<span class="nc" id="L399">            sort(i, to);</span>
+<span class="fc" id="L398">            sort(from, i);</span>
+<span class="fc" id="L399">            sort(i, to);</span>
         }
 <span class="fc" id="L401">    }</span>
 
@@ -524,7 +524,7 @@ public final class VecInt implements IVecInt {
     }
 
     public boolean isEmpty() {
-<span class="pc bpc" id="L527" title="1 of 2 branches missed.">        return this.nbelem == 0;</span>
+<span class="fc bfc" id="L527" title="All 2 branches covered.">        return this.nbelem == 0;</span>
     }
 
     /**

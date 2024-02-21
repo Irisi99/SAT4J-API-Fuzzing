@@ -73,7 +73,7 @@ public class RandomWalkDecorator implements IOrder, Serializable {
 <span class="fc" id="L73">    }</span>
 
     public IPhaseSelectionStrategy getPhaseSelectionStrategy() {
-<span class="fc" id="L76">        return this.decorated.getPhaseSelectionStrategy();</span>
+<span class="nc" id="L76">        return this.decorated.getPhaseSelectionStrategy();</span>
     }
 
     public double getProbability() {
@@ -94,20 +94,20 @@ public class RandomWalkDecorator implements IOrder, Serializable {
 <span class="nc" id="L94">    }</span>
 
     public int select() {
-<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (RAND.nextDouble() &lt; this.p) {</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (RAND.nextDouble() &lt; this.p) {</span>
             int variable, lit, max;
 
-<span class="pc bpc" id="L100" title="1 of 2 branches missed.">            while (!this.decorated.heap.empty()) {</span>
-<span class="fc" id="L101">                max = this.decorated.heap.size();</span>
-<span class="fc" id="L102">                variable = this.decorated.heap.get(RAND.nextInt(max) + 1);</span>
-<span class="fc" id="L103">                lit = getPhaseSelectionStrategy().select(variable);</span>
-<span class="fc bfc" id="L104" title="All 2 branches covered.">                if (this.voc.isUnassigned(lit)) {</span>
-<span class="fc" id="L105">                    this.nbRandomWalks++;</span>
-<span class="fc" id="L106">                    return lit;</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">            while (!this.decorated.heap.empty()) {</span>
+<span class="nc" id="L101">                max = this.decorated.heap.size();</span>
+<span class="nc" id="L102">                variable = this.decorated.heap.get(RAND.nextInt(max) + 1);</span>
+<span class="nc" id="L103">                lit = getPhaseSelectionStrategy().select(variable);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                if (this.voc.isUnassigned(lit)) {</span>
+<span class="nc" id="L105">                    this.nbRandomWalks++;</span>
+<span class="nc" id="L106">                    return lit;</span>
                 }
             }
         }
-<span class="fc" id="L110">        return this.decorated.select();</span>
+<span class="nc" id="L110">        return this.decorated.select();</span>
     }
 
     public void setLits(ILits lits) {
@@ -121,16 +121,16 @@ public class RandomWalkDecorator implements IOrder, Serializable {
 <span class="nc" id="L121">    }</span>
 
     public void setVarDecay(double d) {
-<span class="fc" id="L124">        this.decorated.setVarDecay(d);</span>
-<span class="fc" id="L125">    }</span>
+<span class="nc" id="L124">        this.decorated.setVarDecay(d);</span>
+<span class="nc" id="L125">    }</span>
 
     public void undo(int x) {
 <span class="fc" id="L128">        this.decorated.undo(x);</span>
 <span class="fc" id="L129">    }</span>
 
     public void updateVar(int q) {
-<span class="fc" id="L132">        this.decorated.updateVar(q);</span>
-<span class="fc" id="L133">    }</span>
+<span class="nc" id="L132">        this.decorated.updateVar(q);</span>
+<span class="nc" id="L133">    }</span>
 
     @Override
     public void updateVar(int p, double value) {
@@ -142,12 +142,12 @@ public class RandomWalkDecorator implements IOrder, Serializable {
     }
 
     public void varDecayActivity() {
-<span class="fc" id="L145">        this.decorated.varDecayActivity();</span>
-<span class="fc" id="L146">    }</span>
+<span class="nc" id="L145">        this.decorated.varDecayActivity();</span>
+<span class="nc" id="L146">    }</span>
 
     public void updateVarAtDecisionLevel(int q) {
-<span class="fc" id="L149">        this.decorated.updateVarAtDecisionLevel(q);</span>
-<span class="fc" id="L150">    }</span>
+<span class="nc" id="L149">        this.decorated.updateVarAtDecisionLevel(q);</span>
+<span class="nc" id="L150">    }</span>
 
     @Override
     public String toString() {

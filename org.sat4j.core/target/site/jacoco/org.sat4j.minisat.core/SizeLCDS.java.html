@@ -71,7 +71,7 @@ final class SizeLCDS implements LearnedConstraintsDeletionStrategy {
 <span class="nc" id="L71">    }</span>
 
     public ConflictTimer getTimer() {
-<span class="nc" id="L74">        return this.timer;</span>
+<span class="fc" id="L74">        return this.timer;</span>
     }
 
     @Override
@@ -82,9 +82,9 @@ final class SizeLCDS implements LearnedConstraintsDeletionStrategy {
 
     @Override
     public void onConflictAnalysis(Constr reason) {
-<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (reason.learnt()) {</span>
-<span class="nc" id="L86">            solver.claBumpActivity(reason);</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (reason.learnt()) {</span>
+<span class="fc" id="L86">            solver.claBumpActivity(reason);</span>
         }
-<span class="nc" id="L88">    }</span>
+<span class="fc" id="L88">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -53,7 +53,7 @@ import org.sat4j.specs.VarMapper;
 /**
  * @author leberre Contrainte de cardinalit?
  */
-<span class="nc bnc" id="L56" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
 public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -77,30 +77,30 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      * @param degree
      *            the minimal number of satisfied literals
      */
-<span class="nc" id="L80">    public AtLeast(ILits voc, IVecInt ps, int degree) {</span>
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (degree == 1) {</span>
+<span class="fc" id="L80">    public AtLeast(ILits voc, IVecInt ps, int degree) {</span>
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">        if (degree == 1) {</span>
 <span class="nc" id="L82">            throw new IllegalArgumentException(</span>
                     &quot;cards with degree 1 are clauses!!!!&quot;);
         }
-<span class="nc" id="L85">        this.maxUnsatisfied = ps.size() - degree;</span>
-<span class="nc" id="L86">        this.voc = voc;</span>
-<span class="nc" id="L87">        this.counter = 0;</span>
-<span class="nc" id="L88">        this.lits = new int[ps.size()];</span>
-<span class="nc" id="L89">        ps.moveTo(this.lits);</span>
-<span class="nc" id="L90">    }</span>
+<span class="fc" id="L85">        this.maxUnsatisfied = ps.size() - degree;</span>
+<span class="fc" id="L86">        this.voc = voc;</span>
+<span class="fc" id="L87">        this.counter = 0;</span>
+<span class="fc" id="L88">        this.lits = new int[ps.size()];</span>
+<span class="fc" id="L89">        ps.moveTo(this.lits);</span>
+<span class="fc" id="L90">    }</span>
 
     protected static int niceParameters(UnitPropagationListener s, ILits voc,
             IVecInt ps, int deg) throws ContradictionException {
 
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (ps.size() &lt; deg) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">        if (ps.size() &lt; deg) {</span>
 <span class="nc" id="L96">            throw new ContradictionException();</span>
         }
-<span class="nc" id="L98">        int degree = deg;</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (var i = 0; i &lt; ps.size();) {</span>
+<span class="fc" id="L98">        int degree = deg;</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        for (var i = 0; i &lt; ps.size();) {</span>
             // on verifie si le litteral est affecte
-<span class="nc bnc" id="L101" title="All 2 branches missed.">            if (voc.isUnassigned(ps.get(i))) {</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">            if (voc.isUnassigned(ps.get(i))) {</span>
                 // go to next literal
-<span class="nc" id="L103">                i++;</span>
+<span class="fc" id="L103">                i++;</span>
             } else {
                 // Si le litteral est satisfait,
                 // ?a revient ? baisser le degr?
@@ -114,12 +114,12 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
         }
 
         // on trie le vecteur ps
-<span class="nc" id="L117">        ps.sortUnique();</span>
+<span class="fc" id="L117">        ps.sortUnique();</span>
         // ?limine les clauses tautologiques
         // deux litt?raux de signe oppos?s apparaissent dans la m?me
         // clause
 
-<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (ps.size() == degree) {</span>
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">        if (ps.size() == degree) {</span>
 <span class="nc bnc" id="L123" title="All 2 branches missed.">            for (var i = 0; i &lt; ps.size(); i++) {</span>
 <span class="nc bnc" id="L124" title="All 2 branches missed.">                if (!s.enqueue(ps.get(i))) {</span>
 <span class="nc" id="L125">                    throw new ContradictionException();</span>
@@ -128,10 +128,10 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
 <span class="nc" id="L128">            return 0;</span>
         }
 
-<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (ps.size() &lt; degree) {</span>
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        if (ps.size() &lt; degree) {</span>
 <span class="nc" id="L132">            throw new ContradictionException();</span>
         }
-<span class="nc" id="L134">        return degree;</span>
+<span class="fc" id="L134">        return degree;</span>
 
     }
 
@@ -140,16 +140,16 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      */
     public static Constr atLeastNew(UnitPropagationListener s, ILits voc,
             IVecInt ps, int n) throws ContradictionException {
-<span class="nc" id="L143">        int degree = niceParameters(s, voc, ps, n);</span>
-<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (degree == 0) {</span>
+<span class="fc" id="L143">        int degree = niceParameters(s, voc, ps, n);</span>
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">        if (degree == 0) {</span>
 <span class="nc" id="L145">            return new UnitClauses(ps);</span>
         }
-<span class="nc bnc" id="L147" title="All 2 branches missed.">        if (degree == 1) {</span>
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">        if (degree == 1) {</span>
 <span class="nc" id="L148">            return OriginalWLClause.brandNewClause(voc, ps);</span>
         }
-<span class="nc" id="L150">        Constr constr = new AtLeast(voc, ps, degree);</span>
-<span class="nc" id="L151">        constr.register();</span>
-<span class="nc" id="L152">        return constr;</span>
+<span class="fc" id="L150">        Constr constr = new AtLeast(voc, ps, degree);</span>
+<span class="fc" id="L151">        constr.register();</span>
+<span class="fc" id="L152">        return constr;</span>
     }
 
     /**
@@ -169,24 +169,24 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      */
     public boolean propagate(UnitPropagationListener s, int p) {
         // remet la clause dans la liste des clauses regardees
-<span class="nc" id="L172">        this.voc.watch(p, this);</span>
+<span class="fc" id="L172">        this.voc.watch(p, this);</span>
 
-<span class="nc bnc" id="L174" title="All 2 branches missed.">        if (this.counter == this.maxUnsatisfied) {</span>
-<span class="nc" id="L175">            return false;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        if (this.counter == this.maxUnsatisfied) {</span>
+<span class="fc" id="L175">            return false;</span>
         }
 
-<span class="nc" id="L178">        this.counter++;</span>
-<span class="nc" id="L179">        this.voc.undos(p).push(this);</span>
+<span class="fc" id="L178">        this.counter++;</span>
+<span class="fc" id="L179">        this.voc.undos(p).push(this);</span>
 
         // If no more can be false, enqueue the rest:
-<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (this.counter == this.maxUnsatisfied) {</span>
-<span class="nc bnc" id="L183" title="All 2 branches missed.">            for (int q : this.lits) {</span>
-<span class="nc bnc" id="L184" title="All 4 branches missed.">                if (this.voc.isUnassigned(q) &amp;&amp; !s.enqueue(q, this)) {</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">        if (this.counter == this.maxUnsatisfied) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">            for (int q : this.lits) {</span>
+<span class="pc bpc" id="L184" title="1 of 4 branches missed.">                if (this.voc.isUnassigned(q) &amp;&amp; !s.enqueue(q, this)) {</span>
 <span class="nc" id="L185">                    return false;</span>
                 }
             }
         }
-<span class="nc" id="L189">        return true;</span>
+<span class="fc" id="L189">        return true;</span>
     }
 
     /*
@@ -195,7 +195,7 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      * @see Constr#simplify(Solver)
      */
     public boolean simplify() {
-<span class="nc" id="L198">        return false;</span>
+<span class="fc" id="L198">        return false;</span>
     }
 
     /*
@@ -204,8 +204,8 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      * @see Constr#undo(Solver, Lit)
      */
     public void undo(int p) {
-<span class="nc" id="L207">        this.counter--;</span>
-<span class="nc" id="L208">    }</span>
+<span class="fc" id="L207">        this.counter--;</span>
+<span class="fc" id="L208">    }</span>
 
     /*
      * (non-Javadoc)
@@ -213,12 +213,12 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      * @see Constr#calcReason(Solver, Lit, Vec)
      */
     public void calcReason(int p, IVecInt outReason) {
-<span class="nc bnc" id="L216" title="All 2 branches missed.">        int c = p == ILits.UNDEFINED ? -1 : 0;</span>
-<span class="nc bnc" id="L217" title="All 2 branches missed.">        for (int q : this.lits) {</span>
-<span class="nc bnc" id="L218" title="All 2 branches missed.">            if (this.voc.isFalsified(q)) {</span>
-<span class="nc" id="L219">                outReason.push(q ^ 1);</span>
-<span class="nc bnc" id="L220" title="All 2 branches missed.">                if (++c &gt;= this.maxUnsatisfied) {</span>
-<span class="nc" id="L221">                    return;</span>
+<span class="fc bfc" id="L216" title="All 2 branches covered.">        int c = p == ILits.UNDEFINED ? -1 : 0;</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">        for (int q : this.lits) {</span>
+<span class="fc bfc" id="L218" title="All 2 branches covered.">            if (this.voc.isFalsified(q)) {</span>
+<span class="fc" id="L219">                outReason.push(q ^ 1);</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">                if (++c &gt;= this.maxUnsatisfied) {</span>
+<span class="fc" id="L221">                    return;</span>
                 }
             }
         }
@@ -231,7 +231,7 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
      */
     public boolean learnt() {
         // Ces contraintes ne sont pas apprises pour le moment.
-<span class="nc" id="L234">        return false;</span>
+<span class="fc" id="L234">        return false;</span>
     }
 
     /*
@@ -246,15 +246,15 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
     }
 
     public void register() {
-<span class="nc" id="L249">        this.counter = 0;</span>
-<span class="nc bnc" id="L250" title="All 2 branches missed.">        for (var q : this.lits) {</span>
-<span class="nc" id="L251">            voc.watch(q ^ 1, this);</span>
-<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (voc.isFalsified(q)) {</span>
+<span class="fc" id="L249">        this.counter = 0;</span>
+<span class="fc bfc" id="L250" title="All 2 branches covered.">        for (var q : this.lits) {</span>
+<span class="fc" id="L251">            voc.watch(q ^ 1, this);</span>
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">            if (voc.isFalsified(q)) {</span>
 <span class="nc" id="L253">                this.counter++;</span>
 <span class="nc" id="L254">                this.voc.undos(q ^ 1).push(this);</span>
             }
         }
-<span class="nc" id="L257">    }</span>
+<span class="fc" id="L257">    }</span>
 
     public int size() {
 <span class="nc" id="L260">        return this.lits.length;</span>
@@ -303,11 +303,11 @@ public class AtLeast implements Propagatable, Constr, Undoable, Serializable {
     }
 
     public boolean canBePropagatedMultipleTimes() {
-<span class="nc" id="L306">        return false;</span>
+<span class="fc" id="L306">        return false;</span>
     }
 
     public Constr toConstraint() {
-<span class="nc" id="L310">        return this;</span>
+<span class="fc" id="L310">        return this;</span>
     }
 
     public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {

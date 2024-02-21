@@ -95,7 +95,7 @@ public class VarOrderHeap implements IOrder, Serializable {
 <span class="nc" id="L95">    }</span>
 
     public IPhaseSelectionStrategy getPhaseSelectionStrategy() {
-<span class="fc" id="L98">        return this.phaseStrategy;</span>
+<span class="nc" id="L98">        return this.phaseStrategy;</span>
     }
 
     public void setLits(ILits lits) {
@@ -213,7 +213,7 @@ public class VarOrderHeap implements IOrder, Serializable {
      */
     public void init() {
 <span class="fc" id="L215">        int nlength = this.lits.nVars() + 1;</span>
-<span class="pc bpc" id="L216" title="2 of 4 branches missed.">        if (this.activity == null || this.activity.length &lt; nlength) {</span>
+<span class="pc bpc" id="L216" title="1 of 4 branches missed.">        if (this.activity == null || this.activity.length &lt; nlength) {</span>
 <span class="fc" id="L217">            this.activity = new double[nlength];</span>
         }
 <span class="fc" id="L219">        this.phaseStrategy.init(nlength);</span>
