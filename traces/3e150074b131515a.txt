@@ -1,0 +1,40 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
+3 Learning Strategy : NoLearningNoHeuristics
+4 Order : VarOrderHeap
+5 Phase Selection Strategy : PhaseInLastLearnedClauseSelectionStrategy
+6 DBS simplification
+7 addClause -8 2 -2 
+8 addClause 9 -10 
+9 addClause 9 4 6 
+10 addClause 7 9 -1 
+11 addClause -5 2 -2 
+12 addClause -3 -4 -11 5 
+13 addClause 4 -9 6 -4 
+14 addClause -8 -7 -5 
+15 addClause 1 -2 -11 
+16 addClause -1 -8 3 
+17 addClause -4 -11 -7 
+18 addClause -6 8 -8 
+19 addClause -3 5 -9 
+20 addClause -9 6 1 
+21 addClause 4 8 -6 -7 
+22 addClause -5 8 -11 
+23 addClause 1 2 -2 
+24 addClause 5 -11 -2 
+25 addClause -11 -4 6 
+26 addClause -4 3 -1 
+27 addClause 10 -1 8 
+28 addClause 1 4 3 
+29 addClause -10 -7 -8 
+30 addClause -5 1 -4 
+31 addClause 10 -8 1 
+32 addClause -6 -9 5 
+33 addClause -2 -5 2 
+34 addClause -8 -10 -9 
+35 addClause -3 10 
+36 addClause -10 -6 -5 
+37 addClause -7 
+38 addClause -10 6 -5 
+39 addClause -9 9 7 
+enumerating

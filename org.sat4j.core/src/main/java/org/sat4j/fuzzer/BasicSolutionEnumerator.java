@@ -64,4 +64,22 @@ public class BasicSolutionEnumerator {
             System.out.println(e.getMessage());
         }
     }
+
+    public static int countSolutions(ISolver solver) throws TimeoutException, ContradictionException{
+        int i = 0;
+        Boolean is_sat = true;
+        while (is_sat) {
+            is_sat = solver.isSatisfiable();
+            if (!is_sat)
+                break;
+            i++;
+            // Get the proof of SAT from the solver
+            int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);
+            for (int j = 0; j < lits.length; j++) {
+                lits[j] = lits[j] * -1;
+            }
+            solver.addClause(new VecInt(lits));
+        }
+        return i;
+    }
 }

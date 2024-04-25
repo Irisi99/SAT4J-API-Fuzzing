@@ -1,0 +1,55 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWL
+3 Learning Strategy : ClauseOnlyLearning
+4 Order : NaturalStaticOrder
+5 Phase Selection Strategy : SolutionPhaseSelectionStrategy
+6 DBS simplification
+7 addClause -7 10 14 
+8 addClause 12 3 2 
+9 addClause -15 -1 -4 
+10 addClause 12 -3 1 
+11 addClause 15 12 10 
+12 addClause -4 8 13 
+13 addClause -10 -15 -7 
+14 addClause -13 -5 9 
+15 addClause -1 -6 5 
+16 addClause -1 13 -14 
+17 addClause -5 7 -2 
+18 addClause 6 -16 -15 
+19 addClause 2 -6 -9 
+20 addClause 7 -2 -9 
+21 addClause 1 11 -9 
+22 addClause -3 -13 2 
+23 addClause -11 -12 -6 
+24 addClause -12 -15 -11 
+25 addClause -13 2 -2 
+26 addClause -1 -2 -13 
+27 addClause 13 8 -3 
+28 addClause -11 -13 -5 
+29 addClause -8 -7 -16 
+30 addClause 1 9 -1 
+31 addClause 10 2 1 
+32 addClause -7 8 -8 
+33 addClause -2 12 -4 
+34 addClause -1 -15 9 
+35 addClause 9 6 -8 
+36 addClause 4 15 8 
+37 addClause 3 -16 -12 
+38 addClause 10 -1 15 
+39 addClause 11 9 3 
+40 addClause -4 2 -16 
+41 addClause 14 -5 13 
+42 addClause 9 8 -14 
+43 addClause -2 -11 -1 
+44 addClause -3 14 10 
+45 addClause 6 -16 11 
+46 addClause 8 -7 -5 
+47 addClause -5 13 1 
+48 addClause -11 -3 4 
+49 addClause 11 -11 6 
+50 addClause 5 -3 10 
+51 addClause 13 3 4 
+52 addClause 2 -8 10 
+53 addClause -8 -4 -12 
+54 addClause 2 -11 11 
+enumerating

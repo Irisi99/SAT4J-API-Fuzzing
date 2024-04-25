@@ -355,7 +355,7 @@ import org.sat4j.specs.ISolver;
 <span class="fc" id="L355">                asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
                 
                 // Use DBS (Dependency Based) Simplification
-<span class="fc" id="L358">                trace.addToTrace(index + &quot; DBS simplification allowed&quot;);</span>
+<span class="fc" id="L358">                trace.addToTrace(index + &quot; DBS simplification&quot;);</span>
 <span class="fc" id="L359">                index++;</span>
 <span class="fc" id="L360">                asolver.setDBSimplificationAllowed(true);</span>
                

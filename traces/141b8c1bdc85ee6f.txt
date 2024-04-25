@@ -1,5 +1,5 @@
 1 init
-2 using solver NoSimplification
+2 Solver : NoSimplification
 3 addClause 25 14 47 
 4 addClause -7 27 -48 
 5 addClause -43 48 41 

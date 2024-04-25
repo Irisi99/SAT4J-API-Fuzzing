@@ -1,0 +1,3 @@
+1 init
+40 addClause -6 3 
+enumerating

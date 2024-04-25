@@ -1,0 +1,10 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
+3 Learning Strategy : NoLearningNoHeuristics
+4 Order : NaturalStaticOrder
+5 Phase Selection Strategy : RSATLastLearnedClausesPhaseSelectionStrategy
+6 DBS simplification
+7 addClause 1 -1 -2 
+8 addClause 1 -1 -2 
+9 addClause -2 -1 1 
+enumerating

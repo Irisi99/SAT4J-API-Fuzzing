@@ -1,0 +1,16 @@
+1 init
+2 Solver : MinOneSolver
+3 DBS simplification
+4 addClause 1 -3 -4 
+5 addClause -2 3 4 
+6 addClause -4 -3 -1 
+7 addClause 2 3 -3 
+8 addClause 1 2 -1 
+9 addClause -1 3 2 
+10 addClause 1 2 4 
+11 addClause 2 -3 3 
+12 addClause -1 -4 2 
+13 addClause 2 -3 -1 
+14 addClause 1 -2 -4 
+15 addClause 4 -1 -2 
+enumerating

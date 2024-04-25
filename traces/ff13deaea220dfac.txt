@@ -1,0 +1,61 @@
+1 init
+2 Data Structure Factory : MixedDataStructureSingleWL
+3 Learning Strategy : FixedLengthLearning/maxlength=3
+4 Order : PureOrder/period=16
+5 Phase Selection Strategy : PhaseInLastLearnedClauseSelectionStrategy
+6 Restart Strategy : ArminRestarts
+7 Search Params : varDecay=0.9628316049751398/claDecay=0.99604213847673/conflictBoundIncFactor=0.19041036698925184/initConflictBound=108
+8 Learned Constraints Evaluation Type : LBD2
+9 Random Walk : 0.5980884126662452
+10 DBS simplification
+11 addClause -7 -4 
+12 addClause -8 -4 -1 
+13 addClause -2 6 1 
+14 addClause -9 1 -8 
+15 addClause -8 3 5 
+16 addClause 8 9 5 
+17 addClause -8 3 2 
+18 addClause 7 -9 1 
+19 addClause -5 3 -7 
+20 addClause 3 -8 
+21 addClause -9 -10 
+22 addClause -1 -6 -5 
+23 addClause -9 -7 -11 
+24 addClause 8 5 
+25 addClause -2 5 2 
+26 addClause -10 -2 1 
+27 addClause 9 1 4 
+28 addClause 2 8 -2 
+29 addClause -4 9 -9 
+30 addClause 1 2 4 
+31 addClause 6 -8 
+32 addClause 3 4 7 
+33 addClause -5 -4 7 
+34 addClause -8 -10 7 
+35 addClause -9 6 2 
+36 addClause -10 -6 4 
+37 addClause 2 -9 -4 
+38 addClause -1 -9 8 
+39 addClause -6 -10 6 
+40 addClause 8 -5 3 
+41 addClause -2 -6 -10 
+42 addClause 2 5 -4 
+43 addClause -10 -2 -7 
+44 addClause -4 -1 -6 
+45 addClause -10 7 -8 3 
+46 addClause 2 -1 8 
+47 addClause -2 2 -10 
+48 addClause 1 -2 -1 
+49 addClause 9 2 -6 
+50 addClause 5 -3 -6 -10 
+51 addClause 9 -9 1 
+52 addClause 2 7 -3 
+53 addClause 3 4 
+54 addClause 4 2 -6 
+55 addClause -6 -10 -1 
+56 addClause 1 5 7 
+57 addClause -4 5 -6 
+58 addClause 5 7 6 
+59 addClause -6 -1 8 
+60 addClause -10 -7 -4 
+enumerating

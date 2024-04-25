@@ -1,0 +1,145 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructureYanMin
+3 Learning Strategy : NoLearningNoHeuristics
+4 Order : VarOrderHeap
+5 Phase Selection Strategy : UserFixedPhaseSelectionStrategy
+6 Restart Strategy : EMARestarts
+7 Learned Constraints Evaluation Type : ACTIVITY
+8 Random Walk : 0.8957035161244895
+9 DBS simplification
+10 addClause 121 77 -3 
+11 addClause 68 -83 -57 
+12 addClause -16 -90 9 
+13 addClause -5 -94 -58 
+14 addClause -75 148 -121 
+15 addClause -119 17 66 
+16 addClause -108 34 30 
+17 addClause -10 29 -123 
+18 addClause -82 -146 -98 
+19 addClause 81 -75 -144 
+20 addClause 135 122 -99 
+21 addClause 87 34 54 
+22 addClause -107 103 -76 
+23 addClause -36 45 105 
+24 addClause -112 -126 -20 
+25 addClause -61 -39 -60 
+26 addClause -93 -8 -132 
+27 addClause 61 57 -45 
+28 addClause 135 -7 112 
+29 addClause 85 -141 -107 
+30 addClause 86 -128 
+31 addClause -67 -4 -70 
+32 addClause 57 -140 
+33 addClause -144 -114 -119 
+34 addClause -28 116 
+35 addClause 101 
+36 addClause 56 67 -47 
+37 addClause 26 -62 -132 
+38 addClause 120 -13 
+39 addClause -120 44 -74 
+40 addClause 139 -35 -69 
+41 addClause -46 -35 124 
+42 addClause 5 41 
+43 addClause 10 7 90 124 
+44 addClause -136 108 91 
+45 addClause -24 105 84 
+46 addClause 14 -10 
+47 addClause 136 -82 89 
+48 addClause 137 18 4 
+49 addClause -101 134 98 
+50 addClause -116 140 -72 
+51 addClause -28 83 113 
+52 addClause -76 -49 140 
+53 addClause -116 45 -13 
+54 addClause -23 -13 92 
+55 addClause -78 30 32 
+56 addClause -134 -149 66 
+57 addClause -44 144 
+58 addClause -90 144 
+59 addClause 62 -55 -77 
+60 addClause -134 -93 57 
+61 addClause -23 141 
+62 addClause 47 -4 131 4 
+63 addClause 51 -145 
+64 addClause 104 -10 49 
+65 addClause 80 37 16 
+66 addClause 69 141 130 
+67 addClause 147 -96 
+68 addClause 130 -67 126 
+69 addClause -70 82 70 
+70 addClause 101 -120 -121 40 
+71 addClause 121 -86 -45 
+72 addClause -77 1 -146 
+73 addClause 53 -39 -60 
+74 addClause 31 140 -16 
+75 addClause -147 -90 -36 
+76 addClause -136 -44 70 92 1 
+77 addClause -54 -16 71 
+78 addClause 32 -88 -136 
+79 addClause 98 -37 
+80 addClause 101 -120 -116 
+81 addClause 67 -100 -40 
+82 addClause 145 55 58 
+83 addClause -42 -5 -11 -82 
+84 addClause 107 -37 1 
+85 addClause 125 18 -31 
+86 addClause -20 -1 -11 
+87 addClause -24 78 -143 
+88 addClause 66 49 74 
+89 addClause -81 -134 7 
+90 addClause 94 143 -111 
+91 addClause 11 91 -18 
+92 addClause 53 -93 
+93 addClause -107 -142 54 
+94 addClause 150 73 -122 
+95 addClause -76 55 -61 
+96 addClause 81 40 79 128 
+97 addClause -133 78 145 
+98 addClause 91 -126 -66 
+99 addClause 46 69 117 
+100 addClause 33 -67 -87 
+101 addClause -33 -65 115 
+102 addClause 123 -70 
+103 addClause -149 24 -47 
+104 addClause -100 -140 -50 
+105 addClause -42 -74 140 
+106 addClause -93 -62 
+107 addClause 16 -40 121 
+108 addClause -136 24 -16 
+109 addClause -138 -56 114 30 
+110 addClause 92 127 -44 
+111 addClause 7 -58 -127 
+112 addClause 133 41 
+113 addClause 138 -122 -65 
+114 addClause -49 112 -74 
+115 addClause -86 40 -139 
+116 addClause 8 -20 1 
+117 addClause -17 -91 -29 
+118 addClause 21 -79 -133 -3 
+119 addClause 26 -15 -63 
+120 addClause -128 -6 -30 -105 
+121 addClause -103 
+122 addClause -63 -27 -9 
+123 addClause 22 5 51 
+124 addClause 72 95 -1 
+125 addClause -99 34 -95 
+126 addClause 31 90 -47 
+127 addClause 48 -10 
+128 addClause -28 21 
+129 addClause 57 120 -143 
+130 addClause 140 -150 99 
+131 addClause -28 -103 -39 
+132 addClause 138 -32 11 
+133 addClause 51 46 -25 
+134 addClause -136 -118 -88 
+135 addClause 88 20 -55 
+136 addClause 22 45 47 
+137 addClause 64 -133 -134 
+138 addClause 2 20 120 
+139 addClause -11 -101 60 
+140 addClause -73 150 139 
+141 addClause -141 44 -138 
+142 addClause 76 50 107 -1 
+143 addClause 28 -77 150 
+144 addClause -43 -21 36 
+145 addClause -101 
