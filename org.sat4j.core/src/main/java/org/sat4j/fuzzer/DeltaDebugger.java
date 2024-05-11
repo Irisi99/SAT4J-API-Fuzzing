@@ -14,6 +14,11 @@ import org.sat4j.specs.TimeoutException;
 
 public class DeltaDebugger {
 
+    // try to remove literals from clauses as well
+    // try to separate removing options and clauses 
+    // try to shuffle and rename literals -> check if bug is still there or recover
+    // try until no reduction is possible
+
     public static void main(final String[] args) throws TimeoutException, ContradictionException {
 
         // Get File name from comandline 
@@ -102,7 +107,7 @@ public class DeltaDebugger {
                         else
                             section = (int) (size/granularity);
                     }
-                    // If section size is down to 1 but we are still reducing then go over the API calls until we don't remove any
+                    // If section size is down to 1 but we are still reducing then go over the API calls until we can't remove any
                     else if(old_size == size)
                         break;
 

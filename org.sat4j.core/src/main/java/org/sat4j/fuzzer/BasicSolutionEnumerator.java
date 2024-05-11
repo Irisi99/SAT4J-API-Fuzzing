@@ -40,7 +40,7 @@ public class BasicSolutionEnumerator {
                 i++;
                 // Get the proof of SAT from the solver
                 int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);
-                System.out.println("c Solution " + i + " : " + TraceFactory.toString(lits) + "\n");
+                System.out.println("c Solution " + i + " : " + Helper.clauseToString(lits) + "\n");
 
                 // Swap the sign of the literals and add them as a new clause in the solver in order to find other solutions
                 for (int j = 0; j < lits.length; j++) {
@@ -65,6 +65,7 @@ public class BasicSolutionEnumerator {
         }
     }
 
+    // Custom method to count solutions of a CNF File
     public static int countSolutions(ISolver solver) throws TimeoutException, ContradictionException{
         int i = 0;
         Boolean is_sat = true;

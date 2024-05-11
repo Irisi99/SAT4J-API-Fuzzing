@@ -3,16 +3,12 @@ package org.sat4j.fuzzer;
 import java.util.Random;
 import org.apache.commons.beanutils.BeanUtils;
 
-import org.sat4j.specs.TimeoutException;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
-import org.sat4j.minisat.core.Counter;
 import org.sat4j.minisat.core.DataStructureFactory;
 import org.sat4j.minisat.core.ICDCL;
 import org.sat4j.minisat.core.IOrder;
@@ -27,9 +23,6 @@ import org.sat4j.minisat.orders.RandomWalkDecorator;
 import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
-import org.sat4j.tools.ModelIterator;
-import org.sat4j.tools.SearchEnumeratorListener;
-import org.sat4j.tools.SolutionFoundListener;
 
 public class TraceFactory {
 
@@ -40,7 +33,6 @@ public class TraceFactory {
     // Should probably make it run for a ceratin time or until it finds X errors
     static int MAX_ITERATIONS = 100;
     static int MAXVAR;
-    static int CLAUSE_LENGTH = 3;    
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
     static boolean ENUMERATING;
@@ -50,18 +42,11 @@ public class TraceFactory {
     static ISolver solver2;
     static int index; 
     static ArrayList<Integer> usedLiterals = new ArrayList<Integer>();
-    static ArrayList<String> SOLVERS = new ArrayList<String>();
-    static ArrayList<String> DSF = new ArrayList<String>();
-    static ArrayList<String> LEARNING = new ArrayList<String>();
-    static ArrayList<String> ORDERS = new ArrayList<String>();
-    static ArrayList<String> PHASE = new ArrayList<String>();
-    static ArrayList<String> RESTARTS = new ArrayList<String>();
-    static ArrayList<String> SIMPLIFIERS = new ArrayList<String>();
-
+    static ArrayList<String> icnf = new ArrayList<String>();
     // sanity check - verbose - print all variables you are choosing
     public static void run(long seed, boolean isTraceSeed, boolean verbose) {
 
-        initializeOptions(verbose);
+        Helper.initializeOptions(verbose);
 
         // If we want to generate a specific Trace we do not need the master random generator
         if(!isTraceSeed){
@@ -86,6 +71,7 @@ public class TraceFactory {
         while (iteration < MAX_ITERATIONS) {
 
             iteration++;
+            icnf.clear();
 
             // Generate Slave Seed
             long slaveSeed;
@@ -101,7 +87,7 @@ public class TraceFactory {
             // Uniform Clause length or not -> ranges from 1 to max length
             UNIFORM = slaveRandomGenerator.nextBoolean();
             if(UNIFORM && verbose){
-                System.out.println("c CLAUSE_LENGTH: " + CLAUSE_LENGTH);
+                System.out.println("c CLAUSE_LENGTH: " + 3);
             }
 
             // HEX ID for Trace
@@ -120,6 +106,7 @@ public class TraceFactory {
                 MAXVAR = slaveRandomGenerator.nextInt(20) + 1;
                 coeficient = 5;
             } else {
+                icnf.add("p icnf");
                 // Add 20 - 200 to the Number of Variables on each increment
                 MAXVAR = slaveRandomGenerator.nextInt(181) + 20;
                 // Higher coeficient (more clauses) means more UNSAT instances
@@ -128,18 +115,15 @@ public class TraceFactory {
 
             // Add Coeficient * newVariables new Clauses each increment
             NUMBER_OF_CLAUSES = (int) (coeficient * MAXVAR);
-
             Boolean skipMaxVar = true;
 
             try {
 
                 long initSeed = slaveRandomGenerator.nextLong();
-
                 // Initialize the Solver with randomized Options
                 solver = initializeSolver(verbose, true, initSeed);
                 // Set 10 min time-out per trace
                 solver.setTimeout(600);
-
                 // Initalize identical solver if we are going to compare enumerators
                 if(ENUMERATING){
                     solver2 = initializeSolver(verbose, false, initSeed);
@@ -147,14 +131,7 @@ public class TraceFactory {
                 }
                     
             } catch (Exception e) {
-                if(!isTraceSeed){
-                    trace.toFile();
-                    System.out.print(" --- Inside Exception from initializeSolver()");
-                    System.out.println(" --- " + e.getMessage());
-                }
-                if(verbose){
-                    e.printStackTrace(System.out);
-                }
+                Helper.printException(isTraceSeed, verbose, trace, "initializeSolver()", e);
                 continue;
             }
 
@@ -189,116 +166,107 @@ public class TraceFactory {
                 try{
                     addClauses();
                 } catch (final Exception e) {
-                    if(!isTraceSeed){
-                        trace.toFile();
-                        System.out.print(" --- Inside Exception from addClause()");
-                        System.out.println(" --- " + e.getMessage());
-                    }
-                    if(verbose){
-                        e.printStackTrace(System.out);
-                    }
+                    Helper.printException(isTraceSeed, verbose, trace, "addClause()", e);
                     break;
                 }
 
                 if(ENUMERATING){
                     try {
-
                         if(verbose){
                             System.out.println("Started Generating Solution Enumerations");
                         }
 
                         trace.addToTrace(index+" enumerating");
-
-                        long internal = countSolutionsInt(solver);
-                        long external = countSolutionsExt(solver2);
-
+                        long internal = Helper.countSolutionsInt(solver);
+                        long external = Helper.countSolutionsExt(solver2);
                         int maxVariableUsed = Collections.max(usedLiterals);
                         int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
 
                         if(numberOfUnusedLiterals > 0){
-                            long divider = combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
+                            long divider = Helper.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
                             external = external/divider;
                         }
-
                         if(internal != external) {
                             throw new Exception("Internal and External Enumerators provided different values : " + internal + " - " + external);
                         } else
                             break;
 
                     } catch (Exception e) {
-                        if(!isTraceSeed){
-                            trace.toFile();
-                            System.out.print(" --- Inside Exception from Enumeration");
-                            System.out.println(" --- " + e.getMessage());
-                        }
-                        if(verbose){
-                            e.printStackTrace(System.out);
-                        }
+                        Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
                         break;
                     }
 
                 } else {
                     try {
                         startTime = System.currentTimeMillis();
-
                         // If Assumptions flag is true then solve with assumptions
                         if(ASSUMPTIONS){
                             int[] assumption;
-
                             // Power law for the number of literals we are assuming
                             // Start with assuming 1/10 of variables and then increase by 1/10 with probability 1/6 
                             int size = MAXVAR/10;
                             while(slaveRandomGenerator.nextDouble() < 1.0/6.0){
                                 size += MAXVAR/10;
                             }
-
                             assumption = new int[size];
 
                             for (int i=0 ; i < size; i++) {
                                 assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                                 // Need to check if that literal is assumed before, if we are assuming 0
                                 // Or if that literal is not used in a clause anywhere in the trace 
-                                while(isAlreadyPresent(assumption, i) || assumption[i] == 0 || !usedLiterals.contains(Math.abs(assumption[i]))){
+                                while(Helper.isAlreadyPresent(assumption, i) || assumption[i] == 0 || !usedLiterals.contains(Math.abs(assumption[i]))){
                                     assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                                 }
                             }
                             if(verbose){
-                                System.out.println("c ASSUMPTIONS: " + toString(assumption));
+                                System.out.println("c ASSUMPTIONS: " + Helper.clauseToString(assumption));
                             }
-
-                            trace.addToTrace(index + " assuming " + toString(assumption));
+                            trace.addToTrace(index + " assuming " + Helper.clauseToString(assumption));
                             index++;
+                            icnf.add("q "+Helper.clauseToString(assumption)+"0");
 
                             // Call solver and pass the generated assumptions
                             isSAT = solver.isSatisfiable(new VecInt(assumption));
 
                         // If Assumptions flag is false then simply try to solve the formula
                         } else {
-
                             trace.addToTrace(index + " solve");
                             index++;
-
+                            icnf.add("q 0");
                             // Call the solver
                             isSAT = solver.isSatisfiable(); 
                         }
                         
                         endTime = System.currentTimeMillis();
-
                         // If it is SAT then we continue with next iteration
                         if (isSAT) {
+
+                            icnf.add("s SATISFIABLE");
+                            icnf.add("m "+Helper.clauseToString(solver.model())+"0");
+
                             // If this was the last iteration update statistics and continue to next trace
                             if(increments == totalIncrements){
+                                // Helper.createICNF(trace.getId(), icnf);
+
                                 SATinstances++;
                                 if(verbose){
                                     System.out.println("c SATISFIABLE!");
-                                    System.out.println("c SOLUTION: "+toString(solver.model()));
+                                    System.out.println("c SOLUTION: "+ Helper.clauseToString(solver.model()));
                                 }
                             }
+
                         // If it is UNSAT no need to continue with the other increments, update statistics and continue to next trace
-                        } else{
+                        } else {
 
-                            // Should I check if it is UNSAT because of Assumptions and if so continue the increments ???
+                            icnf.add("s UNSATISFIABLE");
+                            if(ASSUMPTIONS){
+                                icnf.add("u "+Helper.IVecToString(solver.unsatExplanation())+"0");
+                            } else {
+                                icnf.add("u 0");
+                            }
+                            // Helper.createICNF(trace.getId(), icnf);
 
+                            // TODO: Should I check if it is UNSAT because of Assumptions and if so continue the increments ???
                             UNSATinstances ++;
                             if(verbose){
                                 System.out.println("c UNSATISFIABLE!");
@@ -310,14 +278,7 @@ public class TraceFactory {
                             break;
                         }
                     } catch (final Exception e) {
-                        if(!isTraceSeed){
-                            trace.toFile();
-                            System.out.print(" --- Inside Exception from isSatisfiable()");
-                            System.out.println(" --- " + e.getMessage());
-                        }
-                        if(verbose){
-                            e.printStackTrace(System.out);
-                        }
+                        Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
                         break;
                     }
 
@@ -353,42 +314,15 @@ public class TraceFactory {
 
         for (int i = 0; i < NUMBER_OF_CLAUSES; i++) {
 
-            int[] clause;
+            int[] clause = Helper.newClause(slaveRandomGenerator, UNIFORM);
 
-            // Start with default clause length 3
-            CLAUSE_LENGTH = 3;
-
-            // Check if Clauses are uniform or if we need to generate a length
-            if(!UNIFORM){
-
-                // Flip a coin if we need to make it shorter / longer and keep repeating
-                Double percentage = slaveRandomGenerator.nextDouble();
-                
-                if(percentage < 0.01){
-                    // 1% unit clause
-                    CLAUSE_LENGTH = 1;
-                } else if(percentage < 0.1){
-                    // 10% binary clause
-                    CLAUSE_LENGTH = 2;
-                } else {
-                    // ~ 17% longer clauses
-                    while (percentage < 1.0/6.0) {
-                        CLAUSE_LENGTH += 1;
-                        percentage = slaveRandomGenerator.nextDouble();
-                    }
-                }
-            }
-            clause = new int[CLAUSE_LENGTH];
-
-            for (int j = 0; j < CLAUSE_LENGTH; j++) {
+            for (int j = 0; j < clause.length; j++) {
                 // Generate a literal that is a valid variable but could be positive or negative
                 clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
-
                 // Check that this literal is not used before in the clause and that it is not 0
-                while (clause[j] == 0 || isAlreadyPresent(clause, j)) {
+                while (clause[j] == 0 || Helper.isAlreadyPresent(clause, j)) {
                     clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);
                 }
-
                 // We need to know which literals we can assume if we have assumptions on so we keep track of all literals
                 // We also need to know how many of the variables are used when enumerating
                 if(!usedLiterals.contains(Math.abs(clause[j]))){
@@ -397,13 +331,16 @@ public class TraceFactory {
             }
 
             try {
-                trace.addToTrace(index + " addClause " + toString(clause));
+                trace.addToTrace(index + " addClause " + Helper.clauseToString(clause));
                 index++;
 
                 solver.addClause(new VecInt(clause));
-                if(ENUMERATING)
+                if(ENUMERATING){
                     solver2.addClause(new VecInt(clause));
-
+                } else {
+                    icnf.add("i "+Helper.clauseToString(clause)+"0");
+                }
+                    
             } catch (ContradictionException e) {
                 // We do not create empty clauses but if all literals in our clause are already
                 // assigned a value through unit propagation then they are not considered and it throws an error
@@ -427,25 +364,18 @@ public class TraceFactory {
             index++;
         }
         Random initRandomGenerator = new Random(initSeed);
-
         // Initialize deafult solver for Minisat
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         ISolver asolver = factory.defaultSolver();
-
         // Use all options or randomly select options to include
         Boolean useAll = initRandomGenerator.nextBoolean();
-
         // Use no options
         if(initRandomGenerator.nextBoolean()){
-
-            String solverName = "";
-
             // Configure solver or use default solver
             if (useAll || initRandomGenerator.nextBoolean()) {
-
                 // Flip coin to use a predifined solver or configure solver randomly
                 if(initRandomGenerator.nextBoolean()){
-                    solverName = SOLVERS.get(initRandomGenerator.nextInt(SOLVERS.size()));
+                    String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
                     if(addToTrace){
                         trace.addToTrace(index + " using solver " + solverName);
                         index++;
@@ -484,15 +414,10 @@ public class TraceFactory {
                 }
                 asolver.setDBSimplificationAllowed(true);
             }
-
-            if(verbose && addToTrace){
-                System.out.println("c SOLVER: " + solverName);
-            }
         }
-
-        if(verbose){
-            System.out.println(asolver.toString());
-        }
+        // if(verbose){
+        //     System.out.println(asolver.toString());
+        // }
         return asolver;
     }
 
@@ -500,13 +425,13 @@ public class TraceFactory {
     public static ISolver createSolverWithBuildingBlocks(ICDCL theSolver, Random initRandomGenerator, Boolean useAll, Boolean addToTrace) throws Exception{
         
         // What should happen when option combination is really slow ???
-
         // Building Blocks : DSF, LEARNING, ORDERS, PHASE, RESTARTS, SIMP, PARAMS, CLEANING
+
         Solver asolver = (Solver) theSolver;
         Boolean isNaturalStaticOrder = false;
 
         if(useAll || initRandomGenerator.nextBoolean()){
-            String dsfName = DSF.get(initRandomGenerator.nextInt(DSF.size()));
+            String dsfName = Helper.DSF.get(initRandomGenerator.nextInt(Helper.DSF.size()));
             if(addToTrace){
                 trace.addToTrace(index + " Data Structure Factory : "+dsfName);
                 index++;
@@ -515,10 +440,8 @@ public class TraceFactory {
             theSolver.setDataStructureFactory(dsf);
         }
 
-        // What range should I apply for parameters ???
-
         if(useAll || initRandomGenerator.nextBoolean()){
-            String orderName = ORDERS.get(initRandomGenerator.nextInt(ORDERS.size()));
+            String orderName = Helper.ORDERS.get(initRandomGenerator.nextInt(Helper.ORDERS.size()));
             String log = index + " Order : "+orderName;
             Integer period = 20;
             Double varDecay = 1.0;
@@ -552,7 +475,7 @@ public class TraceFactory {
             if(isNaturalStaticOrder){
                 isNaturalStaticOrder = false;
             } else {
-                String pssName = PHASE.get(initRandomGenerator.nextInt(PHASE.size()));
+                String pssName = Helper.PHASE.get(initRandomGenerator.nextInt(Helper.PHASE.size()));
                 if(addToTrace){
                     trace.addToTrace(index + " Phase Selection Strategy : "+pssName);
                     index++;
@@ -566,7 +489,7 @@ public class TraceFactory {
         }
 
         if (useAll || initRandomGenerator.nextBoolean()) {
-            String learningName = LEARNING.get(initRandomGenerator.nextInt(LEARNING.size()));
+            String learningName = Helper.LEARNING.get(initRandomGenerator.nextInt(Helper.LEARNING.size()));
             String log = index + " Learning Strategy : "+learningName;
             Double percent = 0.95;
             Integer maxlength = 3;
@@ -603,7 +526,7 @@ public class TraceFactory {
         }
 
         if(useAll || initRandomGenerator.nextBoolean()){
-            String restarterName = RESTARTS.get(initRandomGenerator.nextInt(RESTARTS.size()));
+            String restarterName = Helper.RESTARTS.get(initRandomGenerator.nextInt(Helper.RESTARTS.size()));
             String log = index + " Restart Strategy : "+restarterName;
             Integer period = 0;
             Integer factor = 32;
@@ -633,7 +556,7 @@ public class TraceFactory {
         }
 
         if(useAll || initRandomGenerator.nextBoolean()){
-            String simplifierName = SIMPLIFIERS.get(initRandomGenerator.nextInt(SIMPLIFIERS.size()));
+            String simplifierName = Helper.SIMPLIFIERS.get(initRandomGenerator.nextInt(Helper.SIMPLIFIERS.size()));
             if(addToTrace){
                 trace.addToTrace(index + " Simplification Type : "+simplifierName.toString());
                 index++;
@@ -677,128 +600,5 @@ public class TraceFactory {
 
         return theSolver;
     }
-
-    // Make sure all literals in the clause / assumption are different from each other
-    public static Boolean isAlreadyPresent(int[] clause, int index){
-        for(int i = 0; i < index; i++){
-            if(clause[i] == clause[index])
-                return true;
-        }
-        return false;
-    }
-
-    // Custom toString method for array for easier parsing when rurning trace file
-    public static String toString( int[] clause){
-        String stringClause = "";
-        for(int i=0; i < clause.length; i++){
-            stringClause += clause[i]+" ";
-        }
-        return stringClause;
-    }
-
-    public static long combinations(int n, int r) {
-
-        if(r == 0){
-            return 1;
-        } else if(r == n){
-            return 1 + combinations(n, r-1);
-        } else {
-            return (factorial(n) / (factorial(r) * factorial(n-r))) + combinations(n, r-1);
-        }
-    }
-
-    public static long factorial(int n) {
-        if (n <= 2) {
-            return n;
-        }
-        return n * factorial(n - 1);
-    }
-
-    // Count solutions with External Iterator
-    public static long countSolutionsExt(ISolver solver) throws TimeoutException{
-        var enumerator = new ModelIterator(solver);
-        while (enumerator.isSatisfiable() && enumerator.model() != null) {}
-        return (long) enumerator.numberOfModelsFoundSoFar();
-    }
-
-    //Count solutions with Internal Iterator
-    public static long countSolutionsInt(ISolver solver) throws TimeoutException{
-        Counter counter = new Counter();
-        SolutionFoundListener sfl = new SolutionFoundListener() {
-            @Override
-            public void onSolutionFound(int[] solution) {
-                counter.inc();
-            }
-        };
-        SearchEnumeratorListener enumerator = new SearchEnumeratorListener(sfl);
-        solver.setSearchListener(enumerator);
-        solver.isSatisfiable();
-        return  (long) enumerator.getNumberOfSolutionFound();
-    }
-
     
-    public static void initializeOptions(boolean verbose){
-
-        // All the Pre-Defined Solver Configurations for Minisat
-        ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
-        SOLVERS.addAll(Arrays.asList(factory.solverNames()));
-
-        // No point in keeping it as an option
-        SOLVERS.remove("Default");
-
-        // Not real solvers
-        SOLVERS.remove("Statistics");
-        SOLVERS.remove("DimacsOutput");
-
-        // Available Data Structure Factories
-        DSF.add("CardinalityDataStructure");
-        DSF.add("CardinalityDataStructureYanMax");
-        DSF.add("CardinalityDataStructureYanMin");
-        DSF.add("ClausalDataStructureWL");
-        DSF.add("MixedDataStructureDanielHT");
-        DSF.add("MixedDataStructureDanielWL");
-        DSF.add("MixedDataStructureDanielWLConciseBinary");
-        DSF.add("MixedDataStructureSingleWL");
-
-        // Available Learning Strategies
-        LEARNING.add("ActiveLearning");
-        LEARNING.add("ClauseOnlyLearning");
-        LEARNING.add("FixedLengthLearning");
-        // LEARNING.add("LimitedLearning"); - protected constructor
-        LEARNING.add("MiniSATLearning");
-        LEARNING.add("NoLearningButHeuristics");
-        LEARNING.add("NoLearningNoHeuristics");
-        LEARNING.add("PercentLengthLearning");
-
-        // Available Order Strategies
-        ORDERS.add("NaturalStaticOrder");
-        // ORDERS.add("OrientedOrder"); - constructor expects file name where order is defined
-        ORDERS.add("PureOrder");
-        ORDERS.add("VarOrderHeap");
-
-        // Available Phase Selection Strategies
-        PHASE.add("PhaseCachingAutoEraseStrategy");
-        PHASE.add("PhaseInLastLearnedClauseSelectionStrategy");
-        PHASE.add("PositiveLiteralSelectionStrategy");
-        PHASE.add("RandomLiteralSelectionStrategy");
-        PHASE.add("RSATLastLearnedClausesPhaseSelectionStrategy");
-        PHASE.add("RSATPhaseSelectionStrategy");
-        PHASE.add("SolutionPhaseSelectionStrategy");
-        PHASE.add("UserFixedPhaseSelectionStrategy");
-
-        // Available Restart Startegies
-        RESTARTS.add("ArminRestarts");
-        RESTARTS.add("EMARestarts");
-        RESTARTS.add("FixedPeriodRestarts");
-        RESTARTS.add("Glucose21Restarts");
-        RESTARTS.add("LubyRestarts");
-        RESTARTS.add("MiniSATRestarts");
-        RESTARTS.add("NoRestarts");
-
-        // Available Simplifiers
-        SIMPLIFIERS.add("NO_SIMPLIFICATION");
-        SIMPLIFIERS.add("simpleSimplification");
-        SIMPLIFIERS.add("expensiveSimplification");
-        SIMPLIFIERS.add("expensiveSimplificationWLOnly");
-    }
 }

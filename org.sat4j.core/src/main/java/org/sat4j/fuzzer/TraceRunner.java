@@ -1,28 +1,19 @@
 package org.sat4j.fuzzer;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.core.DataStructureFactory;
 import org.sat4j.minisat.core.ICDCL;
-import org.sat4j.minisat.core.IOrder;
 import org.sat4j.minisat.core.IPhaseSelectionStrategy;
 import org.sat4j.minisat.core.ISimplifier;
 import org.sat4j.minisat.core.LearnedConstraintsEvaluationType;
-import org.sat4j.minisat.core.LearningStrategy;
-import org.sat4j.minisat.core.RestartStrategy;
-import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.minisat.core.Solver;
-import org.sat4j.minisat.orders.RandomWalkDecorator;
-import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ISolver;
 
 public class TraceRunner {
@@ -56,9 +47,9 @@ public class TraceRunner {
 
         usedLiterals = new ArrayList<Integer>();
 
-        ISolver solver = initSolver("Default");
+        ISolver solver = Helper.initSolver("Default");
         // Second solver in case it is Enumerating Solutions
-        ISolver solver2 = initSolver("Default");
+        ISolver solver2 = Helper.initSolver("Default");
 
         try{
             // Iterates over all the API calls
@@ -67,14 +58,13 @@ public class TraceRunner {
                 if(apiCalls.get(i) == null)
                     continue;
 
-                // If API call is defining the Solver used then parse the name of the solver from the trace
-                // and initialize the specified solver
+                // If API call is defining the Solver used then parse the name of the solver from the trace and initialize the specified solver
                 if(apiCalls.get(i).contains("Solver")){
                     String[] t = apiCalls.get(i).split(" ");
-                    solver = initSolver(t[t.length-1]);
-                    solver2 = initSolver(t[t.length-1]);
+                    solver = Helper.initSolver(t[t.length-1]);
+                    solver2 = Helper.initSolver(t[t.length-1]);
 
-                //
+                // If API call is defining the Data Structure then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Data Structure Factory")){
                     String[] t = apiCalls.get(i).split(" ");
                     DataStructureFactory dsf = (DataStructureFactory) Class.forName("org.sat4j.minisat.constraints."+t[t.length-1]).getConstructor().newInstance();
@@ -82,32 +72,32 @@ public class TraceRunner {
                     dsf = (DataStructureFactory) Class.forName("org.sat4j.minisat.constraints."+t[t.length-1]).getConstructor().newInstance();
                     ((ICDCL) solver2).setDataStructureFactory(dsf);
 
-                //                
+                // If API call is defining the Order then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Order")){
                     String[] t = apiCalls.get(i).split(" ");
-                    solver = setOrder((ICDCL) solver, t[t.length-1]);
-                    solver2 = setOrder((ICDCL) solver2, t[t.length-1]);
+                    solver = Helper.setOrder((ICDCL) solver, t[t.length-1]);
+                    solver2 = Helper.setOrder((ICDCL) solver2, t[t.length-1]);
 
-                //
+                // If API call is defining the Phase Startegy then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Phase Selection Strategy")){
                     String[] t = apiCalls.get(i).split(" ");
                     IPhaseSelectionStrategy pss = (IPhaseSelectionStrategy) Class.forName("org.sat4j.minisat.orders."+t[t.length-1]).getConstructor().newInstance();
                     ((ICDCL) solver).getOrder().setPhaseSelectionStrategy(pss);
                     ((ICDCL) solver2).getOrder().setPhaseSelectionStrategy(pss);
 
-                //
+                // If API call is defining the Learning Strategy then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Learning Strategy")){
                     String[] t = apiCalls.get(i).split(" ");
-                    solver = setLearningStrategy((ICDCL) solver, t[t.length-1]);
-                    solver2 = setLearningStrategy((ICDCL) solver2, t[t.length-1]);
+                    solver = Helper.setLearningStrategy((ICDCL) solver, t[t.length-1]);
+                    solver2 = Helper.setLearningStrategy((ICDCL) solver2, t[t.length-1]);
 
-                //
+                // If API call is defining the Restart Strategy then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Restart Strategy")){
                     String[] t = apiCalls.get(i).split(" ");
-                    solver = setRestartStrategy((ICDCL) solver, t[t.length-1]);
-                    solver2 = setRestartStrategy((ICDCL) solver2, t[t.length-1]);
+                    solver = Helper.setRestartStrategy((ICDCL) solver, t[t.length-1]);
+                    solver2 = Helper.setRestartStrategy((ICDCL) solver2, t[t.length-1]);
 
-                //
+                // If API call is defining the Simplification Strategy then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Simplification Type")){
                     String[] t = apiCalls.get(i).split(" ");
                     ISimplifier simplifier = (ISimplifier) Solver.class.getDeclaredField(t[t.length-1]).get(((ICDCL) solver));
@@ -115,13 +105,13 @@ public class TraceRunner {
                     simplifier = (ISimplifier) Solver.class.getDeclaredField(t[t.length-1]).get(((ICDCL) solver2));
                     ((ICDCL) solver2).setSimplifier(simplifier);
 
-                //
+                // If API call is defining Search Parameters that will be used during solving then parse them from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Search Params")){
                     String[] t = apiCalls.get(i).split(" ");
-                    solver = setSearchParams((ICDCL) solver, t[t.length-1]);
-                    solver2 = setSearchParams((ICDCL) solver2, t[t.length-1]);
+                    solver = Helper.setSearchParams((ICDCL) solver, t[t.length-1]);
+                    solver2 = Helper.setSearchParams((ICDCL) solver2, t[t.length-1]);
 
-                //
+                // If API call is defining the Learned Constraints Evaluation Type then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Learned Constraints Evaluation Type")){
                     String[] t = apiCalls.get(i).split(" ");
                     ((ICDCL) solver).setLearnedConstraintsDeletionStrategy(LearnedConstraintsEvaluationType.valueOf(t[t.length-1]));                    
@@ -131,8 +121,8 @@ public class TraceRunner {
                 } else if(apiCalls.get(i).contains("Random Walk")){
                     String[] t = apiCalls.get(i).split(" ");
                     Double proba = Double.parseDouble(t[t.length-1]);
-                    solver = setRandomWalk((ICDCL <?>) solver, proba);
-                    solver2 = setRandomWalk((ICDCL <?>) solver2, proba);
+                    solver = Helper.setRandomWalk((ICDCL <?>) solver, proba);
+                    solver2 = Helper.setRandomWalk((ICDCL <?>) solver2, proba);
 
                 // If API call is setting DBS simplification to true then set it true for the local solver
                 }else if(apiCalls.get(i).contains("DBS simplification")){
@@ -154,18 +144,21 @@ public class TraceRunner {
 
                 // If API call is trying to enumerate solutions then compare internal and external enumerator results
                 } else if(apiCalls.get(i).contains("enumerating")){
-                    long internal = TraceFactory.countSolutionsInt(solver);
-                    long external = TraceFactory.countSolutionsExt(solver2);
+
+                    // TODO: Big Numbers ?
+                    long internal = Helper.countSolutionsInt(solver);
+                    // System.out.println(internal);
+                    long external = Helper.countSolutionsExt(solver2);
+                    // System.out.println(external);
 
                     int maxVariableUsed = Collections.max(usedLiterals);
                     int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
 
                     if(numberOfUnusedLiterals > 0){
                         System.out.println(numberOfUnusedLiterals);
-                        long divider = TraceFactory.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
+                        long divider = Helper.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
                         System.out.println(divider);
                         System.out.println(external);
-                        // Big Numbers
                         external = external/divider;
                     }
 
@@ -187,87 +180,7 @@ public class TraceRunner {
         return null;
     }
 
-    // Method to initialize with the specified solver
-    private static ISolver initSolver(String solverName){
-        ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
-        // Initialize default solver if no specific solver is passed as argument
-        if(solverName == "Default"){
-            return factory.defaultSolver();
-        } else {
-            return factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static ISolver setRandomWalk(ICDCL solver, Double proba){
-        IOrder order = solver.getOrder();
-        if(order instanceof VarOrderHeap){
-            order = new RandomWalkDecorator((VarOrderHeap) order, proba);
-            solver.setOrder(order);
-        }
-        return solver;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static ISolver setLearningStrategy(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
-        Solver asolver = (Solver) solver;
-        String[] t = s.split("/");
-        LearningStrategy learning = (LearningStrategy) Class.forName("org.sat4j.minisat.learning."+t[0]).getConstructor().newInstance();
-        
-        if(t.length > 1){
-            String[] property = t[1].split("=");
-            BeanUtils.setProperty(learning, property[0], property[1]);
-        }
-
-        solver.setLearningStrategy(learning);
-        learning.setSolver(asolver);
-        return solver;
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static ISolver setOrder(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
-        String[] t = s.split("/");
-        IOrder order = (IOrder) Class.forName("org.sat4j.minisat.orders."+t[0]).getConstructor().newInstance();
-        
-        if(t.length > 1){
-            String[] property = t[1].split("=");
-            BeanUtils.setProperty(order, property[0], property[1]);
-        }
-
-        solver.setOrder(order);
-        return solver;
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static ISolver setRestartStrategy(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
-        String[] t = s.split("/");
-        RestartStrategy restart = (RestartStrategy) Class.forName("org.sat4j.minisat.restarts."+t[0]).getConstructor().newInstance();
-        
-        if(t.length > 1){
-            String[] property = t[1].split("=");
-            BeanUtils.setProperty(restart, property[0], property[1]);
-        }
-
-        solver.setRestartStrategy(restart);
-        return solver;
-    }
-
-    @SuppressWarnings("rawtypes")
-    private static ISolver setSearchParams(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
-        SearchParams params = (SearchParams) Class.forName("org.sat4j.minisat.core.SearchParams").getConstructor().newInstance();
-
-        String[] t = s.split("/");
-        for(int j = 0; j < t.length; j++){
-            String[] property = t[j].split("=");
-            BeanUtils.setProperty(params, property[0], property[1]);
-        }
-
-        solver.setSearchParams(params);
-        return solver;
-    }
-
-    // Method to parse clause / assumptions from trace 
-    // and remove any redundant information from the trace line such as index
+    // Method to parse clause / assumptions from trace and remove any redundant information from the trace line such as index
     private static int[] getClause(String line){
         String[] t = line.split(" ");
         int[] clause = new int[t.length-2];
