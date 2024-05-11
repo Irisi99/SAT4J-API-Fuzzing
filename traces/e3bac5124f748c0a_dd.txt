@@ -1,0 +1,17 @@
+1 init
+2 DBS simplification
+4 addClause -6 -11 4 
+5 addClause -5 9 4 
+6 addClause -1 -7 3 
+7 addClause 6 -3 9 
+11 addClause 2 -9 -10 
+12 addClause 8 -9 -11 
+18 addClause 5 7 -10 
+21 addClause -1 -4 -6 
+26 addClause -3 -7 -4 
+27 addClause 8 -1 2 
+31 addClause -4 -10 6 
+32 addClause 7 -8 -1 
+33 addClause 7 6 10 
+34 addClause -2 4 -7 
+enumerating

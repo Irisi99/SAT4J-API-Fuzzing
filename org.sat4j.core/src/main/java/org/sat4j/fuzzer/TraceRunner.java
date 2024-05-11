@@ -154,7 +154,7 @@ public class TraceRunner {
 
                 // If API call is trying to enumerate solutions then compare internal and external enumerator results
                 } else if(apiCalls.get(i).contains("enumerating")){
-                    int internal = TraceFactory.countSolutionsInt(solver);
+                    long internal = TraceFactory.countSolutionsInt(solver);
                     long external = TraceFactory.countSolutionsExt(solver2);
 
                     int maxVariableUsed = Collections.max(usedLiterals);

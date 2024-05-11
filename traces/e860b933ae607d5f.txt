@@ -1,0 +1,79 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
+3 Learning Strategy : MiniSATLearning
+4 Order : PureOrder/period=63
+5 Phase Selection Strategy : PhaseInLastLearnedClauseSelectionStrategy
+6 Restart Strategy : ArminRestarts
+7 Simplification Type : simpleSimplification
+8 Learned Constraints Evaluation Type : ACTIVITY
+9 Random Walk : 0.7035681984996764
+10 addClause -9 19 -5 
+11 addClause -29 -45 5 
+12 addClause 60 37 
+13 addClause -57 39 -33 
+14 addClause 10 -49 8 
+15 addClause 2 58 -57 
+16 addClause -46 -25 
+17 addClause -4 42 -53 
+18 addClause 21 -19 -49 8 
+19 addClause -60 -50 -46 4 
+20 addClause -57 -4 
+21 addClause 29 54 -6 
+22 addClause -57 30 -55 
+23 addClause 26 -23 
+24 addClause -7 -46 45 
+25 addClause -16 -23 -21 
+26 addClause 1 40 -34 
+27 addClause 40 -59 
+28 addClause 42 53 54 
+29 addClause 30 -25 54 
+30 addClause -1 14 4 
+31 addClause -53 -56 -16 
+32 addClause -59 49 30 
+33 addClause 31 -12 -17 
+34 addClause 18 13 58 
+35 addClause 14 50 11 
+36 addClause 16 -26 -61 
+37 addClause -51 8 -60 
+38 addClause 14 -21 -13 
+39 addClause 32 61 -35 43 
+40 addClause 6 12 -39 42 -13 
+41 addClause 32 16 28 
+42 addClause 31 61 26 
+43 addClause -57 20 13 
+44 addClause -28 -39 19 
+45 addClause -14 5 -1 
+46 addClause -58 21 5 
+47 addClause -33 -27 -51 
+48 addClause 19 21 -55 
+49 addClause -35 47 46 
+50 addClause 40 -14 -15 
+51 addClause 61 14 -20 
+52 addClause -46 -43 -44 
+53 addClause 35 -4 14 
+54 addClause 53 2 -60 
+55 addClause -12 32 -39 
+56 addClause 8 50 -34 
+57 addClause -45 21 -50 
+58 addClause -13 -20 -4 
+59 addClause 35 -33 7 
+60 addClause 42 49 -10 
+61 addClause -10 
+62 addClause 52 -31 32 
+63 addClause 37 60 -41 
+64 addClause 10 -33 -40 
+65 addClause -40 38 
+66 addClause -52 5 9 
+67 addClause -56 29 47 
+68 addClause -27 -59 -55 
+69 addClause 36 49 34 
+70 addClause -1 45 28 
+71 addClause 43 -61 -13 
+72 addClause 48 15 -59 
+73 addClause 35 36 
+74 addClause 3 29 -26 18 
+75 addClause 3 -60 -38 
+76 addClause 57 45 13 
+77 addClause 6 8 39 
+78 addClause -16 -39 -60 -27 
+79 addClause 53 -61 

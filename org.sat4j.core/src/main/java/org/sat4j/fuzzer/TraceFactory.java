@@ -209,14 +209,14 @@ public class TraceFactory {
 
                         trace.addToTrace(index+" enumerating");
 
-                        int internal = countSolutionsInt(solver);
-                        int external = countSolutionsExt(solver2);
+                        long internal = countSolutionsInt(solver);
+                        long external = countSolutionsExt(solver2);
 
                         int maxVariableUsed = Collections.max(usedLiterals);
                         int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
 
                         if(numberOfUnusedLiterals > 0){
-                            int divider = combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
+                            long divider = combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
                             external = external/divider;
                         }
 
@@ -715,14 +715,14 @@ public class TraceFactory {
     }
 
     // Count solutions with External Iterator
-    public static int countSolutionsExt(ISolver solver) throws TimeoutException{
+    public static long countSolutionsExt(ISolver solver) throws TimeoutException{
         var enumerator = new ModelIterator(solver);
         while (enumerator.isSatisfiable() && enumerator.model() != null) {}
-        return (int) enumerator.numberOfModelsFoundSoFar();
+        return (long) enumerator.numberOfModelsFoundSoFar();
     }
 
     //Count solutions with Internal Iterator
-    public static int countSolutionsInt(ISolver solver) throws TimeoutException{
+    public static long countSolutionsInt(ISolver solver) throws TimeoutException{
         Counter counter = new Counter();
         SolutionFoundListener sfl = new SolutionFoundListener() {
             @Override
@@ -733,7 +733,7 @@ public class TraceFactory {
         SearchEnumeratorListener enumerator = new SearchEnumeratorListener(sfl);
         solver.setSearchListener(enumerator);
         solver.isSatisfiable();
-        return  enumerator.getNumberOfSolutionFound();
+        return  (long) enumerator.getNumberOfSolutionFound();
     }
 
     
