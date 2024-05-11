@@ -1,0 +1,104 @@
+1 init
+2 using solver MinOneSolver
+3 DBS simplification
+4 addClause 11 4 3 
+5 addClause -17 12 -7 
+6 addClause -19 9 -20 
+7 addClause 2 -12 -4 
+8 addClause -12 -2 -8 
+9 addClause -13 -14 18 
+10 addClause -14 19 9 
+11 addClause -5 -1 
+12 addClause 4 -13 13 
+13 addClause -19 9 -11 6 
+14 addClause 11 -19 -6 
+15 addClause -19 -3 -4 
+16 addClause -1 -5 -14 
+17 addClause 2 7 -3 -11 
+18 addClause -5 -19 7 
+19 addClause -6 19 15 
+20 addClause -6 -10 3 
+21 addClause -15 15 -11 
+22 addClause -16 -11 4 
+23 addClause -6 -18 -8 
+24 addClause -16 7 -17 
+25 addClause -20 -9 12 
+26 addClause 3 2 15 
+27 addClause 4 -2 7 
+28 addClause -18 -12 -19 
+29 addClause 9 19 -10 -19 
+30 addClause 15 -10 8 
+31 addClause -11 15 -14 
+32 addClause -19 7 -4 
+33 addClause -10 -19 16 4 
+34 addClause 8 2 
+35 addClause 19 9 
+36 addClause -19 -12 6 
+37 addClause 15 -13 5 
+38 addClause -1 16 8 
+39 addClause -9 6 -20 
+40 addClause 3 6 
+41 addClause 13 -17 -14 
+42 addClause -3 -4 7 
+43 addClause 7 -5 -4 
+44 addClause 9 7 -18 
+45 addClause -5 -15 16 
+46 addClause 17 13 5 
+47 addClause -13 3 -10 -8 
+48 addClause -17 13 -4 
+49 addClause -13 -3 -4 
+50 addClause -5 -12 9 
+51 addClause -19 -8 9 
+52 addClause 3 11 -4 
+53 addClause -13 -2 -10 
+54 addClause 16 -8 -2 
+55 addClause -14 -6 -13 
+56 addClause 8 15 -18 
+57 addClause 11 -10 18 
+58 addClause -13 13 19 
+59 addClause -9 -11 -7 
+60 addClause 14 9 
+61 addClause 17 -16 -17 
+62 addClause -14 13 11 
+63 addClause 10 5 4 
+64 addClause 13 18 7 
+65 addClause 5 -4 7 
+66 addClause 11 12 4 
+67 addClause -11 18 17 
+68 addClause -6 -15 
+69 addClause 14 -1 18 
+70 addClause 3 9 11 
+71 addClause 18 -16 -1 
+72 addClause -1 7 9 
+73 addClause -1 13 
+74 addClause -16 -5 19 
+75 addClause -4 -6 -19 
+76 addClause -11 4 8 
+77 addClause 4 5 -4 
+78 addClause -17 3 12 -16 6 
+79 addClause 18 -20 
+80 addClause 16 -14 3 
+81 addClause -8 13 3 
+82 addClause -19 -2 
+83 addClause -1 -20 7 12 
+84 addClause 1 -4 9 
+85 addClause -2 -4 9 
+86 addClause 10 14 -9 
+87 addClause 14 -17 -18 
+88 addClause -6 18 11 
+89 addClause 15 12 
+90 addClause -4 -1 19 
+91 addClause -13 -3 6 
+92 addClause -5 5 15 
+93 addClause 3 -20 -18 
+94 addClause 5 -16 -19 
+95 addClause 17 9 13 
+96 addClause 16 15 -6 
+97 addClause -20 15 13 
+98 addClause 2 3 
+99 addClause 16 3 14 
+100 addClause 18 1 -6 
+101 addClause -14 -15 -19 
+102 addClause 17 -4 
+103 addClause 12 1 11 
+104 enumerating

@@ -47,13 +47,15 @@ public class DeltaDebugger {
                 // Copy API calls into a temporary List
                 temp = new ArrayList<String>(content);
 
-                for(int i = 0; i < granularity; i++ ){
-
+                int i = 0;
+                while (i * section < size){
                     start = i * section;
+                    i++;
                     end = start + section;
                     if(end > size)
                         end = size;
 
+                    System.out.print("size : "+size+" --- ");
                     System.out.print("section size: "+section+" --- ");
                     System.out.print("start: "+start+" --- ");
                     System.out.print("end: "+end+" --- ");
@@ -103,6 +105,7 @@ public class DeltaDebugger {
                     // If section size is down to 1 but we are still reducing then go over the API calls until we don't remove any
                     else if(old_size == size)
                         break;
+
                 // If trace was not reduced then increase granularity and calculate the new section size
                 }else {
                     granularity = granularity * 2;

@@ -1,0 +1,4 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructureYanMax
+19 addClause 4 
+104 addClause -4 21 

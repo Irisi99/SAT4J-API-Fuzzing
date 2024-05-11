@@ -1,0 +1,30 @@
+1 init
+3 Learning Strategy : NoLearningButHeuristics
+11 DBS simplification
+14 addClause -12 8 13 
+20 addClause 4 -16 8 
+22 addClause -20 8 -17 -5 
+23 addClause 18 9 
+24 addClause -8 -19 -1 
+41 addClause -9 
+46 addClause 4 19 
+48 addClause -4 11 15 
+53 addClause -11 -8 -18 
+66 addClause 2 -1 -18 
+78 addClause -15 -2 11 
+80 addClause -15 -8 -1 
+81 addClause -13 10 -14 
+83 addClause -1 17 11 
+86 addClause -16 -11 -10 
+88 addClause -20 -14 8 
+89 addClause 8 19 -1 
+90 addClause -11 -19 3 
+99 addClause 14 -4 -18 
+101 addClause 16 -3 -14 
+102 addClause -19 6 
+105 addClause -2 15 12 
+106 addClause -2 16 4 
+107 addClause 17 13 -6 
+109 addClause -11 -7 -9 
+110 addClause -15 -14 1 
+112 enumerating

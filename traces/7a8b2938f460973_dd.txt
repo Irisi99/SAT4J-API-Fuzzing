@@ -7,21 +7,10 @@
 7 addClause -9 2 -4 
 8 addClause -2 -9 -3 
 9 addClause 1 
-10 addClause -7 5 -6 
-11 addClause 8 -4 -8 
-12 addClause 8 -9 -6 
-13 addClause 4 -8 1 
-14 addClause -4 -8 8 7 
-15 addClause 7 -9 -1 
-16 addClause -1 2 8 
-17 addClause -6 3 -1 
 18 addClause -2 3 1 
 19 addClause -7 4 5 
 20 addClause 4 7 1 
 21 addClause 8 9 -7 
-22 addClause -4 1 8 
-23 addClause 8 -5 -9 
-24 addClause -3 5 -2 
 25 addClause 8 2 -2 
 26 addClause 3 -10 6 
 27 addClause -8 2 1 

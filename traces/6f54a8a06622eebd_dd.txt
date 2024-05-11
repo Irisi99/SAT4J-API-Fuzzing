@@ -1,3 +1,3 @@
 1 init
-54 addClause 15 9 -2 
+2 Solver : SATUNSAT
 55 enumerating

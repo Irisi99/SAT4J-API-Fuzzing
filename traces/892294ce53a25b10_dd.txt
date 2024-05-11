@@ -1,3 +1,4 @@
 1 init
+2 Solver : Parallel
 26 addClause 10 12 
 52 enumerating

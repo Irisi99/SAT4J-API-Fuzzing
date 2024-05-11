@@ -1,0 +1,4 @@
+1 init
+2 using solver MinOneSolver
+10 addClause 1 2
+74 enumerating

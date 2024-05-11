@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -13,6 +15,7 @@ import org.sat4j.minisat.core.DataStructureFactory;
 import org.sat4j.minisat.core.ICDCL;
 import org.sat4j.minisat.core.IOrder;
 import org.sat4j.minisat.core.IPhaseSelectionStrategy;
+import org.sat4j.minisat.core.ISimplifier;
 import org.sat4j.minisat.core.LearnedConstraintsEvaluationType;
 import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
@@ -23,6 +26,8 @@ import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ISolver;
 
 public class TraceRunner {
+
+    static ArrayList<Integer> usedLiterals;
 
     public static void main(final String[] args) {
 
@@ -49,8 +54,9 @@ public class TraceRunner {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static String runTrace(List<String> apiCalls, boolean verbose){
 
-        ISolver solver = initSolver("Default");
+        usedLiterals = new ArrayList<Integer>();
 
+        ISolver solver = initSolver("Default");
         // Second solver in case it is Enumerating Solutions
         ISolver solver2 = initSolver("Default");
 
@@ -76,13 +82,7 @@ public class TraceRunner {
                     dsf = (DataStructureFactory) Class.forName("org.sat4j.minisat.constraints."+t[t.length-1]).getConstructor().newInstance();
                     ((ICDCL) solver2).setDataStructureFactory(dsf);
 
-                //
-                } else if(apiCalls.get(i).contains("Learning Strategy")){
-                    String[] t = apiCalls.get(i).split(" ");
-                    solver = setLearningStrategy((ICDCL) solver, t[t.length-1]);
-                    solver2 = setLearningStrategy((ICDCL) solver2, t[t.length-1]);
-
-                //
+                //                
                 } else if(apiCalls.get(i).contains("Order")){
                     String[] t = apiCalls.get(i).split(" ");
                     solver = setOrder((ICDCL) solver, t[t.length-1]);
@@ -96,10 +96,24 @@ public class TraceRunner {
                     ((ICDCL) solver2).getOrder().setPhaseSelectionStrategy(pss);
 
                 //
+                } else if(apiCalls.get(i).contains("Learning Strategy")){
+                    String[] t = apiCalls.get(i).split(" ");
+                    solver = setLearningStrategy((ICDCL) solver, t[t.length-1]);
+                    solver2 = setLearningStrategy((ICDCL) solver2, t[t.length-1]);
+
+                //
                 } else if(apiCalls.get(i).contains("Restart Strategy")){
                     String[] t = apiCalls.get(i).split(" ");
                     solver = setRestartStrategy((ICDCL) solver, t[t.length-1]);
                     solver2 = setRestartStrategy((ICDCL) solver2, t[t.length-1]);
+
+                //
+                } else if(apiCalls.get(i).contains("Simplification Type")){
+                    String[] t = apiCalls.get(i).split(" ");
+                    ISimplifier simplifier = (ISimplifier) Solver.class.getDeclaredField(t[t.length-1]).get(((ICDCL) solver));
+                    ((ICDCL) solver).setSimplifier(simplifier);
+                    simplifier = (ISimplifier) Solver.class.getDeclaredField(t[t.length-1]).get(((ICDCL) solver2));
+                    ((ICDCL) solver2).setSimplifier(simplifier);
 
                 //
                 } else if(apiCalls.get(i).contains("Search Params")){
@@ -141,7 +155,20 @@ public class TraceRunner {
                 // If API call is trying to enumerate solutions then compare internal and external enumerator results
                 } else if(apiCalls.get(i).contains("enumerating")){
                     int internal = TraceFactory.countSolutionsInt(solver);
-                    int external = TraceFactory.countSolutionsExt(solver2);
+                    long external = TraceFactory.countSolutionsExt(solver2);
+
+                    int maxVariableUsed = Collections.max(usedLiterals);
+                    int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
+
+                    if(numberOfUnusedLiterals > 0){
+                        System.out.println(numberOfUnusedLiterals);
+                        long divider = TraceFactory.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
+                        System.out.println(divider);
+                        System.out.println(external);
+                        // Big Numbers
+                        external = external/divider;
+                    }
+
                     if(internal != external) {
                         throw new Exception("Internal and External Enumerators provided different values : " + internal + " - " + external);
                     }
@@ -152,6 +179,8 @@ public class TraceRunner {
             if(verbose){
                 e.printStackTrace();
             }
+            if(e.getMessage() != null && e.getMessage().contains("Enumerators"))
+                return "Enumeration";
             // Return the class of the error that happened while running the trace
             return e.getClass().getName();
         }
@@ -244,6 +273,10 @@ public class TraceRunner {
         int[] clause = new int[t.length-2];
         for(int j=2; j < t.length; j++){
             clause[j-2] = Integer.parseInt(t[j]);
+
+            if(!usedLiterals.contains(Math.abs(clause[j-2]))){
+                usedLiterals.add(Math.abs(clause[j-2]));
+            }
         }
         return clause;
     }
