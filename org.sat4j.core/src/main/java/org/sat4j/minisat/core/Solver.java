@@ -160,7 +160,7 @@ public class Solver<D extends DataStructureFactory>
 
     private final IVecInt internalDimacsReusableVector = new VecInt();
 
-    protected SearchListener slistener = SearchListener.voidSearchListener();
+    protected SearchListener slistener;
 
     private RestartStrategy restarter;
 
@@ -245,6 +245,7 @@ public class Solver<D extends DataStructureFactory>
         setDataStructureFactory(dsf);
         // should be called after dsf has been set up
         setLearningStrategy(learner);
+        setSearchListener(SearchListener.voidSearchListener());
     }
 
     /*
@@ -284,6 +285,7 @@ public class Solver<D extends DataStructureFactory>
     public <S extends ISolverService> void setSearchListener(
             SearchListener<S> sl) {
         this.slistener = sl;
+        this.slistener.init(this);
     }
 
     /*
@@ -418,6 +420,7 @@ public class Solver<D extends DataStructureFactory>
     }
 
     public IConstr addClause(IVecInt literals) throws ContradictionException {
+        slistener.addClause(literals);
         IVecInt vlits = dimacs2internal(literals);
         return addConstr(this.dsfactory.createClause(vlits));
     }
@@ -1721,6 +1724,7 @@ public class Solver<D extends DataStructureFactory>
 
     public boolean isSatisfiable(IVecInt assumps, boolean global)
             throws TimeoutException {
+        this.slistener.checkSatisfiability(assumps, global);
         Lbool status = Lbool.UNDEFINED;
         boolean alreadylaunched = this.conflictCount != null;
         final int howmany = this.voc.nVars();
@@ -1732,7 +1736,6 @@ public class Solver<D extends DataStructureFactory>
         this.learnedLiterals.ensure(howmany);
         this.decisions.clear();
         this.implied.clear();
-        this.slistener.init(this);
         this.slistener.start();
         this.model = null; // forget about previous model
         this.fullmodel = null;

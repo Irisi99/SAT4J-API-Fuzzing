@@ -174,4 +174,29 @@ public interface ISolverService {
      */
     String getLogPrefix();
 
+    /**
+     * Compute a subset of the assumptions explaining the unsatisfiability of
+     * the formula.
+     * 
+     * This method only make sense is the last call to
+     * {@link ISolver#isSatisfiable(IVecInt)} returns false.
+     * 
+     * @return a subset of the assumptions explaining the unsatisfiability of
+     *         the formula.
+     * @see ISolver#unsatExplanation()
+     * @since 3.0
+     */
+    IVecInt unsatExplanation();
+
+    /**
+     * Retrieve a model of the formula.
+     * 
+     * This method only make sense is the last call to
+     * {@link ISolver#isSatisfiable(IVecInt)} returns true.
+     * 
+     * @return a model of the formula.
+     * @since 3.0
+     * @see IProblem#model()
+     */
+    int[] model();
 }

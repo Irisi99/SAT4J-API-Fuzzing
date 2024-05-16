@@ -220,4 +220,38 @@ public interface SearchListener<S extends ISolverService>
     default void cleaning() {
 
     }
+
+    /**
+     * A new blocking clause is added.
+     * 
+     * @since 3.0
+     */
+    default void blockClause(IVecInt literals) {
+
+    }
+
+    /**
+     * A new call to the SAT solver is performed.
+     * 
+     * @param assumptions
+     *            the assumptions used in incremental SAT
+     * @param global
+     *            is the call part of a global process? (optimization,
+     *            incremental session)
+     * @since 3.0
+     */
+    default void checkSatisfiability(IVecInt assumptions, boolean global) {
+
+    }
+
+    /**
+     * Add a new clause to the SAT solver.
+     * 
+     * @param clause
+     *            a clause in Dimacs format.
+     * @since 3.0
+     */
+    default void addClause(IVecInt clause) {
+
+    }
 }
