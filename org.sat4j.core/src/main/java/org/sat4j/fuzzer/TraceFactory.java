@@ -132,7 +132,7 @@ public class TraceFactory {
                     solver2 = initializeSolver(verbose, false, initSeed);
                     solver2.setTimeout(600);
                 } else {
-                    solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrup/"+trace.getId()+".idrup"));
+                    solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+trace.getId()+".idrup"));
                 }
                     
             } catch (Exception e) {
