@@ -143,6 +143,13 @@ public class Helper {
 
     }
 
+    public static void deleteProof(String Id){
+        File myObj = new File("icnfs/"+Id+".icnf"); 
+        myObj.delete();
+        myObj = new File("idrups/"+Id+".idrup");
+        myObj.delete();
+    }
+
 //---------------------------------------------------- USED IN TRACE RUNNER ------------------------------------------------------------------
 
     // Method to initialize with the specified solver

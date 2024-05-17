@@ -33,7 +33,7 @@ public class TraceFactory {
     static Trace trace;
     // For every call of APIFUzzer it creates MAX_ITERATIONS traces 
     // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 1;
+    static int MAX_ITERATIONS = 100;
     static int MAXVAR;
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
@@ -299,6 +299,19 @@ public class TraceFactory {
                         }
                     }
                 }
+            }
+
+            // IDRUP check
+            try {
+                Process process = Runtime.getRuntime().exec("../idrup-check-master/./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
+                int exitCode = process.waitFor(); 
+                if(exitCode != 0){
+                    throw new Exception("IDRUP Checker failed with code "+exitCode);
+                } else {
+                    Helper.deleteProof(trace.getId());
+                }
+            } catch (Exception e) {
+                Helper.printException(isTraceSeed, verbose, trace, "Proof Check", e);
             }
 
             if(isTraceSeed){
