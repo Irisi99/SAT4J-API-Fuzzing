@@ -23,6 +23,8 @@ import org.sat4j.minisat.orders.RandomWalkDecorator;
 import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.tools.IdrupSearchListener;
 
 public class TraceFactory {
 
@@ -31,7 +33,7 @@ public class TraceFactory {
     static Trace trace;
     // For every call of APIFUzzer it creates MAX_ITERATIONS traces 
     // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 100;
+    static int MAX_ITERATIONS = 1;
     static int MAXVAR;
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
@@ -96,7 +98,8 @@ public class TraceFactory {
             index = 1;
 
             // Randomly fuzz the internal solution counter
-            ENUMERATING = slaveRandomGenerator.nextBoolean();
+            ENUMERATING = false;
+            //slaveRandomGenerator.nextBoolean();
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -128,6 +131,8 @@ public class TraceFactory {
                 if(ENUMERATING){
                     solver2 = initializeSolver(verbose, false, initSeed);
                     solver2.setTimeout(600);
+                } else {
+                    solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrup/"+trace.getId()+".idrup"));
                 }
                     
             } catch (Exception e) {
@@ -246,7 +251,7 @@ public class TraceFactory {
 
                             // If this was the last iteration update statistics and continue to next trace
                             if(increments == totalIncrements){
-                                // Helper.createICNF(trace.getId(), icnf);
+                                Helper.createICNF(trace.getId(), icnf);
 
                                 SATinstances++;
                                 if(verbose){
@@ -264,7 +269,7 @@ public class TraceFactory {
                             } else {
                                 icnf.add("u 0");
                             }
-                            // Helper.createICNF(trace.getId(), icnf);
+                            Helper.createICNF(trace.getId(), icnf);
 
                             // TODO: Should I check if it is UNSAT because of Assumptions and if so continue the increments ???
                             UNSATinstances ++;

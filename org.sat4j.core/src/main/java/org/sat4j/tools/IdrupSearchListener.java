@@ -152,14 +152,14 @@ public class IdrupSearchListener<S extends ISolverService>
         out.println("0");
     }
 
-    @Override
-    public void solutionFound(int[] model, RandomAccessModel lazyModel) {
-        out.print("m ");
-        for (var i = 0; i < model.length; i++) {
-            out.print(model[i]);
-            out.print(" ");
-        }
-        out.println("0");
-    }
+    // @Override
+    // public void solutionFound(int[] model, RandomAccessModel lazyModel) {
+    //     out.print("m ");
+    //     for (var i = 0; i < model.length; i++) {
+    //         out.print(model[i]);
+    //         out.print(" ");
+    //     }
+    //     out.println("0");
+    // }
 
 }
