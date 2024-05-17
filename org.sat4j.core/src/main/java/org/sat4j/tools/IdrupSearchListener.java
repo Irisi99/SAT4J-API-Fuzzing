@@ -40,7 +40,6 @@ import org.sat4j.specs.IConstr;
 import org.sat4j.specs.ISolverService;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.Lbool;
-import org.sat4j.specs.RandomAccessModel;
 import org.sat4j.specs.SearchListener;
 
 /**
@@ -151,15 +150,5 @@ public class IdrupSearchListener<S extends ISolverService>
         }
         out.println("0");
     }
-
-    // @Override
-    // public void solutionFound(int[] model, RandomAccessModel lazyModel) {
-    //     out.print("m ");
-    //     for (var i = 0; i < model.length; i++) {
-    //         out.print(model[i]);
-    //         out.print(" ");
-    //     }
-    //     out.println("0");
-    // }
 
 }
