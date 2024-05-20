@@ -71,7 +71,7 @@ public class IdrupSearchListener<S extends ISolverService>
     @Override
     public void init(S solverService) {
         try {
-            out = new PrintStream(new FileOutputStream(file));
+            out = new PrintStream(new FileOutputStream(file), true);
             out.println("p idrup");
             this.solverService = solverService;
         } catch (FileNotFoundException e) {
