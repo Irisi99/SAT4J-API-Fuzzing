@@ -29,18 +29,10 @@
  *******************************************************************************/
 package org.sat4j.tools;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-
 import org.sat4j.annotations.Feature;
 import org.sat4j.core.LiteralsUtils;
 import org.sat4j.specs.IConstr;
 import org.sat4j.specs.ISolverService;
-import org.sat4j.specs.IVecInt;
-import org.sat4j.specs.Lbool;
-import org.sat4j.specs.SearchListener;
 
 /**
  * Output an unsat proof using the Idrup format.
@@ -53,65 +45,20 @@ import org.sat4j.specs.SearchListener;
  */
 @Feature("searchlistener")
 public class IdrupSearchListener<S extends ISolverService>
-        implements SearchListener<S> {
+        extends ICnfSearchListener<S> {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
-    private PrintStream out;
-    private final File file;
-    private S solverService;
-
     public IdrupSearchListener(String filename) {
-        file = new File(filename);
+        super(filename);
     }
 
     @Override
-    public void init(S solverService) {
-        try {
-            out = new PrintStream(new FileOutputStream(file), true);
-            out.println("p idrup");
-            this.solverService = solverService;
-        } catch (FileNotFoundException e) {
-            out = System.out;
-        }
-    }
-
-    @Override
-    public void end(Lbool result) {
-        if (result == Lbool.FALSE) {
-            out.println("s UNSATISFIABLE");
-            out.print("u ");
-            IVecInt explanation = solverService.unsatExplanation();
-            if (explanation != null) {
-                for (var i = 0; i < explanation.size(); i++) {
-                    out.print(explanation.get(i));
-                    out.print(" ");
-                }
-            }
-            out.println("0");
-        } else if (result == Lbool.TRUE) {
-            out.println("s SATISFIABLE");
-            out.print("m ");
-            int[] model = solverService.model();
-            for (var i = 0; i < model.length; i++) {
-                out.print(model[i]);
-                out.print(" ");
-            }
-            out.println("0");
-        }
-    }
-
-    @Override
-    public void addClause(IVecInt clause) {
-        out.print("i ");
-        for (var i = 0; i < clause.size(); i++) {
-            out.print(clause.get(i));
-            out.print(" ");
-        }
-        out.println("0");
+    protected String header() {
+        return "p idrup";
     }
 
     @Override
@@ -139,16 +86,6 @@ public class IdrupSearchListener<S extends ISolverService>
         out.print("l ");
         out.print(p);
         out.println(" 0");
-    }
-
-    @Override
-    public void checkSatisfiability(IVecInt assumptions, boolean global) {
-        out.print("q ");
-        for (var i = 0; i < assumptions.size(); i++) {
-            out.print(assumptions.get(i));
-            out.print(" ");
-        }
-        out.println("0");
     }
 
 }

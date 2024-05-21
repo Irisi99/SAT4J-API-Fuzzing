@@ -31,8 +31,8 @@ package org.sat4j.pb.tools;
 
 import org.sat4j.pb.IPBSolver;
 
-public class SteppedTimeoutLexicoHelper<T, C> extends
-        AbstractLexicoHelper<T, C> {
+public class SteppedTimeoutLexicoHelper<T, C extends Comparable<C>>
+        extends AbstractLexicoHelper<T, C> {
 
     public SteppedTimeoutLexicoHelper(IPBSolver solver) {
         super(new SteppedTimeoutLexicoDecoratorPB(solver));

@@ -40,8 +40,8 @@ import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.SolutionFoundListener;
 
-public abstract class AbstractLexicoHelper<T, C> extends DependencyHelper<T, C>
-        implements SolutionFoundListener {
+public abstract class AbstractLexicoHelper<T, C extends Comparable<C>>
+        extends DependencyHelper<T, C> implements SolutionFoundListener {
 
     /**
      * 

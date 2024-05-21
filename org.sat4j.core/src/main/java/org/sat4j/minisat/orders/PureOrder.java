@@ -78,8 +78,9 @@ public final class PureOrder extends VarOrderHeap {
             this.cpt = 0;
             int nblits = 2 * this.lits.nVars();
             for (var i = 2; i <= nblits; i++) {
-                if (this.lits.isUnassigned(i) && this.lits.watches(i) != null 
-                        && this.lits.watches(i).size() > 0 && this.lits.watches(i ^ 1).size() == 0) {
+                if (this.lits.belongsToPool(i >> 1) && this.lits.isUnassigned(i)
+                        && this.lits.watches(i).size() > 0
+                        && this.lits.watches(i ^ 1).size() == 0) {
                     return i;
                 }
             }

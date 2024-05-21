@@ -64,7 +64,8 @@ import org.sat4j.tools.GateTranslator;
  * @param <C>
  *            The class of the object to map to each constraint.
  */
-public class DependencyHelper<T, C> implements Serializable {
+public class DependencyHelper<T, C extends Comparable<C>>
+        implements Serializable {
 
     public static final INegator NO_NEGATION = new INegator() {
 

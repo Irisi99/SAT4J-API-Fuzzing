@@ -42,8 +42,8 @@ import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.SolutionFoundListener;
 
-public class LinMultiObjHelper<T, C> extends DependencyHelper<T, C>
-        implements SolutionFoundListener {
+public class LinMultiObjHelper<T, C extends Comparable<C>>
+        extends DependencyHelper<T, C> implements SolutionFoundListener {
 
     /**
      * 

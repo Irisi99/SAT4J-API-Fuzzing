@@ -44,7 +44,7 @@ import org.sat4j.specs.IVecInt;
  * @param <T>
  * @param <C>
  */
-public class ImplicationRHS<T, C> {
+public class ImplicationRHS<T, C extends Comparable<C>> {
 
     private final IVecInt clause;
     private final DependencyHelper<T, C> helper;

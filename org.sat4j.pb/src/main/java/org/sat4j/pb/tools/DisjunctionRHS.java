@@ -37,7 +37,7 @@ import org.sat4j.specs.IVec;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.IteratorInt;
 
-public class DisjunctionRHS<T, C> {
+public class DisjunctionRHS<T, C extends Comparable<C>> {
     private final IVecInt literals;
     private final DependencyHelper<T, C> helper;
 

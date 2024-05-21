@@ -238,7 +238,7 @@ public class LecteurDimacs extends Reader implements Serializable {
 
         do {
             car = (char) this.in.read();
-        } while (car == ' ' || car == '\n');
+        } while (car == ' ' || car == '\n' || car == '\r');
 
         return car;
     }

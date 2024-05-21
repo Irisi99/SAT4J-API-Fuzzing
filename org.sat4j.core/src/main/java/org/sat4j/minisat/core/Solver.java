@@ -420,8 +420,6 @@ public class Solver<D extends DataStructureFactory>
     }
 
     public IConstr addClause(IVecInt literals) throws ContradictionException {
-        // slistener.addClause(literals);
-        // might have fixed the diff by 1 in Internal adn External counters
         IVecInt vlits = dimacs2internal(literals);
         IConstr constr = addConstr(this.dsfactory.createClause(vlits));
         slistener.addClause(literals);
@@ -962,7 +960,8 @@ public class Solver<D extends DataStructureFactory>
                 assert voc.getReason(q) != null;
                 Constr c = voc.getReason(q);
                 analyzestack.pop();
-                for (var i = 1; i < c.size(); i++) {
+                for (var i = c.getFirstFalsifiedLiteralIndexForReason(); i < c
+                        .size(); i++) {
                     int l = c.get(i);
                     if (!seen[var(l)] && voc.getLevel(l) != 0) {
                         if (voc.getReason(l) == null) {

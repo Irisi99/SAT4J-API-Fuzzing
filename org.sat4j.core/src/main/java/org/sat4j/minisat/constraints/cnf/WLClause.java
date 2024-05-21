@@ -314,7 +314,8 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
         return false;
     }
 
-    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+            int decisionLevel, ILits voc) {
         for (int i = trail.size() - 1; i >= 0; i--) {
             if (var(trail.get(i)) == var(this.lits[0])) {
                 return i;
@@ -332,5 +333,10 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
         }
         stb.append('0');
         return stb.toString();
+    }
+
+    @Override
+    public int getFirstFalsifiedLiteralIndexForReason() {
+        return 1;
     }
 }

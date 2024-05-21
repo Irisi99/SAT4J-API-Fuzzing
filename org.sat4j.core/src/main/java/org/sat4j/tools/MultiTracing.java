@@ -37,6 +37,7 @@ import java.util.List;
 import org.sat4j.annotations.Feature;
 import org.sat4j.specs.IConstr;
 import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.Lbool;
 import org.sat4j.specs.RandomAccessModel;
 import org.sat4j.specs.SearchListener;
@@ -199,6 +200,27 @@ public class MultiTracing<T extends ISolverService>
     public void cleaning() {
         for (SearchListener<T> sl : this.listeners) {
             sl.cleaning();
+        }
+    }
+
+    @Override
+    public void blockClause(IVecInt literals) {
+        for (SearchListener<T> sl : this.listeners) {
+            sl.blockClause(literals);
+        }
+    }
+
+    @Override
+    public void checkSatisfiability(IVecInt assumptions, boolean global) {
+        for (SearchListener<T> sl : this.listeners) {
+            sl.checkSatisfiability(assumptions, global);
+        }
+    }
+
+    @Override
+    public void addClause(IVecInt clause) {
+        for (SearchListener<T> sl : this.listeners) {
+            sl.addClause(clause);
         }
     }
 

@@ -32,7 +32,8 @@ package org.sat4j.pb.tools;
 import org.sat4j.pb.IIntegerPBSolver;
 import org.sat4j.pb.multiobjective.LeximinDecorator;
 
-public class LeximinHelper<T, C> extends AbstractLexicoHelper<T, C> {
+public class LeximinHelper<T, C extends Comparable<C>>
+        extends AbstractLexicoHelper<T, C> {
 
     public LeximinHelper(IIntegerPBSolver solver) {
         super(new LeximinDecorator(solver));

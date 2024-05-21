@@ -48,7 +48,7 @@ import org.sat4j.specs.IVecInt;
  * @param <T>
  * @param <C>
  */
-public class ImplicationAnd<T, C> {
+public class ImplicationAnd<T, C extends Comparable<C>> {
     private final DependencyHelper<T, C> helper;
     private final IVecInt clause;
     private final IVec<IConstr> toName = new Vec<IConstr>();

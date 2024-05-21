@@ -45,12 +45,13 @@ import org.sat4j.specs.IVec;
  * @param <T>
  * @param <C>
  */
-public class ImplicationNamer<T, C> {
+public class ImplicationNamer<T, C extends Comparable<C>> {
 
     private final DependencyHelper<T, C> helper;
     private IVec<IConstr> toName = new Vec<IConstr>();
 
-    public ImplicationNamer(DependencyHelper<T, C> helper, IVec<IConstr> toName) {
+    public ImplicationNamer(DependencyHelper<T, C> helper,
+            IVec<IConstr> toName) {
         this.toName = toName;
         this.helper = helper;
     }

@@ -103,8 +103,8 @@ public abstract class AbstractPBClauseCardConstrDataStructure
         if (degree.equals(BigInteger.ONE)) {
             IVecInt v = Clauses.sanityCheck(new VecInt(literals),
                     getVocabulary(), this.solver);
-            if (v == Constr.TAUTOLOGY) {
-                return null;
+            if (v == null) {
+                return Constr.TAUTOLOGY;
             }
             return constructClause(v);
         }

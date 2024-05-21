@@ -133,7 +133,8 @@ public interface Constr extends IConstr {
             return true;
         }
 
-        public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
+        public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+                int decisionLevel, ILits voc) {
             return 0;
         }
 
@@ -310,14 +311,33 @@ public interface Constr extends IConstr {
      * 
      * @param trail
      *            the internal solver trail
-     * @param trailLim TODO
+     * @param trailLim
+     *            TODO
      * @param decisionLevel
      *            the current decision level
-     * @param voc TODO
+     * @param voc
+     *            TODO
      * @return the decision level under which the constraint becomes assertive,
      *         else -1.
      * @since 2.3.6
      * @see #canBePropagatedMultipleTimes()
      */
-    int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc);
+    int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel,
+            ILits voc);
+
+    /**
+     * Returns the index of the first falsified literal in the constraint.
+     * 
+     * In the watched literals data structure, the first literal is always true
+     * in a reason, so this method should return 1.
+     * 
+     * In dedicated data structure (for binary clauses for instance), the method
+     * should return 0.
+     * 
+     * @return the index of the first falsified literal to test
+     * @since 3.0
+     */
+    default int getFirstFalsifiedLiteralIndexForReason() {
+        return 0;
+    }
 }

@@ -34,6 +34,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.sat4j.annotations.Feature;
+import org.sat4j.core.VecInt;
 
 /**
  * This interface contains all services provided by a SAT solver.
@@ -95,7 +96,7 @@ public interface ISolver extends IProblem, Serializable {
 
     /**
      * Create a clause from a set of literals The literals are represented by
-     * non null integers such that opposite literals a represented by opposite
+     * non null integers such that opposite literals are represented by opposite
      * values. (classical Dimacs way of representing literals).
      * 
      * @param literals
@@ -108,6 +109,25 @@ public interface ISolver extends IProblem, Serializable {
      * @see #removeConstr(IConstr)
      */
     IConstr addClause(IVecInt literals) throws ContradictionException;
+
+    /**
+     * Create a clause from a set of literals The literals are represented by
+     * non null integers such that opposite literals are represented by opposite
+     * values. (classical Dimacs way of representing literals).
+     * 
+     * @param literals
+     *            a set of literals
+     * @return a reference to the constraint added in the solver, to use in
+     *         removeConstr().
+     * @throws ContradictionException
+     *             iff the vector of literals is empty or if it contains only
+     *             falsified literals after unit propagation
+     * @see #removeConstr(IConstr)
+     * @since 3.0
+     */
+    default IConstr addClause(int... literals) throws ContradictionException {
+        return addClause(VecInt.of(literals));
+    }
 
     /**
      * Add a clause in order to prevent an assignment to occur. This happens

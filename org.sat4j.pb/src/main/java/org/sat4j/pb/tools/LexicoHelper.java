@@ -31,7 +31,8 @@ package org.sat4j.pb.tools;
 
 import org.sat4j.pb.IPBSolver;
 
-public class LexicoHelper<T, C> extends AbstractLexicoHelper<T, C> {
+public class LexicoHelper<T, C extends Comparable<C>>
+        extends AbstractLexicoHelper<T, C> {
 
     public LexicoHelper(IPBSolver solver) {
         super(new LexicoDecoratorPB(solver));
