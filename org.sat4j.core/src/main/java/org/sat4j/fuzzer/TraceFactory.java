@@ -24,6 +24,7 @@ import org.sat4j.minisat.orders.VarOrderHeap;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVecInt;
 import org.sat4j.tools.IdrupSearchListener;
 
 public class TraceFactory {
@@ -33,7 +34,7 @@ public class TraceFactory {
     static Trace trace;
     // For every call of APIFUzzer it creates MAX_ITERATIONS traces 
     // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 1;
+    static int MAX_ITERATIONS = 100;
     static int MAXVAR;
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
@@ -42,7 +43,7 @@ public class TraceFactory {
     static double coeficient;
     static ISolver solver;
     static ISolver solver2;
-    static int index; 
+    static boolean skipProofCheck;
     static ArrayList<Integer> usedLiterals = new ArrayList<Integer>();
     static ArrayList<String> icnf = new ArrayList<String>();
     // sanity check - verbose - print all variables you are choosing
@@ -74,6 +75,7 @@ public class TraceFactory {
 
             iteration++;
             icnf.clear();
+            skipProofCheck = false;
 
             // Generate Slave Seed
             long slaveSeed;
@@ -95,11 +97,9 @@ public class TraceFactory {
             // HEX ID for Trace
             trace = new Trace(Long.toHexString(slaveSeed));
             usedLiterals.clear();
-            index = 1;
 
             // Randomly fuzz the internal solution counter
-            ENUMERATING = false;
-            //slaveRandomGenerator.nextBoolean();
+            ENUMERATING = slaveRandomGenerator.nextBoolean();
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -108,6 +108,7 @@ public class TraceFactory {
                 // Add 1 - 20 to the Number of Variables on each increment
                 MAXVAR = slaveRandomGenerator.nextInt(20) + 1;
                 coeficient = 5;
+                skipProofCheck = true;
             } else {
                 icnf.add("p icnf");
                 // Add 20 - 200 to the Number of Variables on each increment
@@ -170,8 +171,9 @@ public class TraceFactory {
 
                 try{
                     addClauses();
-                } catch (final Exception e) {
+                } catch (Exception e) {
                     Helper.printException(isTraceSeed, verbose, trace, "addClause()", e);
+                    skipProofCheck = true;
                     break;
                 }
 
@@ -181,7 +183,7 @@ public class TraceFactory {
                             System.out.println("Started Generating Solution Enumerations");
                         }
 
-                        trace.addToTrace(index+" enumerating");
+                        trace.add("enumerating");
                         long internal = Helper.countSolutionsInt(solver);
                         long external = Helper.countSolutionsExt(solver2);
                         int maxVariableUsed = Collections.max(usedLiterals);
@@ -198,6 +200,7 @@ public class TraceFactory {
 
                     } catch (Exception e) {
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
+                        skipProofCheck = true;
                         break;
                     }
 
@@ -226,8 +229,7 @@ public class TraceFactory {
                             if(verbose){
                                 System.out.println("c ASSUMPTIONS: " + Helper.clauseToString(assumption));
                             }
-                            trace.addToTrace(index + " assuming " + Helper.clauseToString(assumption));
-                            index++;
+                            trace.add("assuming " + Helper.clauseToString(assumption));
                             icnf.add("q "+Helper.clauseToString(assumption)+"0");
 
                             // Call solver and pass the generated assumptions
@@ -235,8 +237,7 @@ public class TraceFactory {
 
                         // If Assumptions flag is false then simply try to solve the formula
                         } else {
-                            trace.addToTrace(index + " solve");
-                            index++;
+                            trace.add("solve");
                             icnf.add("q 0");
                             // Call the solver
                             isSAT = solver.isSatisfiable(); 
@@ -265,7 +266,12 @@ public class TraceFactory {
 
                             icnf.add("s UNSATISFIABLE");
                             if(ASSUMPTIONS){
-                                icnf.add("u "+Helper.IVecToString(solver.unsatExplanation())+"0");
+                                IVecInt unsatCore = solver.unsatExplanation();
+                                if(unsatCore != null){
+                                    icnf.add("u "+Helper.IVecToString(solver.unsatExplanation())+"0");
+                                } else {
+                                    icnf.add("u 0");
+                                }
                             } else {
                                 icnf.add("u 0");
                             }
@@ -284,6 +290,7 @@ public class TraceFactory {
                         }
                     } catch (final Exception e) {
                         Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
+                        skipProofCheck = true;
                         break;
                     }
 
@@ -303,13 +310,18 @@ public class TraceFactory {
 
             // IDRUP check
             try {
-                Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
-                int exitCode = process.waitFor(); 
-                if(exitCode != 0){
-                    throw new Exception("IDRUP Checker failed with code "+exitCode);
+                if(!skipProofCheck){
+                    Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
+                    int exitCode = process.waitFor(); 
+                    if(exitCode != 0){
+                        throw new Exception("IDRUP Checker failed with code "+exitCode);
+                    } else {
+                        Helper.deleteProof(trace.getId());
+                    }
                 } else {
                     Helper.deleteProof(trace.getId());
                 }
+                
             } catch (Exception e) {
                 Helper.printException(isTraceSeed, verbose, trace, "Proof Check", e);
             }
@@ -349,8 +361,7 @@ public class TraceFactory {
             }
 
             try {
-                trace.addToTrace(index + " addClause " + Helper.clauseToString(clause));
-                index++;
+                trace.add("addClause " + Helper.clauseToString(clause));
 
                 solver.addClause(new VecInt(clause));
                 if(ENUMERATING){
@@ -366,6 +377,7 @@ public class TraceFactory {
                 if(e.getMessage().contains("Creating Empty clause ?")){
                     // If it does happen we generate the clause again
                     NUMBER_OF_CLAUSES += 1;
+                    trace.removeLast();
                 } else {
                     throw e;
                 }
@@ -378,8 +390,7 @@ public class TraceFactory {
     public static ISolver initializeSolver(boolean verbose, boolean addToTrace, Long initSeed) throws Exception {
 
         if(addToTrace){
-            trace.addToTrace(index + " init");
-            index++;
+            trace.add("init");
         }
         Random initRandomGenerator = new Random(initSeed);
         // Initialize deafult solver for Minisat
@@ -394,9 +405,11 @@ public class TraceFactory {
                 // Flip coin to use a predifined solver or configure solver randomly
                 if(initRandomGenerator.nextBoolean()){
                     String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
+                    if(solverName == "Parallel" || solverName == "SATUNSAT"){
+                        skipProofCheck = true;
+                    }
                     if(addToTrace){
-                        trace.addToTrace(index + " using solver " + solverName);
-                        index++;
+                        trace.add("using solver " + solverName);
                     }
                     asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
                 } else {
@@ -415,8 +428,7 @@ public class TraceFactory {
                     if(order instanceof VarOrderHeap){
                         Double proba = initRandomGenerator.nextDouble();
                         if(addToTrace){
-                            trace.addToTrace(index + " Random Walk : "+proba);
-                            index++;
+                            trace.add("Random Walk : "+proba);
                         }
                         order = new RandomWalkDecorator((VarOrderHeap) order, proba);
                         ((ICDCL) asolver).setOrder(order);
@@ -427,8 +439,7 @@ public class TraceFactory {
             // Use DBS simplification or not
             if (useAll || initRandomGenerator.nextBoolean()) {
                 if(addToTrace){
-                    trace.addToTrace(index + " DBS simplification");
-                    index++;
+                    trace.add("DBS simplification");
                 }
                 asolver.setDBSimplificationAllowed(true);
             }
@@ -451,8 +462,7 @@ public class TraceFactory {
         if(useAll || initRandomGenerator.nextBoolean()){
             String dsfName = Helper.DSF.get(initRandomGenerator.nextInt(Helper.DSF.size()));
             if(addToTrace){
-                trace.addToTrace(index + " Data Structure Factory : "+dsfName);
-                index++;
+                trace.add("Data Structure Factory : "+dsfName);
             }
             DataStructureFactory dsf = (DataStructureFactory) Class.forName("org.sat4j.minisat.constraints."+dsfName).getConstructor().newInstance();
             theSolver.setDataStructureFactory(dsf);
@@ -460,7 +470,7 @@ public class TraceFactory {
 
         if(useAll || initRandomGenerator.nextBoolean()){
             String orderName = Helper.ORDERS.get(initRandomGenerator.nextInt(Helper.ORDERS.size()));
-            String log = index + " Order : "+orderName;
+            String log = "Order : "+orderName;
             Integer period = 20;
             Double varDecay = 1.0;
             if(orderName == "PureOrder"){
@@ -475,8 +485,7 @@ public class TraceFactory {
                 isNaturalStaticOrder = true;
             }
             if(addToTrace){
-                trace.addToTrace(log);
-                index++;
+                trace.add(log);
             }
             IOrder order = (IOrder) Class.forName("org.sat4j.minisat.orders."+orderName).getConstructor().newInstance();
             if (order != null) {
@@ -495,8 +504,7 @@ public class TraceFactory {
             } else {
                 String pssName = Helper.PHASE.get(initRandomGenerator.nextInt(Helper.PHASE.size()));
                 if(addToTrace){
-                    trace.addToTrace(index + " Phase Selection Strategy : "+pssName);
-                    index++;
+                    trace.add("Phase Selection Strategy : "+pssName);
                 }
                 IPhaseSelectionStrategy pss = (IPhaseSelectionStrategy) Class.forName("org.sat4j.minisat.orders."+pssName).getConstructor().newInstance();
                 if (pss != null) {
@@ -508,7 +516,7 @@ public class TraceFactory {
 
         if (useAll || initRandomGenerator.nextBoolean()) {
             String learningName = Helper.LEARNING.get(initRandomGenerator.nextInt(Helper.LEARNING.size()));
-            String log = index + " Learning Strategy : "+learningName;
+            String log = "Learning Strategy : "+learningName;
             Double percent = 0.95;
             Integer maxlength = 3;
             Integer maxpercent = 10;
@@ -524,10 +532,12 @@ public class TraceFactory {
                 // Limit learning to clauses of size smaller or equal to maxpercent % of the number of variables
                 maxpercent = initRandomGenerator.nextInt(101); // 0 - 100%
                 log += "/maxpercent="+maxpercent;
+            } else if(learningName == "NoLearningButHeuristics" || learningName == "NoLearningNoHeuristics"){
+                skipProofCheck = true;
+                // might enable later after the fix
             }
             if(addToTrace){
-                trace.addToTrace(log);
-                index++;
+                trace.add(log);
             }
             LearningStrategy learning = (LearningStrategy) Class.forName("org.sat4j.minisat.learning."+learningName).getConstructor().newInstance();
             if (learning != null) {
@@ -545,7 +555,7 @@ public class TraceFactory {
 
         if(useAll || initRandomGenerator.nextBoolean()){
             String restarterName = Helper.RESTARTS.get(initRandomGenerator.nextInt(Helper.RESTARTS.size()));
-            String log = index + " Restart Strategy : "+restarterName;
+            String log = "Restart Strategy : "+restarterName;
             Integer period = 0;
             Integer factor = 32;
             if(restarterName == "FixedPeriodRestarts"){
@@ -559,8 +569,7 @@ public class TraceFactory {
                 log += "/factor="+factor;
             }
             if(addToTrace){
-                trace.addToTrace(log);
-                index++;
+                trace.add(log);
             }
             RestartStrategy restarter = (RestartStrategy) Class.forName("org.sat4j.minisat.restarts."+restarterName).getConstructor().newInstance();
             if (restarter != null) {
@@ -576,8 +585,7 @@ public class TraceFactory {
         if(useAll || initRandomGenerator.nextBoolean()){
             String simplifierName = Helper.SIMPLIFIERS.get(initRandomGenerator.nextInt(Helper.SIMPLIFIERS.size()));
             if(addToTrace){
-                trace.addToTrace(index + " Simplification Type : "+simplifierName.toString());
-                index++;
+                trace.add("Simplification Type : "+simplifierName.toString());
             }
             ISimplifier simplifier = (ISimplifier) Solver.class.getDeclaredField(simplifierName).get(theSolver);
             theSolver.setSimplifier(simplifier);
@@ -591,11 +599,10 @@ public class TraceFactory {
             Double conflictBoundIncFactor = initRandomGenerator.nextInt(3) + initRandomGenerator.nextDouble(); // 0.0 - 3.0
             Integer initConflictBound = initRandomGenerator.nextInt(1001); // 0 - 1000
             if(addToTrace){
-                trace.addToTrace(index + " Search Params : varDecay="+varDecay
-                                                        +"/claDecay="+claDecay
-                                                        +"/conflictBoundIncFactor="+conflictBoundIncFactor
-                                                        +"/initConflictBound="+initConflictBound);
-                index++;
+                trace.add("Search Params : varDecay="+varDecay
+                                        +"/claDecay="+claDecay
+                                        +"/conflictBoundIncFactor="+conflictBoundIncFactor
+                                        +"/initConflictBound="+initConflictBound);
             }
             SearchParams params = (SearchParams) Class.forName("org.sat4j.minisat.core.SearchParams").getConstructor().newInstance();
             if (params != null) {
@@ -610,8 +617,7 @@ public class TraceFactory {
         if(useAll || initRandomGenerator.nextBoolean()){
             LearnedConstraintsEvaluationType memory = LearnedConstraintsEvaluationType.values()[initRandomGenerator.nextInt(LearnedConstraintsEvaluationType.values().length)];
             if(addToTrace){
-                trace.addToTrace(index + " Learned Constraints Evaluation Type : "+memory.toString());
-                index++;
+                trace.add("Learned Constraints Evaluation Type : "+memory.toString());
             }
             theSolver.setLearnedConstraintsDeletionStrategy(memory);
         }

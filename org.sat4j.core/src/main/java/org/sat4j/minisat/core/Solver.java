@@ -420,9 +420,12 @@ public class Solver<D extends DataStructureFactory>
     }
 
     public IConstr addClause(IVecInt literals) throws ContradictionException {
-        slistener.addClause(literals);
+        // slistener.addClause(literals);
+        // might have fixed the diff by 1 in Internal adn External counters
         IVecInt vlits = dimacs2internal(literals);
-        return addConstr(this.dsfactory.createClause(vlits));
+        IConstr constr = addConstr(this.dsfactory.createClause(vlits));
+        slistener.addClause(literals);
+        return constr;
     }
 
     public boolean removeConstr(IConstr co) {

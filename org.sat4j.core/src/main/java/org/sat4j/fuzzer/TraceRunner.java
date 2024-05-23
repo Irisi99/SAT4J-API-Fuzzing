@@ -131,8 +131,9 @@ public class TraceRunner {
 
                 // If API call is adding a clause then parse the clause from the trace and create a clause
                 } else if(apiCalls.get(i).contains("addClause")){
-                    solver.addClause(new VecInt(getClause(apiCalls.get(i)))); 
-                    solver2.addClause(new VecInt(getClause(apiCalls.get(i)))); 
+                    int[] clause = getClause(apiCalls.get(i));
+                    solver.addClause(new VecInt(clause)); 
+                    solver2.addClause(new VecInt(clause)); 
                       
                 // If API call is solving with assumptions then parse the assumptions from the trace and try to solve
                 } else if(apiCalls.get(i).contains("assuming")){
