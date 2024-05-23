@@ -131,7 +131,7 @@ public class DeltaDebugger {
 
     }
 
-    // Mehtod to create file with remining API calls from the trace after Delta Debugging
+    // Mehtod to create file with remaining API calls from the trace after Delta Debugging
     private static void createFile(List<String> trace, String seedHEX){
 
         // Method is similar to that of Trace.toFile except the fact that 
@@ -151,5 +151,4 @@ public class DeltaDebugger {
             e.printStackTrace(System.out);
         }
     }
-
 }
