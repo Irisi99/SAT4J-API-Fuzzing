@@ -1,0 +1,46 @@
+1 init
+8 Search Params : varDecay=0.9294345204782268/claDecay=0.716314995999895/conflictBoundIncFactor=2.646069570518173/initConflictBound=160
+9 Learned Constraints Evaluation Type : ACTIVITY
+10 Random Walk : 0.9259841857057611
+11 DBS simplification
+13 addClause 10 -11 19 
+16 addClause 11 8 -2 
+17 addClause -3 -8 -12 
+24 addClause -16 -1 7 
+25 addClause -12 4 17 
+27 addClause -2 -10 -1 
+33 addClause 12 2 -10 
+34 addClause -17 -14 10 
+35 addClause -6 -20 -12 
+36 addClause -12 -1 -5 
+55 addClause -19 9 13 
+56 addClause -12 12 -15 
+57 addClause -15 -17 -13 
+58 addClause 11 3 -11 
+59 addClause -5 -13 -4 
+60 addClause -13 11 -2 
+61 addClause -1 -11 -8 
+64 addClause 15 -19 16 
+68 addClause -19 -18 -7 
+69 addClause 18 -4 -8 
+70 addClause 4 13 -15 
+71 addClause -2 1 8 
+72 addClause -2 8 -16 
+73 addClause 16 4 -2 
+78 addClause -14 4 3 
+79 addClause 14 -10 -14 
+80 addClause -19 7 12 
+81 addClause -4 -19 10 
+85 addClause 10 -7 -8 
+87 addClause -5 13 10 
+88 addClause -5 -1 13 
+89 addClause 6 -4 18 
+90 addClause -1 -12 -7 
+91 addClause -5 9 1 
+92 addClause -12 -11 14 
+93 addClause -3 14 10 
+102 addClause -10 -17 8 
+103 addClause -13 4 13 
+104 addClause -12 4 13 
+106 addClause 1 3 -2 
+107 enumerating

@@ -1,0 +1,7 @@
+1 init
+11 DBS simplification
+46 addClause -1 2 
+269 addClause -2 
+291 solve
+500 addClause 1 
+1238 solve

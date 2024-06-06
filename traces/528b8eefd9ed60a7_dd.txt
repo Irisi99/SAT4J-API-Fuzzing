@@ -4,12 +4,12 @@
 6 Restart Strategy : ArminRestarts
 7 Simplification Type : expensiveSimplificationWLOnly
 10 Random Walk : 0.4490895545307576
-24 addClause -3 -4 -9 
-25 addClause 5 9 -9 
-26 addClause -13 12 14 
-27 addClause 13 1 6 
-28 addClause -1 -3 -11 
-39 addClause 10 9 -3 
-40 addClause -6 -1 11 
-41 addClause 9 -12 -7 
+24 addClause -3 -4 
+25 addClause 5 
+26 addClause 12 14 
+27 addClause 13 6 
+28 addClause -11 
+39 addClause 10 -3 
+40 addClause -6 -1 
+41 addClause 9 -7 
 82 enumerating

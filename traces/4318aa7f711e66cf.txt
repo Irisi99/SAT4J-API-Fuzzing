@@ -1,0 +1,34 @@
+1 init
+2 using solver Parallel
+3 DBS simplification
+4 addClause -4 3 -3 
+5 addClause 4 2 -7 
+6 addClause 1 -5 -7 
+7 addClause -5 6 -3 
+8 addClause -1 -5 4 
+9 addClause -5 2 -3 
+10 addClause -6 3 -2 
+11 addClause 5 4 -2 
+12 addClause 5 -3 -6 
+13 addClause -5 -2 -3 
+14 addClause 4 -3 3 
+15 addClause 4 -4 -5 
+16 addClause -6 4 5 
+17 addClause 5 -6 3 
+18 addClause -3 -4 4 
+19 addClause 5 4 -1 
+20 addClause -2 3 4 
+21 addClause -4 4 5 
+22 addClause -5 -1 2 
+23 addClause 3 -3 5 
+24 addClause 5 -6 -2 
+25 addClause 2 -4 -3 
+26 addClause -5 5 -1 
+27 addClause 4 1 -6 
+28 addClause 1 -1 -5 
+29 addClause -5 5 -1 
+30 addClause 3 -4 -1 
+31 addClause 2 5 -5 
+32 addClause 2 -3 -4 
+33 addClause 2 5 -4 
+34 enumerating

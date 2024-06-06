@@ -1,0 +1,24 @@
+1 init
+2 Random Walk : 0.08112017353624423
+3 DBS simplification
+4 addClause -5 2 1 
+5 addClause -4 -1 1 
+6 addClause 3 -3 -1 
+7 addClause 2 -4 -3 
+8 addClause -3 3 1 
+9 addClause -4 1 -2 
+10 addClause 1 2 -2 
+11 addClause 1 4 -3 
+12 addClause -1 2 -2 
+13 addClause -4 2 -2 
+14 addClause 3 -2 2 
+15 addClause 2 -2 1 
+16 addClause -4 -3 4 
+17 addClause -3 -4 -2 
+18 addClause -4 -2 3 
+19 addClause -3 -2 1 
+20 addClause -3 1 -4 
+21 addClause -2 2 1 
+22 addClause -4 -3 2 
+23 addClause -4 -1 1 
+24 enumerating

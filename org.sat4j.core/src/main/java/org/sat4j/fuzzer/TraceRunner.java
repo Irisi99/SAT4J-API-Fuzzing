@@ -1,6 +1,8 @@
 package org.sat4j.fuzzer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -15,6 +17,9 @@ import org.sat4j.minisat.core.ISimplifier;
 import org.sat4j.minisat.core.LearnedConstraintsEvaluationType;
 import org.sat4j.minisat.core.Solver;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.tools.IdrupSearchListener;
 
 public class TraceRunner {
 
@@ -34,8 +39,7 @@ public class TraceRunner {
         } else {
             try {
                 List<String> content = Files.readAllLines(Paths.get("./traces/" + argument));
-                content.remove(0);
-                runTrace(content, true);
+                runTrace(argument.substring(0, argument.indexOf(".txt")), content, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -43,11 +47,16 @@ public class TraceRunner {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static String runTrace(List<String> apiCalls, boolean verbose){
+    public static String runTrace(String seed, List<String> apiCalls, boolean verbose){
 
         usedLiterals = new ArrayList<Integer>();
 
+        ArrayList<String> icnf = new ArrayList<String>();
+        icnf.add("p icnf");
+
         ISolver solver = Helper.initSolver("Default");
+        solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+seed+".idrup"));
+
         // Second solver in case it is Enumerating Solutions
         ISolver solver2 = Helper.initSolver("Default");
 
@@ -133,33 +142,49 @@ public class TraceRunner {
                 } else if(apiCalls.get(i).contains("addClause")){
                     int[] clause = getClause(apiCalls.get(i));
                     solver.addClause(new VecInt(clause)); 
-                    solver2.addClause(new VecInt(clause)); 
+                    solver2.addClause(new VecInt(clause));
+                    icnf.add("i "+Helper.clauseToString(clause)+"0");
                       
                 // If API call is solving with assumptions then parse the assumptions from the trace and try to solve
                 } else if(apiCalls.get(i).contains("assuming")){
-                    solver.isSatisfiable(new VecInt(getClause(apiCalls.get(i))));
+                    int[] assumption = getClause(apiCalls.get(i));
+                    Boolean result = solver.isSatisfiable(new VecInt(assumption));
+                    icnf.add("q "+Helper.clauseToString(assumption)+"0");
+                    if(result){
+                        icnf.add("s SATISFIABLE");
+                        icnf.add("m "+Helper.clauseToString(solver.model())+"0");
+                    } else {
+                        icnf.add("s UNSATISFIABLE");
+                        IVecInt unsatCore = solver.unsatExplanation();
+                        if(unsatCore != null)
+                            icnf.add("u "+Helper.IVecToString(unsatCore)+"0");
+                        else
+                            icnf.add("u 0");
+                    }
 
                 // If API call is trying to solve the formula then try to solve
                 } else if(apiCalls.get(i).contains("solve")){
-                    solver.isSatisfiable();
+                    Boolean result = solver.isSatisfiable();
+                    icnf.add("q 0");
+                    if(result){
+                        icnf.add("s SATISFIABLE");
+                        icnf.add("m "+Helper.clauseToString(solver.model())+"0");
+                    } else {
+                        icnf.add("s UNSATISFIABLE");
+                        icnf.add("u 0");
+                    }
 
                 // If API call is trying to enumerate solutions then compare internal and external enumerator results
                 } else if(apiCalls.get(i).contains("enumerating")){
 
-                    // TODO: Big Numbers ?
                     long internal = Helper.countSolutionsInt(solver);
-                    // System.out.println(internal);
                     long external = Helper.countSolutionsExt(solver2);
-                    // System.out.println(external);
 
                     int maxVariableUsed = Collections.max(usedLiterals);
                     int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
 
                     if(numberOfUnusedLiterals > 0){
-                        System.out.println(numberOfUnusedLiterals);
                         long divider = Helper.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
-                        System.out.println(divider);
-                        System.out.println(external);
                         external = external/divider;
                     }
 
@@ -169,12 +194,35 @@ public class TraceRunner {
                 }
             }
 
+            Helper.createICNF(seed, icnf);
+            Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+seed+".icnf idrups/"+seed+".idrup");
+
+            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            String error = stdError.readLine();
+            if(error != null && error.contains("does not satisfy input clause"))
+                error = "does not satisfy input clause";
+            else if(error != null && error.contains("lemma implication check failed"))
+                error = "lemma implication check failed";
+            else if(error != null && error.contains("unsatisfiable core implication check failed"))
+                error = "unsatisfiable core implication check failed";
+
+            int exitCode = process.waitFor(); 
+            if(exitCode != 0){
+                throw new Exception("IDRUP Checker failed with code "+exitCode+" --- "+error);
+            } else {
+                Helper.deleteProof(seed);
+            }
+
         } catch (Exception e){
             if(verbose){
                 e.printStackTrace();
             }
+
             if(e.getMessage() != null && e.getMessage().contains("Enumerators"))
                 return "Enumeration";
+            else if(e.getMessage() != null && e.getMessage().contains("IDRUP"))
+                return e.getMessage();
+
             // Return the class of the error that happened while running the trace
             return e.getClass().getName();
         }
@@ -194,5 +242,4 @@ public class TraceRunner {
         }
         return clause;
     }
-
 }

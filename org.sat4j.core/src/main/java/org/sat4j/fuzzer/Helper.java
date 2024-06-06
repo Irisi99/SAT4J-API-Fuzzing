@@ -95,7 +95,7 @@ public class Helper {
     }
 
     // Custom toString method for array for easier parsing when rurning trace file
-    public static String clauseToString( int[] clause){
+    public static String clauseToString(int[] clause){
         String stringClause = "";
         for(int i=0; i < clause.length; i++){
             stringClause += clause[i]+" ";

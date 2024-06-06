@@ -26,6 +26,7 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.ISolverService;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.tools.IdrupSearchListener;
+import org.sat4j.tools.ManyCore;
 
 public class TraceFactory {
 
@@ -43,8 +44,12 @@ public class TraceFactory {
     static double coeficient;
     static ISolver solver;
     static ISolver solver2;
-    static boolean skipProofCheck;
+    static int NUMBER_OF_THREADS;
+    static boolean SKIP_PROOF_CHECK;
+    static boolean CARDINALITY_CHECK;
+    static boolean PASS_MAX_VAR;
     static ArrayList<Integer> usedLiterals = new ArrayList<Integer>();
+    static ArrayList<Integer> unitClauses = new ArrayList<Integer>();
     static ArrayList<String> icnf = new ArrayList<String>();
     // sanity check - verbose - print all variables you are choosing
     public static void run(long seed, boolean isTraceSeed, boolean verbose) {
@@ -75,7 +80,10 @@ public class TraceFactory {
 
             iteration++;
             icnf.clear();
-            skipProofCheck = false;
+            NUMBER_OF_THREADS = 1;
+            SKIP_PROOF_CHECK = false;
+            usedLiterals.clear();
+            unitClauses.clear();
 
             // Generate Slave Seed
             long slaveSeed;
@@ -96,7 +104,6 @@ public class TraceFactory {
 
             // HEX ID for Trace
             trace = new Trace(Long.toHexString(slaveSeed));
-            usedLiterals.clear();
 
             // Randomly fuzz the internal solution counter
             ENUMERATING = slaveRandomGenerator.nextBoolean();
@@ -108,7 +115,7 @@ public class TraceFactory {
                 // Add 1 - 20 to the Number of Variables on each increment
                 MAXVAR = slaveRandomGenerator.nextInt(20) + 1;
                 coeficient = 5;
-                skipProofCheck = true;
+                SKIP_PROOF_CHECK = true;
             } else {
                 icnf.add("p icnf");
                 // Add 20 - 200 to the Number of Variables on each increment
@@ -164,6 +171,10 @@ public class TraceFactory {
                     NUMBER_OF_CLAUSES = (int) (coeficient * (MAXVAR - OLDMAXVAR));
                 }
 
+                if(PASS_MAX_VAR){
+                    solver.newVar(MAXVAR);
+                }
+
                 if(verbose){
                     System.out.println("c MAXVAR: " + MAXVAR);                    
                     System.out.println("c NUMBER_OF_CLAUSES: " + NUMBER_OF_CLAUSES);
@@ -173,7 +184,7 @@ public class TraceFactory {
                     addClauses();
                 } catch (Exception e) {
                     Helper.printException(isTraceSeed, verbose, trace, "addClause()", e);
-                    skipProofCheck = true;
+                    SKIP_PROOF_CHECK = true;
                     break;
                 }
 
@@ -200,7 +211,7 @@ public class TraceFactory {
 
                     } catch (Exception e) {
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
-                        skipProofCheck = true;
+                        SKIP_PROOF_CHECK = true;
                         break;
                     }
 
@@ -230,7 +241,8 @@ public class TraceFactory {
                                 System.out.println("c ASSUMPTIONS: " + Helper.clauseToString(assumption));
                             }
                             trace.add("assuming " + Helper.clauseToString(assumption));
-                            icnf.add("q "+Helper.clauseToString(assumption)+"0");
+                            for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                                icnf.add("q "+Helper.clauseToString(assumption)+"0");
 
                             // Call solver and pass the generated assumptions
                             isSAT = solver.isSatisfiable(new VecInt(assumption));
@@ -238,7 +250,8 @@ public class TraceFactory {
                         // If Assumptions flag is false then simply try to solve the formula
                         } else {
                             trace.add("solve");
-                            icnf.add("q 0");
+                            for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                                icnf.add("q 0");
                             // Call the solver
                             isSAT = solver.isSatisfiable(); 
                         }
@@ -247,8 +260,10 @@ public class TraceFactory {
                         // If it is SAT then we continue with next iteration
                         if (isSAT) {
 
-                            icnf.add("s SATISFIABLE");
-                            icnf.add("m "+Helper.clauseToString(solver.model())+"0");
+                            for(int j = 0; j < NUMBER_OF_THREADS; j++){
+                                icnf.add("s SATISFIABLE");
+                                icnf.add("m "+Helper.clauseToString(solver.model())+"0");
+                            }
 
                             // If this was the last iteration update statistics and continue to next trace
                             if(increments == totalIncrements){
@@ -264,16 +279,21 @@ public class TraceFactory {
                         // If it is UNSAT no need to continue with the other increments, update statistics and continue to next trace
                         } else {
 
-                            icnf.add("s UNSATISFIABLE");
+                            for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                                icnf.add("s UNSATISFIABLE");
+
                             if(ASSUMPTIONS){
                                 IVecInt unsatCore = solver.unsatExplanation();
-                                if(unsatCore != null){
-                                    icnf.add("u "+Helper.IVecToString(solver.unsatExplanation())+"0");
-                                } else {
-                                    icnf.add("u 0");
+                                for(int j = 0; j < NUMBER_OF_THREADS; j++){
+                                    if(unsatCore != null){
+                                        icnf.add("u "+Helper.IVecToString(unsatCore)+"0");
+                                    } else {
+                                        icnf.add("u 0");
+                                    }
                                 }
                             } else {
-                                icnf.add("u 0");
+                                for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                                    icnf.add("u 0");
                             }
                             Helper.createICNF(trace.getId(), icnf);
 
@@ -288,9 +308,9 @@ public class TraceFactory {
                             }
                             break;
                         }
-                    } catch (final Exception e) {
+                    } catch (Exception e) {
                         Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
-                        skipProofCheck = true;
+                        SKIP_PROOF_CHECK = true;
                         break;
                     }
 
@@ -310,7 +330,7 @@ public class TraceFactory {
 
             // IDRUP check
             try {
-                if(!skipProofCheck){
+                if(!SKIP_PROOF_CHECK){
                     Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
                     int exitCode = process.waitFor(); 
                     if(exitCode != 0){
@@ -348,16 +368,26 @@ public class TraceFactory {
 
             for (int j = 0; j < clause.length; j++) {
                 // Generate a literal that is a valid variable but could be positive or negative
-                clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                int literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+
                 // Check that this literal is not used before in the clause and that it is not 0
-                while (clause[j] == 0 || Helper.isAlreadyPresent(clause, j)) {
-                    clause[j] = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);
+                // Check that literal is not 
+                while (literal == 0 || Helper.isAlreadyPresent(clause, j) 
+                            || (CARDINALITY_CHECK && unitClauses.contains(-literal))) {
+
+                    literal = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);
                 }
                 // We need to know which literals we can assume if we have assumptions on so we keep track of all literals
                 // We also need to know how many of the variables are used when enumerating
-                if(!usedLiterals.contains(Math.abs(clause[j]))){
-                    usedLiterals.add(Math.abs(clause[j]));
+                if(!usedLiterals.contains(Math.abs(literal))){
+                    usedLiterals.add(Math.abs(literal));
                 }
+
+                if(CARDINALITY_CHECK && clause.length == 1){
+                    unitClauses.add(literal);
+                }
+
+                clause[j] = literal;
             }
 
             try {
@@ -367,7 +397,8 @@ public class TraceFactory {
                 if(ENUMERATING){
                     solver2.addClause(new VecInt(clause));
                 } else {
-                    icnf.add("i "+Helper.clauseToString(clause)+"0");
+                    for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                        icnf.add("i "+Helper.clauseToString(clause)+"0");
                 }
                     
             } catch (ContradictionException e) {
@@ -398,20 +429,25 @@ public class TraceFactory {
         ISolver asolver = factory.defaultSolver();
         // Use all options or randomly select options to include
         Boolean useAll = initRandomGenerator.nextBoolean();
+
         // Use no options
         if(initRandomGenerator.nextBoolean()){
+
             // Configure solver or use default solver
             if (useAll || initRandomGenerator.nextBoolean()) {
                 // Flip coin to use a predifined solver or configure solver randomly
                 if(initRandomGenerator.nextBoolean()){
                     String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
-                    if(solverName == "Parallel" || solverName == "SATUNSAT"){
-                        skipProofCheck = true;
+                    if(solverName == "Parallel" || solverName == "SATUNSAT" || solverName == "MinOneSolver"){
+                        SKIP_PROOF_CHECK = true;
                     }
                     if(addToTrace){
                         trace.add("using solver " + solverName);
                     }
                     asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+                    if(asolver instanceof ManyCore){
+                        NUMBER_OF_THREADS = ((ManyCore) asolver).getSolvers().size();
+                    }
                 } else {
                     asolver = createSolverWithBuildingBlocks((ICDCL) asolver, initRandomGenerator, useAll, addToTrace);
                 }
@@ -459,10 +495,15 @@ public class TraceFactory {
         Solver asolver = (Solver) theSolver;
         Boolean isNaturalStaticOrder = false;
 
-        if(useAll || initRandomGenerator.nextBoolean()){
+        if(useAll || true){
             String dsfName = Helper.DSF.get(initRandomGenerator.nextInt(Helper.DSF.size()));
             if(addToTrace){
                 trace.add("Data Structure Factory : "+dsfName);
+            }
+            if(dsfName == "CardinalityDataStructureYanMax"){
+                CARDINALITY_CHECK = true;
+            } else if(dsfName == "MixedDataStructureDanielWLConciseBinary"){
+                PASS_MAX_VAR = true;
             }
             DataStructureFactory dsf = (DataStructureFactory) Class.forName("org.sat4j.minisat.constraints."+dsfName).getConstructor().newInstance();
             theSolver.setDataStructureFactory(dsf);
@@ -532,10 +573,11 @@ public class TraceFactory {
                 // Limit learning to clauses of size smaller or equal to maxpercent % of the number of variables
                 maxpercent = initRandomGenerator.nextInt(101); // 0 - 100%
                 log += "/maxpercent="+maxpercent;
-            } else if(learningName == "NoLearningButHeuristics" || learningName == "NoLearningNoHeuristics"){
-                skipProofCheck = true;
-                // might enable later after the fix
-            }
+            } 
+            // else if(learningName == "NoLearningButHeuristics" || learningName == "NoLearningNoHeuristics"){
+            //     SKIP_PROOF_CHECK = true;
+            //     // might enable later after the fix
+            // }
             if(addToTrace){
                 trace.add(log);
             }

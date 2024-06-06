@@ -1,0 +1,58 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
+3 Order : NaturalStaticOrder
+4 Learning Strategy : FixedLengthLearning/maxlength=17
+5 Restart Strategy : LubyRestarts/factor=830
+6 Simplification Type : expensiveSimplification
+7 Search Params : varDecay=0.9042875247349199/claDecay=0.934713464414537/conflictBoundIncFactor=0.7649699075822645/initConflictBound=786
+8 Learned Constraints Evaluation Type : LBD
+9 DBS simplification
+10 addClause -63 -68 -141 
+11 addClause -136 -156 -112 
+12 addClause 82 -50 105 -125 
+13 addClause -139 -44 101 
+14 addClause 52 16 151 
+15 addClause 12 74 -46 
+16 addClause 147 -22 -92 
+17 addClause 93 -92 
+18 addClause -61 143 -154 
+19 addClause 27 -22 59 
+20 addClause -156 -124 101 
+21 addClause -2 -118 23 
+22 addClause -106 70 108 
+23 addClause 14 84 -164 
+24 addClause 101 75 -90 
+25 addClause -65 164 -88 
+26 addClause 64 69 -143 
+27 addClause 70 156 -2 
+28 addClause -75 110 25 
+29 addClause -79 -138 -145 99 
+30 addClause -144 92 
+31 addClause 41 134 -4 
+32 addClause -167 -32 95 
+33 addClause 109 -125 -132 
+34 addClause -8 -16 -147 
+35 addClause -154 -93 64 
+36 addClause 89 8 -131 
+37 addClause 121 -164 72 
+38 addClause 156 -13 -37 
+39 addClause 91 140 -51 
+40 addClause 74 27 89 
+41 addClause 38 156 -65 
+42 addClause -73 -117 
+43 addClause -46 35 -158 
+44 addClause 129 -164 -18 
+45 addClause 81 102 133 10 
+46 addClause 154 60 -20 
+47 addClause -38 55 -158 
+48 addClause -146 -131 
+49 addClause 100 -86 -150 
+50 addClause -120 134 -29 
+51 addClause -8 8 -36 
+52 addClause -152 61 -66 
+53 addClause -122 -123 
+54 addClause 10 -108 136 
+55 addClause -132 -31 122 
+56 addClause -11 109 135 
+57 addClause 16 7 -162 
+58 addClause -104 -168 

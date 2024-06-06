@@ -1,0 +1,75 @@
+1 init
+7 Simplification Type : NO_SIMPLIFICATION
+20 addClause 47 
+21 addClause 33 
+22 addClause 44 
+23 addClause 17 
+24 addClause 46 
+27 addClause 41 
+30 addClause -91 
+38 addClause -14 
+42 addClause -42 
+48 addClause -19 
+53 addClause 95 
+56 addClause -28 
+58 addClause -1 
+59 addClause -27 -134 
+60 addClause 36 
+68 addClause 16 
+124 addClause -12 
+136 addClause -13 
+140 addClause -29 
+142 addClause 30 
+152 addClause 103 
+160 addClause -82 
+161 addClause 93 
+162 addClause 18 
+187 addClause -15 
+192 addClause 20 
+197 addClause -29 
+201 addClause -91 
+206 addClause 32 
+214 addClause -11 
+215 addClause -1 
+224 addClause 20 
+227 addClause 35 
+233 addClause 10 
+241 addClause -13 
+242 addClause -2 
+246 addClause 31 -5 
+255 addClause 22 
+256 addClause -9 
+257 addClause 23 
+260 addClause -37 
+262 addClause -24 
+282 addClause 34 31 
+286 addClause 26 
+294 addClause 33 
+296 addClause -79 
+301 addClause 39 
+306 addClause 38 
+310 addClause -4 -134 
+317 addClause -34 -34 
+320 addClause -31 134 
+324 addClause 93 
+333 addClause -84 -84 
+339 addClause 3 
+340 addClause -37 
+343 addClause -6 
+352 addClause 35 
+353 addClause 138 
+365 addClause 40 
+392 addClause -24 
+394 addClause 138 
+398 addClause -21 
+412 addClause -6 
+417 addClause 5 84 
+418 addClause 17 
+424 addClause 124 
+431 addClause -7 
+432 addClause -91 
+433 addClause 27 4 
+438 addClause 26 
+440 addClause -24 
+446 addClause -42 
+456 assuming -148 -76 89 -25 -8 -142 -123 -119 -96 141 121 -43 115 -45 

@@ -1,0 +1,12 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructureYanMax
+3 Simplification Type : expensiveSimplificationWLOnly
+4 Search Params : varDecay=0.9134291501581867/claDecay=0.8958711194996207/conflictBoundIncFactor=2.370134424485052/initConflictBound=878
+5 addClause -4 -54 47 
+6 addClause -37 -20 -36 
+7 addClause 45 59 -26 
+8 addClause -38 -32 40 
+9 addClause 34 -26 51 
+10 addClause -1 -16 -22 
+11 addClause 51 -7 18 
+12 addClause 40 25 18 

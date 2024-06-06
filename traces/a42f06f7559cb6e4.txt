@@ -1,0 +1,90 @@
+1 init
+2 using solver MiniLearningHeapExpSimp
+3 Random Walk : 0.1378918555323917
+4 DBS simplification
+5 addClause -15 -10 1 
+6 addClause 8 
+7 addClause -7 -6 16 
+8 addClause -9 -2 4 
+9 addClause -9 12 14 
+10 addClause 12 10 8 
+11 addClause -10 1 -8 
+12 addClause 9 15 11 
+13 addClause -17 -14 -16 
+14 addClause 13 16 -5 
+15 addClause -2 5 
+16 addClause 7 -2 13 
+17 addClause -13 9 -15 
+18 addClause -16 -3 2 
+19 addClause -4 12 -8 
+20 addClause -14 4 -4 
+21 addClause -13 -3 -8 
+22 addClause 11 -5 -6 
+23 addClause 10 7 -11 
+24 addClause -5 2 -6 
+25 addClause 12 11 7 
+26 addClause 6 3 -3 
+27 addClause -11 -2 2 -7 
+28 addClause 5 14 
+29 addClause -10 -5 
+30 addClause -15 4 8 
+31 addClause -8 9 -14 
+32 addClause 16 5 
+33 addClause 4 -6 
+34 addClause 10 1 -9 
+35 addClause -12 
+36 addClause -2 -17 
+37 addClause -3 14 16 -11 
+38 addClause 15 -10 -13 
+39 addClause -11 13 
+40 addClause -12 -2 -9 
+41 addClause 5 15 8 
+42 addClause 6 -6 
+43 addClause 3 -13 15 
+44 addClause 7 -9 2 
+45 addClause 13 -10 6 
+46 addClause 13 8 2 
+47 addClause -15 -1 -6 1 
+48 addClause 13 16 -4 
+49 addClause 2 -2 -6 
+50 addClause 8 -2 -13 
+51 addClause 7 -9 11 
+52 addClause -13 15 -6 
+53 addClause 3 -9 11 
+54 addClause 7 4 -10 
+55 addClause -14 -6 14 
+56 addClause -4 -2 -12 
+57 addClause 9 6 -14 
+58 addClause -12 7 5 
+59 addClause -12 13 -8 
+60 addClause 15 11 -8 
+61 addClause -4 -5 -8 
+62 addClause 12 -15 -13 10 
+63 addClause 12 -14 -3 
+64 addClause -13 8 -10 
+65 addClause -8 -14 -16 
+66 addClause 7 14 13 
+67 addClause 7 -17 15 4 
+68 addClause -13 -16 -5 
+69 addClause -12 -9 3 
+70 addClause 11 14 -13 
+71 addClause 6 -1 12 
+72 addClause 16 1 7 
+73 addClause -12 -1 -15 
+74 addClause 13 -4 -14 
+75 addClause 13 -14 1 
+76 addClause 5 7 
+77 addClause -13 7 3 
+78 addClause -9 1 -15 
+79 addClause -14 12 6 
+80 addClause -5 2 9 
+81 addClause -3 12 -1 
+82 addClause -11 6 -6 
+83 addClause 14 -2 -3 
+84 addClause -9 3 13 
+85 addClause -17 -15 
+86 addClause -15 5 -7 12 
+87 addClause 7 -1 
+88 addClause -5 4 -12 
+89 addClause -15 12 -14 
+90 enumerating
