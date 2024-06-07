@@ -24,6 +24,7 @@ import org.sat4j.tools.IdrupSearchListener;
 public class TraceRunner {
 
     static ArrayList<Integer> usedLiterals;
+    static Boolean ENUMERATING;
 
     public static void main(final String[] args) {
 
@@ -49,6 +50,7 @@ public class TraceRunner {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static String runTrace(String seed, List<String> apiCalls, boolean verbose){
 
+        ENUMERATING = false;
         usedLiterals = new ArrayList<Integer>();
 
         ArrayList<String> icnf = new ArrayList<String>();
@@ -177,6 +179,8 @@ public class TraceRunner {
                 // If API call is trying to enumerate solutions then compare internal and external enumerator results
                 } else if(apiCalls.get(i).contains("enumerating")){
 
+                    ENUMERATING = true;
+
                     long internal = Helper.countSolutionsInt(solver);
                     long external = Helper.countSolutionsExt(solver2);
 
@@ -194,23 +198,40 @@ public class TraceRunner {
                 }
             }
 
-            Helper.createICNF(seed, icnf);
-            Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+seed+".icnf idrups/"+seed+".idrup");
+            if(!ENUMERATING){
+                Helper.createICNF(seed, icnf);
+                Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+seed+".icnf idrups/"+seed+".idrup");
 
-            BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String error = stdError.readLine();
-            if(error != null && error.contains("does not satisfy input clause"))
-                error = "does not satisfy input clause";
-            else if(error != null && error.contains("lemma implication check failed"))
-                error = "lemma implication check failed";
-            else if(error != null && error.contains("unsatisfiable core implication check failed"))
-                error = "unsatisfiable core implication check failed";
-
-            int exitCode = process.waitFor(); 
-            if(exitCode != 0){
-                throw new Exception("IDRUP Checker failed with code "+exitCode+" --- "+error);
+                BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                String error = stdError.readLine();
+                if(error != null && error.contains("does not satisfy input clause"))
+                    error = "does not satisfy input clause";
+                else if(error != null && error.contains("lemma implication check failed"))
+                    error = "lemma implication check failed";
+                else if(error != null && error.contains("unsatisfiable core implication check failed"))
+                    error = "unsatisfiable core implication check failed";
+    
+                int exitCode = process.waitFor(); 
+                if(exitCode != 0){
+                    throw new Exception("IDRUP Checker failed with code "+exitCode+" --- "+error);
+                } else {
+                    Helper.deleteProof(seed);
+                }
             } else {
                 Helper.deleteProof(seed);
+            }
+
+            if(verbose && !ENUMERATING){
+                Boolean result = solver.isSatisfiable();
+                if(result){
+                    System.out.println("SATISFIABLE");
+                    System.out.println("Model: "+Helper.clauseToString(solver.model()));
+                } else {
+                    System.out.println("UNSATISFIABLE");
+                    IVecInt unsatCore = solver.unsatExplanation();
+                    if(unsatCore != null)
+                    System.out.println("UNSAT Core: "+Helper.IVecToString(unsatCore));
+                }
             }
 
         } catch (Exception e){

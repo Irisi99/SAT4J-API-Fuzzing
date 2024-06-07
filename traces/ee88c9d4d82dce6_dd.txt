@@ -1,0 +1,11 @@
+1 init
+30 addClause 1 
+31 addClause -2 3 
+38 addClause 5 5 -7 
+40 addClause 2 -8 
+44 addClause 6 -3 
+58 addClause 7 4 
+70 addClause 8 -7 6 
+92 addClause -5 -6 
+431 addClause 9 -4 
+901 solve

@@ -1,0 +1,6 @@
+1 init
+167 addClause -1 -1 
+593 addClause 2 -3 
+667 addClause -2 1 
+716 addClause 3 1 
+768 assuming 

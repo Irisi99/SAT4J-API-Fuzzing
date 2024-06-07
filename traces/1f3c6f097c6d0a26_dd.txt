@@ -1,24 +1,11 @@
 1 init
 7 addClause 1 
-10 addClause -22 
-11 addClause -5 -16 
-12 addClause 4 
-13 addClause 10 -18 
-15 addClause -8 
-16 addClause -12 
-35 addClause 16 -11 16 
-37 addClause -5 18 
-42 addClause 5 17 
-53 addClause 6 
-60 addClause -17 3 
-61 addClause -17 -10 
-63 addClause -9 11 
-72 addClause -3 10 26 
-74 addClause 26 9 
-76 addClause -15 
-79 addClause 4 
-81 addClause 6 
-82 addClause -22 
-85 addClause 2 
-87 addClause 7 
-721 assuming -37 203 -149 -228 -194 -169 179 -162 42 175 -137 -189 -57 23 -79 190 52 -104 86 180 231 -20 -33 
+11 addClause -8 -6 
+35 addClause 6 -5 6 
+42 addClause 8 7 
+60 addClause -7 2 
+61 addClause -7 -4 
+63 addClause -3 5 
+72 addClause -2 4 9 
+74 addClause 9 3 
+721 assuming 

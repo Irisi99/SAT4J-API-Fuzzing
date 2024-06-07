@@ -1,7 +1,5 @@
 1 init
 2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
-41 addClause -5 
-307 addClause 4 
 327 addClause 234 
-339 addClause 2 3 
-687 addClause -235 1 
+339 addClause 2 1 
+687 addClause -235 3 

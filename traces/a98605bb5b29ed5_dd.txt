@@ -1,0 +1,17 @@
+1 init
+5 Learning Strategy : NoLearningButHeuristics
+291 addClause 7 6 
+298 addClause 3 -13 
+301 addClause -3 7 12 
+331 addClause -4 -10 
+397 addClause -7 14 
+459 addClause 5 10 
+468 addClause -9 -11 
+495 addClause -5 -2 
+503 addClause -6 9 -11 
+552 addClause -1 
+553 addClause -3 -12 
+570 addClause 13 -8 
+911 addClause 4 11 
+957 addClause 2 8 
+1030 solve

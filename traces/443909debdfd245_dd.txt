@@ -1,52 +1,20 @@
 1 init
 5 Learning Strategy : FixedLengthLearning/maxlength=9
-21 addClause 9 
-23 addClause -1 
-34 addClause -31 
-37 addClause 28 
-40 addClause -15 
-54 addClause 10 
-55 addClause 4 -13 
-56 addClause 7 
-60 addClause 32 
-63 addClause -15 
-65 addClause -3 
-66 addClause -19 
-68 addClause 10 
-73 addClause -3 
-81 addClause 32 
-82 addClause -18 13 
-84 addClause -4 -18 
-86 addClause -15 
-100 addClause -17 
-101 addClause -5 
-105 addClause -17 
-132 addClause 6 -2 
-136 addClause 89 77 
-137 addClause -115 
-138 addClause -120 -77 
-146 addClause 10 
-159 addClause 12 81 
-166 addClause 2 120 
-172 addClause -99 -132 -88 
-244 addClause -60 
-248 addClause -47 
-252 addClause 10 
-258 addClause -58 -14 99 
-286 addClause -12 88 
-311 addClause -6 -8 
-312 addClause -88 14 18 
-313 addClause 8 88 
-318 addClause -81 -89 
-321 addClause 119 
-322 addClause 44 132 
-327 addClause -142 
-328 addClause 16 
-389 addClause -4 -44 
-403 addClause 29 
-408 addClause 50 
-417 addClause 11 
-423 addClause 114 58 
-438 addClause -114 80 
-441 addClause 10 
-445 assuming -49 109 -137 38 40 11 -80 13 -131 118 33 -30 -134 -15 
+82 addClause -3 4 
+132 addClause 14 -19 
+136 addClause 11 7 
+138 addClause -17 -7 
+159 addClause 1 9 
+166 addClause 19 17 
+172 addClause -12 -18 -10 
+258 addClause -6 -2 12 
+286 addClause -1 10 
+311 addClause -14 -13 
+312 addClause -10 2 3 
+313 addClause 13 10 
+318 addClause -9 -11 
+322 addClause 5 18 
+389 addClause -15 -5 
+423 addClause 16 6 
+438 addClause -16 8 
+445 assuming 15 -8 -4 

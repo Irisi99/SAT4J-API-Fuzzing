@@ -106,7 +106,8 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             // Randomly fuzz the internal solution counter
-            ENUMERATING = slaveRandomGenerator.nextBoolean();
+            ENUMERATING = false; 
+            //slaveRandomGenerator.nextBoolean();
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -230,18 +231,19 @@ public class TraceFactory {
                             assumption = new int[size];
 
                             for (int i=0 ; i < size; i++) {
-                                assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                                int literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                                 // Need to check if that literal is assumed before, if we are assuming 0
                                 // Or if that literal is not used in a clause anywhere in the trace 
-                                while(Helper.isAlreadyPresent(assumption, i) || assumption[i] == 0 || !usedLiterals.contains(Math.abs(assumption[i]))){
-                                    assumption[i] = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                                while(literal == 0 || Helper.isAlreadyPresent(assumption, i, literal) || !usedLiterals.contains(Math.abs(literal))){
+                                    literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
                                 }
+                                assumption[i] = literal;
                             }
                             if(verbose){
                                 System.out.println("c ASSUMPTIONS: " + Helper.clauseToString(assumption));
                             }
                             trace.add("assuming " + Helper.clauseToString(assumption));
-                            for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                            //for(int j = 0; j < NUMBER_OF_THREADS; j++)
                                 icnf.add("q "+Helper.clauseToString(assumption)+"0");
 
                             // Call solver and pass the generated assumptions
@@ -250,9 +252,13 @@ public class TraceFactory {
                         // If Assumptions flag is false then simply try to solve the formula
                         } else {
                             trace.add("solve");
-                            for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                            //for(int j = 0; j < NUMBER_OF_THREADS; j++)
                                 icnf.add("q 0");
                             // Call the solver
+
+                            if(verbose){
+                                System.out.println("c SOLVING ");
+                            }
                             isSAT = solver.isSatisfiable(); 
                         }
                         
@@ -260,10 +266,10 @@ public class TraceFactory {
                         // If it is SAT then we continue with next iteration
                         if (isSAT) {
 
-                            for(int j = 0; j < NUMBER_OF_THREADS; j++){
+                            //for(int j = 0; j < NUMBER_OF_THREADS; j++){
                                 icnf.add("s SATISFIABLE");
                                 icnf.add("m "+Helper.clauseToString(solver.model())+"0");
-                            }
+                            //}
 
                             // If this was the last iteration update statistics and continue to next trace
                             if(increments == totalIncrements){
@@ -279,20 +285,20 @@ public class TraceFactory {
                         // If it is UNSAT no need to continue with the other increments, update statistics and continue to next trace
                         } else {
 
-                            for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                            //for(int j = 0; j < NUMBER_OF_THREADS; j++)
                                 icnf.add("s UNSATISFIABLE");
 
                             if(ASSUMPTIONS){
                                 IVecInt unsatCore = solver.unsatExplanation();
-                                for(int j = 0; j < NUMBER_OF_THREADS; j++){
+                                //for(int j = 0; j < NUMBER_OF_THREADS; j++){
                                     if(unsatCore != null){
                                         icnf.add("u "+Helper.IVecToString(unsatCore)+"0");
                                     } else {
                                         icnf.add("u 0");
                                     }
-                                }
+                                //}
                             } else {
-                                for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                                //for(int j = 0; j < NUMBER_OF_THREADS; j++)
                                     icnf.add("u 0");
                             }
                             Helper.createICNF(trace.getId(), icnf);
@@ -371,8 +377,8 @@ public class TraceFactory {
                 int literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
 
                 // Check that this literal is not used before in the clause and that it is not 0
-                // Check that literal is not 
-                while (literal == 0 || Helper.isAlreadyPresent(clause, j) 
+                // Check that literal is as a negated unit clause
+                while (literal == 0  || Helper.isAlreadyPresent(clause, j, literal) 
                             || (CARDINALITY_CHECK && unitClauses.contains(-literal))) {
 
                     literal = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);
@@ -391,14 +397,16 @@ public class TraceFactory {
             }
 
             try {
+
+                //System.out.println(Helper.clauseToString(clause))
                 trace.add("addClause " + Helper.clauseToString(clause));
 
                 solver.addClause(new VecInt(clause));
                 if(ENUMERATING){
                     solver2.addClause(new VecInt(clause));
                 } else {
-                    for(int j = 0; j < NUMBER_OF_THREADS; j++)
-                        icnf.add("i "+Helper.clauseToString(clause)+"0");
+                    //for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                    icnf.add("i "+Helper.clauseToString(clause)+"0");
                 }
                     
             } catch (ContradictionException e) {
@@ -438,7 +446,7 @@ public class TraceFactory {
                 // Flip coin to use a predifined solver or configure solver randomly
                 if(initRandomGenerator.nextBoolean()){
                     String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
-                    if(solverName == "Parallel" || solverName == "SATUNSAT" || solverName == "MinOneSolver"){
+                    if(solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver")){
                         SKIP_PROOF_CHECK = true;
                     }
                     if(addToTrace){
@@ -500,9 +508,9 @@ public class TraceFactory {
             if(addToTrace){
                 trace.add("Data Structure Factory : "+dsfName);
             }
-            if(dsfName == "CardinalityDataStructureYanMax"){
+            if(dsfName.equals("CardinalityDataStructureYanMax")){
                 CARDINALITY_CHECK = true;
-            } else if(dsfName == "MixedDataStructureDanielWLConciseBinary"){
+            } else if(dsfName.equals("MixedDataStructureDanielWLConciseBinary")){
                 PASS_MAX_VAR = true;
             }
             DataStructureFactory dsf = (DataStructureFactory) Class.forName("org.sat4j.minisat.constraints."+dsfName).getConstructor().newInstance();
@@ -514,15 +522,15 @@ public class TraceFactory {
             String log = "Order : "+orderName;
             Integer period = 20;
             Double varDecay = 1.0;
-            if(orderName == "PureOrder"){
+            if(orderName.equals("PureOrder")){
                 // Tries to first branch on a single phase watched unassigned variable else VSIDS from MiniSAT
                 period = initRandomGenerator.nextInt(101); // 0 - 100
                 log += "/period="+period;
-            } else if(orderName == "VarOrderHeap"){
+            } else if(orderName.equals("VarOrderHeap")){
                 // VSIDS like heuristics from MiniSAT using a heap
                 varDecay = initRandomGenerator.nextDouble(); // 0.0 - 1.0
                 log += "/varDecay="+varDecay;
-            } else if(orderName == "NaturalStaticOrder"){
+            } else if(orderName.equals("NaturalStaticOrder")){
                 isNaturalStaticOrder = true;
             }
             if(addToTrace){
@@ -530,9 +538,9 @@ public class TraceFactory {
             }
             IOrder order = (IOrder) Class.forName("org.sat4j.minisat.orders."+orderName).getConstructor().newInstance();
             if (order != null) {
-                if(orderName == "PureOrder"){
+                if(orderName.equals("PureOrder")){
                     BeanUtils.setProperty(order, "period", period);
-                } else if(orderName == "VarOrderHeap"){
+                } else if(orderName.equals("VarOrderHeap")){
                     BeanUtils.setProperty(order, "varDecay", varDecay);
                 }
                 theSolver.setOrder(order);
@@ -561,15 +569,15 @@ public class TraceFactory {
             Double percent = 0.95;
             Integer maxlength = 3;
             Integer maxpercent = 10;
-            if(learningName == "ActiveLearning"){
+            if(learningName.equals("ActiveLearning")){
                 // Limit learning to clauses containing percent % active literals 
                 percent = initRandomGenerator.nextDouble(); // 0.0 - 1.0
                 log += "/percent="+percent;
-            } else if(learningName == "FixedLengthLearning"){
+            } else if(learningName.equals("FixedLengthLearning")){
                 // Limit learning to clauses of size smaller or equal to maxlength
                 maxlength = initRandomGenerator.nextInt(MAXVAR) + 1; // 1 - num of variables -> initial MAX VAR - is not updated during incremental solving
                 log += "/maxlength="+maxlength;
-            } else if(learningName == "PercentLengthLearning"){
+            } else if(learningName.equals("PercentLengthLearning")){
                 // Limit learning to clauses of size smaller or equal to maxpercent % of the number of variables
                 maxpercent = initRandomGenerator.nextInt(101); // 0 - 100%
                 log += "/maxpercent="+maxpercent;
@@ -583,11 +591,11 @@ public class TraceFactory {
             }
             LearningStrategy learning = (LearningStrategy) Class.forName("org.sat4j.minisat.learning."+learningName).getConstructor().newInstance();
             if (learning != null) {
-                if(learningName == "ActiveLearning"){
+                if(learningName.equals("ActiveLearning")){
                     BeanUtils.setProperty(learning, "percent", percent);
-                } else if(learningName == "FixedLengthLearning"){
+                } else if(learningName.equals("FixedLengthLearning")){
                     BeanUtils.setProperty(learning, "maxlength", maxlength);
-                } else if(learningName == "PercentLengthLearning"){
+                } else if(learningName.equals("PercentLengthLearning")){
                     BeanUtils.setProperty(learning, "maxpercent", maxpercent);
                 }
                 theSolver.setLearningStrategy(learning);
@@ -600,11 +608,11 @@ public class TraceFactory {
             String log = "Restart Strategy : "+restarterName;
             Integer period = 0;
             Integer factor = 32;
-            if(restarterName == "FixedPeriodRestarts"){
+            if(restarterName.equals("FixedPeriodRestarts")){
                 // Constant restarts strategy every period conflicts
                 period = initRandomGenerator.nextInt(10001); // 0 - 10000
                 log += "/period="+period;
-            } else if(restarterName == "LubyRestarts"){
+            } else if(restarterName.equals("LubyRestarts")){
                 // Luby style restarts strategy with factor x
                 // “unit run” - hence the actual restart intervals are x, x, 2*x, x, x, 2*x, 4*x, . . .
                 factor = initRandomGenerator.nextInt(1001); //0 - 1000
@@ -615,9 +623,9 @@ public class TraceFactory {
             }
             RestartStrategy restarter = (RestartStrategy) Class.forName("org.sat4j.minisat.restarts."+restarterName).getConstructor().newInstance();
             if (restarter != null) {
-                if(restarterName == "FixedPeriodRestarts"){
+                if(restarterName.equals("FixedPeriodRestarts")){
                     BeanUtils.setProperty(restarter, "period", period);
-                } else if(restarterName == "LubyRestarts"){
+                } else if(restarterName.equals("LubyRestarts")){
                     BeanUtils.setProperty(restarter, "factor", factor);
                 }
                 theSolver.setRestartStrategy(restarter);

@@ -1,0 +1,4 @@
+1 init
+3 Order : PureOrder/period=16
+756 addClause -264 -171 
+857 solve

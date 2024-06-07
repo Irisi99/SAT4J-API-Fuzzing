@@ -1,0 +1,7 @@
+1 init
+20 addClause 4 -3 4 
+37 addClause -2 -4 -5 
+55 addClause 2 2 
+75 addClause 3 -5 
+79 addClause 1 5 
+232 solve

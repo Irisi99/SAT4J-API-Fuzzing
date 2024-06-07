@@ -1,0 +1,8 @@
+1 init
+53 addClause 3 3 
+87 addClause 2 1 
+175 addClause -3 5 
+238 addClause 2 -4 
+253 addClause -1 4 
+312 addClause -2 -5 
+347 assuming 6 

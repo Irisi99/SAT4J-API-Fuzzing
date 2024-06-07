@@ -1,18 +1,13 @@
 1 init
 2 Data Structure Factory : CardinalityDataStructureYanMin
 6 Restart Strategy : Glucose21Restarts
-7 Simplification Type : expensiveSimplificationWLOnly
 9 Learned Constraints Evaluation Type : LBD
 10 Random Walk : 0.7164971624492978
 11 DBS simplification
-12 addClause 1 4 -4 
+12 addClause 1 -4 
 16 addClause 2 3 -3 
-21 addClause -2 2 -3 
-22 addClause -1 -4 -3 
-25 addClause -1 2 -4 
+25 addClause -1 -4 
 26 addClause 3 -3 -5 
-27 addClause -4 -3 4 -1 
 28 addClause -2 -3 2 
-29 addClause 2 -2 
-30 addClause -2 2 -1 
+29 addClause -2 
 32 enumerating

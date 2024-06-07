@@ -1,0 +1,23 @@
+1 init
+4 Learning Strategy : ClauseOnlyLearning
+15 addClause -12 -14 
+18 addClause -2 6 
+22 addClause -14 13 
+27 addClause -6 -13 17 
+32 addClause 11 -18 2 
+34 addClause -1 
+37 addClause 8 16 
+40 addClause -7 -3 
+41 addClause -5 11 
+42 addClause 4 7 16 
+43 addClause -9 17 
+45 addClause 12 16 -10 
+59 addClause -11 -4 -8 
+67 addClause 15 -16 
+68 addClause 10 18 5 
+89 addClause 15 3 9 
+90 addClause 15 14 
+255 addClause 20 -17 
+300 addClause 5 19 
+309 addClause -11 -15 
+387 solve

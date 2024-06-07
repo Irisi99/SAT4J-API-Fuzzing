@@ -1,7 +1,7 @@
 1 init
 11 DBS simplification
-46 addClause -1 2 
-269 addClause -2 
+46 addClause -2 1 
+269 addClause -1 
 291 solve
-500 addClause 1 
+500 addClause 2 
 1238 solve

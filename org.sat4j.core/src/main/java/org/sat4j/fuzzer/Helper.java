@@ -86,9 +86,9 @@ public class Helper {
     }
 
     // Make sure all literals in the clause / assumption are different from each other
-    public static Boolean isAlreadyPresent(int[] clause, int index){
+    public static Boolean isAlreadyPresent(int[] clause, int index, int literal){
         for(int i = 0; i < index; i++){
-            if(clause[i] == clause[index])
+            if(clause[i] == literal)
                 return true;
         }
         return false;

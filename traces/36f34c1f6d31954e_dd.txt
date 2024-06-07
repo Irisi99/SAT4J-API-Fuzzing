@@ -1,0 +1,27 @@
+1 init
+3 Order : PureOrder/period=94
+5 Learning Strategy : FixedLengthLearning/maxlength=29
+29 addClause -10 -6 
+30 addClause -9 22 
+38 addClause -2 7 
+41 addClause 17 18 
+76 addClause -7 -20 
+77 addClause 3 4 
+79 addClause 20 9 
+90 addClause 12 14 
+94 addClause 21 -12 -1 
+137 addClause -17 -16 
+142 addClause 8 2 22 
+146 addClause -21 -5 -22 
+149 addClause -18 2 
+155 addClause 8 13 
+168 addClause -3 19 
+172 addClause 23 -8 
+180 addClause -4 -15 -2 
+195 addClause -9 15 
+204 addClause 19 16 -11 
+211 addClause -13 -19 
+222 addClause -17 5 
+225 addClause 11 6 
+228 addClause -14 10 
+252 solve

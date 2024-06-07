@@ -20,6 +20,7 @@ public class DeltaDebugger {
     private static String seedHEX;
     private static String errorType;
     private static boolean fileCreated = false;
+    private static boolean tryAgain = false;
 
     public static void main(final String[] args) throws TimeoutException, ContradictionException {
 
@@ -42,23 +43,27 @@ public class DeltaDebugger {
                 return;
             }
 
-            removeLines();
-            removeLiterals();
+            do{
+                tryAgain = false;
+                removeLines();
+                removeLiterals();
+                //remove variables
+            } while(tryAgain);
             renameLiterals();
-            shuffle();
+            shuffle(); //clauses and literals within the clause
 
             String output = TraceRunner.runTrace(seedHEX+"_dd", content, false);
             if(output != null && output.equals(errorType)){
                 if(fileCreated){
-                    System.out.print("Created trace file " + seedHEX + "_dd.txt");
+                    System.out.println("Created trace file " + seedHEX + "_dd.txt");
                 }
             } else {
                 System.out.println("Error during Delta Debugging");
-                Helper.deleteProof(seedHEX+"_dd");
-                if(fileCreated){
-                    File myObj = new File("./traces/"+seedHEX+"_dd.txt"); 
-                    myObj.delete();
-                }
+                // Helper.deleteProof(seedHEX+"_dd");
+                // if(fileCreated){
+                //     File myObj = new File("./traces/"+seedHEX+"_dd.txt"); 
+                //     myObj.delete();
+                // }
             }
 
         } catch (Exception e) {
@@ -70,88 +75,99 @@ public class DeltaDebugger {
     private static void removeLines(){
 
         // Delta Debugging parameters
-        int granularity = 2;
-        int size = content.size();
-        int section = (int) (size/granularity);
-        int start = 0;
-        int end = size;
         List<String> temp;
         String output;
         boolean reduced = false;
         boolean createNewFile = false;
 
-        while(section >= 1){
+        do{
 
             reduced = false;
 
-            // Copy API calls into a temporary List
-            temp = new ArrayList<String>(content);
+            // Delta Debugging parameters
+            int granularity = 2;
+            int size = content.size();
+            int section = (int) (size/granularity);
+            int start = 0;
+            int end = size;
+            boolean reducedInternal = false;
 
-            int i = 0;
-            while (i * section < size){
-                start = i * section;
-                i++;
-                end = start + section;
-                if(end > size)
-                    end = size;
+            while(section >= 1){
 
-                System.out.print("section size: "+section+" --- ");
-                System.out.print("start: "+start+" --- ");
-                System.out.print("end: "+end+" --- ");
-
-                // Remove a section of the API calls in the temporary list
-                for(int j = start; j < end; j++){
-                    temp.set(j, null);
-                }
-
-                // Store the error of the API calls if there is any
-                output = TraceRunner.runTrace(seedHEX+"_dd", temp, false);
-
-                // Compare the errors and only reduce the trace if the error is the same
-                if(output != null && output.equals(errorType)){
-                    reduced = true;
-                    createNewFile = true;
-                    System.out.println("reduced: true");
-
-                // If the errors are different then restore the section of API calls that were removed
-                } else {
+                reducedInternal = false;
+    
+                // Copy API calls into a temporary List
+                temp = new ArrayList<String>(content);
+    
+                int i = 0;
+                while (i * section < size){
+                    start = i * section;
+                    i++;
+                    end = start + section;
+                    if(end > size)
+                        end = size;
+    
+                    System.out.print("section size: "+section+" --- ");
+                    System.out.print("start: "+start+" --- ");
+                    System.out.print("end: "+end+" --- ");
+    
+                    // Remove a section of the API calls in the temporary list
                     for(int j = start; j < end; j++){
-                        temp.set(j, content.get(j));
+                        temp.set(j, null);
                     }
-                    System.out.println("reduced: false");
+    
+                    // Store the error of the API calls if there is any
+                    output = TraceRunner.runTrace(seedHEX+"_dd", temp, false);
+    
+                    // Compare the errors and only reduce the trace if the error is the same
+                    if(output != null && output.equals(errorType)){
+                        tryAgain = true;
+                        reduced = true;
+                        reducedInternal = true;
+                        createNewFile = true;
+                        System.out.println("reduced: true");
+    
+                    // If the errors are different then restore the section of API calls that were removed
+                    } else {
+                        for(int j = start; j < end; j++){
+                            temp.set(j, content.get(j));
+                        }
+                        System.out.println("reduced: false");
+                    }
                 }
-            }
-
-            if(reduced){
-
-                fileCreated = true;
-                temp.removeAll(Collections.singletonList(null));
-                int old_size = content.size();
-
-                // Update the main list of API calls
-                content = new ArrayList<String>(temp);
-
-                // Update the size parameter and calculate the new section size if section size is not down to 1
-                size = content.size();
-                if(section > 1){
-                    if((int) (size/granularity) == 0)
+    
+                if(reducedInternal){
+    
+                    fileCreated = true;
+                    temp.removeAll(Collections.singletonList(null));
+                    int old_size = content.size();
+    
+                    // Update the main list of API calls
+                    content = new ArrayList<String>(temp);
+    
+                    // Update the size parameter and calculate the new section size if section size is not down to 1
+                    size = content.size();
+                    if(section > 1){
+                        if((int) (size/granularity) == 0)
+                            section = 1;
+                        else
+                            section = (int) (size/granularity);
+                    }
+                    // If section size is down to 1 but we are still reducing then go over the API calls until we can't remove any
+                    else if(old_size == size)
+                        break;
+    
+                // If trace was not reduced then increase granularity and calculate the new section size
+                }else {
+                    granularity = granularity * 2;
+                    if( section > 1 && (int) (size/granularity) == 0)
                         section = 1;
                     else
                         section = (int) (size/granularity);
                 }
-                // If section size is down to 1 but we are still reducing then go over the API calls until we can't remove any
-                else if(old_size == size)
-                    break;
-
-            // If trace was not reduced then increase granularity and calculate the new section size
-            }else {
-                granularity = granularity * 2;
-                if( section > 1 && (int) (size/granularity) == 0)
-                    section = 1;
-                else
-                    section = (int) (size/granularity);
             }
-        }
+
+        }while(reduced);
 
         if(createNewFile){
             // Create the new file with the reduced trace
@@ -168,7 +184,7 @@ public class DeltaDebugger {
         boolean createNewFile = false;
 
         for(int i=0; i < content.size(); i++){
-            if(content.get(i).contains("addClause")){
+            if(content.get(i).contains("addClause") || content.get(i).contains("assuming")){
                 String[] line = content.get(i).split(" ");
                 List<Integer> clause = getClause(line);
                 clauses.put(Integer.valueOf(line[0]), clause);
@@ -178,9 +194,10 @@ public class DeltaDebugger {
         do{
             reduced = false;
             for(int i=0; i < content.size(); i++){
-                if(content.get(i).contains("addClause")){
+                if(content.get(i).contains("addClause") || content.get(i).contains("assuming")){
 
-                    int index = Integer.valueOf(content.get(i).split(" ")[0]);
+                    String[] line = content.get(i).split(" ");
+                    int index = Integer.valueOf(line[0]);
                     List<Integer> clause = clauses.get(index);
                     if(clause.size() == 1)
                         continue;
@@ -188,20 +205,21 @@ public class DeltaDebugger {
                     for(int j=0; j < clause.size(); j++){
                         int lit = clause.get(j);
                         clause.remove(j);
-                        content.set(i, buildNewAPICall(index, clause));
+                        content.set(i, buildNewAPICall(index, line[1], clause));
 
                         System.out.print("Removing Literal "+lit+" from API Call with index "+index+" --- ");
 
                         output = TraceRunner.runTrace(seedHEX+"_dd", content, false);
                         if(output != null && output.equals(errorType)){
                             j--;
+                            tryAgain = true;
                             reduced = true;
                             createNewFile = true;
-                            System.out.println("reduced: true");
+                            System.out.println("removed: true");
                         } else {
                             clause.add(j, lit);
-                            content.set(i, buildNewAPICall(index, clause));
-                            System.out.println("reduced: false");
+                            content.set(i, buildNewAPICall(index, line[1], clause));
+                            System.out.println("removed: false");
                         }
                     }
                 }
@@ -218,6 +236,7 @@ public class DeltaDebugger {
     private static void renameLiterals(){
 
         ArrayList<Integer> literals = new ArrayList<Integer>();
+        ArrayList<Integer> literalsToTry = new ArrayList<Integer>();
         String output;
         boolean createNewFile = false;
 
@@ -232,10 +251,20 @@ public class DeltaDebugger {
             }
         }
 
-        Integer maxLiteral = Collections.max(literals);
+        if(literals.isEmpty())
+            return;
+        literalsToTry = new ArrayList<Integer>(literals);
+
         Integer minLiteral = 1;
-        if(literals.contains(minLiteral))
+        while(literals.contains(minLiteral)){
+            literals.remove(minLiteral);
+            literalsToTry.remove(minLiteral);
             minLiteral++;
+        }
+
+        if(literalsToTry.isEmpty())
+            return;
+        Integer maxLiteral = Collections.min(literalsToTry);
 
         // Copy API calls into a temporary List
         List<String> temp = new ArrayList<String>(content);
@@ -256,7 +285,7 @@ public class DeltaDebugger {
                             clause.set(j, -minLiteral);
                         }
                     }
-                    temp.set(i, buildNewAPICall(index, clause));
+                    temp.set(i, buildNewAPICall(index, line[1], clause));
                 }
             }
 
@@ -264,21 +293,24 @@ public class DeltaDebugger {
 
             output = TraceRunner.runTrace(seedHEX+"_dd", temp, false);
             if(output != null && output.equals(errorType)){
+                tryAgain = true;
                 createNewFile = true;
                 content = new ArrayList<String>(temp);
                 System.out.println("renamed: true");
+                literals.remove(maxLiteral);
                 minLiteral++;
-                if(literals.contains(minLiteral))
+                while(literals.contains(minLiteral)){
                     minLiteral++;
+                }
             } else {
                 temp = new ArrayList<String>(content);
                 System.out.println("renamed: false");
             }
 
-            literals.remove(maxLiteral);
-            if(literals.size() == 0)
+            literalsToTry.remove(maxLiteral);
+            if(literalsToTry.isEmpty())
                 break;
-            maxLiteral = Collections.max(literals);
+            maxLiteral = Collections.min(literalsToTry);
         }
 
         if(createNewFile){
@@ -298,8 +330,8 @@ public class DeltaDebugger {
         return clause;
     }
 
-    private static String buildNewAPICall(Integer index, List<Integer> newClause){
-        String result = index + " addClause ";
+    private static String buildNewAPICall(Integer index, String action, List<Integer> newClause){
+        String result = index + " " + action + " ";
         for(int i=0; i < newClause.size(); i++){
             result = result + newClause.get(i) + " ";
         }

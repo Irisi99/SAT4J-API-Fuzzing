@@ -1,0 +1,10 @@
+p idrup
+i 3 3 0
+i 2 1 0
+i -3 5 0
+i 2 -4 0
+i -1 4 0
+i -2 -5 0
+q 6 0
+s UNSATISFIABLE
+u 0
