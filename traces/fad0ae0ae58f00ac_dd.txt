@@ -1,0 +1,19 @@
+1 init
+65 addClause -1 
+156 addClause -10 -15 
+172 addClause -9 -2 
+197 addClause -5 -14 
+208 addClause -13 2 
+209 addClause 7 -12 
+260 addClause 11 -7 
+293 addClause 10 6 
+302 addClause -11 16 
+352 addClause -4 13 
+391 addClause -14 3 3 
+402 addClause 14 17 
+452 addClause 15 -3 
+457 addClause 4 8 
+470 addClause -6 12 
+471 addClause -11 9 
+472 addClause -16 -8 5 
+478 solve

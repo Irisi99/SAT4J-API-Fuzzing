@@ -1,0 +1,4 @@
+1 init
+2 newVar 20
+63 assuming -8 
+64 newVar 105

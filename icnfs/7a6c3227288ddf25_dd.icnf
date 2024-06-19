@@ -1,0 +1,7 @@
+p icnf
+i 3 -2 0
+i 1 -4 0
+i 4 3 2 0
+q 0
+s SATISFIABLE
+m -1 -2 3 -4 0

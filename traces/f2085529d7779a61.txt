@@ -1,0 +1,29 @@
+1 init
+2 using solver MiniLearningHeapRsatExpSimpBiere
+3 DBS simplification
+4 addClause -5 -2 -1 
+5 addClause -4 4 1 
+6 addClause -4 4 -3 
+7 addClause 1 2 3 
+8 addClause 4 -4 3 
+9 addClause -3 -4 -1 
+10 addClause 3 -3 -2 
+11 addClause -3 4 -5 
+12 addClause 1 5 4 
+13 addClause 2 -2 -5 
+14 addClause 3 -5 -2 
+15 addClause 2 -4 3 
+16 addClause 2 -5 -3 
+17 addClause -5 4 -4 
+18 addClause 1 4 -5 
+19 addClause 3 2 1 
+20 addClause 3 -3 -2 
+21 addClause 3 -2 -4 
+22 addClause -1 1 -5 
+23 addClause -1 -5 5 
+24 addClause 1 -1 -5 
+25 addClause -4 4 3 
+26 addClause -4 1 2 
+27 addClause -5 4 -2 
+28 addClause -1 4 1 
+29 enumerating

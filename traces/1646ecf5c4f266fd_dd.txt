@@ -1,0 +1,14 @@
+1 init
+5 Learning Strategy : FixedLengthLearning/maxlength=11
+46 addClause -11 -4 
+131 addClause 12 4 
+141 addClause 2 -7 -6 
+189 addClause -8 -10 
+190 addClause 13 -5 
+197 addClause 9 8 
+211 addClause -12 4 
+212 addClause -2 -3 5 
+214 addClause 1 
+228 addClause 10 -7 3 
+244 addClause 7 11 
+847 assuming 6 -9 -13 

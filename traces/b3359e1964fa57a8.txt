@@ -1,0 +1,16 @@
+1 init
+2 using solver NoSimplification
+3 Random Walk : 0.7567710325299177
+4 DBS simplification
+5 newVar 2
+6 addClause -2 1 -1 
+7 addClause -1 2 1 
+8 addClause -2 1 -3 
+9 addClause -1 2 -3 
+10 addClause 1 -2 -1 
+11 addClause -1 -2 1 
+12 addClause 1 -2 -3 
+13 addClause -1 2 1 
+14 addClause -2 -1 2 
+15 addClause 1 -2 -1 
+16 enumerating

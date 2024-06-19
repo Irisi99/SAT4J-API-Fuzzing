@@ -1,3 +1,0 @@
-1 init
-2 Solver : SATUNSAT
-55 enumerating

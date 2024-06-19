@@ -19,12 +19,17 @@ import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
 import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.minisat.core.Solver;
+import org.sat4j.minisat.learning.ActiveLearning;
+import org.sat4j.minisat.learning.FixedLengthLearning;
+import org.sat4j.minisat.learning.PercentLengthLearning;
 import org.sat4j.minisat.orders.RandomWalkDecorator;
 import org.sat4j.minisat.orders.VarOrderHeap;
+import org.sat4j.minisat.orders.PureOrder;
+import org.sat4j.minisat.restarts.FixedPeriodRestarts;
+import org.sat4j.minisat.restarts.LubyRestarts;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.ISolverService;
-import org.sat4j.specs.IVecInt;
 import org.sat4j.tools.IdrupSearchListener;
 import org.sat4j.tools.ManyCore;
 
@@ -33,9 +38,9 @@ public class TraceFactory {
     static Random masterRandomGenerator;
     static Random slaveRandomGenerator;
     static Trace trace;
-    // For every call of APIFUzzer it creates MAX_ITERATIONS traces 
+    // For every call of APIFuzzer it creates MAX_ITERATIONS traces 
     // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 100;
+    static int MAX_ITERATIONS = 50;
     static int MAXVAR;
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
@@ -106,8 +111,7 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             // Randomly fuzz the internal solution counter
-            ENUMERATING = false; 
-            //slaveRandomGenerator.nextBoolean();
+            ENUMERATING = slaveRandomGenerator.nextBoolean();
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -157,9 +161,11 @@ public class TraceFactory {
 
             while(increments < totalIncrements){
                 increments ++;
+                int newVar;
 
                 if(skipMaxVar){
                     skipMaxVar = false;
+                    newVar = MAXVAR;
                 } else {
                     int OLDMAXVAR = MAXVAR;
                     if(ENUMERATING){
@@ -169,11 +175,19 @@ public class TraceFactory {
                         // Add 20 - 200 to the Number of Variables on each increment
                         MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR;
                     }
+                    newVar = MAXVAR - OLDMAXVAR;
                     NUMBER_OF_CLAUSES = (int) (coeficient * (MAXVAR - OLDMAXVAR));
                 }
 
                 if(PASS_MAX_VAR){
-                    solver.newVar(MAXVAR);
+                    try{
+                        trace.add("newVar " + newVar);
+                        solver.newVar(newVar);
+                    } catch(Exception e){
+                        Helper.printException(isTraceSeed, verbose, trace, "newVar()", e);
+                        SKIP_PROOF_CHECK = true;
+                        break;
+                    }
                 }
 
                 if(verbose){
@@ -266,9 +280,11 @@ public class TraceFactory {
                         // If it is SAT then we continue with next iteration
                         if (isSAT) {
 
+                            String model = Helper.clauseToString(solver.model());
+
                             //for(int j = 0; j < NUMBER_OF_THREADS; j++){
                                 icnf.add("s SATISFIABLE");
-                                icnf.add("m "+Helper.clauseToString(solver.model())+"0");
+                                icnf.add("m "+model+"0");
                             //}
 
                             // If this was the last iteration update statistics and continue to next trace
@@ -278,21 +294,22 @@ public class TraceFactory {
                                 SATinstances++;
                                 if(verbose){
                                     System.out.println("c SATISFIABLE!");
-                                    System.out.println("c SOLUTION: "+ Helper.clauseToString(solver.model()));
+                                    System.out.println("c SOLUTION: "+ model);
                                 }
                             }
 
                         // If it is UNSAT no need to continue with the other increments, update statistics and continue to next trace
                         } else {
 
+                            String unsatCore = Helper.IVecToString(solver.unsatExplanation());
+
                             //for(int j = 0; j < NUMBER_OF_THREADS; j++)
                                 icnf.add("s UNSATISFIABLE");
 
                             if(ASSUMPTIONS){
-                                IVecInt unsatCore = solver.unsatExplanation();
                                 //for(int j = 0; j < NUMBER_OF_THREADS; j++){
                                     if(unsatCore != null){
-                                        icnf.add("u "+Helper.IVecToString(unsatCore)+"0");
+                                        icnf.add("u "+unsatCore+"0");
                                     } else {
                                         icnf.add("u 0");
                                     }
@@ -309,7 +326,7 @@ public class TraceFactory {
                                 System.out.println("c UNSATISFIABLE!");
                                 if(ASSUMPTIONS){
                                     // Ask for explanation why it is UNSAT - array of failed assumptions
-                                    System.out.println("c EXPLANATION: " + solver.unsatExplanation());
+                                    System.out.println("c EXPLANATION: " + unsatCore);
                                 }
                             }
                             break;
@@ -539,9 +556,9 @@ public class TraceFactory {
             IOrder order = (IOrder) Class.forName("org.sat4j.minisat.orders."+orderName).getConstructor().newInstance();
             if (order != null) {
                 if(orderName.equals("PureOrder")){
-                    BeanUtils.setProperty(order, "period", period);
+                    ((PureOrder) order).setPeriod(period);
                 } else if(orderName.equals("VarOrderHeap")){
-                    BeanUtils.setProperty(order, "varDecay", varDecay);
+                    ((VarOrderHeap) order).setVarDecay(varDecay);
                 }
                 theSolver.setOrder(order);
             }
@@ -582,21 +599,17 @@ public class TraceFactory {
                 maxpercent = initRandomGenerator.nextInt(101); // 0 - 100%
                 log += "/maxpercent="+maxpercent;
             } 
-            // else if(learningName == "NoLearningButHeuristics" || learningName == "NoLearningNoHeuristics"){
-            //     SKIP_PROOF_CHECK = true;
-            //     // might enable later after the fix
-            // }
             if(addToTrace){
                 trace.add(log);
             }
             LearningStrategy learning = (LearningStrategy) Class.forName("org.sat4j.minisat.learning."+learningName).getConstructor().newInstance();
             if (learning != null) {
                 if(learningName.equals("ActiveLearning")){
-                    BeanUtils.setProperty(learning, "percent", percent);
+                    ((ActiveLearning) learning).setActivityPercent(percent);
                 } else if(learningName.equals("FixedLengthLearning")){
-                    BeanUtils.setProperty(learning, "maxlength", maxlength);
+                    ((FixedLengthLearning) learning).setMaxLength(maxlength);
                 } else if(learningName.equals("PercentLengthLearning")){
-                    BeanUtils.setProperty(learning, "maxpercent", maxpercent);
+                    ((PercentLengthLearning) learning).setLimit(maxpercent);
                 }
                 theSolver.setLearningStrategy(learning);
                 learning.setSolver(asolver);
@@ -624,9 +637,9 @@ public class TraceFactory {
             RestartStrategy restarter = (RestartStrategy) Class.forName("org.sat4j.minisat.restarts."+restarterName).getConstructor().newInstance();
             if (restarter != null) {
                 if(restarterName.equals("FixedPeriodRestarts")){
-                    BeanUtils.setProperty(restarter, "period", period);
+                    ((FixedPeriodRestarts) restarter).setPeriod(period);
                 } else if(restarterName.equals("LubyRestarts")){
-                    BeanUtils.setProperty(restarter, "factor", factor);
+                    ((LubyRestarts) restarter).setFactor(factor);
                 }
                 theSolver.setRestartStrategy(restarter);
             }

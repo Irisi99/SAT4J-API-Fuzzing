@@ -48,7 +48,7 @@ public class BasicSolutionEnumerator {
                 }
                 solver.addClause(new VecInt(lits));
 
-            } while (is_sat);
+            } while (true);
 
             System.out.println("No other solution");
 

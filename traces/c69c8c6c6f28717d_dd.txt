@@ -1,0 +1,9 @@
+1 init
+5 Learning Strategy : ActiveLearning/percent=0.9267655851174786
+22 addClause -5 3 6 
+31 addClause 5 4 
+96 addClause -3 -5 
+131 addClause 5 -2 
+139 addClause -1 
+155 addClause -4 6 2 
+158 solve

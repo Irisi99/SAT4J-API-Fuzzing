@@ -1,0 +1,5 @@
+p icnf
+i -264 -171 0
+q 0
+s SATISFIABLE
+m 171 -264 0

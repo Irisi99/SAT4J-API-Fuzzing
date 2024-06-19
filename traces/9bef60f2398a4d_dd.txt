@@ -1,0 +1,4 @@
+1 init
+2 Data Structure Factory : MixedDataStructureSingleWL
+47 addClause 1 -2 
+75 enumerating

@@ -8,4 +8,4 @@
 63 addClause -3 5 
 72 addClause -2 4 9 
 74 addClause 9 3 
-721 assuming 
+721 assuming -10 

@@ -1,14 +1,14 @@
 1 init
 3 Order : NaturalStaticOrder
 5 Simplification Type : expensiveSimplificationWLOnly
-58 addClause 3 10 
-61 addClause 5 11 
-66 addClause 9 -11 
+58 addClause 3 11 
+61 addClause 5 12 
+66 addClause 10 -12 
 71 addClause 2 4 
 89 addClause -8 -6 
-95 addClause -10 -9 
+95 addClause -11 -10 
 104 addClause -3 7 -6 
 105 addClause 8 -5 
 110 addClause -7 1 
 193 addClause -4 6 
-219 assuming 
+219 assuming -9 

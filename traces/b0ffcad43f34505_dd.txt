@@ -1,0 +1,15 @@
+1 init
+2 using solver Backjumping
+15 addClause -8 -2 
+86 addClause 12 3 
+154 addClause -1 
+205 addClause -12 -5 
+236 addClause -9 6 
+272 addClause 11 -10 
+275 addClause -3 -5 
+279 addClause 4 5 
+302 addClause -7 2 -8 
+336 addClause -4 -11 
+347 addClause 10 8 
+350 addClause 7 9 
+383 assuming -6 

@@ -1,0 +1,4 @@
+1 init
+5 newVar 185
+194 addClause 64 
+774 newVar 118

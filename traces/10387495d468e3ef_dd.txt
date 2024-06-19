@@ -1,0 +1,4 @@
+1 init
+12 newVar 7
+24 addClause -1 
+48 enumerating

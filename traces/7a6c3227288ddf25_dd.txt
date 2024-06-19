@@ -1,0 +1,6 @@
+1 init
+7 Simplification Type : expensiveSimplificationWLOnly
+329 addClause 3 -2 
+350 addClause 1 -4 
+357 addClause 4 3 2 
+391 solve

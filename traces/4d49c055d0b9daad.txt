@@ -1,8 +1,0 @@
-1 init
-2 Data Structure Factory : CardinalityDataStructureYanMax
-3 Order : PureOrder/period=38
-4 Restart Strategy : Glucose21Restarts
-5 Simplification Type : expensiveSimplification
-6 Search Params : varDecay=0.9547046887763171/claDecay=1.3103183476099067/conflictBoundIncFactor=1.1585845536987023/initConflictBound=206
-7 Learned Constraints Evaluation Type : LBD2
-8 Random Walk : 0.05746206290113742

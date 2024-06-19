@@ -20,8 +20,14 @@ import org.sat4j.minisat.core.LearningStrategy;
 import org.sat4j.minisat.core.RestartStrategy;
 import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.minisat.core.Solver;
+import org.sat4j.minisat.learning.ActiveLearning;
+import org.sat4j.minisat.learning.FixedLengthLearning;
+import org.sat4j.minisat.learning.PercentLengthLearning;
 import org.sat4j.minisat.orders.RandomWalkDecorator;
 import org.sat4j.minisat.orders.VarOrderHeap;
+import org.sat4j.minisat.orders.PureOrder;
+import org.sat4j.minisat.restarts.FixedPeriodRestarts;
+import org.sat4j.minisat.restarts.LubyRestarts;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.tools.ModelIterator;
@@ -181,7 +187,13 @@ public class Helper {
         
         if(t.length > 1){
             String[] property = t[1].split("=");
-            BeanUtils.setProperty(learning, property[0], property[1]);
+            if(property[0].equals("maxlength")){
+                ((FixedLengthLearning) learning).setMaxLength(Integer.parseInt(property[1]));
+            } else if(property[0].equals("maxpercent")){
+                ((PercentLengthLearning) learning).setLimit(Integer.parseInt(property[1]));
+            } else if(property[0].equals("percent")){
+                ((ActiveLearning) learning).setActivityPercent(Double.parseDouble(property[1]));
+            }                
         }
 
         solver.setLearningStrategy(learning);
@@ -196,7 +208,11 @@ public class Helper {
         
         if(t.length > 1){
             String[] property = t[1].split("=");
-            BeanUtils.setProperty(order, property[0], property[1]);
+            if(property[0].equals("period")){
+                ((PureOrder) order).setPeriod(Integer.parseInt(property[1]));
+            } else if(property[0].equals("varDecay")){
+                ((VarOrderHeap) order).setVarDecay(Double.parseDouble(property[1]));
+            }
         }
 
         solver.setOrder(order);
@@ -210,7 +226,11 @@ public class Helper {
         
         if(t.length > 1){
             String[] property = t[1].split("=");
-            BeanUtils.setProperty(restart, property[0], property[1]);
+            if(property[0].equals("period")){
+                ((FixedPeriodRestarts) restart).setPeriod(Long.parseLong(property[1]));
+            } else if(property[0].equals("factor")){
+                ((LubyRestarts) restart).setFactor(Integer.parseInt(property[1]));
+            }
         }
 
         solver.setRestartStrategy(restart);
@@ -224,7 +244,15 @@ public class Helper {
         String[] t = s.split("/");
         for(int j = 0; j < t.length; j++){
             String[] property = t[j].split("=");
-            BeanUtils.setProperty(params, property[0], property[1]);
+            if(property[0].equals("varDecay")){
+                params.setVarDecay(Double.parseDouble(property[1])); 
+            } else if(property[0].equals("claDecay")){
+                params.setClaDecay(Double.parseDouble(property[1]));
+            } else if(property[0].equals("conflictBoundIncFactor")){
+                params.setConflictBoundIncFactor(Double.parseDouble(property[1]));
+            } else if(property[0].equals("initConflictBound")){
+                params.setInitConflictBound(Integer.parseInt(property[1]));
+            }
         }
 
         solver.setSearchParams(params);
@@ -238,7 +266,12 @@ public class Helper {
     // Count solutions with External Iterator
     public static long countSolutionsExt(ISolver solver) throws TimeoutException{
         var enumerator = new ModelIterator(solver);
-        while (enumerator.isSatisfiable() && enumerator.model() != null) {}
+        while (enumerator.isSatisfiable()) {
+            int[] model = enumerator.model(); 
+            //System.out.println(Helper.clauseToString(model));
+            if(model == null)
+                break;
+        }
         return (long) enumerator.numberOfModelsFoundSoFar();
     }
 

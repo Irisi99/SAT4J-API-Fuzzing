@@ -25,6 +25,7 @@ public class TraceRunner {
 
     static ArrayList<Integer> usedLiterals;
     static Boolean ENUMERATING;
+    static Boolean PROOF_CHECK_DONE;
 
     public static void main(final String[] args) {
 
@@ -40,7 +41,10 @@ public class TraceRunner {
         } else {
             try {
                 List<String> content = Files.readAllLines(Paths.get("./traces/" + argument));
-                runTrace(argument.substring(0, argument.indexOf(".txt")), content, true);
+                String seed = argument.substring(0, argument.indexOf(".txt"));
+                if(!seed.contains("_dd"))
+                    seed = seed.concat("_2");
+                runTrace(seed, content, true);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -51,6 +55,7 @@ public class TraceRunner {
     public static String runTrace(String seed, List<String> apiCalls, boolean verbose){
 
         ENUMERATING = false;
+        PROOF_CHECK_DONE = false;
         usedLiterals = new ArrayList<Integer>();
 
         ArrayList<String> icnf = new ArrayList<String>();
@@ -70,9 +75,10 @@ public class TraceRunner {
                     continue;
 
                 // If API call is defining the Solver used then parse the name of the solver from the trace and initialize the specified solver
-                if(apiCalls.get(i).contains("Solver")){
+                if(apiCalls.get(i).contains("using solver")){
                     String[] t = apiCalls.get(i).split(" ");
                     solver = Helper.initSolver(t[t.length-1]);
+                    solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+seed+".idrup"));
                     solver2 = Helper.initSolver(t[t.length-1]);
 
                 // If API call is defining the Data Structure then parse the name from the trace and update the solver
@@ -136,10 +142,16 @@ public class TraceRunner {
                     solver2 = Helper.setRandomWalk((ICDCL <?>) solver2, proba);
 
                 // If API call is setting DBS simplification to true then set it true for the local solver
-                }else if(apiCalls.get(i).contains("DBS simplification")){
+                } else if(apiCalls.get(i).contains("DBS simplification")){
                     solver.setDBSimplificationAllowed(true);
                     solver2.setDBSimplificationAllowed(true);
 
+                // if API call is passing MAX var to solver
+                } else if(apiCalls.get(i).contains("newVar")){
+                        String newVar = apiCalls.get(i).split(" ")[0];
+                        solver.newVar(Integer.parseInt(newVar)); 
+                        solver2.newVar(Integer.parseInt(newVar));
+                          
                 // If API call is adding a clause then parse the clause from the trace and create a clause
                 } else if(apiCalls.get(i).contains("addClause")){
                     int[] clause = getClause(apiCalls.get(i));
@@ -199,11 +211,16 @@ public class TraceRunner {
             }
 
             if(!ENUMERATING){
+                PROOF_CHECK_DONE = true;
+
                 Helper.createICNF(seed, icnf);
                 Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+seed+".icnf idrups/"+seed+".idrup");
 
                 BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 String error = stdError.readLine();
+                if(verbose && error != null){
+                    System.out.println(error + " " + stdError.readLine());
+                }
                 if(error != null && error.contains("does not satisfy input clause"))
                     error = "does not satisfy input clause";
                 else if(error != null && error.contains("lemma implication check failed"))
@@ -215,29 +232,19 @@ public class TraceRunner {
                 if(exitCode != 0){
                     throw new Exception("IDRUP Checker failed with code "+exitCode+" --- "+error);
                 } else {
-                    Helper.deleteProof(seed);
+                    //Helper.deleteProof(seed);
                 }
             } else {
                 Helper.deleteProof(seed);
-            }
-
-            if(verbose && !ENUMERATING){
-                Boolean result = solver.isSatisfiable();
-                if(result){
-                    System.out.println("SATISFIABLE");
-                    System.out.println("Model: "+Helper.clauseToString(solver.model()));
-                } else {
-                    System.out.println("UNSATISFIABLE");
-                    IVecInt unsatCore = solver.unsatExplanation();
-                    if(unsatCore != null)
-                    System.out.println("UNSAT Core: "+Helper.IVecToString(unsatCore));
-                }
             }
 
         } catch (Exception e){
             if(verbose){
                 e.printStackTrace();
             }
+
+            if(!PROOF_CHECK_DONE)
+                Helper.deleteProof(seed);
 
             if(e.getMessage() != null && e.getMessage().contains("Enumerators"))
                 return "Enumeration";

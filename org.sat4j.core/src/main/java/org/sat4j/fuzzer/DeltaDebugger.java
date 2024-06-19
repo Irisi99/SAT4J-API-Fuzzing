@@ -47,10 +47,10 @@ public class DeltaDebugger {
                 tryAgain = false;
                 removeLines();
                 removeLiterals();
-                //remove variables
+                removeVariables(); //TODO
+                renameLiterals();
             } while(tryAgain);
-            renameLiterals();
-            shuffle(); //clauses and literals within the clause
+            shuffle(); //TODO
 
             String output = TraceRunner.runTrace(seedHEX+"_dd", content, false);
             if(output != null && output.equals(errorType)){
@@ -140,7 +140,6 @@ public class DeltaDebugger {
     
                     fileCreated = true;
                     temp.removeAll(Collections.singletonList(null));
-                    int old_size = content.size();
     
                     // Update the main list of API calls
                     content = new ArrayList<String>(temp);
@@ -153,8 +152,7 @@ public class DeltaDebugger {
                         else
                             section = (int) (size/granularity);
                     }
-                    // If section size is down to 1 but we are still reducing then go over the API calls until we can't remove any
-                    else if(old_size == size)
+                    else
                         break;
     
                 // If trace was not reduced then increase granularity and calculate the new section size
@@ -180,7 +178,7 @@ public class DeltaDebugger {
 
         Map<Integer, List<Integer>> clauses = new HashMap<Integer, List<Integer>>();
         String output;
-        boolean reduced;
+        int reduced;
         boolean createNewFile = false;
 
         for(int i=0; i < content.size(); i++){
@@ -192,7 +190,7 @@ public class DeltaDebugger {
         }
 
         do{
-            reduced = false;
+            reduced = 0;
             for(int i=0; i < content.size(); i++){
                 if(content.get(i).contains("addClause") || content.get(i).contains("assuming")){
 
@@ -202,7 +200,7 @@ public class DeltaDebugger {
                     if(clause.size() == 1)
                         continue;
 
-                    for(int j=0; j < clause.size(); j++){
+                    for(int j=0; j < clause.size() && clause.size() > 1; j++){
                         int lit = clause.get(j);
                         clause.remove(j);
                         content.set(i, buildNewAPICall(index, line[1], clause));
@@ -213,7 +211,7 @@ public class DeltaDebugger {
                         if(output != null && output.equals(errorType)){
                             j--;
                             tryAgain = true;
-                            reduced = true;
+                            reduced++;
                             createNewFile = true;
                             System.out.println("removed: true");
                         } else {
@@ -224,7 +222,7 @@ public class DeltaDebugger {
                     }
                 }
             }
-        } while(reduced);
+        } while(reduced > 5);
 
         if(createNewFile){
             // Create the new file with the reduced trace
@@ -318,6 +316,9 @@ public class DeltaDebugger {
             createFile(content, seedHEX);
         }
     }
+
+    // try to remove variables from the formula
+    private static void removeVariables(){}
 
     // try to shuffle clauses - only clauses within one increment ???
     private static void shuffle(){}

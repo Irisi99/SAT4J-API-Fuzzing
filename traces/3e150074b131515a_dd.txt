@@ -2,4 +2,3 @@
 2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
 8 addClause 2 -10 
 17 addClause -11 -1 
-enumerating
