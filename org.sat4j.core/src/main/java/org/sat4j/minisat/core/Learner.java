@@ -38,5 +38,21 @@ import org.sat4j.specs.Constr;
  */
 public interface Learner {
 
+    /**
+     * Learn a constraint entailed by the constraints available in the solver.
+     * 
+     * @param c
+     *            a constraint entailed by the solver, which may be removed if
+     *            needed.
+     */
     void learn(Constr c);
+
+    /**
+     * Ignore a constraint entailed by the solver.
+     * 
+     * @param c
+     *            a constraint entailed by the solver, which will be used for
+     *            conflict analysis, but not for unit propagation.
+     */
+    void ignore(Constr c);
 }

@@ -68,6 +68,12 @@ public class IdrupSearchListener<S extends ISolverService>
     }
 
     @Override
+    public void ignore(IConstr c) {
+        out.print("l ");
+        printConstr(c);
+    }
+
+    @Override
     public void delete(IConstr c) {
         out.print("d ");
         printConstr(c);

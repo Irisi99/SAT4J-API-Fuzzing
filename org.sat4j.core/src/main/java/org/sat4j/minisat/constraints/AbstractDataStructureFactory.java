@@ -116,6 +116,10 @@ public abstract class AbstractDataStructureFactory
         this.learner.learn(constr);
     }
 
+    public void ignoreConstraint(Constr constr) {
+        this.learner.ignore(constr);
+    }
+
     /*
      * (non-Javadoc)
      * 

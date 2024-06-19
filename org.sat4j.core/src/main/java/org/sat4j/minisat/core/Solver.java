@@ -404,6 +404,10 @@ public class Solver<D extends DataStructureFactory>
         }
     }
 
+    public void ignore(Constr c) {
+        this.slistener.ignore(c);
+    }
+
     public final int decisionLevel() {
         return this.trailLim.size();
     }
@@ -1787,7 +1791,14 @@ public class Solver<D extends DataStructureFactory>
         // push previously learned literals
         for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator
                 .hasNext();) {
-            enqueue(iterator.next());
+            int p = iterator.next();
+            if (!enqueue(p)) {
+                this.slistener.conflictFound(null, 0, 0);
+                this.slistener.end(Lbool.FALSE);
+                cancelUntil(0);
+                cancelLearntLiterals(learnedLiteralsLimit);
+                return false;
+            }
         }
 
         // propagate constraints

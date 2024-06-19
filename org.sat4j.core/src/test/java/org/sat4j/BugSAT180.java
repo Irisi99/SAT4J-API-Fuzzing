@@ -28,7 +28,6 @@ public class BugSAT180 {
     public void setup() throws ContradictionException {
         solver = SolverFactory.newGlucose21();
         solver.setOrder(new NaturalStaticOrder());
-        solver.setSimplifier(solver.expensiveSimplificationWLOnly);
         solver.setSearchListener(listener);
         solver.addClause(2, -4);
         solver.addClause(4, -7);

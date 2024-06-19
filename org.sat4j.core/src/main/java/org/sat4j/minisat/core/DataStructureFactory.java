@@ -38,7 +38,7 @@ import org.sat4j.specs.UnitPropagationListener;
 
 /**
  * The aim of the factory is to provide a concrete implementation of clauses,
- * cardinality constraints and pseudo boolean consraints.
+ * cardinality constraints and pseudo boolean constraints.
  * 
  * @author leberre
  */
@@ -59,6 +59,13 @@ public interface DataStructureFactory {
     Constr createUnregisteredClause(IVecInt literals);
 
     void learnConstraint(Constr constr);
+
+    /**
+     * 
+     * @param constr
+     * @since 3.0
+     */
+    void ignoreConstraint(Constr constr);
 
     /**
      * Create a cardinality constraint of the form sum li &gt;= degree.
