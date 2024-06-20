@@ -71,11 +71,17 @@ public class SearchEnumeratorListener
     public void solutionFound(int[] model, RandomAccessModel lazyModel) {
         IVecInt clauseToAdd = this.solverService
                 .createBlockingClauseForCurrentModel();
+        if (clauseToAdd.size() == 0 && this.solverService.nVars() != 0) {
+            throw new IllegalStateException(
+                    "Do not use internal enumerator when the solver contains no clause");
+        }
+
         var vecint = new int[clauseToAdd.size()];
         clauseToAdd.copyTo(vecint);
+
         this.solverService.addClauseOnTheFly(vecint);
         this.nbsolutions++;
-        sfl.onSolutionFound(model);
+        sfl.onSolutionFound(vecint);
     }
 
     @Override

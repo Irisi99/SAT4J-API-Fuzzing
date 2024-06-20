@@ -176,12 +176,13 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
             throws ParseFormatException, IOException, ContradictionException {
         log("solving " + problemname); //$NON-NLS-1$
         log("reading problem ... "); //$NON-NLS-1$
-        SolverDecorator<ISolver> decorator = null;
+        SolverDecorator<ISolver> decorator;
         ISolver originalProblem;
         if (feedWithDecorated) {
             decorator = (SolverDecorator<ISolver>) this.solver;
             originalProblem = decorator.decorated();
         } else {
+            decorator = null;
             originalProblem = this.solver;
         }
         this.reader = createReader(originalProblem, problemname);

@@ -86,13 +86,15 @@ public class MixedDataStructureSingleWL extends AbstractDataStructureFactory {
             return new UnitClause(v.last());
         }
         if (v.size() == 2) {
-            return OriginalBinaryClause.brandNewClause(getVocabulary(),
-                    v);
+            return OriginalBinaryClause.brandNewClause(getVocabulary(), v);
         }
         return OriginalWLClause.brandNewClause(getVocabulary(), v);
     }
 
     public Constr createUnregisteredClause(IVecInt literals) {
+        if (literals.size() == 1) {
+            return new UnitClause(literals.last(), true);
+        }
         return new LearntWLClause(literals, getVocabulary());
     }
 

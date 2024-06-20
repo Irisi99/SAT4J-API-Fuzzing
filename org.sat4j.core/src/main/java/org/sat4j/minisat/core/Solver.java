@@ -2524,7 +2524,7 @@ public class Solver<D extends DataStructureFactory>
         Collections.sort(lliterals, trailComparator());
         IVecInt clause = new VecInt(literals.length);
         for (int d : lliterals) {
-            clause.push(LiteralsUtils.toInternal(d));
+            clause.push(this.voc.getFromPool(d));
         }
         this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
         this.sharedConflict.register();

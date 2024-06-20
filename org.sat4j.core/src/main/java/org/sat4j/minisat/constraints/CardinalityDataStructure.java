@@ -31,6 +31,7 @@ package org.sat4j.minisat.constraints;
 
 import org.sat4j.minisat.constraints.card.AtLeast;
 import org.sat4j.minisat.constraints.cnf.LearntWLClause;
+import org.sat4j.minisat.constraints.cnf.UnitClause;
 import org.sat4j.specs.Constr;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IVecInt;
@@ -44,6 +45,9 @@ public class CardinalityDataStructure extends AbstractCardinalityDataStructure {
     private static final long serialVersionUID = 1L;
 
     public Constr createUnregisteredClause(IVecInt literals) {
+        if (literals.size() == 1) {
+            return new UnitClause(literals.last(), true);
+        }
         return new LearntWLClause(literals, getVocabulary());
     }
 

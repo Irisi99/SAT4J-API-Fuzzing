@@ -33,6 +33,7 @@ import org.sat4j.minisat.constraints.card.AtLeast;
 import org.sat4j.minisat.constraints.cnf.Clauses;
 import org.sat4j.minisat.constraints.cnf.LearntBinaryClause;
 import org.sat4j.minisat.constraints.cnf.LearntHTClause;
+import org.sat4j.minisat.constraints.cnf.LearntWLClause;
 import org.sat4j.minisat.constraints.cnf.Lits;
 import org.sat4j.minisat.constraints.cnf.OriginalBinaryClause;
 import org.sat4j.minisat.constraints.cnf.OriginalHTClause;
@@ -79,6 +80,7 @@ public class MixedDataStructureDanielHT extends AbstractDataStructureFactory {
      * org.sat4j.minisat.DataStructureFactory#createClause(org.sat4j.datatype
      * .VecInt)
      */
+    @Override
     public Constr createClause(IVecInt literals) throws ContradictionException {
         IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);
         if (v == null) {
@@ -89,13 +91,17 @@ public class MixedDataStructureDanielHT extends AbstractDataStructureFactory {
             return new UnitClause(v.last());
         }
         if (v.size() == 2) {
-            return OriginalBinaryClause.brandNewClause(getVocabulary(),
-                    v);
+            return OriginalBinaryClause.brandNewClause(getVocabulary(), v);
         }
         return OriginalHTClause.brandNewClause(getVocabulary(), v);
     }
 
+    @Override
     public Constr createUnregisteredClause(IVecInt literals) {
+        if (literals.size() == 0) {
+            // cannot build HT clauses of size 0
+            return new LearntWLClause(literals, getVocabulary());
+        }
         if (literals.size() == 1) {
             return new UnitClause(literals.last(), true);
         }
