@@ -66,6 +66,7 @@ public abstract class LimitedLearning<D extends DataStructureFactory>
             this.lits = s.getVocabulary();
             setVarActivityListener(s);
             this.all.setDataStructureFactory(s.getDSFactory());
+            this.none.setDataStructureFactory(s.getDSFactory());
             this.stats = s.getStats();
         }
     }

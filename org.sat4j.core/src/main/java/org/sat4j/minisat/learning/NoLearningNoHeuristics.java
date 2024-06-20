@@ -31,6 +31,7 @@ package org.sat4j.minisat.learning;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.minisat.core.DataStructureFactory;
+import org.sat4j.minisat.core.Solver;
 import org.sat4j.specs.Constr;
 
 /**
@@ -46,7 +47,22 @@ public final class NoLearningNoHeuristics<D extends DataStructureFactory>
 
     private static final long serialVersionUID = 1L;
 
+    private DataStructureFactory dsf;
+
+    public void setDataStructureFactory(DataStructureFactory dsf) {
+        this.dsf = dsf;
+    }
+
+    @Override
+    public void setSolver(Solver<D> s) {
+        super.setSolver(s);
+        if (s != null) {
+            this.dsf = s.getDSFactory();
+        }
+    }
+
     public void learns(Constr reason) {
+        this.dsf.ignoreConstraint(reason);
     }
 
 }

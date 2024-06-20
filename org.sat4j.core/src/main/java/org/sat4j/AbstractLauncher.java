@@ -224,7 +224,7 @@ public abstract class AbstractLauncher implements Serializable, ILogAble {
             }
         }
         if (reader.getSubsetOfVariable().isPresent()) {
-            if ("external".equals(System.getProperty("all"))) {
+            if (feedWithDecorated) {
                 ((ModelIteratorToSATAdapter) decorator)
                         .appendProjectionVariables(
                                 reader.getSubsetOfVariable().get());

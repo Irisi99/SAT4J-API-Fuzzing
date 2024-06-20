@@ -224,4 +224,10 @@ public class MultiTracing<T extends ISolverService>
         }
     }
 
+    @Override
+    public void ignore(IConstr c) {
+        for (SearchListener<T> sl : this.listeners) {
+            sl.ignore(c);
+        }
+    }
 }
