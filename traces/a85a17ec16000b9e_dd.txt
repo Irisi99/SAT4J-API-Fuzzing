@@ -1,0 +1,4 @@
+1 init
+405 addClause -28 
+407 newVar 22
+474 solve

@@ -1,4 +1,4 @@
 1 init
-8 newVar 23
-9 addClause -23 
-79 newVar 179
+618 newVar 156
+815 addClause 271 
+1087 solve

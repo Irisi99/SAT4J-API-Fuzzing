@@ -1,4 +1,4 @@
 1 init
-5 newVar 185
-194 addClause 64 
+560 addClause -82 
+562 newVar 70
 774 newVar 118

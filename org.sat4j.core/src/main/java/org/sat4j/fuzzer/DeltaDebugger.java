@@ -46,8 +46,8 @@ public class DeltaDebugger {
             do{
                 tryAgain = false;
                 removeLines();
-                removeLiterals();
                 removeVariables(); //TODO
+                removeLiterals();
                 renameLiterals();
             } while(tryAgain);
             shuffle(); //TODO
@@ -59,11 +59,11 @@ public class DeltaDebugger {
                 }
             } else {
                 System.out.println("Error during Delta Debugging");
-                // Helper.deleteProof(seedHEX+"_dd");
-                // if(fileCreated){
-                //     File myObj = new File("./traces/"+seedHEX+"_dd.txt"); 
-                //     myObj.delete();
-                // }
+                Helper.deleteProof(seedHEX+"_dd");
+                if(fileCreated){
+                    File myObj = new File("./traces/"+seedHEX+"_dd.txt"); 
+                    myObj.delete();
+                }
             }
 
         } catch (Exception e) {
@@ -197,10 +197,8 @@ public class DeltaDebugger {
                     String[] line = content.get(i).split(" ");
                     int index = Integer.valueOf(line[0]);
                     List<Integer> clause = clauses.get(index);
-                    if(clause.size() == 1)
-                        continue;
 
-                    for(int j=0; j < clause.size() && clause.size() > 1; j++){
+                    for(int j=0; j < clause.size(); j++){
                         int lit = clause.get(j);
                         clause.remove(j);
                         content.set(i, buildNewAPICall(index, line[1], clause));

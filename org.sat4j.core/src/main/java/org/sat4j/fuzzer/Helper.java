@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.sat4j.core.ASolverFactory;
 import org.sat4j.minisat.core.Counter;
 import org.sat4j.minisat.core.ICDCL;

@@ -1,10 +1,8 @@
 package org.sat4j.fuzzer;
 
 import java.util.Random;
-import org.apache.commons.beanutils.BeanUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Map;
 
 import org.sat4j.core.ASolverFactory;
@@ -212,8 +210,7 @@ public class TraceFactory {
                         trace.add("enumerating");
                         long internal = Helper.countSolutionsInt(solver);
                         long external = Helper.countSolutionsExt(solver2);
-                        int maxVariableUsed = Collections.max(usedLiterals);
-                        int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
+                        int numberOfUnusedLiterals = solver.nVars() - usedLiterals.size();
 
                         if(numberOfUnusedLiterals > 0){
                             long divider = Helper.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);

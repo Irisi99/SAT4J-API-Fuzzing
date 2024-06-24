@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.sat4j.core.VecInt;
@@ -148,7 +147,7 @@ public class TraceRunner {
 
                 // if API call is passing MAX var to solver
                 } else if(apiCalls.get(i).contains("newVar")){
-                        String newVar = apiCalls.get(i).split(" ")[0];
+                        String newVar = apiCalls.get(i).split(" ")[2];
                         solver.newVar(Integer.parseInt(newVar)); 
                         solver2.newVar(Integer.parseInt(newVar));
                           
@@ -196,8 +195,7 @@ public class TraceRunner {
                     long internal = Helper.countSolutionsInt(solver);
                     long external = Helper.countSolutionsExt(solver2);
 
-                    int maxVariableUsed = Collections.max(usedLiterals);
-                    int numberOfUnusedLiterals = maxVariableUsed - usedLiterals.size();
+                    int numberOfUnusedLiterals = solver.nVars() - usedLiterals.size();
 
                     if(numberOfUnusedLiterals > 0){
                         long divider = Helper.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);
@@ -218,9 +216,9 @@ public class TraceRunner {
 
                 BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
                 String error = stdError.readLine();
-                if(verbose && error != null){
-                    System.out.println(error + " " + stdError.readLine());
-                }
+                // if(verbose && error != null){
+                //     System.out.println(error + " " + stdError.readLine());
+                // }
                 if(error != null && error.contains("does not satisfy input clause"))
                     error = "does not satisfy input clause";
                 else if(error != null && error.contains("lemma implication check failed"))
