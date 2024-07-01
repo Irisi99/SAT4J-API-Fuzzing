@@ -1,0 +1,14 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
+3 Order : NaturalStaticOrder
+6 Simplification Type : expensiveSimplificationWLOnly
+43 addClause -5 -4 
+58 addClause 8 -6 
+69 addClause 10 5 
+82 addClause 9 -8 
+93 addClause -4 -10 3 
+98 addClause 4 -9 
+160 addClause 7 -3 
+176 addClause 1 -7 
+177 addClause 6 2 
+347 solve

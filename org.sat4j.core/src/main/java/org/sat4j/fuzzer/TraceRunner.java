@@ -230,7 +230,7 @@ public class TraceRunner {
                 if(exitCode != 0){
                     throw new Exception("IDRUP Checker failed with code "+exitCode+" --- "+error);
                 } else {
-                    //Helper.deleteProof(seed);
+                    Helper.deleteProof(seed);
                 }
             } else {
                 Helper.deleteProof(seed);

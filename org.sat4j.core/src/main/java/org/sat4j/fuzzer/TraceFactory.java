@@ -38,7 +38,7 @@ public class TraceFactory {
     static Trace trace;
     // For every call of APIFuzzer it creates MAX_ITERATIONS traces 
     // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 50;
+    static int MAX_ITERATIONS = 10;
     static int MAXVAR;
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
@@ -108,8 +108,9 @@ public class TraceFactory {
             // HEX ID for Trace
             trace = new Trace(Long.toHexString(slaveSeed));
 
-            // Randomly fuzz the internal solution counter
-            ENUMERATING = slaveRandomGenerator.nextBoolean();
+            // Randomly fuzz the internal and external solution counters
+            ENUMERATING = false;
+            //slaveRandomGenerator.nextBoolean();
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -136,8 +137,8 @@ public class TraceFactory {
                 long initSeed = slaveRandomGenerator.nextLong();
                 // Initialize the Solver with randomized Options
                 solver = initializeSolver(verbose, true, initSeed);
-                // Set 10 min time-out per trace
-                solver.setTimeout(600);
+                // Set 2 min time-out per trace
+                solver.setTimeout(120);
                 // Initalize identical solver if we are going to compare enumerators
                 if(ENUMERATING){
                     solver2 = initializeSolver(verbose, false, initSeed);
@@ -159,11 +160,9 @@ public class TraceFactory {
 
             while(increments < totalIncrements){
                 increments ++;
-                int newVar;
 
                 if(skipMaxVar){
                     skipMaxVar = false;
-                    newVar = MAXVAR;
                 } else {
                     int OLDMAXVAR = MAXVAR;
                     if(ENUMERATING){
@@ -173,14 +172,13 @@ public class TraceFactory {
                         // Add 20 - 200 to the Number of Variables on each increment
                         MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR;
                     }
-                    newVar = MAXVAR - OLDMAXVAR;
                     NUMBER_OF_CLAUSES = (int) (coeficient * (MAXVAR - OLDMAXVAR));
                 }
 
                 if(PASS_MAX_VAR){
                     try{
-                        trace.add("newVar " + newVar);
-                        solver.newVar(newVar);
+                        trace.add("newVar " + MAXVAR);
+                        solver.newVar(MAXVAR);
                     } catch(Exception e){
                         Helper.printException(isTraceSeed, verbose, trace, "newVar()", e);
                         SKIP_PROOF_CHECK = true;
@@ -242,11 +240,11 @@ public class TraceFactory {
                             assumption = new int[size];
 
                             for (int i=0 ; i < size; i++) {
-                                int literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                                int literal = slaveRandomGenerator.nextInt(2 * MAXVAR) - MAXVAR;
                                 // Need to check if that literal is assumed before, if we are assuming 0
                                 // Or if that literal is not used in a clause anywhere in the trace 
                                 while(literal == 0 || Helper.isAlreadyPresent(assumption, i, literal) || !usedLiterals.contains(Math.abs(literal))){
-                                    literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                                    literal = slaveRandomGenerator.nextInt(2 * MAXVAR) - MAXVAR;
                                 }
                                 assumption[i] = literal;
                             }
@@ -388,14 +386,14 @@ public class TraceFactory {
 
             for (int j = 0; j < clause.length; j++) {
                 // Generate a literal that is a valid variable but could be positive or negative
-                int literal = slaveRandomGenerator.nextInt(2 * (MAXVAR)) - (MAXVAR);
+                int literal = slaveRandomGenerator.nextInt(2 * MAXVAR) - MAXVAR;
 
                 // Check that this literal is not used before in the clause and that it is not 0
                 // Check that literal is as a negated unit clause
                 while (literal == 0  || Helper.isAlreadyPresent(clause, j, literal) 
                             || (CARDINALITY_CHECK && unitClauses.contains(-literal))) {
 
-                    literal = slaveRandomGenerator.nextInt(2 * (MAXVAR + 1)) - (MAXVAR + 1);
+                    literal = slaveRandomGenerator.nextInt(2 * MAXVAR) - MAXVAR;
                 }
                 // We need to know which literals we can assume if we have assumptions on so we keep track of all literals
                 // We also need to know how many of the variables are used when enumerating

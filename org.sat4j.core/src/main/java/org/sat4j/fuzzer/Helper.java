@@ -109,6 +109,8 @@ public class Helper {
     }
 
     public static String IVecToString(IVecInt reason){
+        if(reason == null)
+            return "null";
         String stringReason = "";
         String[] splitReason = String.valueOf(reason).split(",");
         for(int i=0; i < splitReason.length; i++){
@@ -161,11 +163,14 @@ public class Helper {
     public static ISolver initSolver(String solverName){
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         // Initialize default solver if no specific solver is passed as argument
+        ISolver solver;
         if(solverName == "Default"){
-            return factory.defaultSolver();
+            solver =  factory.defaultSolver();
         } else {
-            return factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
+            solver =  factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
         }
+        solver.setTimeout(120);
+        return solver;
     }
 
     @SuppressWarnings("rawtypes")
