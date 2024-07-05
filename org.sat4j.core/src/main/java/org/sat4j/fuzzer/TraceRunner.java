@@ -34,7 +34,7 @@ public class TraceRunner {
         // If we pass a Seed then call TraceFactory to generate the Trace file
         if(!argument.contains(".txt")){
             long value = Long.parseUnsignedLong(argument, 16);
-            TraceFactory.run(value, true, true);
+            TraceFactory.run(value, 1, true, true);
 
         // If we pass the file of a Trace then we read the file and run all the API calls inside
         } else {
@@ -244,13 +244,16 @@ public class TraceRunner {
             if(!PROOF_CHECK_DONE)
                 Helper.deleteProof(seed);
 
-            if(e.getMessage() != null && e.getMessage().contains("Enumerators"))
+            if(e.getMessage() != null && e.getMessage().contains("Enumerators")){
                 return "Enumeration";
-            else if(e.getMessage() != null && e.getMessage().contains("IDRUP"))
+            } else if(e.getMessage() != null && e.getMessage().contains("IDRUP")){
                 return e.getMessage();
-
-            // Return the class of the error that happened while running the trace
-            return e.getClass().getName();
+            } else if(e.getMessage() != null && e.getMessage().contains("Creating Empty clause ?")){
+                return "Empty Clause";
+            } else {
+                // Return the class of the error that happened while running the trace
+                return e.getClass().getName();
+            }
         }
         return null;
     }

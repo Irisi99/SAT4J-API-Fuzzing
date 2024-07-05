@@ -1,5 +1,0 @@
-1 init
-2 Solver : Concise
-214 addClause -144 118 -118 
-223 addClause -115 12 
-224 addClause -139 145 

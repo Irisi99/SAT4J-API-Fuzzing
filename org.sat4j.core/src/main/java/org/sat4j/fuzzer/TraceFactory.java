@@ -36,9 +36,6 @@ public class TraceFactory {
     static Random masterRandomGenerator;
     static Random slaveRandomGenerator;
     static Trace trace;
-    // For every call of APIFuzzer it creates MAX_ITERATIONS traces 
-    // Should probably make it run for a ceratin time or until it finds X errors
-    static int MAX_ITERATIONS = 10;
     static int MAXVAR;
     static boolean UNIFORM;    
     static boolean ASSUMPTIONS;
@@ -55,7 +52,7 @@ public class TraceFactory {
     static ArrayList<Integer> unitClauses = new ArrayList<Integer>();
     static ArrayList<String> icnf = new ArrayList<String>();
     // sanity check - verbose - print all variables you are choosing
-    public static void run(long seed, boolean isTraceSeed, boolean verbose) {
+    public static void run(long seed, int nrTraces, boolean isTraceSeed, boolean verbose) {
 
         Helper.initializeOptions(verbose);
 
@@ -79,7 +76,7 @@ public class TraceFactory {
         long startTime = 0;
         long endTime = 0;
 
-        while (iteration < MAX_ITERATIONS) {
+        while (iteration < nrTraces) {
 
             iteration++;
             icnf.clear();
@@ -109,8 +106,7 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             // Randomly fuzz the internal and external solution counters
-            ENUMERATING = false;
-            //slaveRandomGenerator.nextBoolean();
+            ENUMERATING = slaveRandomGenerator.nextBoolean();
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -520,7 +516,7 @@ public class TraceFactory {
             if(addToTrace){
                 trace.add("Data Structure Factory : "+dsfName);
             }
-            if(dsfName.equals("CardinalityDataStructureYanMax")){
+            if(dsfName.equals("CardinalityDataStructureYanMax") || dsfName.equals("CardinalityDataStructureYanMin") || dsfName.equals("CardinalityDataStructure")){
                 CARDINALITY_CHECK = true;
             } else if(dsfName.equals("MixedDataStructureDanielWLConciseBinary")){
                 PASS_MAX_VAR = true;

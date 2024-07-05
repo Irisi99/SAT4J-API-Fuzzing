@@ -1,0 +1,5 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructure
+13 addClause 1 
+170 addClause -1 2 
+320 addClause -2 

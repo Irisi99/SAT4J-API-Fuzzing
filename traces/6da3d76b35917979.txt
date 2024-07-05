@@ -7,7 +7,6 @@
 7 Simplification Type : NO_SIMPLIFICATION
 8 Search Params : varDecay=0.9895250257819193/claDecay=1.3292891059130876/conflictBoundIncFactor=2.448777001378182/initConflictBound=512
 9 Learned Constraints Evaluation Type : LBD2
-10 Random Walk : 0.20867936387033403
 11 DBS simplification
 12 addClause -15 103 -88 
 13 addClause -121 -97 -98 

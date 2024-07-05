@@ -1,0 +1,10 @@
+1 init
+2 Data Structure Factory : MixedDataStructureDanielWLConciseBinary
+5 Simplification Type : expensiveSimplificationWLOnly
+44 addClause -4 -7 
+102 addClause 5 12 
+129 addClause -3 7 
+136 addClause 4 2 -5 
+186 addClause -6 -5 
+438 addClause 6 -2 
+439 assuming 1 3 

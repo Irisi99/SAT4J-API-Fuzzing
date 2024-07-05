@@ -1,5 +1,4 @@
 1 init
-2 Random Walk : 0.34488715683518856
 3 addClause 148 -112 145 
 4 addClause -31 -158 96 
 5 addClause 5 65 -99 
