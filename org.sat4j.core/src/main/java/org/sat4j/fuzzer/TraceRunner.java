@@ -33,8 +33,13 @@ public class TraceRunner {
 
         // If we pass a Seed then call TraceFactory to generate the Trace file
         if(!argument.contains(".txt")){
-            long value = Long.parseUnsignedLong(argument, 16);
-            TraceFactory.run(value, 1, true, true);
+            long slaveSeed = 0;
+            try {  
+                slaveSeed = Long.parseLong(argument);
+            } catch(NumberFormatException e){  
+                slaveSeed = Long.parseUnsignedLong(argument, 16);
+            } 
+            TraceFactory.run(slaveSeed, 1, true, true);
 
         // If we pass the file of a Trace then we read the file and run all the API calls inside
         } else {

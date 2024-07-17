@@ -94,6 +94,8 @@ public class TraceFactory {
                 slaveSeed = seed;
             }
 
+            // System.out.println("Slave Seed : "+Long.toHexString(slaveSeed));
+
             slaveRandomGenerator = new Random(slaveSeed); 
 
             // Uniform Clause length or not -> ranges from 1 to max length
@@ -454,7 +456,10 @@ public class TraceFactory {
                 // Flip coin to use a predifined solver or configure solver randomly
                 if(initRandomGenerator.nextBoolean()){
                     String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
-                    if(solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver")){
+                    while(ENUMERATING && (solverName.equals("Parallel") || solverName.equals("SATUNSAT"))){
+                        solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
+                    }
+                    if(!SKIP_PROOF_CHECK && (solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver"))){
                         SKIP_PROOF_CHECK = true;
                     }
                     if(addToTrace){
@@ -510,9 +515,10 @@ public class TraceFactory {
 
         Solver asolver = (Solver) theSolver;
         Boolean isNaturalStaticOrder = false;
+        String dsfName = "";
 
         if(useAll || true){
-            String dsfName = Helper.DSF.get(initRandomGenerator.nextInt(Helper.DSF.size()));
+            dsfName = Helper.DSF.get(initRandomGenerator.nextInt(Helper.DSF.size()));
             if(addToTrace){
                 trace.add("Data Structure Factory : "+dsfName);
             }
@@ -638,8 +644,11 @@ public class TraceFactory {
 
         if(useAll || initRandomGenerator.nextBoolean()){
             String simplifierName = Helper.SIMPLIFIERS.get(initRandomGenerator.nextInt(Helper.SIMPLIFIERS.size()));
+            if(simplifierName.equals("expensiveSimplificationWLOnly") && dsfName.equals("MixedDataStructureDanielWLConciseBinary")){
+                simplifierName = "expensiveSimplification";
+            }
             if(addToTrace){
-                trace.add("Simplification Type : "+simplifierName.toString());
+                trace.add("Simplification Type : "+simplifierName);
             }
             ISimplifier simplifier = (ISimplifier) Solver.class.getDeclaredField(simplifierName).get(theSolver);
             theSolver.setSimplifier(simplifier);

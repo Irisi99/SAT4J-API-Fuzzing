@@ -1,0 +1,69 @@
+1 init
+2 using solver SATUNSAT
+3 DBS simplification
+4 addClause -13 -6 -10 
+5 addClause 11 1 
+6 addClause -7 -3 3 
+7 addClause -6 11 -11 
+8 addClause 9 1 -13 
+9 addClause 5 4 -13 
+10 addClause -12 12 8 3 
+11 addClause -10 -11 -3 
+12 addClause 11 4 -3 
+13 addClause 1 -6 9 
+14 addClause 1 12 -8 
+15 addClause -8 7 -5 
+16 addClause -10 7 12 
+17 addClause -8 10 -2 
+18 addClause 5 -13 -6 
+19 addClause -1 -8 -6 
+20 addClause -6 7 3 
+21 addClause 9 -3 1 
+22 addClause 6 -7 -5 
+23 addClause -7 7 4 
+24 addClause -9 -6 5 
+25 addClause 6 -6 7 
+26 addClause 7 8 -5 2 
+27 addClause -11 -3 9 
+28 addClause -2 -5 -8 
+29 addClause -8 6 -1 
+30 addClause 5 -7 12 
+31 addClause -6 7 -3 
+32 addClause -6 -1 4 
+33 addClause -11 2 -6 
+34 addClause -6 12 9 
+35 addClause 6 -4 1 
+36 addClause 7 -12 -13 
+37 addClause -4 -7 4 
+38 addClause -4 -8 
+39 addClause 7 6 11 
+40 addClause 10 -12 1 
+41 addClause -5 -8 8 
+42 addClause -5 10 2 
+43 addClause -1 -11 -5 -9 
+44 addClause 3 -9 10 
+45 addClause 3 -1 5 
+46 addClause 12 -5 -1 
+47 addClause 3 9 -2 
+48 addClause -2 10 -7 
+49 addClause -12 -1 -11 
+50 addClause -12 -11 9 
+51 addClause -11 -5 1 
+52 addClause -2 -5 
+53 addClause -10 -1 7 
+54 addClause 2 -2 11 
+55 addClause 4 5 8 
+56 addClause 5 7 -8 
+57 addClause 9 8 -4 
+58 addClause 1 -5 -11 
+59 addClause -4 2 
+60 addClause 11 -7 -6 
+61 addClause -5 -6 -8 
+62 addClause -1 5 10 
+63 addClause -5 -8 -7 
+64 addClause 11 4 -12 
+65 addClause -1 -9 2 
+66 addClause 8 2 -8 
+67 addClause 4 7 -4 
+68 addClause -4 2 8 
+69 enumerating
