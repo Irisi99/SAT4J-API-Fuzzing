@@ -109,7 +109,7 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             // Randomly fuzz the internal and external solution counters
-            ENUMERATING = slaveRandomGenerator.nextBoolean();
+            ENUMERATING = slaveRandomGenerator.nextInt(5) == 0;
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -141,7 +141,7 @@ public class TraceFactory {
                 // Initalize identical solver if we are going to compare enumerators
                 if(ENUMERATING){
                     solver2 = initializeSolver(verbose, false, initSeed);
-                    solver2.setTimeout(600);
+                    solver2.setTimeout(120);
                 } else {
                     solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+trace.getId()+".idrup"));
                 }
@@ -375,7 +375,7 @@ public class TraceFactory {
         System.out.println("c SAT Instances : " + SATinstances);
         System.out.println("c UNSAT Instances : " + UNSATinstances);        
         System.out.println("c ENUM Instances : " + ENUMinstances);        
-        System.out.println("c Average Leanred Clauses : " + LearnedClauses/iteration);        
+        System.out.println("c Average Learned Clauses : " + LearnedClauses/iteration);        
         System.out.println("c Average Nr Conflicts : " + NrConflicts/iteration);
         System.out.println("c Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
     }
@@ -461,7 +461,7 @@ public class TraceFactory {
                 if(initRandomGenerator.nextBoolean()){
                     String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
                     
-                    while(ENUMERATING && (solverName.equals("Parallel") || solverName.equals("SATUNSAT"))){
+                    while(ENUMERATING && (solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver"))){
                         solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
                     }
                     if(!SKIP_PROOF_CHECK && (solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver"))){
