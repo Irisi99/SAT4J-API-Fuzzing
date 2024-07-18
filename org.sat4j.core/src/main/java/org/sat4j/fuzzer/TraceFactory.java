@@ -70,6 +70,7 @@ public class TraceFactory {
         Map<String, Number> stats;
         int SATinstances = 0;
         int UNSATinstances = 0;
+        int ENUMinstances = 0;
         long LearnedClauses = 0;        
         long NrConflicts = 0;
         long SolverRunTime = 0;
@@ -214,8 +215,10 @@ public class TraceFactory {
                         }
                         if(internal != external) {
                             throw new Exception("Internal and External Enumerators provided different values : " + internal + " - " + external);
-                        } else
+                        } else {
+                            ENUMinstances++;
                             break;
+                        }
 
                     } catch (Exception e) {
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
@@ -371,6 +374,7 @@ public class TraceFactory {
         System.out.println("c Statistics for "+ iteration +" iterations : ");
         System.out.println("c SAT Instances : " + SATinstances);
         System.out.println("c UNSAT Instances : " + UNSATinstances);        
+        System.out.println("c ENUM Instances : " + ENUMinstances);        
         System.out.println("c Average Leanred Clauses : " + LearnedClauses/iteration);        
         System.out.println("c Average Nr Conflicts : " + NrConflicts/iteration);
         System.out.println("c Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
@@ -456,6 +460,7 @@ public class TraceFactory {
                 // Flip coin to use a predifined solver or configure solver randomly
                 if(initRandomGenerator.nextBoolean()){
                     String solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
+                    
                     while(ENUMERATING && (solverName.equals("Parallel") || solverName.equals("SATUNSAT"))){
                         solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
                     }
