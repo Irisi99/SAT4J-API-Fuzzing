@@ -65,7 +65,7 @@ public class TraceFactory {
         int iteration = 0;
         int increments = 0;
         int totalIncrements = 5;
-        Boolean isSAT;
+        Boolean isSAT = false;
         // STATISTICS
         Map<String, Number> stats;
         int SATinstances = 0;
@@ -95,7 +95,7 @@ public class TraceFactory {
                 slaveSeed = seed;
             }
 
-            // System.out.println("Slave Seed : "+Long.toHexString(slaveSeed));
+            //System.out.println("Slave Seed : "+Long.toHexString(slaveSeed));
 
             slaveRandomGenerator = new Random(slaveSeed); 
 
@@ -253,8 +253,7 @@ public class TraceFactory {
                                 System.out.println("c ASSUMPTIONS: " + Helper.clauseToString(assumption));
                             }
                             trace.add("assuming " + Helper.clauseToString(assumption));
-                            //for(int j = 0; j < NUMBER_OF_THREADS; j++)
-                                icnf.add("q "+Helper.clauseToString(assumption)+"0");
+                            icnf.add("q "+Helper.clauseToString(assumption)+"0");
 
                             // Call solver and pass the generated assumptions
                             isSAT = solver.isSatisfiable(new VecInt(assumption));
@@ -262,10 +261,9 @@ public class TraceFactory {
                         // If Assumptions flag is false then simply try to solve the formula
                         } else {
                             trace.add("solve");
-                            //for(int j = 0; j < NUMBER_OF_THREADS; j++)
-                                icnf.add("q 0");
-                            // Call the solver
+                            icnf.add("q 0");
 
+                            // Call the solver
                             if(verbose){
                                 System.out.println("c SOLVING ");
                             }
@@ -278,10 +276,8 @@ public class TraceFactory {
 
                             String model = Helper.clauseToString(solver.model());
 
-                            //for(int j = 0; j < NUMBER_OF_THREADS; j++){
-                                icnf.add("s SATISFIABLE");
-                                icnf.add("m "+model+"0");
-                            //}
+                            icnf.add("s SATISFIABLE");
+                            icnf.add("m "+model+"0");
 
                             // If this was the last iteration update statistics and continue to next trace
                             if(increments == totalIncrements){
@@ -297,31 +293,26 @@ public class TraceFactory {
                         // If it is UNSAT no need to continue with the other increments, update statistics and continue to next trace
                         } else {
 
+                            // Ask for explanation why it is UNSAT - array of failed assumptions
                             String unsatCore = Helper.IVecToString(solver.unsatExplanation());
-
-                            //for(int j = 0; j < NUMBER_OF_THREADS; j++)
-                                icnf.add("s UNSATISFIABLE");
+                            icnf.add("s UNSATISFIABLE");
 
                             if(ASSUMPTIONS){
-                                //for(int j = 0; j < NUMBER_OF_THREADS; j++){
-                                    if(unsatCore != null){
-                                        icnf.add("u "+unsatCore+"0");
-                                    } else {
-                                        icnf.add("u 0");
-                                    }
-                                //}
-                            } else {
-                                //for(int j = 0; j < NUMBER_OF_THREADS; j++)
+                                if(unsatCore != null){
+                                    icnf.add("u "+unsatCore+"0");
+                                } else {
                                     icnf.add("u 0");
+                                }
+                            
+                            } else {
+                                icnf.add("u 0");
                             }
                             Helper.createICNF(trace.getId(), icnf);
 
-                            // TODO: Should I check if it is UNSAT because of Assumptions and if so continue the increments ???
                             UNSATinstances ++;
                             if(verbose){
                                 System.out.println("c UNSATISFIABLE!");
                                 if(ASSUMPTIONS){
-                                    // Ask for explanation why it is UNSAT - array of failed assumptions
                                     System.out.println("c EXPLANATION: " + unsatCore);
                                 }
                             }
@@ -353,6 +344,11 @@ public class TraceFactory {
                     Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
                     int exitCode = process.waitFor(); 
                     if(exitCode != 0){
+                        if(isSAT){
+                            SATinstances--;
+                        } else {
+                            UNSATinstances--;
+                        }
                         throw new Exception("IDRUP Checker failed with code "+exitCode);
                     } else {
                         Helper.deleteProof(trace.getId());
@@ -372,12 +368,15 @@ public class TraceFactory {
 
         // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
         System.out.println("c Statistics for "+ iteration +" iterations : ");
+        System.out.println("c Error Traces : " + (iteration - SATinstances - UNSATinstances - ENUMinstances));
         System.out.println("c SAT Instances : " + SATinstances);
         System.out.println("c UNSAT Instances : " + UNSATinstances);        
-        System.out.println("c ENUM Instances : " + ENUMinstances);        
-        System.out.println("c Average Learned Clauses : " + LearnedClauses/iteration);        
-        System.out.println("c Average Nr Conflicts : " + NrConflicts/iteration);
-        System.out.println("c Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
+        System.out.println("c ENUM Instances : " + ENUMinstances);
+        if(SATinstances != 0 || UNSATinstances != 0){
+            System.out.println("c Average Learned Clauses : " + LearnedClauses/iteration);        
+            System.out.println("c Average Nr Conflicts : " + NrConflicts/iteration);
+            System.out.println("c Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
+        }
     }
 
     private static void addClauses() throws ContradictionException{
@@ -419,7 +418,6 @@ public class TraceFactory {
                 if(ENUMERATING){
                     solver2.addClause(new VecInt(clause));
                 } else {
-                    //for(int j = 0; j < NUMBER_OF_THREADS; j++)
                     icnf.add("i "+Helper.clauseToString(clause)+"0");
                 }
                     
@@ -464,11 +462,17 @@ public class TraceFactory {
                     while(ENUMERATING && (solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver"))){
                         solverName = Helper.SOLVERS.get(initRandomGenerator.nextInt(Helper.SOLVERS.size()));
                     }
+                    if(solverName.equals("Concise")){
+                        PASS_MAX_VAR = true;
+                    }
                     if(!SKIP_PROOF_CHECK && (solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver"))){
                         SKIP_PROOF_CHECK = true;
                     }
                     if(addToTrace){
                         trace.add("using solver " + solverName);
+                    }
+                    if(verbose){
+                        System.out.println("c Using solver : "+solverName);
                     }
                     asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
                     if(asolver instanceof ManyCore){
@@ -506,9 +510,6 @@ public class TraceFactory {
                 asolver.setDBSimplificationAllowed(true);
             }
         }
-        // if(verbose){
-        //     System.out.println(asolver.toString());
-        // }
         return asolver;
     }
 

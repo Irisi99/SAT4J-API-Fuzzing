@@ -23,7 +23,7 @@ import org.sat4j.tools.IdrupSearchListener;
 public class TraceRunner {
 
     static ArrayList<Integer> usedLiterals;
-    static Boolean ENUMERATING;
+    static Boolean SKIP_PROOF_CHECK;
     static Boolean PROOF_CHECK_DONE;
 
     public static void main(final String[] args) {
@@ -58,8 +58,8 @@ public class TraceRunner {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static String runTrace(String seed, List<String> apiCalls, boolean verbose){
 
-        ENUMERATING = false;
         PROOF_CHECK_DONE = false;
+        SKIP_PROOF_CHECK = false;
         usedLiterals = new ArrayList<Integer>();
 
         ArrayList<String> icnf = new ArrayList<String>();
@@ -84,6 +84,9 @@ public class TraceRunner {
                     solver = Helper.initSolver(t[t.length-1]);
                     solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+seed+".idrup"));
                     solver2 = Helper.initSolver(t[t.length-1]);
+                    if (t[t.length-1].equals("Parallel") || t[t.length-1].equals("STUNSAT")) {
+                        SKIP_PROOF_CHECK = true;
+                    }
 
                 // If API call is defining the Data Structure then parse the name from the trace and update the solver
                 } else if(apiCalls.get(i).contains("Data Structure Factory")){
@@ -152,9 +155,9 @@ public class TraceRunner {
 
                 // if API call is passing MAX var to solver
                 } else if(apiCalls.get(i).contains("newVar")){
-                        String newVar = apiCalls.get(i).split(" ")[2];
-                        solver.newVar(Integer.parseInt(newVar)); 
-                        solver2.newVar(Integer.parseInt(newVar));
+                    String newVar = apiCalls.get(i).split(" ")[2];
+                    solver.newVar(Integer.parseInt(newVar)); 
+                    solver2.newVar(Integer.parseInt(newVar));
                           
                 // If API call is adding a clause then parse the clause from the trace and create a clause
                 } else if(apiCalls.get(i).contains("addClause")){
@@ -195,7 +198,7 @@ public class TraceRunner {
                 // If API call is trying to enumerate solutions then compare internal and external enumerator results
                 } else if(apiCalls.get(i).contains("enumerating")){
 
-                    ENUMERATING = true;
+                    SKIP_PROOF_CHECK = true;
 
                     long internal = Helper.countSolutionsInt(solver);
                     long external = Helper.countSolutionsExt(solver2);
@@ -213,7 +216,7 @@ public class TraceRunner {
                 }
             }
 
-            if(!ENUMERATING){
+            if(!SKIP_PROOF_CHECK){
                 PROOF_CHECK_DONE = true;
 
                 Helper.createICNF(seed, icnf);

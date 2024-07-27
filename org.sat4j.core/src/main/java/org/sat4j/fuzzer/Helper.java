@@ -101,6 +101,8 @@ public class Helper {
 
     // Custom toString method for array for easier parsing when rurning trace file
     public static String clauseToString(int[] clause){
+        if(clause == null)
+            return null;
         String stringClause = "";
         for(int i=0; i < clause.length; i++){
             stringClause += clause[i]+" ";
@@ -110,7 +112,7 @@ public class Helper {
 
     public static String IVecToString(IVecInt reason){
         if(reason == null)
-            return "null";
+            return null;
         String stringReason = "";
         String[] splitReason = String.valueOf(reason).split(",");
         for(int i=0; i < splitReason.length; i++){

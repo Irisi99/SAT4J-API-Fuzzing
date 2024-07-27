@@ -1,0 +1,365 @@
+1 init
+2 using solver Concise
+3 Random Walk : 0.5123403049127487
+4 DBS simplification
+5 addClause 128 -103 -173 
+6 addClause -44 -4 179 
+7 addClause 63 -153 -7 
+8 addClause -8 13 -153 
+9 addClause 131 -61 116 
+10 addClause -106 -52 114 
+11 addClause 79 82 -1 
+12 addClause -59 -80 
+13 addClause 111 -181 184 
+14 addClause 14 -40 -51 
+15 addClause 124 147 -95 
+16 addClause -183 45 
+17 addClause 124 175 -131 
+18 addClause 117 -2 33 
+19 addClause 98 -141 -121 
+20 addClause -15 -160 -36 -99 
+21 addClause -122 -77 -51 
+22 addClause -5 -33 -48 
+23 addClause 67 -5 123 
+24 addClause 10 -139 -149 
+25 addClause 94 -141 
+26 addClause -27 8 96 
+27 addClause 174 -165 
+28 addClause -49 184 60 
+29 addClause -151 
+30 addClause -145 -62 -183 20 
+31 addClause 19 -33 114 
+32 addClause 71 -88 12 
+33 addClause 111 -161 -49 
+34 addClause -21 124 
+35 addClause 69 123 19 
+36 addClause 93 -89 -169 
+37 addClause 148 -33 1 
+38 addClause -83 179 
+39 addClause -55 137 -9 128 151 
+40 addClause -82 -89 -23 
+41 addClause -52 -129 -117 
+42 addClause -13 -88 -156 
+43 addClause 163 -72 149 
+44 addClause 65 -112 -28 
+45 addClause -152 -83 -75 163 
+46 addClause 56 -183 131 
+47 addClause -152 -130 -168 
+48 addClause 170 23 -20 
+49 addClause 93 48 -136 
+50 addClause -63 -27 -74 
+51 addClause 22 93 157 
+52 addClause -103 88 -59 
+53 addClause -27 -104 
+54 addClause 2 43 57 
+55 addClause 119 -90 -147 
+56 addClause -98 82 129 
+57 addClause -1 -4 -52 
+58 addClause 173 -129 141 
+59 addClause 13 94 -57 
+60 addClause 20 138 -80 
+61 addClause 153 12 -185 
+62 addClause -126 6 18 
+63 addClause -133 29 -24 
+64 addClause 21 39 -51 
+65 addClause 72 -111 -90 
+66 addClause 165 -90 -36 -142 
+67 addClause 11 116 -9 
+68 addClause -30 156 -162 
+69 addClause 160 181 66 
+70 addClause 104 132 163 
+71 addClause 97 -66 127 
+72 addClause 143 -81 152 
+73 addClause 158 -69 -57 
+74 addClause -170 -58 -161 
+75 addClause 128 -82 176 
+76 addClause -61 103 -135 
+77 addClause -29 92 -69 
+78 addClause -6 -113 179 
+79 addClause 122 -60 134 
+80 addClause -105 114 -162 
+81 addClause -129 -94 179 
+82 addClause 44 -137 -60 
+83 addClause -65 -68 106 
+84 addClause -67 137 -81 
+85 addClause -159 96 -29 
+86 addClause 158 131 -96 
+87 addClause -22 -121 -104 
+88 addClause -142 182 123 
+89 addClause 183 167 -143 
+90 addClause -149 -16 
+91 addClause -123 -105 162 
+92 addClause 139 10 -139 
+93 addClause -110 100 -50 
+94 addClause 3 -85 116 
+95 addClause -90 -172 23 
+96 addClause -127 9 125 
+97 addClause 168 84 -57 
+98 addClause -70 -2 -78 
+99 addClause -167 -175 
+100 addClause 170 -143 -81 
+101 addClause 6 -37 102 
+102 addClause -107 57 105 -144 
+103 addClause 159 -35 119 
+104 addClause 46 115 -121 
+105 addClause 74 -156 163 
+106 addClause -31 -115 
+107 addClause 54 108 -155 
+108 addClause -15 56 -170 
+109 addClause -131 -94 -117 
+110 addClause 60 115 -97 
+111 addClause 68 80 -20 
+112 addClause 37 -72 -170 
+113 addClause 144 -18 13 
+114 addClause 27 96 -19 
+115 addClause 155 111 -108 
+116 addClause 60 137 170 
+117 addClause -78 87 -72 
+118 addClause 121 18 -15 
+119 addClause -45 -156 95 -177 
+120 addClause -71 -25 
+121 addClause -175 -100 -3 
+122 addClause -73 131 40 
+123 addClause 82 41 -102 
+124 addClause 180 -23 118 
+125 addClause 59 -33 153 
+126 addClause -168 58 96 
+127 addClause -58 -159 -121 -113 
+128 addClause 93 116 -29 
+129 addClause 32 -136 160 
+130 addClause -158 -12 -144 
+131 addClause 173 -27 -116 
+132 addClause 7 
+133 addClause 3 -86 -185 
+134 addClause 99 100 91 
+135 addClause 157 112 -168 
+136 addClause -116 -15 -97 
+137 addClause 87 131 -70 
+138 addClause 143 43 -15 
+139 addClause -125 -176 166 
+140 addClause 167 109 
+141 addClause -69 5 134 
+142 addClause 18 -89 
+143 addClause 102 -62 -80 
+144 addClause -159 44 -167 
+145 addClause -51 144 52 
+146 addClause 112 -169 -137 
+147 addClause 136 140 8 
+148 addClause 52 -178 -81 
+149 addClause -60 37 116 
+150 addClause 113 158 -42 
+151 addClause -68 -59 -42 
+152 addClause -88 -120 -179 
+153 addClause 114 -150 -126 
+154 addClause 118 111 -33 
+155 addClause -110 111 -87 
+156 addClause -143 -96 83 
+157 addClause 147 -181 -75 
+158 addClause 145 -150 -179 
+159 addClause -99 -164 160 
+160 addClause 184 83 -80 
+161 addClause 75 -84 -43 
+162 addClause -90 -77 -52 
+163 addClause 61 40 
+164 addClause 75 160 37 
+165 addClause 146 -41 
+166 addClause 73 149 
+167 addClause 40 -53 77 
+168 addClause 37 -1 -180 
+169 addClause 57 -169 -112 
+170 addClause 131 5 36 
+171 addClause 176 179 168 
+172 addClause 108 -90 3 
+173 addClause -60 8 74 
+174 addClause -118 -112 -116 
+175 addClause 176 -89 
+176 addClause 106 51 -150 
+177 addClause -182 -69 17 
+178 addClause 99 72 125 
+179 addClause 14 141 -16 
+180 addClause -119 160 -37 
+181 addClause -28 -38 -21 
+182 addClause 163 -78 124 
+183 addClause 115 181 146 
+184 addClause 76 28 -84 
+185 addClause -36 -88 -68 
+186 addClause -95 78 175 
+187 addClause 14 -145 -143 
+188 addClause 122 168 -181 
+189 addClause -18 35 -20 
+190 addClause 40 -37 
+191 addClause 4 -59 -124 
+192 addClause 93 -47 
+193 addClause 83 181 88 
+194 addClause 115 39 154 
+195 addClause 24 -155 51 66 
+196 addClause 72 -174 
+197 addClause -97 -72 79 -14 
+198 addClause 65 -137 -84 
+199 addClause 67 170 -61 
+200 addClause 116 -92 164 
+201 addClause -101 -45 -30 
+202 addClause -32 132 
+203 addClause -149 -133 63 
+204 addClause 146 74 -10 
+205 addClause 137 160 149 
+206 addClause 95 35 93 
+207 addClause -7 -181 -62 
+208 addClause 52 -7 61 
+209 addClause -158 -110 175 
+210 addClause 47 -8 116 
+211 addClause 52 -56 77 -64 
+212 addClause -148 106 110 
+213 addClause 2 136 182 
+214 addClause -60 -101 -88 
+215 addClause 161 -114 140 
+216 addClause -27 -138 167 
+217 addClause 101 -53 -131 
+218 addClause 88 -109 126 
+219 addClause 76 90 36 
+220 addClause -120 -177 -52 
+221 addClause 70 125 -9 
+222 addClause 185 32 -53 
+223 addClause 137 -9 -43 
+224 addClause -178 -183 -81 
+225 addClause -113 49 95 
+226 addClause -30 159 -29 
+227 addClause -14 -25 -100 
+228 addClause -66 -42 6 
+229 addClause -67 95 
+230 addClause 45 -161 -139 
+231 addClause -170 -72 42 
+232 addClause -108 -116 137 
+233 addClause 68 -24 19 
+234 addClause -26 -144 -90 
+235 addClause 38 15 
+236 addClause -77 110 -90 
+237 addClause -164 9 -7 
+238 addClause 63 129 -87 
+239 addClause 120 -173 -9 
+240 addClause -17 60 -33 
+241 addClause 70 
+242 addClause -56 116 -1 
+243 addClause 53 -84 -181 
+244 addClause -81 24 -118 
+245 addClause -13 105 -86 177 
+246 addClause 151 -111 133 
+247 addClause -68 175 52 -66 
+248 addClause 20 11 18 
+249 addClause -22 -182 153 
+250 addClause 25 -35 150 
+251 addClause 91 179 25 
+252 addClause -117 -15 -74 
+253 addClause 171 -46 64 -91 
+254 addClause 133 -80 47 
+255 addClause -163 -16 -62 
+256 addClause 36 91 -74 -121 
+257 addClause 55 -25 177 
+258 addClause 97 -32 -34 
+259 addClause -146 -12 78 
+260 addClause 166 168 15 
+261 addClause -127 -57 6 
+262 addClause 148 -86 -125 
+263 addClause 75 -119 -135 
+264 addClause -21 -30 -56 
+265 addClause -114 66 30 
+266 addClause -183 -163 31 
+267 addClause 65 -142 40 
+268 addClause 105 28 164 
+269 addClause 174 -116 118 
+270 addClause -90 -21 -173 
+271 addClause 168 -44 1 
+272 addClause -169 -86 -146 
+273 addClause 52 181 105 
+274 addClause -114 -95 9 
+275 addClause 163 146 
+276 addClause 38 118 -50 
+277 addClause -68 112 46 
+278 addClause -46 -157 -128 
+279 addClause -150 -101 124 
+280 addClause 64 -29 -33 
+281 addClause 80 116 -46 
+282 addClause -100 -129 131 
+283 addClause -8 83 113 
+284 addClause -22 -118 -64 
+285 addClause 173 -16 -113 
+286 addClause 172 111 -26 
+287 addClause -47 127 3 
+288 addClause 125 19 -85 
+289 addClause 64 113 142 
+290 addClause 90 167 61 
+291 addClause 142 -119 174 
+292 addClause 55 132 62 
+293 addClause -50 -164 -32 
+294 addClause -83 127 -144 
+295 addClause 100 -184 -151 
+296 addClause 57 -17 -106 
+297 addClause -151 139 -35 
+298 addClause -11 -9 17 
+299 addClause -37 16 22 
+300 addClause -67 77 6 
+301 addClause 152 24 
+302 addClause 17 142 23 183 
+303 addClause -40 -81 87 
+304 addClause -35 -85 
+305 addClause 48 -169 -80 
+306 addClause -78 57 75 
+307 addClause 31 122 106 
+308 addClause 167 -122 -99 
+309 addClause 105 -169 -74 
+310 addClause -86 63 -139 
+311 addClause 51 -116 -166 
+312 addClause 28 131 36 
+313 addClause 23 -121 
+314 addClause 177 73 -58 
+315 addClause 99 97 104 
+316 addClause -7 -48 63 -70 
+317 addClause -5 76 118 
+318 addClause -128 -170 155 
+319 addClause -55 145 105 
+320 addClause -42 16 
+321 addClause 11 -171 71 
+322 addClause 144 -125 146 
+323 addClause 101 164 -90 
+324 addClause 168 -143 130 
+325 addClause 138 -185 -183 
+326 addClause 126 22 101 -140 
+327 addClause 146 31 -107 65 
+328 addClause -165 171 -157 
+329 addClause -136 127 51 
+330 addClause -162 -156 123 -36 -43 
+331 addClause -149 -37 -12 
+332 addClause 51 160 164 
+333 addClause 56 151 -61 
+334 addClause -14 -174 -172 
+335 addClause 29 -184 125 
+336 addClause -119 -82 -144 
+337 addClause -96 41 
+338 addClause 116 50 -101 
+339 addClause 10 99 -10 
+340 addClause 58 -101 -112 
+341 addClause -141 52 62 
+342 addClause 12 -83 -183 
+343 addClause 5 71 101 
+344 addClause 21 77 146 
+345 addClause 19 162 -30 
+346 addClause 152 -76 17 
+347 addClause -148 -42 147 
+348 addClause 2 55 -176 
+349 addClause 46 -77 112 
+350 addClause 149 -152 -160 
+351 addClause -50 109 106 
+352 addClause 43 131 -37 
+353 addClause -140 41 -100 
+354 addClause -113 115 -123 
+355 addClause -178 72 -54 
+356 addClause -142 167 -129 
+357 addClause -169 -154 98 
+358 addClause 133 104 120 
+359 addClause 153 -173 -21 
+360 addClause -11 68 
+361 addClause 178 179 
+362 addClause 145 18 179 
+363 addClause -185 -124 142 
+364 addClause -27 -118 115 
+365 addClause -185 18 -7 

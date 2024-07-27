@@ -1,0 +1,5 @@
+1 init
+2 using solver Concise
+13 addClause 184 
+16 addClause -3 2 
+365 addClause -185 1 
