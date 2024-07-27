@@ -177,7 +177,7 @@ public class TraceRunner {
                     } else {
                         icnf.add("s UNSATISFIABLE");
                         IVecInt unsatCore = solver.unsatExplanation();
-                        if(unsatCore != null)
+                        if(unsatCore != null && unsatCore.size() > 0)
                             icnf.add("u "+Helper.IVecToString(unsatCore)+"0");
                         else
                             icnf.add("u 0");

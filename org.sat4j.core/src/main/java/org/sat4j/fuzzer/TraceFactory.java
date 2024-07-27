@@ -29,7 +29,6 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.ISolverService;
 import org.sat4j.tools.IdrupSearchListener;
-import org.sat4j.tools.ManyCore;
 
 public class TraceFactory {
 
@@ -44,7 +43,6 @@ public class TraceFactory {
     static double coeficient;
     static ISolver solver;
     static ISolver solver2;
-    static int NUMBER_OF_THREADS;
     static boolean SKIP_PROOF_CHECK;
     static boolean CARDINALITY_CHECK;
     static boolean PASS_MAX_VAR;
@@ -81,8 +79,9 @@ public class TraceFactory {
 
             iteration++;
             icnf.clear();
-            NUMBER_OF_THREADS = 1;
             SKIP_PROOF_CHECK = false;
+            PASS_MAX_VAR = false;
+            CARDINALITY_CHECK = false;
             usedLiterals.clear();
             unitClauses.clear();
 
@@ -109,7 +108,8 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             // Randomly fuzz the internal and external solution counters
-            ENUMERATING = slaveRandomGenerator.nextInt(5) == 0;
+            ENUMERATING = false;
+            //slaveRandomGenerator.nextInt(5) == 0;
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -303,7 +303,6 @@ public class TraceFactory {
                                 } else {
                                     icnf.add("u 0");
                                 }
-                            
                             } else {
                                 icnf.add("u 0");
                             }
@@ -312,7 +311,7 @@ public class TraceFactory {
                             UNSATinstances ++;
                             if(verbose){
                                 System.out.println("c UNSATISFIABLE!");
-                                if(ASSUMPTIONS){
+                                if(ASSUMPTIONS && unsatCore != null){
                                     System.out.println("c EXPLANATION: " + unsatCore);
                                 }
                             }
@@ -475,9 +474,6 @@ public class TraceFactory {
                         System.out.println("c Using solver : "+solverName);
                     }
                     asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);
-                    if(asolver instanceof ManyCore){
-                        NUMBER_OF_THREADS = ((ManyCore) asolver).getSolvers().size();
-                    }
                 } else {
                     asolver = createSolverWithBuildingBlocks((ICDCL) asolver, initRandomGenerator, useAll, addToTrace);
                 }
