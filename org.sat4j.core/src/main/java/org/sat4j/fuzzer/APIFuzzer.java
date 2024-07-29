@@ -27,12 +27,16 @@ public class APIFuzzer {
                     nrTraces = Integer.parseInt(args[i+1]);
                 } else if(args[i].trim().equals("-v")){
                     verbose = true;
+                    i--;
                 } else if(args[i].trim().equals("-p")){
                     skipProofCheck = true;
+                    i--;
                 } else {
                     System.out.println("The only acceptable parameters are :");
                     System.out.println("    -s seed (long)");
-                    System.out.println("    -n nr of Traces (int)");
+                    System.out.println("    -n nrOfTraces (int)");
+                    System.out.println("    -v to run it in verbose mode");
+                    System.out.println("    -p to skip IDRUP Proof check");
                     System.exit(0);
                 }
             }
