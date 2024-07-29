@@ -134,7 +134,7 @@ public class Helper {
     
     public static void createICNF(String ID, ArrayList<String> icnf){
          // Defines the path to the file - currently pointing to the 'trcaes' folder
-        String path = "./icnfs/" + ID + ".icnf";
+        String path = "icnfs/" + ID + ".icnf";
 
         File traceFile = new File(path);
         try {
