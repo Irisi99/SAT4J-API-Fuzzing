@@ -69,7 +69,14 @@ public class TraceFactory {
         int SATinstances = 0;
         int UNSATinstances = 0;
         int ENUMinstances = 0;
+        int TimeOutinstances = 0;
+        int nrStatistics = 0;
+        long Propagations = 0;
+        long Decisions = 0;
+        int Starts = 0;
+        long ReducedLiterals = 0;
         long LearnedClauses = 0;        
+        long LearnedLiterals = 0;        
         long NrConflicts = 0;
         long SolverRunTime = 0;
         long startTime = 0;
@@ -108,8 +115,7 @@ public class TraceFactory {
             trace = new Trace(Long.toHexString(slaveSeed));
 
             // Randomly fuzz the internal and external solution counters
-            ENUMERATING = false;
-            //slaveRandomGenerator.nextInt(5) == 0;
+            ENUMERATING = slaveRandomGenerator.nextInt(5) == 0;
             // Flip assumptions - randomly generate assumptions
             ASSUMPTIONS = slaveRandomGenerator.nextBoolean();
 
@@ -317,21 +323,37 @@ public class TraceFactory {
                             }
                             break;
                         }
+
                     } catch (Exception e) {
-                        Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
+                        if(e.getMessage().contains("Timeout")){
+                            TimeOutinstances++;
+                            if(verbose){
+                                System.out.println("c TIMEOUT!");
+                                e.printStackTrace();
+                            }
+                        } else {
+                            Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
+                        }
                         SKIP_PROOF_CHECK = true;
                         break;
                     }
 
                     // Get statistics from the Solver for the trace and updated the local ones
                     try {
+                        nrStatistics++;
                         stats = solver.getStat();
+                        Propagations += (long) stats.get("propagations");
+                        Decisions += (long) stats.get("decisions");
+                        Starts += (int) stats.get("starts");
+                        ReducedLiterals += (long) stats.get("reducedliterals");
                         LearnedClauses += (long) stats.get("learnedclauses");            
+                        LearnedLiterals += (long) stats.get("learnedliterals");
                         NrConflicts += (long) stats.get("conflicts");
-                        SolverRunTime += endTime - startTime;
+                        SolverRunTime += (endTime - startTime);
                     } catch (Exception e) {
                         if(verbose){
                             System.out.println("c Error when retrieveing Statistics");
+                            e.printStackTrace();
                         }
                     }
                 }
@@ -365,16 +387,23 @@ public class TraceFactory {
             }
         }
 
-        // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses?
+        // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses etc.?
         System.out.println("c Statistics for "+ iteration +" iterations : ");
-        System.out.println("c Error Traces : " + (iteration - SATinstances - UNSATinstances - ENUMinstances));
+        System.out.println("c Error Instances : " + (iteration - SATinstances - UNSATinstances - ENUMinstances - TimeOutinstances));
+        System.out.println("c Timeout Instances : " + TimeOutinstances);
         System.out.println("c SAT Instances : " + SATinstances);
         System.out.println("c UNSAT Instances : " + UNSATinstances);        
         System.out.println("c ENUM Instances : " + ENUMinstances);
-        if(SATinstances != 0 || UNSATinstances != 0){
-            System.out.println("c Average Learned Clauses : " + LearnedClauses/iteration);        
-            System.out.println("c Average Nr Conflicts : " + NrConflicts/iteration);
-            System.out.println("c Average Solver Run Time : " + SolverRunTime/iteration + " milli sec");
+        if(nrStatistics != 0){
+            System.out.println();
+            System.out.println("c Average Propagations : " + Propagations/nrStatistics);
+            System.out.println("c Average Decisions : " + Decisions/nrStatistics);
+            System.out.println("c Average Starts : " + Starts/nrStatistics);
+            System.out.println("c Average Reduced Literals : " + ReducedLiterals/nrStatistics);
+            System.out.println("c Average Learned Clauses : " + LearnedClauses/nrStatistics);       
+            System.out.println("c Average Learned Literals : " + LearnedLiterals/nrStatistics); 
+            System.out.println("c Average Nr Conflicts : " + NrConflicts/nrStatistics);
+            System.out.println("c Average Solver Run Time : " + SolverRunTime/nrStatistics + " milli sec");
         }
     }
 
@@ -626,7 +655,7 @@ public class TraceFactory {
                 log += "/period="+period;
             } else if(restarterName.equals("LubyRestarts")){
                 // Luby style restarts strategy with factor x
-                // “unit run” - hence the actual restart intervals are x, x, 2*x, x, x, 2*x, 4*x, . . .
+                // 'unit run' - hence the actual restart intervals are x, x, 2*x, x, x, 2*x, 4*x, . . .
                 factor = initRandomGenerator.nextInt(1001); //0 - 1000
                 log += "/factor="+factor;
             }
