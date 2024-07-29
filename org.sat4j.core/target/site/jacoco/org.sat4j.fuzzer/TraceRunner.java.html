@@ -1,112 +1,283 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TraceRunner.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.fuzzer</a> &gt; <span class="el_source">TraceRunner.java</span></div><h1>TraceRunner.java</h1><pre class="source lang-java linenums">package org.sat4j.fuzzer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.sat4j.core.ASolverFactory;
 import org.sat4j.core.VecInt;
+import org.sat4j.minisat.core.DataStructureFactory;
+import org.sat4j.minisat.core.ICDCL;
+import org.sat4j.minisat.core.IPhaseSelectionStrategy;
+import org.sat4j.minisat.core.ISimplifier;
+import org.sat4j.minisat.core.LearnedConstraintsEvaluationType;
+import org.sat4j.minisat.core.Solver;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.ISolverService;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.tools.IdrupSearchListener;
 
-<span class="nc" id="L12">public class TraceRunner {</span>
+<span class="nc" id="L23">public class TraceRunner {</span>
+
+    static ArrayList&lt;Integer&gt; usedLiterals;
+    static Boolean SKIP_PROOF_CHECK;
+    static Boolean PROOF_CHECK_DONE;
 
     public static void main(final String[] args) {
 
         // Give name of Trace file or Seed in comandline 
-<span class="nc" id="L17">        String argument = String.valueOf(args[0]);</span>
+<span class="nc" id="L32">        String argument = String.valueOf(args[0]);</span>
 
         // If we pass a Seed then call TraceFactory to generate the Trace file
-<span class="nc bnc" id="L20" title="All 2 branches missed.">        if(!argument.contains(&quot;.txt&quot;)){</span>
-<span class="nc" id="L21">            long value = Long.parseUnsignedLong(argument, 16);</span>
-<span class="nc" id="L22">            TraceFactory.run(value, true, true);</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        if(!argument.contains(&quot;.txt&quot;)){</span>
+<span class="nc" id="L36">            long slaveSeed = 0;</span>
+            try {  
+<span class="nc" id="L38">                slaveSeed = Long.parseLong(argument);</span>
+<span class="nc" id="L39">            } catch(NumberFormatException e){  </span>
+<span class="nc" id="L40">                slaveSeed = Long.parseUnsignedLong(argument, 16);</span>
+<span class="nc" id="L41">            } </span>
+<span class="nc" id="L42">            TraceFactory.run(slaveSeed, 1, false, true, true);</span>
 
         // If we pass the file of a Trace then we read the file and run all the API calls inside
-<span class="nc" id="L25">        } else {</span>
+<span class="nc" id="L45">        } else {</span>
             try {
-<span class="nc" id="L27">                List&lt;String&gt; content = Files.readAllLines(Paths.get(&quot;./traces/&quot; + argument));</span>
-<span class="nc" id="L28">                content.remove(0);</span>
-<span class="nc" id="L29">                runTrace(content, true);</span>
-<span class="nc" id="L30">            } catch (IOException e) {</span>
-<span class="nc" id="L31">                e.printStackTrace();</span>
-<span class="nc" id="L32">            }</span>
+<span class="nc" id="L47">                List&lt;String&gt; content = Files.readAllLines(Paths.get(&quot;./traces/&quot; + argument));</span>
+<span class="nc" id="L48">                String seed = argument.substring(0, argument.indexOf(&quot;.txt&quot;));</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">                if(!seed.contains(&quot;_dd&quot;))</span>
+<span class="nc" id="L50">                    seed = seed.concat(&quot;_2&quot;);</span>
+<span class="nc" id="L51">                runTrace(seed, content, true);</span>
+<span class="nc" id="L52">            } catch (IOException e) {</span>
+<span class="nc" id="L53">                e.printStackTrace();</span>
+<span class="nc" id="L54">            }</span>
         }
-<span class="nc" id="L34">    }</span>
+<span class="nc" id="L56">    }</span>
 
-    public static String runTrace(List&lt;String&gt; apiCalls, boolean verbose){
+    @SuppressWarnings({ &quot;rawtypes&quot;, &quot;unchecked&quot; })
+    public static String runTrace(String seed, List&lt;String&gt; apiCalls, boolean verbose){
 
-<span class="nc" id="L38">        double proba = 0.0;</span>
-<span class="nc" id="L39">        String solverName = &quot;Default&quot;;</span>
-<span class="nc" id="L40">        ISolver solver = initSolver(solverName, proba);</span>
+<span class="nc" id="L61">        PROOF_CHECK_DONE = false;</span>
+<span class="nc" id="L62">        SKIP_PROOF_CHECK = false;</span>
+<span class="nc" id="L63">        usedLiterals = new ArrayList&lt;Integer&gt;();</span>
+
+<span class="nc" id="L65">        ArrayList&lt;String&gt; icnf = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L66">        icnf.add(&quot;p icnf&quot;);</span>
+
+<span class="nc" id="L68">        ISolver solver = Helper.initSolver(&quot;Default&quot;);</span>
+<span class="nc" id="L69">        solver.setSearchListener(new IdrupSearchListener&lt;ISolverService&gt;(&quot;./idrups/&quot;+seed+&quot;.idrup&quot;));</span>
+
+        // Second solver in case it is Enumerating Solutions
+<span class="nc" id="L72">        ISolver solver2 = Helper.initSolver(&quot;Default&quot;);</span>
 
         try{
             // Iterates over all the API calls
-<span class="nc bnc" id="L44" title="All 2 branches missed.">            for(int i = 0; i &lt; apiCalls.size(); i++){</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            for(int i = 0; i &lt; apiCalls.size(); i++){</span>
 
-<span class="nc bnc" id="L46" title="All 2 branches missed.">                if(apiCalls.get(i) == null)</span>
-<span class="nc" id="L47">                    continue;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if(apiCalls.get(i) == null)</span>
+<span class="nc" id="L79">                    continue;</span>
 
-                // If API call is defining the Solver used then parse the name of the solver from the trace
-                // and initialize the specified solver
-<span class="nc bnc" id="L51" title="All 2 branches missed.">                if(apiCalls.get(i).contains(&quot;using solver&quot;)){</span>
-<span class="nc" id="L52">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
-<span class="nc" id="L53">                    solverName = t[t.length-1];</span>
-<span class="nc" id="L54">                    solver = initSolver(solverName, proba);</span>
+                // If API call is defining the Solver used then parse the name of the solver from the trace and initialize the specified solver
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                if(apiCalls.get(i).contains(&quot;using solver&quot;)){</span>
+<span class="nc" id="L83">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L84">                    solver = Helper.initSolver(t[t.length-1]);</span>
+<span class="nc" id="L85">                    solver.setSearchListener(new IdrupSearchListener&lt;ISolverService&gt;(&quot;./idrups/&quot;+seed+&quot;.idrup&quot;));</span>
+<span class="nc" id="L86">                    solver2 = Helper.initSolver(t[t.length-1]);</span>
+<span class="nc bnc" id="L87" title="All 4 branches missed.">                    if (t[t.length-1].equals(&quot;Parallel&quot;) || t[t.length-1].equals(&quot;STUNSAT&quot;)) {</span>
+<span class="nc" id="L88">                        SKIP_PROOF_CHECK = true;</span>
+                    }
+
+                // If API call is defining the Data Structure then parse the name from the trace and update the solver
+<span class="nc bnc" id="L92" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Data Structure Factory&quot;)){</span>
+<span class="nc" id="L93">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L94">                    DataStructureFactory dsf = (DataStructureFactory) Class.forName(&quot;org.sat4j.minisat.constraints.&quot;+t[t.length-1]).getConstructor().newInstance();</span>
+<span class="nc" id="L95">                    ((ICDCL) solver).setDataStructureFactory(dsf);</span>
+<span class="nc" id="L96">                    dsf = (DataStructureFactory) Class.forName(&quot;org.sat4j.minisat.constraints.&quot;+t[t.length-1]).getConstructor().newInstance();</span>
+<span class="nc" id="L97">                    ((ICDCL) solver2).setDataStructureFactory(dsf);</span>
+
+                // If API call is defining the Order then parse the name from the trace and update the solver
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Order&quot;)){</span>
+<span class="nc" id="L101">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L102">                    solver = Helper.setOrder((ICDCL) solver, t[t.length-1]);</span>
+<span class="nc" id="L103">                    solver2 = Helper.setOrder((ICDCL) solver2, t[t.length-1]);</span>
+
+                // If API call is defining the Phase Startegy then parse the name from the trace and update the solver
+<span class="nc bnc" id="L106" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Phase Selection Strategy&quot;)){</span>
+<span class="nc" id="L107">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L108">                    IPhaseSelectionStrategy pss = (IPhaseSelectionStrategy) Class.forName(&quot;org.sat4j.minisat.orders.&quot;+t[t.length-1]).getConstructor().newInstance();</span>
+<span class="nc" id="L109">                    ((ICDCL) solver).getOrder().setPhaseSelectionStrategy(pss);</span>
+<span class="nc" id="L110">                    ((ICDCL) solver2).getOrder().setPhaseSelectionStrategy(pss);</span>
+
+                // If API call is defining the Learning Strategy then parse the name from the trace and update the solver
+<span class="nc bnc" id="L113" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Learning Strategy&quot;)){</span>
+<span class="nc" id="L114">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L115">                    solver = Helper.setLearningStrategy((ICDCL) solver, t[t.length-1]);</span>
+<span class="nc" id="L116">                    solver2 = Helper.setLearningStrategy((ICDCL) solver2, t[t.length-1]);</span>
+
+                // If API call is defining the Restart Strategy then parse the name from the trace and update the solver
+<span class="nc bnc" id="L119" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Restart Strategy&quot;)){</span>
+<span class="nc" id="L120">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L121">                    solver = Helper.setRestartStrategy((ICDCL) solver, t[t.length-1]);</span>
+<span class="nc" id="L122">                    solver2 = Helper.setRestartStrategy((ICDCL) solver2, t[t.length-1]);</span>
+
+                // If API call is defining the Simplification Strategy then parse the name from the trace and update the solver
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Simplification Type&quot;)){</span>
+<span class="nc" id="L126">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L127">                    ISimplifier simplifier = (ISimplifier) Solver.class.getDeclaredField(t[t.length-1]).get(((ICDCL) solver));</span>
+<span class="nc" id="L128">                    ((ICDCL) solver).setSimplifier(simplifier);</span>
+<span class="nc" id="L129">                    simplifier = (ISimplifier) Solver.class.getDeclaredField(t[t.length-1]).get(((ICDCL) solver2));</span>
+<span class="nc" id="L130">                    ((ICDCL) solver2).setSimplifier(simplifier);</span>
+
+                // If API call is defining Search Parameters that will be used during solving then parse them from the trace and update the solver
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Search Params&quot;)){</span>
+<span class="nc" id="L134">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L135">                    solver = Helper.setSearchParams((ICDCL) solver, t[t.length-1]);</span>
+<span class="nc" id="L136">                    solver2 = Helper.setSearchParams((ICDCL) solver2, t[t.length-1]);</span>
+
+                // If API call is defining the Learned Constraints Evaluation Type then parse the name from the trace and update the solver
+<span class="nc bnc" id="L139" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Learned Constraints Evaluation Type&quot;)){</span>
+<span class="nc" id="L140">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L141">                    ((ICDCL) solver).setLearnedConstraintsDeletionStrategy(LearnedConstraintsEvaluationType.valueOf(t[t.length-1]));                    </span>
+<span class="nc" id="L142">                    ((ICDCL) solver2).setLearnedConstraintsDeletionStrategy(LearnedConstraintsEvaluationType.valueOf(t[t.length-1]));                    </span>
+
+                // If API call is setting Random Walk percentage
+<span class="nc bnc" id="L145" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;Random Walk&quot;)){</span>
+<span class="nc" id="L146">                    String[] t = apiCalls.get(i).split(&quot; &quot;);</span>
+<span class="nc" id="L147">                    Double proba = Double.parseDouble(t[t.length-1]);</span>
+<span class="nc" id="L148">                    solver = Helper.setRandomWalk((ICDCL &lt;?&gt;) solver, proba);</span>
+<span class="nc" id="L149">                    solver2 = Helper.setRandomWalk((ICDCL &lt;?&gt;) solver2, proba);</span>
 
                 // If API call is setting DBS simplification to true then set it true for the local solver
-<span class="nc bnc" id="L57" title="All 2 branches missed.">                }else if(apiCalls.get(i).contains(&quot;DBS simplification&quot;)){</span>
-<span class="nc" id="L58">                    solver.setDBSimplificationAllowed(true);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;DBS simplification&quot;)){</span>
+<span class="nc" id="L153">                    solver.setDBSimplificationAllowed(true);</span>
+<span class="nc" id="L154">                    solver2.setDBSimplificationAllowed(true);</span>
 
+                // if API call is passing MAX var to solver
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;newVar&quot;)){</span>
+<span class="nc" id="L158">                    String newVar = apiCalls.get(i).split(&quot; &quot;)[2];</span>
+<span class="nc" id="L159">                    solver.newVar(Integer.parseInt(newVar)); </span>
+<span class="nc" id="L160">                    solver2.newVar(Integer.parseInt(newVar));</span>
+                          
                 // If API call is adding a clause then parse the clause from the trace and create a clause
-<span class="nc bnc" id="L61" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;addClause&quot;)){</span>
-<span class="nc" id="L62">                    solver.addClause(new VecInt(getClause(apiCalls.get(i)))); </span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;addClause&quot;)){</span>
+<span class="nc" id="L164">                    int[] clause = getClause(apiCalls.get(i));</span>
+<span class="nc" id="L165">                    solver.addClause(new VecInt(clause)); </span>
+<span class="nc" id="L166">                    solver2.addClause(new VecInt(clause));</span>
+<span class="nc" id="L167">                    icnf.add(&quot;i &quot;+Helper.clauseToString(clause)+&quot;0&quot;);</span>
                       
                 // If API call is solving with assumptions then parse the assumptions from the trace and try to solve
-<span class="nc bnc" id="L65" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;assuming&quot;)){</span>
-<span class="nc" id="L66">                    solver.isSatisfiable(new VecInt(getClause(apiCalls.get(i))));</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;assuming&quot;)){</span>
+<span class="nc" id="L171">                    int[] assumption = getClause(apiCalls.get(i));</span>
+<span class="nc" id="L172">                    Boolean result = solver.isSatisfiable(new VecInt(assumption));</span>
+<span class="nc" id="L173">                    icnf.add(&quot;q &quot;+Helper.clauseToString(assumption)+&quot;0&quot;);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                    if(result){</span>
+<span class="nc" id="L175">                        icnf.add(&quot;s SATISFIABLE&quot;);</span>
+<span class="nc" id="L176">                        icnf.add(&quot;m &quot;+Helper.clauseToString(solver.model())+&quot;0&quot;);</span>
+                    } else {
+<span class="nc" id="L178">                        icnf.add(&quot;s UNSATISFIABLE&quot;);</span>
+<span class="nc" id="L179">                        IVecInt unsatCore = solver.unsatExplanation();</span>
+<span class="nc bnc" id="L180" title="All 4 branches missed.">                        if(unsatCore != null &amp;&amp; unsatCore.size() &gt; 0)</span>
+<span class="nc" id="L181">                            icnf.add(&quot;u &quot;+Helper.IVecToString(unsatCore)+&quot;0&quot;);</span>
+                        else
+<span class="nc" id="L183">                            icnf.add(&quot;u 0&quot;);</span>
+                    }
 
                 // If API call is trying to solve the formula then try to solve
-<span class="nc bnc" id="L69" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;solve&quot;)){</span>
-<span class="nc" id="L70">                    solver.isSatisfiable();</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;solve&quot;)){</span>
+<span class="nc" id="L188">                    Boolean result = solver.isSatisfiable();</span>
+<span class="nc" id="L189">                    icnf.add(&quot;q 0&quot;);</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">                    if(result){</span>
+<span class="nc" id="L191">                        icnf.add(&quot;s SATISFIABLE&quot;);</span>
+<span class="nc" id="L192">                        icnf.add(&quot;m &quot;+Helper.clauseToString(solver.model())+&quot;0&quot;);</span>
+                    } else {
+<span class="nc" id="L194">                        icnf.add(&quot;s UNSATISFIABLE&quot;);</span>
+<span class="nc" id="L195">                        icnf.add(&quot;u 0&quot;);</span>
+                    }
+
+                // If API call is trying to enumerate solutions then compare internal and external enumerator results
+<span class="nc bnc" id="L199" title="All 2 branches missed.">                } else if(apiCalls.get(i).contains(&quot;enumerating&quot;)){</span>
+
+<span class="nc" id="L201">                    SKIP_PROOF_CHECK = true;</span>
+
+<span class="nc" id="L203">                    long internal = Helper.countSolutionsInt(solver);</span>
+<span class="nc" id="L204">                    long external = Helper.countSolutionsExt(solver2);</span>
+
+<span class="nc" id="L206">                    int numberOfUnusedLiterals = solver.nVars() - usedLiterals.size();</span>
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">                    if(numberOfUnusedLiterals &gt; 0){</span>
+<span class="nc" id="L209">                        long divider = Helper.combinations(numberOfUnusedLiterals, numberOfUnusedLiterals);</span>
+<span class="nc" id="L210">                        external = external/divider;</span>
+                    }
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">                    if(internal != external) {</span>
+<span class="nc" id="L214">                        throw new Exception(&quot;Internal and External Enumerators provided different values : &quot; + internal + &quot; - &quot; + external);</span>
+                    }
                 }
             }
 
-<span class="nc" id="L74">        } catch (Exception e){</span>
-<span class="nc bnc" id="L75" title="All 2 branches missed.">            if(verbose){</span>
-<span class="nc" id="L76">                e.printStackTrace();</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            if(!SKIP_PROOF_CHECK){</span>
+<span class="nc" id="L220">                PROOF_CHECK_DONE = true;</span>
+
+<span class="nc" id="L222">                Helper.createICNF(seed, icnf);</span>
+<span class="nc" id="L223">                Process process = Runtime.getRuntime().exec(&quot;./idrup-check icnfs/&quot;+seed+&quot;.icnf idrups/&quot;+seed+&quot;.idrup&quot;);</span>
+
+<span class="nc" id="L225">                BufferedReader stdError = new BufferedReader(new InputStreamReader(process.getErrorStream()));</span>
+<span class="nc" id="L226">                String error = stdError.readLine();</span>
+                // if(verbose &amp;&amp; error != null){
+                //     System.out.println(error + &quot; &quot; + stdError.readLine());
+                // }
+<span class="nc bnc" id="L230" title="All 4 branches missed.">                if(error != null &amp;&amp; error.contains(&quot;does not satisfy input clause&quot;))</span>
+<span class="nc" id="L231">                    error = &quot;does not satisfy input clause&quot;;</span>
+<span class="nc bnc" id="L232" title="All 4 branches missed.">                else if(error != null &amp;&amp; error.contains(&quot;lemma implication check failed&quot;))</span>
+<span class="nc" id="L233">                    error = &quot;lemma implication check failed&quot;;</span>
+<span class="nc bnc" id="L234" title="All 4 branches missed.">                else if(error != null &amp;&amp; error.contains(&quot;unsatisfiable core implication check failed&quot;))</span>
+<span class="nc" id="L235">                    error = &quot;unsatisfiable core implication check failed&quot;;</span>
+    
+<span class="nc" id="L237">                int exitCode = process.waitFor(); </span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">                if(exitCode != 0){</span>
+<span class="nc" id="L239">                    throw new Exception(&quot;IDRUP Checker failed with code &quot;+exitCode+&quot; --- &quot;+error);</span>
+                } else {
+<span class="nc" id="L241">                    Helper.deleteProof(seed);</span>
+                }
+<span class="nc" id="L243">            } else {</span>
+<span class="nc" id="L244">                Helper.deleteProof(seed);</span>
             }
-            // Return the class of the error that happened while running the trace
-<span class="nc" id="L79">            return e.getClass().getName();</span>
-<span class="nc" id="L80">        }</span>
-<span class="nc" id="L81">        return null;</span>
+
+<span class="nc" id="L247">        } catch (Exception e){</span>
+<span class="nc bnc" id="L248" title="All 2 branches missed.">            if(verbose){</span>
+<span class="nc" id="L249">                e.printStackTrace();</span>
+            }
+
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            if(!PROOF_CHECK_DONE)</span>
+<span class="nc" id="L253">                Helper.deleteProof(seed);</span>
+
+<span class="nc bnc" id="L255" title="All 4 branches missed.">            if(e.getMessage() != null &amp;&amp; e.getMessage().contains(&quot;Enumerators&quot;)){</span>
+<span class="nc" id="L256">                return &quot;Enumeration&quot;;</span>
+<span class="nc bnc" id="L257" title="All 4 branches missed.">            } else if(e.getMessage() != null &amp;&amp; e.getMessage().contains(&quot;IDRUP&quot;)){</span>
+<span class="nc" id="L258">                return e.getMessage();</span>
+<span class="nc bnc" id="L259" title="All 4 branches missed.">            } else if(e.getMessage() != null &amp;&amp; e.getMessage().contains(&quot;Creating Empty clause ?&quot;)){</span>
+<span class="nc" id="L260">                return &quot;Empty Clause&quot;;</span>
+            } else {
+                // Return the class of the error that happened while running the trace
+<span class="nc" id="L263">                return e.getClass().getName();</span>
+            }
+<span class="nc" id="L265">        }</span>
+<span class="nc" id="L266">        return null;</span>
     }
 
-    // Method to initialize solver with the options specified
-    private static ISolver initSolver(String solverName, double proba){
-
-<span class="nc" id="L87">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
-        ISolver asolver;
-
-        // Initialize default solver if no specific solver is passed as argument
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if(solverName == &quot;Default&quot;){</span>
-<span class="nc" id="L92">            asolver = factory.defaultSolver();</span>
-        } else {
-<span class="nc" id="L94">            asolver = factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
-        }
-        
-<span class="nc" id="L97">        return asolver;</span>
-    }
-
-    // Method to parse clause / assumptions from trace 
-    // and remove any redundant information from the trace line such as index
+    // Method to parse clause / assumptions from trace and remove any redundant information from the trace line such as index
     private static int[] getClause(String line){
-<span class="nc" id="L103">        String[] t = line.split(&quot; &quot;);</span>
-<span class="nc" id="L104">        int[] clause = new int[t.length-2];</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        for(int j=2; j &lt; t.length; j++){</span>
-<span class="nc" id="L106">            clause[j-2] = Integer.parseInt(t[j]);</span>
-        }
-<span class="nc" id="L108">        return clause;</span>
-    }
+<span class="nc" id="L271">        String[] t = line.split(&quot; &quot;);</span>
+<span class="nc" id="L272">        int[] clause = new int[t.length-2];</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        for(int j=2; j &lt; t.length; j++){</span>
+<span class="nc" id="L274">            clause[j-2] = Integer.parseInt(t[j]);</span>
 
+<span class="nc bnc" id="L276" title="All 2 branches missed.">            if(!usedLiterals.contains(Math.abs(clause[j-2]))){</span>
+<span class="nc" id="L277">                usedLiterals.add(Math.abs(clause[j-2]));</span>
+            }
+        }
+<span class="nc" id="L280">        return clause;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

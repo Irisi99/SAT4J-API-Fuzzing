@@ -49,7 +49,7 @@ import org.sat4j.specs.Propagatable;
 import org.sat4j.specs.UnitPropagationListener;
 import org.sat4j.specs.VarMapper;
 
-<span class="nc bnc" id="L52" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+<span class="pc bpc" id="L52" title="1 of 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
 public final class MaxWatchCard
         implements Propagatable, Constr, Undoable, Serializable {
 
@@ -93,59 +93,59 @@ public final class MaxWatchCard
      * @param degree
      *            the degree/threshold of the constraint
      */
-<span class="nc" id="L96">    public MaxWatchCard(ILits voc, IVecInt ps, boolean moreThan, int degree) {</span>
+<span class="fc" id="L96">    public MaxWatchCard(ILits voc, IVecInt ps, boolean moreThan, int degree) {</span>
 
         // update fields
-<span class="nc" id="L99">        this.voc = voc;</span>
-<span class="nc" id="L100">        this.degree = degree;</span>
-<span class="nc" id="L101">        this.moreThan = moreThan;</span>
+<span class="fc" id="L99">        this.voc = voc;</span>
+<span class="fc" id="L100">        this.degree = degree;</span>
+<span class="fc" id="L101">        this.moreThan = moreThan;</span>
 
         // Simply ps
-<span class="nc" id="L104">        var index = new int[voc.nVars() * 2 + 2];</span>
-<span class="nc bnc" id="L105" title="All 2 branches missed.">        for (var i = 0; i &lt; index.length; i++) {</span>
-<span class="nc" id="L106">            index[i] = 0;</span>
+<span class="fc" id="L104">        var index = new int[voc.nVars() * 2 + 2];</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        for (var i = 0; i &lt; index.length; i++) {</span>
+<span class="fc" id="L106">            index[i] = 0;</span>
         }
         // Look for opposite literals
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (var i = 0; i &lt; ps.size(); i++) {</span>
-<span class="nc bnc" id="L110" title="All 2 branches missed.">            if (index[ps.get(i) ^ 1] == 0) {</span>
-<span class="nc" id="L111">                index[ps.get(i)]++;</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        for (var i = 0; i &lt; ps.size(); i++) {</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">            if (index[ps.get(i) ^ 1] == 0) {</span>
+<span class="fc" id="L111">                index[ps.get(i)]++;</span>
             } else {
-<span class="nc" id="L113">                index[ps.get(i) ^ 1]--;</span>
+<span class="fc" id="L113">                index[ps.get(i) ^ 1]--;</span>
             }
         }
         // Update degree according to removed literals
-<span class="nc" id="L117">        var ind = 0;</span>
-<span class="nc bnc" id="L118" title="All 2 branches missed.">        while (ind &lt; ps.size()) {</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (index[ps.get(ind)] &gt; 0) {</span>
-<span class="nc" id="L120">                index[ps.get(ind)]--;</span>
-<span class="nc" id="L121">                ind++;</span>
+<span class="fc" id="L117">        var ind = 0;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        while (ind &lt; ps.size()) {</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">            if (index[ps.get(ind)] &gt; 0) {</span>
+<span class="fc" id="L120">                index[ps.get(ind)]--;</span>
+<span class="fc" id="L121">                ind++;</span>
             } else {
-<span class="nc bnc" id="L123" title="All 2 branches missed.">                if ((ps.get(ind) &amp; 1) != 0) {</span>
-<span class="nc" id="L124">                    this.degree--;</span>
+<span class="fc bfc" id="L123" title="All 2 branches covered.">                if ((ps.get(ind) &amp; 1) != 0) {</span>
+<span class="fc" id="L124">                    this.degree--;</span>
                 }
-<span class="nc" id="L126">                ps.set(ind, ps.last());</span>
-<span class="nc" id="L127">                ps.pop();</span>
+<span class="fc" id="L126">                ps.set(ind, ps.last());</span>
+<span class="fc" id="L127">                ps.pop();</span>
             }
         }
 
         // Copy literals to the current constraint
-<span class="nc" id="L132">        this.lits = new int[ps.size()];</span>
-<span class="nc" id="L133">        ps.moveTo(this.lits);</span>
+<span class="fc" id="L132">        this.lits = new int[ps.size()];</span>
+<span class="fc" id="L133">        ps.moveTo(this.lits);</span>
 
         // Normalize the constraint
-<span class="nc" id="L136">        normalize();</span>
+<span class="fc" id="L136">        normalize();</span>
 
         // Watch all non falsified literals
-<span class="nc" id="L139">        this.watchCumul = 0;</span>
+<span class="fc" id="L139">        this.watchCumul = 0;</span>
 
-<span class="nc bnc" id="L141" title="All 2 branches missed.">        for (var i = 0; i &lt; this.lits.length; i++) {</span>
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        for (var i = 0; i &lt; this.lits.length; i++) {</span>
             // Note: those falsified literals will never be unset
-<span class="nc bnc" id="L143" title="All 2 branches missed.">            if (!voc.isFalsified(this.lits[i])) {</span>
-<span class="nc" id="L144">                this.watchCumul++;</span>
-<span class="nc" id="L145">                voc.watch(this.lits[i] ^ 1, this);</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">            if (!voc.isFalsified(this.lits[i])) {</span>
+<span class="fc" id="L144">                this.watchCumul++;</span>
+<span class="fc" id="L145">                voc.watch(this.lits[i] ^ 1, this);</span>
             }
         }
-<span class="nc" id="L148">    }</span>
+<span class="fc" id="L148">    }</span>
 
     /**
      * Calcule la cause de l'affection d'un litt?ral
@@ -157,12 +157,12 @@ public final class MaxWatchCard
      * @see Constr#calcReason(int p, IVecInt outReason)
      */
     public void calcReason(int p, IVecInt outReason) {
-<span class="nc bnc" id="L160" title="All 2 branches missed.">        for (int lit : this.lits) {</span>
-<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (this.voc.isFalsified(lit)) {</span>
-<span class="nc" id="L162">                outReason.push(lit ^ 1);</span>
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        for (int lit : this.lits) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (this.voc.isFalsified(lit)) {</span>
+<span class="fc" id="L162">                outReason.push(lit ^ 1);</span>
             }
         }
-<span class="nc" id="L165">    }</span>
+<span class="fc" id="L165">    }</span>
 
     /**
      * D?termine si la contrainte est apprise
@@ -171,7 +171,7 @@ public final class MaxWatchCard
      * @see Constr#learnt()
      */
     public boolean learnt() {
-<span class="nc" id="L174">        return false;</span>
+<span class="fc" id="L174">        return false;</span>
     }
 
     /**
@@ -204,37 +204,37 @@ public final class MaxWatchCard
             IVecInt ps, boolean moreThan, int degree)
             throws ContradictionException {
 
-<span class="nc" id="L207">        MaxWatchCard outclause = null;</span>
+<span class="fc" id="L207">        MaxWatchCard outclause = null;</span>
 
         // La contrainte ne doit pas ?tre vide
-<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (ps.size() &lt; degree) {</span>
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">        if (ps.size() &lt; degree) {</span>
 <span class="nc" id="L211">            throw new ContradictionException(</span>
                     &quot;Creating trivially inconsistent constraint&quot;); //$NON-NLS-1$
-<span class="nc bnc" id="L213" title="All 2 branches missed.">        } else if (ps.size() == degree) {</span>
-<span class="nc bnc" id="L214" title="All 2 branches missed.">            for (var i = 0; i &lt; ps.size(); i++) {</span>
-<span class="nc bnc" id="L215" title="All 2 branches missed.">                if (!s.enqueue(ps.get(i))) {</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">        } else if (ps.size() == degree) {</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">            for (var i = 0; i &lt; ps.size(); i++) {</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">                if (!s.enqueue(ps.get(i))) {</span>
 <span class="nc" id="L216">                    throw new ContradictionException(</span>
                             &quot;Contradiction with implied literal&quot;); //$NON-NLS-1$
                 }
             }
-<span class="nc" id="L220">            return new UnitClauses(ps);</span>
+<span class="fc" id="L220">            return new UnitClauses(ps);</span>
         }
 
         // On cree la contrainte
-<span class="nc" id="L224">        outclause = new MaxWatchCard(voc, ps, moreThan, degree);</span>
+<span class="fc" id="L224">        outclause = new MaxWatchCard(voc, ps, moreThan, degree);</span>
 
         // Si le degr? est insufisant
-<span class="nc bnc" id="L227" title="All 2 branches missed.">        if (outclause.degree &lt;= 0) {</span>
-<span class="nc" id="L228">            return null;</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">        if (outclause.degree &lt;= 0) {</span>
+<span class="fc" id="L228">            return null;</span>
         }
 
         // Si il n'y a aucune chance de satisfaire la contrainte
-<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (outclause.watchCumul &lt; outclause.degree) {</span>
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">        if (outclause.watchCumul &lt; outclause.degree) {</span>
 <span class="nc" id="L233">            throw new ContradictionException();</span>
         }
 
         // Si les litt?raux observ?s sont impliqu?s
-<span class="nc bnc" id="L237" title="All 2 branches missed.">        if (outclause.watchCumul == outclause.degree) {</span>
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">        if (outclause.watchCumul == outclause.degree) {</span>
 <span class="nc bnc" id="L238" title="All 2 branches missed.">            for (var i = 0; i &lt; outclause.lits.length; i++) {</span>
 <span class="nc bnc" id="L239" title="All 2 branches missed.">                if (!s.enqueue(outclause.lits[i])) {</span>
 <span class="nc" id="L240">                    throw new ContradictionException(</span>
@@ -244,7 +244,7 @@ public final class MaxWatchCard
 <span class="nc" id="L244">            return null;</span>
         }
 
-<span class="nc" id="L247">        return outclause;</span>
+<span class="fc" id="L247">        return outclause;</span>
     }
 
     /**
@@ -252,7 +252,7 @@ public final class MaxWatchCard
      */
     public void normalize() {
         // Gestion du signe
-<span class="nc bnc" id="L255" title="All 2 branches missed.">        if (!this.moreThan) {</span>
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">        if (!this.moreThan) {</span>
             // On multiplie le degr? par -1
 <span class="nc" id="L257">            this.degree = 0 - this.degree;</span>
             // On r?vise chaque litt?ral
@@ -262,7 +262,7 @@ public final class MaxWatchCard
             }
 <span class="nc" id="L263">            this.moreThan = true;</span>
         }
-<span class="nc" id="L265">    }</span>
+<span class="fc" id="L265">    }</span>
 
     /**
      * Propagation de la valeur de v?rit? d'un litt?ral falsifi?
@@ -276,27 +276,27 @@ public final class MaxWatchCard
     public boolean propagate(UnitPropagationListener s, int p) {
 
         // On observe toujours tous les litt?raux
-<span class="nc" id="L279">        this.voc.watch(p, this);</span>
-<span class="nc bnc" id="L280" title="All 4 branches missed.">        assert !this.voc.isFalsified(p);</span>
+<span class="fc" id="L279">        this.voc.watch(p, this);</span>
+<span class="pc bpc" id="L280" title="2 of 4 branches missed.">        assert !this.voc.isFalsified(p);</span>
 
         // Si le litt?ral p est impliqu?
-<span class="nc bnc" id="L283" title="All 2 branches missed.">        if (this.watchCumul == this.degree) {</span>
-<span class="nc" id="L284">            return false;</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">        if (this.watchCumul == this.degree) {</span>
+<span class="fc" id="L284">            return false;</span>
         }
 
         // On met en place la mise ? jour du compteur
-<span class="nc" id="L288">        this.voc.undos(p).push(this);</span>
-<span class="nc" id="L289">        this.watchCumul--;</span>
+<span class="fc" id="L288">        this.voc.undos(p).push(this);</span>
+<span class="fc" id="L289">        this.watchCumul--;</span>
 
         // Si les litt?raux restant sont impliqu?s
-<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (this.watchCumul == this.degree) {</span>
-<span class="nc bnc" id="L293" title="All 2 branches missed.">            for (var q : this.lits) {</span>
-<span class="nc bnc" id="L294" title="All 4 branches missed.">                if (this.voc.isUnassigned(q) &amp;&amp; !s.enqueue(q, this)) {</span>
+<span class="fc bfc" id="L292" title="All 2 branches covered.">        if (this.watchCumul == this.degree) {</span>
+<span class="fc bfc" id="L293" title="All 2 branches covered.">            for (var q : this.lits) {</span>
+<span class="pc bpc" id="L294" title="1 of 4 branches missed.">                if (this.voc.isUnassigned(q) &amp;&amp; !s.enqueue(q, this)) {</span>
 <span class="nc" id="L295">                    return false;</span>
                 }
             }
         }
-<span class="nc" id="L299">        return true;</span>
+<span class="fc" id="L299">        return true;</span>
     }
 
     /**
@@ -315,18 +315,18 @@ public final class MaxWatchCard
      */
     public boolean simplify() {
 
-<span class="nc" id="L318">        var i = 0;</span>
+<span class="fc" id="L318">        var i = 0;</span>
 
         // On esp?re le maximum de la somme
-<span class="nc" id="L321">        var curr = this.watchCumul;</span>
+<span class="fc" id="L321">        var curr = this.watchCumul;</span>
 
         // Pour chaque litt?ral
-<span class="nc bnc" id="L324" title="All 2 branches missed.">        while (i &lt; this.lits.length) {</span>
+<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        while (i &lt; this.lits.length) {</span>
             // On d?cr?mente si l'espoir n'est pas fond?
-<span class="nc bnc" id="L326" title="All 2 branches missed.">            if (this.voc.isUnassigned(this.lits[i++])) {</span>
-<span class="nc" id="L327">                curr--;</span>
-<span class="nc bnc" id="L328" title="All 2 branches missed.">                if (curr &lt; this.degree) {</span>
-<span class="nc" id="L329">                    return false;</span>
+<span class="pc bpc" id="L326" title="1 of 2 branches missed.">            if (this.voc.isUnassigned(this.lits[i++])) {</span>
+<span class="fc" id="L327">                curr--;</span>
+<span class="fc bfc" id="L328" title="All 2 branches covered.">                if (curr &lt; this.degree) {</span>
+<span class="fc" id="L329">                    return false;</span>
                 }
             }
         }
@@ -368,8 +368,8 @@ public final class MaxWatchCard
      *            le litt?ral d?saffect?
      */
     public void undo(int p) {
-<span class="nc" id="L371">        this.watchCumul++;</span>
-<span class="nc" id="L372">    }</span>
+<span class="fc" id="L371">        this.watchCumul++;</span>
+<span class="fc" id="L372">    }</span>
 
     public void setLearnt() {
 <span class="nc" id="L375">        throw new UnsupportedOperationException();</span>
@@ -380,11 +380,11 @@ public final class MaxWatchCard
     }
 
     public int size() {
-<span class="nc" id="L383">        return this.lits.length;</span>
+<span class="fc" id="L383">        return this.lits.length;</span>
     }
 
     public int get(int i) {
-<span class="nc" id="L387">        return this.lits[i];</span>
+<span class="fc" id="L387">        return this.lits[i];</span>
     }
 
     public void assertConstraint(UnitPropagationListener s) {
@@ -406,11 +406,11 @@ public final class MaxWatchCard
     }
 
     public boolean canBePropagatedMultipleTimes() {
-<span class="nc" id="L409">        return false;</span>
+<span class="fc" id="L409">        return false;</span>
     }
 
     public Constr toConstraint() {
-<span class="nc" id="L413">        return this;</span>
+<span class="fc" id="L413">        return this;</span>
     }
 
     public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
@@ -440,7 +440,7 @@ public final class MaxWatchCard
 <span class="nc bnc" id="L440" title="All 6 branches missed.">        return moreThan ? sum &gt;= degree : sum &lt;= degree;</span>
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
 <span class="nc" id="L444">        var nUnsat = 0;</span>
 <span class="nc" id="L445">        Set&lt;Integer&gt; litsSet = new HashSet&lt;&gt;();</span>
 <span class="nc bnc" id="L446" title="All 2 branches missed.">        for (var i : this.lits)</span>

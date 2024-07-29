@@ -180,23 +180,25 @@ import org.sat4j.tools.LexicoDecorator;
     @Override
     public void onSolutionFound(int[] solution) {
 <span class="nc" id="L182">        this.nbSolutions++;</span>
-<span class="nc" id="L183">        this.out.printf(&quot;c Found solution #%d  (%.2f)s%n&quot;, nbSolutions,</span>
-<span class="nc" id="L184">                (System.currentTimeMillis() - beginTime) / 1000.0);</span>
-<span class="nc" id="L185">        this.out.println(&quot;c Value of objective function : &quot;</span>
-<span class="nc" id="L186">                + problem.getObjectiveValue());</span>
-<span class="nc bnc" id="L187" title="All 2 branches missed.">        if (System.getProperty(&quot;printallmodels&quot;) != null) {</span>
-<span class="nc" id="L188">            this.out.println(</span>
-<span class="nc" id="L189">                    new VecInt(solution).toString().replace(&quot;,&quot;, &quot; &quot;) + &quot; 0&quot;);</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">        if (System.getProperty(&quot;silentmode&quot;) == null) {</span>
+<span class="nc" id="L184">            this.out.printf(&quot;c Found solution #%d  (%.2f)s%n&quot;, nbSolutions,</span>
+<span class="nc" id="L185">                    (System.currentTimeMillis() - beginTime) / 1000.0);</span>
+<span class="nc" id="L186">            this.out.println(&quot;c Value of objective function : &quot;</span>
+<span class="nc" id="L187">                    + problem.getObjectiveValue());</span>
         }
-<span class="nc" id="L191">    }</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (System.getProperty(&quot;printallmodels&quot;) != null) {</span>
+<span class="nc" id="L190">            this.out.println(</span>
+<span class="nc" id="L191">                    new VecInt(solution).toString().replace(&quot;,&quot;, &quot; &quot;) + &quot; 0&quot;);</span>
+        }
+<span class="nc" id="L193">    }</span>
 
     @Override
     public void onSolutionFound(IVecInt solution) {
-<span class="nc" id="L195">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L197">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public void setExitCode(ExitCode exitCode) {
-<span class="nc" id="L199">        this.exitCode = exitCode;</span>
-<span class="nc" id="L200">    }</span>
+<span class="nc" id="L201">        this.exitCode = exitCode;</span>
+<span class="nc" id="L202">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

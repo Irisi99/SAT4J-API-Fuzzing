@@ -52,7 +52,7 @@ public class Trace {
     public void toFile() {
 
         // Defines the path to the file - currently pointing to the 'trcaes' folder
-        String path = "./traces/" + ID + ".txt";
+        String path = "traces/" + ID + ".txt";
 
         File traceFile = new File(path);
         try {

@@ -64,8 +64,8 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
     }
 
     public void setDBSimplificationAllowed(boolean status) {
-<span class="fc" id="L67">        this.solver.setDBSimplificationAllowed(status);</span>
-<span class="fc" id="L68">    }</span>
+<span class="nc" id="L67">        this.solver.setDBSimplificationAllowed(status);</span>
+<span class="nc" id="L68">    }</span>
 
     /*
      * (non-Javadoc)
@@ -92,7 +92,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.specs.IProblem#isSatisfiable(boolean)
      */
     public boolean isSatisfiable(boolean global) throws TimeoutException {
-<span class="nc" id="L95">        return this.solver.isSatisfiable(global);</span>
+<span class="fc" id="L95">        return this.solver.isSatisfiable(global);</span>
     }
 
     /*
@@ -103,7 +103,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      */
     public boolean isSatisfiable(IVecInt assumps, boolean global)
             throws TimeoutException {
-<span class="fc" id="L106">        return this.solver.isSatisfiable(assumps, global);</span>
+<span class="nc" id="L106">        return this.solver.isSatisfiable(assumps, global);</span>
     }
 
     /*
@@ -204,7 +204,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#addClause(org.sat4j.datatype.VecInt)
      */
     public IConstr addClause(IVecInt literals) throws ContradictionException {
-<span class="fc" id="L207">        return this.solver.addClause(literals);</span>
+<span class="nc" id="L207">        return this.solver.addClause(literals);</span>
     }
 
     public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
@@ -226,7 +226,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#discardCurrentModel()
      */
     public IConstr discardCurrentModel() throws ContradictionException {
-<span class="nc" id="L229">        return this.solver.discardCurrentModel();</span>
+<span class="fc" id="L229">        return this.solver.discardCurrentModel();</span>
     }
 
     /*
@@ -245,7 +245,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      */
     public IConstr addAtMost(IVecInt literals, int degree)
             throws ContradictionException {
-<span class="fc" id="L248">        return this.solver.addAtMost(literals, degree);</span>
+<span class="nc" id="L248">        return this.solver.addAtMost(literals, degree);</span>
     }
 
     /*
@@ -291,8 +291,8 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.ISolver#setTimeout(int)
      */
     public void setTimeout(int t) {
-<span class="fc" id="L294">        this.solver.setTimeout(t);</span>
-<span class="fc" id="L295">    }</span>
+<span class="nc" id="L294">        this.solver.setTimeout(t);</span>
+<span class="nc" id="L295">    }</span>
 
     /*
      * (non-Javadoc)
@@ -374,7 +374,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @see org.sat4j.specs.ISolver#getStat()
      */
     public Map&lt;String, Number&gt; getStat() {
-<span class="fc" id="L377">        return this.solver.getStat();</span>
+<span class="nc" id="L377">        return this.solver.getStat();</span>
     }
 
     /**
@@ -410,7 +410,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @since 2.2
      */
     public boolean isVerbose() {
-<span class="fc" id="L413">        return this.solver.isVerbose();</span>
+<span class="nc" id="L413">        return this.solver.isVerbose();</span>
     }
 
     /**
@@ -460,7 +460,7 @@ public abstract class SolverDecorator&lt;T extends ISolver&gt; implements ISolve
      * @since 2.3.1
      */
     public int[] modelWithInternalVariables() {
-<span class="fc" id="L463">        return this.solver.modelWithInternalVariables();</span>
+<span class="nc" id="L463">        return this.solver.modelWithInternalVariables();</span>
     }
 
     /**

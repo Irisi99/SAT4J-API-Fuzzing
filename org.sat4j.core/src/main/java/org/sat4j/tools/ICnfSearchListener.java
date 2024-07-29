@@ -86,21 +86,25 @@ public class ICnfSearchListener<S extends ISolverService>
         if (result == Lbool.FALSE) {
             out.println("s UNSATISFIABLE");
             out.print("u ");
-            IVecInt explanation = solverService.unsatExplanation();
-            if (explanation != null) {
-                for (var i = 0; i < explanation.size(); i++) {
-                    out.print(explanation.get(i));
-                    out.print(" ");
+            if(solverService != null){
+                IVecInt explanation = solverService.unsatExplanation();
+                if (explanation != null) {
+                    for (var i = 0; i < explanation.size(); i++) {
+                        out.print(explanation.get(i));
+                        out.print(" ");
+                    }
                 }
             }
             out.println("0");
         } else if (result == Lbool.TRUE) {
             out.println("s SATISFIABLE");
             out.print("m ");
-            int[] model = solverService.model();
-            for (var i = 0; i < model.length; i++) {
-                out.print(model[i]);
-                out.print(" ");
+            if(solverService != null){
+                int[] model = solverService.model();
+                for (var i = 0; i < model.length; i++) {
+                    out.print(model[i]);
+                    out.print(" ");
+                }
             }
             out.println("0");
         }

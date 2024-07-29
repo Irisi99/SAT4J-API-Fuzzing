@@ -151,7 +151,7 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
      * For learnt clauses only @author leberre
      */
     public boolean locked() {
-<span class="fc bfc" id="L154" title="All 2 branches covered.">        return this.voc.getReason(this.lits[0]) == this;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        return this.voc.getReason(this.lits[0]) == this;</span>
     }
 
     /**
@@ -314,24 +314,30 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
 <span class="nc" id="L314">        return false;</span>
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-<span class="nc bnc" id="L318" title="All 2 branches missed.">        for (int i = trail.size() - 1; i &gt;= 0; i--) {</span>
-<span class="nc bnc" id="L319" title="All 2 branches missed.">            if (var(trail.get(i)) == var(this.lits[0])) {</span>
-<span class="nc" id="L320">                return i;</span>
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+            int decisionLevel, ILits voc) {
+<span class="pc bpc" id="L319" title="1 of 2 branches missed.">        for (int i = trail.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L320" title="All 2 branches covered.">            if (var(trail.get(i)) == var(this.lits[0])) {</span>
+<span class="fc" id="L321">                return i;</span>
             }
         }
-<span class="nc" id="L323">        return -1;</span>
+<span class="nc" id="L324">        return -1;</span>
     }
 
     @Override
     public String dump() {
-<span class="nc" id="L328">        var stb = new StringBuilder();</span>
-<span class="nc bnc" id="L329" title="All 2 branches missed.">        for (int p : lits) {</span>
-<span class="nc" id="L330">            stb.append(LiteralsUtils.toDimacs(p));</span>
-<span class="nc" id="L331">            stb.append(' ');</span>
+<span class="nc" id="L329">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L330" title="All 2 branches missed.">        for (int p : lits) {</span>
+<span class="nc" id="L331">            stb.append(LiteralsUtils.toDimacs(p));</span>
+<span class="nc" id="L332">            stb.append(' ');</span>
         }
-<span class="nc" id="L333">        stb.append('0');</span>
-<span class="nc" id="L334">        return stb.toString();</span>
+<span class="nc" id="L334">        stb.append('0');</span>
+<span class="nc" id="L335">        return stb.toString();</span>
+    }
+
+    @Override
+    public int getFirstFalsifiedLiteralIndexForReason() {
+<span class="nc" id="L340">        return 1;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

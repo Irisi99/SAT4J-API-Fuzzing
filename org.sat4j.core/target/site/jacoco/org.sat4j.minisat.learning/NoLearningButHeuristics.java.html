@@ -31,6 +31,7 @@ package org.sat4j.minisat.learning;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.minisat.core.DataStructureFactory;
+import org.sat4j.minisat.core.Solver;
 import org.sat4j.specs.Constr;
 
 /**
@@ -41,13 +42,28 @@ import org.sat4j.specs.Constr;
  * @author leberre
  */
 @Feature(value = &quot;learning&quot;, parent = &quot;expert&quot;)
-<span class="fc" id="L44">public final class NoLearningButHeuristics&lt;D extends DataStructureFactory&gt;</span>
+<span class="fc" id="L45">public final class NoLearningButHeuristics&lt;D extends DataStructureFactory&gt;</span>
         extends AbstractLearning&lt;D&gt; {
 
     private static final long serialVersionUID = 1L;
 
+    private DataStructureFactory dsf;
+
+    public void setDataStructureFactory(DataStructureFactory dsf) {
+<span class="fc" id="L53">        this.dsf = dsf;</span>
+<span class="fc" id="L54">    }</span>
+
+    @Override
+    public void setSolver(Solver&lt;D&gt; s) {
+<span class="fc" id="L58">        super.setSolver(s);</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (s != null) {</span>
+<span class="fc" id="L60">            this.dsf = s.getDSFactory();</span>
+        }
+<span class="fc" id="L62">    }</span>
+
     public void learns(Constr reason) {
-<span class="fc" id="L50">        claBumpActivity(reason);</span>
-<span class="fc" id="L51">    }</span>
+<span class="fc" id="L65">        claBumpActivity(reason);</span>
+<span class="fc" id="L66">        this.dsf.ignoreConstraint(reason);</span>
+<span class="fc" id="L67">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -116,6 +116,10 @@ public abstract class AbstractDataStructureFactory
 <span class="fc" id="L116">        this.learner.learn(constr);</span>
 <span class="fc" id="L117">    }</span>
 
+    public void ignoreConstraint(Constr constr) {
+<span class="fc" id="L120">        this.learner.ignore(constr);</span>
+<span class="fc" id="L121">    }</span>
+
     /*
      * (non-Javadoc)
      * 
@@ -125,12 +129,12 @@ public abstract class AbstractDataStructureFactory
      */
     public Constr createCardinalityConstraint(IVecInt literals, int degree)
             throws ContradictionException {
-<span class="nc" id="L128">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L132">        throw new UnsupportedOperationException();</span>
     }
 
     public Constr createUnregisteredCardinalityConstraint(IVecInt literals,
             int degree) {
-<span class="nc" id="L133">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L137">        throw new UnsupportedOperationException();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

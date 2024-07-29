@@ -339,15 +339,15 @@ public final class VecInt implements IVecInt {
      */
     @Override
     public String toString() {
-<span class="nc" id="L342">        var stb = new StringBuilder();</span>
-<span class="nc bnc" id="L343" title="All 2 branches missed.">        for (var i = 0; i &lt; this.nbelem - 1; i++) {</span>
-<span class="nc" id="L344">            stb.append(this.myarray[i]);</span>
-<span class="nc" id="L345">            stb.append(&quot;,&quot;); //$NON-NLS-1$</span>
+<span class="fc" id="L342">        var stb = new StringBuilder();</span>
+<span class="fc bfc" id="L343" title="All 2 branches covered.">        for (var i = 0; i &lt; this.nbelem - 1; i++) {</span>
+<span class="fc" id="L344">            stb.append(this.myarray[i]);</span>
+<span class="fc" id="L345">            stb.append(&quot;,&quot;); //$NON-NLS-1$</span>
         }
-<span class="nc bnc" id="L347" title="All 2 branches missed.">        if (this.nbelem &gt; 0) {</span>
-<span class="nc" id="L348">            stb.append(this.myarray[this.nbelem - 1]);</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">        if (this.nbelem &gt; 0) {</span>
+<span class="fc" id="L348">            stb.append(this.myarray[this.nbelem - 1]);</span>
         }
-<span class="nc" id="L350">        return stb.toString();</span>
+<span class="fc" id="L350">        return stb.toString();</span>
     }
 
     void selectionSort(int from, int to) {
@@ -369,25 +369,25 @@ public final class VecInt implements IVecInt {
 
     void sort(int from, int to) {
 <span class="fc" id="L371">        int width = to - from;</span>
-<span class="fc bfc" id="L372" title="All 2 branches covered.">        if (width &lt;= 15) {</span>
+<span class="pc bpc" id="L372" title="1 of 2 branches missed.">        if (width &lt;= 15) {</span>
 <span class="fc" id="L373">            selectionSort(from, to);</span>
         } else {
-<span class="fc" id="L375">            final int[] locarray = this.myarray;</span>
-<span class="fc" id="L376">            int pivot = locarray[width / 2 + from];</span>
+<span class="nc" id="L375">            final int[] locarray = this.myarray;</span>
+<span class="nc" id="L376">            int pivot = locarray[width / 2 + from];</span>
             int tmp;
-<span class="fc" id="L378">            int i = from - 1;</span>
-<span class="fc" id="L379">            int j = to;</span>
+<span class="nc" id="L378">            int i = from - 1;</span>
+<span class="nc" id="L379">            int j = to;</span>
 
             for (;;) {
                 do {
-<span class="fc" id="L383">                    i++;</span>
-<span class="fc bfc" id="L384" title="All 2 branches covered.">                } while (locarray[i] &lt; pivot);</span>
+<span class="nc" id="L383">                    i++;</span>
+<span class="nc bnc" id="L384" title="All 2 branches missed.">                } while (locarray[i] &lt; pivot);</span>
                 do {
-<span class="fc" id="L386">                    j--;</span>
-<span class="fc bfc" id="L387" title="All 2 branches covered.">                } while (pivot &lt; locarray[j]);</span>
+<span class="nc" id="L386">                    j--;</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">                } while (pivot &lt; locarray[j]);</span>
 
-<span class="pc bpc" id="L389" title="1 of 2 branches missed.">                if (i &gt;= j) {</span>
-<span class="fc" id="L390">                    break;</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">                if (i &gt;= j) {</span>
+<span class="nc" id="L390">                    break;</span>
                 }
 
 <span class="nc" id="L393">                tmp = locarray[i];</span>
@@ -395,8 +395,8 @@ public final class VecInt implements IVecInt {
 <span class="nc" id="L395">                locarray[j] = tmp;</span>
             }
 
-<span class="fc" id="L398">            sort(from, i);</span>
-<span class="fc" id="L399">            sort(i, to);</span>
+<span class="nc" id="L398">            sort(from, i);</span>
+<span class="nc" id="L399">            sort(i, to);</span>
         }
 <span class="fc" id="L401">    }</span>
 
@@ -410,8 +410,8 @@ public final class VecInt implements IVecInt {
     public void sortUnique() {
         int i, j;
         int last;
-<span class="fc bfc" id="L413" title="All 2 branches covered.">        if (this.nbelem == 0) {</span>
-<span class="fc" id="L414">            return;</span>
+<span class="pc bpc" id="L413" title="1 of 2 branches missed.">        if (this.nbelem == 0) {</span>
+<span class="nc" id="L414">            return;</span>
         }
 
 <span class="fc" id="L417">        sort(0, this.nbelem);</span>
@@ -531,7 +531,7 @@ public final class VecInt implements IVecInt {
      * @since 2.1
      */
     public int[] toArray() {
-<span class="fc" id="L534">        return this.myarray;</span>
+<span class="nc" id="L534">        return this.myarray;</span>
     }
 
     /**

@@ -39,12 +39,12 @@ import org.sat4j.specs.IVecInt;
  * @author leberre To change the template for this generated type comment go to
  *         Window - Preferences - Java - Code Generation - Code and Comments
  */
-<span class="nc" id="L42">public class CardinalityDataStructure extends AbstractCardinalityDataStructure {</span>
+<span class="fc" id="L42">public class CardinalityDataStructure extends AbstractCardinalityDataStructure {</span>
 
     private static final long serialVersionUID = 1L;
 
     public Constr createUnregisteredClause(IVecInt literals) {
-<span class="nc" id="L47">        return new LearntWLClause(literals, getVocabulary());</span>
+<span class="fc" id="L47">        return new LearntWLClause(literals, getVocabulary());</span>
     }
 
     /*
@@ -55,7 +55,7 @@ import org.sat4j.specs.IVecInt;
      * .VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L58">        return AtLeast.atLeastNew(this.solver, getVocabulary(), literals, 1);</span>
+<span class="fc" id="L58">        return AtLeast.atLeastNew(this.solver, getVocabulary(), literals, 1);</span>
     }
 
     /*

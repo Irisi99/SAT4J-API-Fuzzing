@@ -49,13 +49,13 @@ final class GlucoseConflictTimer extends ConflictTimerAdapter {
 
     @Override
     public void run() {
-<span class="fc" id="L52">        this.nbconflict += bound();</span>
-<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (this.nbconflict &gt;= this.nextbound) {</span>
-<span class="fc" id="L54">            this.nextbound += INC_CLAUSE;</span>
-<span class="fc" id="L55">            this.nbconflict = 0;</span>
-<span class="fc" id="L56">            getSolver().setNeedToReduceDB(true);</span>
+<span class="nc" id="L52">        this.nbconflict += bound();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">        if (this.nbconflict &gt;= this.nextbound) {</span>
+<span class="nc" id="L54">            this.nextbound += INC_CLAUSE;</span>
+<span class="nc" id="L55">            this.nbconflict = 0;</span>
+<span class="nc" id="L56">            getSolver().setNeedToReduceDB(true);</span>
         }
-<span class="fc" id="L58">    }</span>
+<span class="nc" id="L58">    }</span>
 
     @Override
     public void reset() {

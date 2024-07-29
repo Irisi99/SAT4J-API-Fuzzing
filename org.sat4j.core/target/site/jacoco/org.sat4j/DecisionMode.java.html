@@ -188,27 +188,29 @@ import org.sat4j.tools.Backbone;
     public void onSolutionFound(int[] solution) {
 <span class="nc" id="L189">        this.nbSolutionFound++;</span>
 <span class="nc" id="L190">        this.exitCode = ExitCode.SATISFIABLE;</span>
-<span class="nc" id="L191">        this.out.printf(&quot;c Found solution #%d  (%.2f)s%n&quot;, nbSolutionFound,</span>
-<span class="nc" id="L192">                (System.currentTimeMillis() - beginTime) / 1000.0);</span>
-<span class="nc bnc" id="L193" title="All 2 branches missed.">        if (System.getProperty(&quot;printallmodels&quot;) != null) {</span>
-<span class="nc" id="L194">            printSolution(solver, out, reader, solution);</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">        if (System.getProperty(&quot;silentmode&quot;) == null) {</span>
+<span class="nc" id="L192">            this.out.printf(&quot;c Found solution #%d  (%.2f)s%n&quot;, nbSolutionFound,</span>
+<span class="nc" id="L193">                    (System.currentTimeMillis() - beginTime) / 1000.0);</span>
         }
-<span class="nc" id="L196">    }</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (System.getProperty(&quot;printallmodels&quot;) != null) {</span>
+<span class="nc" id="L196">            printSolution(solver, out, reader, solution);</span>
+        }
+<span class="nc" id="L198">    }</span>
 
     @Override
     public void onSolutionFound(IVecInt solution) {
-<span class="nc" id="L200">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L202">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     @Override
     public void onUnsatTermination() {
-<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (this.exitCode == ExitCode.SATISFIABLE) {</span>
-<span class="nc" id="L206">            this.exitCode = ExitCode.OPTIMUM_FOUND;</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">        if (this.exitCode == ExitCode.SATISFIABLE) {</span>
+<span class="nc" id="L208">            this.exitCode = ExitCode.OPTIMUM_FOUND;</span>
         }
-<span class="nc" id="L208">    }</span>
+<span class="nc" id="L210">    }</span>
 
     public void setExitCode(ExitCode exitCode) {
-<span class="nc" id="L211">        this.exitCode = exitCode;</span>
-<span class="nc" id="L212">    }</span>
+<span class="nc" id="L213">        this.exitCode = exitCode;</span>
+<span class="nc" id="L214">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

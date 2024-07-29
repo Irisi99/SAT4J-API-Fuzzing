@@ -39,7 +39,7 @@ public class TraceRunner {
             } catch(NumberFormatException e){  
                 slaveSeed = Long.parseUnsignedLong(argument, 16);
             } 
-            TraceFactory.run(slaveSeed, 1, true, true);
+            TraceFactory.run(slaveSeed, 1, false, true, true);
 
         // If we pass the file of a Trace then we read the file and run all the API calls inside
         } else {

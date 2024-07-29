@@ -37,11 +37,13 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
+import org.sat4j.specs.IVecInt;
 
 /**
  * A reader is responsible to feed an ISolver from a text file and to convert
@@ -50,7 +52,7 @@ import org.sat4j.specs.IProblem;
  * @author leberre
  */
 @Feature(value = &quot;reader&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L53">public abstract class Reader implements Serializable {</span>
+<span class="nc" id="L55">public abstract class Reader implements Serializable {</span>
 
     /**
      * 
@@ -74,21 +76,21 @@ import org.sat4j.specs.IProblem;
      */
     public IProblem parseInstance(final String filename)
             throws ParseFormatException, IOException, ContradictionException {
-<span class="nc" id="L77">        InputStream in = null;</span>
+<span class="nc" id="L79">        InputStream in = null;</span>
         try {
-<span class="nc" id="L79">            in = getInputStreamFromFilename(filename);</span>
+<span class="nc" id="L81">            in = getInputStreamFromFilename(filename);</span>
             IProblem problem;
-<span class="nc" id="L81">            problem = parseInstance(in);</span>
-<span class="nc" id="L82">            return problem;</span>
-<span class="nc" id="L83">        } catch (IllegalStateException e) {</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">            if (e.getCause() instanceof ContradictionException) {</span>
-<span class="nc" id="L85">                throw ((ContradictionException) e.getCause());</span>
+<span class="nc" id="L83">            problem = parseInstance(in);</span>
+<span class="nc" id="L84">            return problem;</span>
+<span class="nc" id="L85">        } catch (IllegalStateException e) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">            if (e.getCause() instanceof ContradictionException) {</span>
+<span class="nc" id="L87">                throw ((ContradictionException) e.getCause());</span>
             } else {
-<span class="nc" id="L87">                throw e;</span>
+<span class="nc" id="L89">                throw e;</span>
             }
         } finally {
-<span class="nc bnc" id="L90" title="All 2 branches missed.">            if (in != null) {</span>
-<span class="nc" id="L91">                in.close();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (in != null) {</span>
+<span class="nc" id="L93">                in.close();</span>
             }
         }
     }
@@ -109,23 +111,23 @@ import org.sat4j.specs.IProblem;
     public static InputStream getInputStreamFromFilename(final String filename)
             throws IOException {
         InputStream in;
-<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (filename.startsWith(&quot;http://&quot;)) {</span>
-<span class="nc" id="L113">            in = new URL(filename).openStream();</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (filename.startsWith(&quot;http://&quot;)) {</span>
+<span class="nc" id="L115">            in = new URL(filename).openStream();</span>
         } else {
-<span class="nc" id="L115">            in = new FileInputStream(filename);</span>
+<span class="nc" id="L117">            in = new FileInputStream(filename);</span>
         }
-<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (filename.endsWith(&quot;.gz&quot;)) {</span>
-<span class="nc" id="L118">            in = new GZIPInputStream(in);</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">        } else if (filename.endsWith(&quot;.bz2&quot;)) {</span>
-<span class="nc" id="L120">            in.close();</span>
-<span class="nc" id="L121">            in = Runtime.getRuntime().exec(&quot;bunzip2 -c &quot; + filename)</span>
-<span class="nc" id="L122">                    .getInputStream();</span>
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        } else if (filename.endsWith(&quot;.lzma&quot;)) {</span>
-<span class="nc" id="L124">            in.close();</span>
-<span class="nc" id="L125">            in = Runtime.getRuntime().exec(&quot;lzma -d -c &quot; + filename)</span>
-<span class="nc" id="L126">                    .getInputStream();</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (filename.endsWith(&quot;.gz&quot;)) {</span>
+<span class="nc" id="L120">            in = new GZIPInputStream(in);</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        } else if (filename.endsWith(&quot;.bz2&quot;)) {</span>
+<span class="nc" id="L122">            in.close();</span>
+<span class="nc" id="L123">            in = Runtime.getRuntime().exec(&quot;bunzip2 -c &quot; + filename)</span>
+<span class="nc" id="L124">                    .getInputStream();</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        } else if (filename.endsWith(&quot;.lzma&quot;)) {</span>
+<span class="nc" id="L126">            in.close();</span>
+<span class="nc" id="L127">            in = Runtime.getRuntime().exec(&quot;lzma -d -c &quot; + filename)</span>
+<span class="nc" id="L128">                    .getInputStream();</span>
         }
-<span class="nc" id="L128">        return in;</span>
+<span class="nc" id="L130">        return in;</span>
     }
 
     /**
@@ -159,16 +161,16 @@ import org.sat4j.specs.IProblem;
     public abstract void decode(int[] model, PrintWriter out);
 
     public boolean isVerbose() {
-<span class="nc" id="L162">        return this.verbose;</span>
+<span class="nc" id="L164">        return this.verbose;</span>
     }
 
     public void setVerbosity(boolean b) {
-<span class="nc" id="L166">        this.verbose = b;</span>
-<span class="nc" id="L167">    }</span>
+<span class="nc" id="L168">        this.verbose = b;</span>
+<span class="nc" id="L169">    }</span>
 
-<span class="nc" id="L169">    private boolean verbose = false;</span>
+<span class="nc" id="L171">    private boolean verbose = false;</span>
 
-<span class="nc" id="L171">    private boolean useMapping = false;</span>
+<span class="nc" id="L173">    private boolean useMapping = false;</span>
 
     /**
      * Does the reader found a mapping.
@@ -177,7 +179,7 @@ import org.sat4j.specs.IProblem;
      * @since 2.3.6
      */
     public boolean hasAMapping() {
-<span class="nc" id="L180">        return false;</span>
+<span class="nc" id="L182">        return false;</span>
     }
 
     /**
@@ -186,7 +188,7 @@ import org.sat4j.specs.IProblem;
      * @return the mapping varid-&amp;gt;String found in the problem.
      */
     public Map&lt;Integer, String&gt; getMapping() {
-<span class="nc" id="L189">        return null;</span>
+<span class="nc" id="L191">        return null;</span>
     }
 
     /**
@@ -197,7 +199,7 @@ import org.sat4j.specs.IProblem;
      * @since 2.3.6
      */
     public boolean isUsingMapping() {
-<span class="nc" id="L200">        return this.useMapping;</span>
+<span class="nc" id="L202">        return this.useMapping;</span>
     }
 
     /**
@@ -209,7 +211,18 @@ import org.sat4j.specs.IProblem;
      * @since 2.3.6
      */
     public void setUseMapping(boolean b) {
-<span class="nc" id="L212">        this.useMapping = b;</span>
-<span class="nc" id="L213">    }</span>
+<span class="nc" id="L214">        this.useMapping = b;</span>
+<span class="nc" id="L215">    }</span>
+
+    /**
+     * Access projection variables if any
+     * 
+     * @return a set of literals of interest (i.e. only the truth value of those
+     *         literals matters)
+     * @since 3.0.0
+     */
+    public Optional&lt;IVecInt&gt; getSubsetOfVariable() {
+<span class="nc" id="L225">        return Optional.empty();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

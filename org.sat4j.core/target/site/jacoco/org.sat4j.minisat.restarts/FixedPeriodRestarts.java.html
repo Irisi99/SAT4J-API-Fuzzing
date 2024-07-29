@@ -35,7 +35,7 @@ import org.sat4j.minisat.core.SearchParams;
 import org.sat4j.minisat.core.SolverStats;
 
 @Feature(value = &quot;restarts&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L38">public class FixedPeriodRestarts implements RestartStrategy {</span>
+<span class="fc" id="L38">public class FixedPeriodRestarts implements RestartStrategy {</span>
 
     /**
      * 
@@ -51,16 +51,16 @@ import org.sat4j.minisat.core.SolverStats;
 <span class="nc" id="L51">    }</span>
 
     public void newConflict() {
-<span class="nc" id="L54">        conflictCount++;</span>
-<span class="nc" id="L55">    }</span>
+<span class="fc" id="L54">        conflictCount++;</span>
+<span class="fc" id="L55">    }</span>
 
     @Override
     public void init(SearchParams params, SolverStats stats) {
-<span class="nc" id="L59">        this.conflictCount = 0;</span>
-<span class="nc" id="L60">    }</span>
+<span class="fc" id="L59">        this.conflictCount = 0;</span>
+<span class="fc" id="L60">    }</span>
 
     public boolean shouldRestart() {
-<span class="nc bnc" id="L63" title="All 2 branches missed.">        return conflictCount &gt;= period;</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        return conflictCount &gt;= period;</span>
     }
 
     @Override
@@ -73,8 +73,8 @@ import org.sat4j.minisat.core.SolverStats;
     }
 
     public void setPeriod(long period) {
-<span class="nc" id="L76">        this.period = period;</span>
-<span class="nc" id="L77">    }</span>
+<span class="fc" id="L76">        this.period = period;</span>
+<span class="fc" id="L77">    }</span>
 
     @Override
     public String toString() {

@@ -160,13 +160,13 @@ import org.sat4j.specs.Propagatable;
 <span class="nc" id="L160">    }</span>
 
     public void ensurePool(int howmany) {
-<span class="nc bnc" id="L163" title="All 2 branches missed.">        if (howmany &gt;= this.pool.length) {</span>
-<span class="nc" id="L164">            init(Math.max(howmany, this.pool.length &lt;&lt; 1));</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (howmany &gt;= this.pool.length) {</span>
+<span class="fc" id="L164">            init(Math.max(howmany, this.pool.length &lt;&lt; 1));</span>
         }
-<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (this.maxvarid &lt; howmany) {</span>
-<span class="nc" id="L167">            this.maxvarid = howmany;</span>
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (this.maxvarid &lt; howmany) {</span>
+<span class="fc" id="L167">            this.maxvarid = howmany;</span>
         }
-<span class="nc" id="L169">    }</span>
+<span class="fc" id="L169">    }</span>
 
     public void unassign(int lit) {
 <span class="pc bpc" id="L172" title="3 of 6 branches missed.">        assert this.falsified[lit] || this.falsified[lit ^ 1];</span>

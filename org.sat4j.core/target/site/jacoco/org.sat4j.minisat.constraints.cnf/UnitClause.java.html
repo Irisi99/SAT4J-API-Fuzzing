@@ -173,23 +173,27 @@ public class UnitClause implements Constr {
 <span class="nc" id="L173">        return true;</span>
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-<span class="nc" id="L177">        return 0;</span>
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+            int decisionLevel, ILits voc) {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (trailLim.size() &gt; 0) {</span>
+<span class="nc" id="L179">            return trailLim.get(0);</span>
+        }
+<span class="nc" id="L181">        return -1;</span>
     }
 
     public String toString(VarMapper mapper) {
-<span class="nc bnc" id="L181" title="All 2 branches missed.">        if (mapper == null) {</span>
-<span class="nc" id="L182">            return toString();</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (mapper == null) {</span>
+<span class="nc" id="L186">            return toString();</span>
         }
-<span class="nc" id="L184">        return mapper.map(LiteralsUtils.toDimacs(this.literal));</span>
+<span class="nc" id="L188">        return mapper.map(LiteralsUtils.toDimacs(this.literal));</span>
     }
 
     @Override
     public String dump() {
-<span class="nc" id="L189">        var stb = new StringBuilder();</span>
-<span class="nc" id="L190">        stb.append(literal);</span>
-<span class="nc" id="L191">        stb.append(&quot; 0&quot;);</span>
-<span class="nc" id="L192">        return stb.toString();</span>
+<span class="nc" id="L193">        var stb = new StringBuilder();</span>
+<span class="nc" id="L194">        stb.append(literal);</span>
+<span class="nc" id="L195">        stb.append(&quot; 0&quot;);</span>
+<span class="nc" id="L196">        return stb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -1,5 +1,6 @@
 org\sat4j\minisat\constraints\CardinalityDataStructure.class
 org\sat4j\minisat\core\Heap.class
+org\sat4j\fuzzer\Helper$1.class
 org\sat4j\tools\AbstractClauseSelectorSolver$1.class
 org\sat4j\minisat\core\Solver$8.class
 org\sat4j\tools\RupSearchListener.class
@@ -43,6 +44,7 @@ org\sat4j\minisat\orders\RSATLastLearnedClausesPhaseSelectionStrategy.class
 org\sat4j\minisat\constraints\cnf\OriginalHTClause.class
 org\sat4j\tools\NegationDecorator.class
 org\sat4j\minisat\core\SearchParams.class
+org\sat4j\tools\IdrupSearchListener.class
 org\sat4j\minisat\constraints\cnf\LearntWLClause.class
 org\sat4j\tools\EmptySolver.class
 org\sat4j\minisat\core\SizeLCDS.class
@@ -206,6 +208,7 @@ org\sat4j\specs\ISolver.class
 org\sat4j\tools\DecisionTracing.class
 org\sat4j\minisat\orders\NegativeLiteralSelectionStrategy.class
 org\sat4j\specs\IGroupSolver.class
+org\sat4j\IcrementalCNFexecutor.class
 org\sat4j\minisat\orders\VarOrderHeap.class
 org\sat4j\tools\xplain\Xplain.class
 org\sat4j\minisat\constraints\cnf\OriginalBinaryClause.class
@@ -220,6 +223,7 @@ org\sat4j\minisat\orders\RandomLiteralSelectionStrategy.class
 org\sat4j\tools\counting\ParityConstraintGenerator.class
 org\sat4j\tools\counting\AllVariablesSamplingSet$1.class
 org\sat4j\minisat\core\ConflictTimerAdapter.class
+org\sat4j\tools\ICnfSearchListener.class
 org\sat4j\tools\StatisticsSolver.class
 org\sat4j\minisat\constraints\card\AtLeast.class
 org\sat4j\specs\UnitClauseConsumer.class
@@ -235,6 +239,7 @@ org\sat4j\fuzzer\APIFuzzer.class
 org\sat4j\tools\ConflictLevelTracing.class
 org\sat4j\tools\GroupClauseSelectorSolver.class
 org\sat4j\OptimizationMode.class
+org\sat4j\fuzzer\Helper.class
 org\sat4j\minisat\core\WatcherBasedPrimeImplicantStrategy.class
 org\sat4j\specs\RandomAccessModel.class
 org\sat4j\specs\ContradictionException.class

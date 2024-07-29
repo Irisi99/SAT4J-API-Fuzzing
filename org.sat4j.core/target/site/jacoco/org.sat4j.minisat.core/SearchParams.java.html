@@ -64,8 +64,8 @@ public class SearchParams implements Serializable {
 <span class="fc" id="L64">    }</span>
 
     public SearchParams(double confincfactor, int conflictBound) {
-<span class="fc" id="L67">        this(0.95, 0.999, confincfactor, conflictBound);</span>
-<span class="fc" id="L68">    }</span>
+<span class="nc" id="L67">        this(0.95, 0.999, confincfactor, conflictBound);</span>
+<span class="nc" id="L68">    }</span>
 
     /**
      * @param d
@@ -140,22 +140,22 @@ public class SearchParams implements Serializable {
      *            the conflictBoundIncFactor to set
      */
     public void setConflictBoundIncFactor(double conflictBoundIncFactor) {
-<span class="nc" id="L143">        this.conflictBoundIncFactor = conflictBoundIncFactor;</span>
-<span class="nc" id="L144">    }</span>
+<span class="fc" id="L143">        this.conflictBoundIncFactor = conflictBoundIncFactor;</span>
+<span class="fc" id="L144">    }</span>
 
     /**
      * @param initConflictBound
      *            the initConflictBound to set
      */
     public void setInitConflictBound(int initConflictBound) {
-<span class="nc" id="L151">        this.initConflictBound = initConflictBound;</span>
-<span class="nc" id="L152">    }</span>
+<span class="fc" id="L151">        this.initConflictBound = initConflictBound;</span>
+<span class="fc" id="L152">    }</span>
 
     /**
      * @return the conflictBoundIncFactor
      */
     public double getConflictBoundIncFactor() {
-<span class="fc" id="L158">        return this.conflictBoundIncFactor;</span>
+<span class="nc" id="L158">        return this.conflictBoundIncFactor;</span>
     }
 
     /**
@@ -170,15 +170,15 @@ public class SearchParams implements Serializable {
      *            the claDecay to set
      */
     public void setClaDecay(double claDecay) {
-<span class="nc" id="L173">        this.claDecay = claDecay;</span>
-<span class="nc" id="L174">    }</span>
+<span class="fc" id="L173">        this.claDecay = claDecay;</span>
+<span class="fc" id="L174">    }</span>
 
     /**
      * @param varDecay
      *            the varDecay to set
      */
     public void setVarDecay(double varDecay) {
-<span class="nc" id="L181">        this.varDecay = varDecay;</span>
-<span class="nc" id="L182">    }</span>
+<span class="fc" id="L181">        this.varDecay = varDecay;</span>
+<span class="fc" id="L182">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

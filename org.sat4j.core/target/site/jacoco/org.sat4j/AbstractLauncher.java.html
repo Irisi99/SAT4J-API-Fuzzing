@@ -223,10 +223,22 @@ import org.sat4j.tools.SolverDecorator;
                         + &quot;Forcing heuristics using file &quot; + orderFile);
             }
         }
-<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (feedWithDecorated) {</span>
-<span class="nc" id="L227">            return decorator;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">        if (reader.getSubsetOfVariable().isPresent()) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">            if (feedWithDecorated) {</span>
+<span class="nc" id="L228">                ((ModelIteratorToSATAdapter) decorator)</span>
+<span class="nc" id="L229">                        .appendProjectionVariables(</span>
+<span class="nc" id="L230">                                reader.getSubsetOfVariable().get());</span>
+            }
+<span class="nc bnc" id="L232" title="All 2 branches missed.">            if (!this.isSilent()) {</span>
+<span class="nc" id="L233">                System.out.println(this.solver.getLogPrefix()</span>
+                        + &quot;Found projection variables &quot;
+<span class="nc" id="L235">                        + reader.getSubsetOfVariable().get());</span>
+            }
         }
-<span class="nc" id="L229">        return aProblem;</span>
+<span class="nc bnc" id="L238" title="All 2 branches missed.">        if (feedWithDecorated) {</span>
+<span class="nc" id="L239">            return decorator;</span>
+        }
+<span class="nc" id="L241">        return aProblem;</span>
     }
 
     protected abstract Reader createReader(ISolver theSolver,
@@ -235,53 +247,53 @@ import org.sat4j.tools.SolverDecorator;
     public void run(String[] args) {
 
         try {
-<span class="nc" id="L238">            displayHeader();</span>
-<span class="nc" id="L239">            this.solver = configureSolver(args);</span>
-<span class="nc bnc" id="L240" title="All 2 branches missed.">            if (this.solver == null) {</span>
-<span class="nc" id="L241">                usage();</span>
-<span class="nc" id="L242">                return;</span>
+<span class="nc" id="L250">            displayHeader();</span>
+<span class="nc" id="L251">            this.solver = configureSolver(args);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">            if (this.solver == null) {</span>
+<span class="nc" id="L253">                usage();</span>
+<span class="nc" id="L254">                return;</span>
             }
-<span class="nc bnc" id="L244" title="All 2 branches missed.">            if (!this.isSilent()) {</span>
-<span class="nc" id="L245">                this.solver.setVerbose(true);</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">            if (!this.isSilent()) {</span>
+<span class="nc" id="L257">                this.solver.setVerbose(true);</span>
             }
-<span class="nc" id="L247">            configureLauncher();</span>
-<span class="nc" id="L248">            String instanceName = getInstanceName(args);</span>
-<span class="nc bnc" id="L249" title="All 2 branches missed.">            if (instanceName == null) {</span>
-<span class="nc" id="L250">                usage();</span>
-<span class="nc" id="L251">                return;</span>
+<span class="nc" id="L259">            configureLauncher();</span>
+<span class="nc" id="L260">            String instanceName = getInstanceName(args);</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">            if (instanceName == null) {</span>
+<span class="nc" id="L262">                usage();</span>
+<span class="nc" id="L263">                return;</span>
             }
-<span class="nc" id="L253">            this.beginTime = System.currentTimeMillis();</span>
-<span class="nc" id="L254">            this.problem = readProblem(instanceName);</span>
-<span class="nc" id="L255">            solve(this.problem);</span>
-<span class="nc" id="L256">        } catch (ContradictionException e) {</span>
-<span class="nc" id="L257">            this.launcherMode.setExitCode(ExitCode.UNSATISFIABLE);</span>
-<span class="nc" id="L258">            log(&quot;(trivial inconsistency)&quot;); //$NON-NLS-1$</span>
-<span class="nc" id="L259">        } catch (IOException | ParseFormatException e) {</span>
-<span class="nc" id="L260">            System.err.println(&quot;FATAL &quot; + e.getLocalizedMessage());</span>
-<span class="nc" id="L261">        }</span>
-<span class="nc" id="L262">    }</span>
+<span class="nc" id="L265">            this.beginTime = System.currentTimeMillis();</span>
+<span class="nc" id="L266">            this.problem = readProblem(instanceName);</span>
+<span class="nc" id="L267">            solve(this.problem);</span>
+<span class="nc" id="L268">        } catch (ContradictionException e) {</span>
+<span class="nc" id="L269">            this.launcherMode.setExitCode(ExitCode.UNSATISFIABLE);</span>
+<span class="nc" id="L270">            log(&quot;(trivial inconsistency)&quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L271">        } catch (IOException | ParseFormatException e) {</span>
+<span class="nc" id="L272">            System.err.println(&quot;FATAL &quot; + e.getLocalizedMessage());</span>
+<span class="nc" id="L273">        }</span>
+<span class="nc" id="L274">    }</span>
 
     protected void configureLauncher() {
-<span class="nc" id="L265">        String all = System.getProperty(&quot;all&quot;);</span>
-<span class="nc bnc" id="L266" title="All 2 branches missed.">        if (all != null) {</span>
-<span class="nc bnc" id="L267" title="All 2 branches missed.">            if (&quot;external&quot;.equals(all)) {</span>
-<span class="nc" id="L268">                feedWithDecorated = true;</span>
-<span class="nc" id="L269">                this.solver = new ModelIteratorToSATAdapter(this.solver,</span>
+<span class="nc" id="L277">        String all = System.getProperty(&quot;all&quot;);</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">        if (all != null) {</span>
+<span class="nc bnc" id="L279" title="All 2 branches missed.">            if (&quot;external&quot;.equals(all)) {</span>
+<span class="nc" id="L280">                feedWithDecorated = true;</span>
+<span class="nc" id="L281">                this.solver = new ModelIteratorToSATAdapter(this.solver,</span>
                         launcherMode);
-<span class="nc" id="L271">                System.out.println(this.solver.getLogPrefix()</span>
+<span class="nc" id="L283">                System.out.println(this.solver.getLogPrefix()</span>
                         + &quot;model enumeration using the external way&quot;);
             } else {
-<span class="nc" id="L274">                var enumerator = new SearchEnumeratorListener(launcherMode);</span>
-<span class="nc" id="L275">                this.solver.setSearchListener(enumerator);</span>
-<span class="nc" id="L276">                System.out.println(this.solver.getLogPrefix()</span>
+<span class="nc" id="L286">                var enumerator = new SearchEnumeratorListener(launcherMode);</span>
+<span class="nc" id="L287">                this.solver.setSearchListener(enumerator);</span>
+<span class="nc" id="L288">                System.out.println(this.solver.getLogPrefix()</span>
                         + &quot;model enumeration using the internal way&quot;);
             }
         }
-<span class="nc bnc" id="L280" title="All 2 branches missed.">        if (System.getProperty(&quot;minone&quot;) != null) {</span>
-<span class="nc" id="L281">            var minone = new SearchMinOneListener(launcherMode);</span>
-<span class="nc" id="L282">            this.solver.setSearchListener(minone);</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">        if (System.getProperty(&quot;minone&quot;) != null) {</span>
+<span class="nc" id="L293">            var minone = new SearchMinOneListener(launcherMode);</span>
+<span class="nc" id="L294">            this.solver.setSearchListener(minone);</span>
         }
-<span class="nc" id="L284">    }</span>
+<span class="nc" id="L296">    }</span>
 
     protected abstract String getInstanceName(String[] args);
 
@@ -294,19 +306,19 @@ import org.sat4j.tools.SolverDecorator;
      *            a textual information
      */
     public void log(String message) {
-<span class="nc bnc" id="L297" title="All 2 branches missed.">        if (this.isSilent())</span>
-<span class="nc" id="L298">            return;</span>
-<span class="nc bnc" id="L299" title="All 2 branches missed.">        if (this.logBuffer != null) {</span>
-<span class="nc" id="L300">            this.logBuffer.append(OutputPrefix.COMMENT_PREFIX).append(message)</span>
-<span class="nc" id="L301">                    .append('\n');</span>
+<span class="nc bnc" id="L309" title="All 2 branches missed.">        if (this.isSilent())</span>
+<span class="nc" id="L310">            return;</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">        if (this.logBuffer != null) {</span>
+<span class="nc" id="L312">            this.logBuffer.append(OutputPrefix.COMMENT_PREFIX).append(message)</span>
+<span class="nc" id="L313">                    .append('\n');</span>
         } else {
-<span class="nc" id="L303">            this.out.println(OutputPrefix.COMMENT_PREFIX + message);</span>
+<span class="nc" id="L315">            this.out.println(OutputPrefix.COMMENT_PREFIX + message);</span>
         }
-<span class="nc" id="L305">    }</span>
+<span class="nc" id="L317">    }</span>
 
     protected void solve(IProblem problem) {
-<span class="nc" id="L308">        launcherMode.solve(problem, reader, this, out, beginTime);</span>
-<span class="nc" id="L309">    }</span>
+<span class="nc" id="L320">        launcherMode.solve(problem, reader, this, out, beginTime);</span>
+<span class="nc" id="L321">    }</span>
 
     /**
      * To change the display so that solution line appears or not. Recommended
@@ -316,8 +328,8 @@ import org.sat4j.tools.SolverDecorator;
      *            true to display the message
      */
     protected void setDisplaySolutionLine(boolean value) {
-<span class="nc" id="L319">        this.displaySolutionLine = value;</span>
-<span class="nc" id="L320">    }</span>
+<span class="nc" id="L331">        this.displaySolutionLine = value;</span>
+<span class="nc" id="L332">    }</span>
 
     /**
      * Change the value of the exit code in the Launcher
@@ -326,8 +338,8 @@ import org.sat4j.tools.SolverDecorator;
      *            the new ExitCode
      */
     public final void setExitCode(ExitCode exitCode) {
-<span class="nc" id="L329">        this.launcherMode.setExitCode(exitCode);</span>
-<span class="nc" id="L330">    }</span>
+<span class="nc" id="L341">        this.launcherMode.setExitCode(exitCode);</span>
+<span class="nc" id="L342">    }</span>
 
     /**
      * Get the value of the ExitCode
@@ -335,7 +347,7 @@ import org.sat4j.tools.SolverDecorator;
      * @return the current value of the Exitcode
      */
     public final ExitCode getExitCode() {
-<span class="nc" id="L338">        return this.launcherMode.getCurrentExitCode();</span>
+<span class="nc" id="L350">        return this.launcherMode.getCurrentExitCode();</span>
     }
 
     /**
@@ -345,7 +357,7 @@ import org.sat4j.tools.SolverDecorator;
      * @return the time signature at the beginning of the run() method.
      */
     public final long getBeginTime() {
-<span class="nc" id="L348">        return this.beginTime;</span>
+<span class="nc" id="L360">        return this.beginTime;</span>
     }
 
     /**
@@ -353,7 +365,7 @@ import org.sat4j.tools.SolverDecorator;
      * @return the reader used to parse the instance
      */
     public final Reader getReader() {
-<span class="nc" id="L356">        return this.reader;</span>
+<span class="nc" id="L368">        return this.reader;</span>
     }
 
     /**
@@ -364,62 +376,62 @@ import org.sat4j.tools.SolverDecorator;
      *            a new output for the statistics.
      */
     public void setLogWriter(PrintWriter out) {
-<span class="nc" id="L367">        this.out = out;</span>
-<span class="nc" id="L368">    }</span>
+<span class="nc" id="L379">        this.out = out;</span>
+<span class="nc" id="L380">    }</span>
 
     public PrintWriter getLogWriter() {
-<span class="nc" id="L371">        return this.out;</span>
+<span class="nc" id="L383">        return this.out;</span>
     }
 
     protected void setSilent(boolean b) {
-<span class="nc" id="L375">        this.silent = b;</span>
-<span class="nc" id="L376">    }</span>
+<span class="nc" id="L387">        this.silent = b;</span>
+<span class="nc" id="L388">    }</span>
 
     private void readObject(ObjectInputStream stream)
             throws IOException, ClassNotFoundException {
-<span class="nc" id="L380">        stream.defaultReadObject();</span>
-<span class="nc" id="L381">        this.out = new PrintWriter(System.out, true);</span>
-<span class="nc" id="L382">        this.shutdownHook = new Thread() {</span>
+<span class="nc" id="L392">        stream.defaultReadObject();</span>
+<span class="nc" id="L393">        this.out = new PrintWriter(System.out, true);</span>
+<span class="nc" id="L394">        this.shutdownHook = new Thread() {</span>
             @Override
             public void run() {
-<span class="nc" id="L385">                displayResult();</span>
-<span class="nc" id="L386">            }</span>
+<span class="nc" id="L397">                displayResult();</span>
+<span class="nc" id="L398">            }</span>
         };
-<span class="nc" id="L388">    }</span>
+<span class="nc" id="L400">    }</span>
 
     protected &lt;T extends ISolver&gt; void showAvailableSolvers(
             ASolverFactory&lt;T&gt; afactory) {
-<span class="nc" id="L392">        showAvailableSolvers(afactory, &quot;&quot;);</span>
-<span class="nc" id="L393">    }</span>
+<span class="nc" id="L404">        showAvailableSolvers(afactory, &quot;&quot;);</span>
+<span class="nc" id="L405">    }</span>
 
     protected &lt;T extends ISolver&gt; void showAvailableSolvers(
             ASolverFactory&lt;T&gt; afactory, String framework) {
-<span class="nc bnc" id="L397" title="All 2 branches missed.">        if (afactory != null) {</span>
-<span class="nc bnc" id="L398" title="All 2 branches missed.">            if (framework.length() &gt; 0) {</span>
-<span class="nc" id="L399">                log(&quot;Available solvers for &quot; + framework + &quot;: &quot;); //$NON-NLS-1$</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">        if (afactory != null) {</span>
+<span class="nc bnc" id="L410" title="All 2 branches missed.">            if (framework.length() &gt; 0) {</span>
+<span class="nc" id="L411">                log(&quot;Available solvers for &quot; + framework + &quot;: &quot;); //$NON-NLS-1$</span>
             } else {
-<span class="nc" id="L401">                log(&quot;Available solvers: &quot;); //$NON-NLS-1$</span>
+<span class="nc" id="L413">                log(&quot;Available solvers: &quot;); //$NON-NLS-1$</span>
             }
-<span class="nc" id="L403">            String[] names = afactory.solverNames();</span>
-<span class="nc bnc" id="L404" title="All 2 branches missed.">            for (String name : names) {</span>
-<span class="nc" id="L405">                log(name);</span>
+<span class="nc" id="L415">            String[] names = afactory.solverNames();</span>
+<span class="nc bnc" id="L416" title="All 2 branches missed.">            for (String name : names) {</span>
+<span class="nc" id="L417">                log(name);</span>
             }
         }
-<span class="nc" id="L408">    }</span>
+<span class="nc" id="L420">    }</span>
 
     protected void bufferizeLog() {
-<span class="nc" id="L411">        this.logBuffer = new StringBuilder();</span>
-<span class="nc" id="L412">    }</span>
+<span class="nc" id="L423">        this.logBuffer = new StringBuilder();</span>
+<span class="nc" id="L424">    }</span>
 
     protected void flushLog() {
-<span class="nc bnc" id="L415" title="All 2 branches missed.">        if (logBuffer != null) {</span>
-<span class="nc" id="L416">            this.out.print(logBuffer.toString());</span>
+<span class="nc bnc" id="L427" title="All 2 branches missed.">        if (logBuffer != null) {</span>
+<span class="nc" id="L428">            this.out.print(logBuffer.toString());</span>
         }
-<span class="nc" id="L418">        logBuffer = null;</span>
-<span class="nc" id="L419">    }</span>
+<span class="nc" id="L430">        logBuffer = null;</span>
+<span class="nc" id="L431">    }</span>
 
     public boolean isSilent() {
-<span class="nc" id="L422">        return silent;</span>
+<span class="nc" id="L434">        return silent;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

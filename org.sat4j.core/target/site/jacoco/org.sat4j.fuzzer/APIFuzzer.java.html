@@ -8,19 +8,47 @@ import java.security.SecureRandom;
     public static void main(String[] args) {
 
 <span class="fc" id="L10">        SecureRandom rand = new SecureRandom();</span>
+<span class="fc" id="L11">        long masterSeed = 0;</span>
+<span class="fc" id="L12">        int nrTraces = 10;</span>
+<span class="fc" id="L13">        boolean isTraceSeed = false;</span>
+<span class="fc" id="L14">        boolean verbose = false;</span>
+<span class="fc" id="L15">        boolean skipProofCheck = false;</span>
 
-        // Give seed for SecureRandom in comandline 
-<span class="pc bpc" id="L13" title="3 of 4 branches missed.">        if(args!= null &amp;&amp; args.length &gt; 0){</span>
-<span class="nc" id="L14">            rand.setSeed(Long.parseLong(args[0]));</span>
+        // Give seed for SecureRandom and number of Traces to be generated in comandline 
+<span class="pc bpc" id="L18" title="2 of 4 branches missed.">        if(args!= null &amp;&amp; args.length &gt; 0){</span>
+<span class="fc bfc" id="L19" title="All 2 branches covered.">            for(int i=0; i &lt; args.length; i+=2){</span>
+<span class="pc bpc" id="L20" title="1 of 2 branches missed.">                if(args[i].trim().equals(&quot;-s&quot;)){</span>
+                    try {  
+<span class="nc" id="L22">                        masterSeed = Long.parseLong(args[i+1]);</span>
+<span class="nc" id="L23">                    } catch(NumberFormatException e){  </span>
+<span class="nc" id="L24">                        masterSeed = Long.parseUnsignedLong(args[i+1], 16);</span>
+<span class="nc" id="L25">                    } </span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">                } else if(args[i].trim().equals(&quot;-n&quot;)){</span>
+<span class="fc" id="L27">                    nrTraces = Integer.parseInt(args[i+1]);</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">                } else if(args[i].trim().equals(&quot;-v&quot;)){</span>
+<span class="nc" id="L29">                    verbose = true;</span>
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">                } else if(args[i].trim().equals(&quot;-p&quot;)){</span>
+<span class="fc" id="L31">                    skipProofCheck = true;</span>
+                } else {
+<span class="nc" id="L33">                    System.out.println(&quot;The only acceptable parameters are :&quot;);</span>
+<span class="nc" id="L34">                    System.out.println(&quot;    -s seed (long)&quot;);</span>
+<span class="nc" id="L35">                    System.out.println(&quot;    -n nr of Traces (int)&quot;);</span>
+<span class="nc" id="L36">                    System.exit(0);</span>
+                }
+            }
         }
 
-        // Generate Master Seed 64 bit
-<span class="fc" id="L18">        byte[] masterSeed = rand.generateSeed(64);</span>
-<span class="fc" id="L19">        long value = new BigInteger(masterSeed).longValue();</span>
+        // Generate Master Seed 64 bit if not provided
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if(masterSeed == 0){</span>
+<span class="fc" id="L43">            byte[] seedBytes = rand.generateSeed(64);</span>
+<span class="fc" id="L44">            masterSeed = new BigInteger(seedBytes).longValue();</span>
+        }
+
+        // System.out.println(&quot;Master Seed: &quot;+Long.toHexString(masterSeed));
 
         // Call TraceFactory and pass Master Seed
-<span class="fc" id="L22">        TraceFactory.run(value, false, false);</span>
-<span class="fc" id="L23">    }</span>
+<span class="fc" id="L50">        TraceFactory.run(masterSeed, nrTraces, skipProofCheck, isTraceSeed, verbose);</span>
+<span class="fc" id="L51">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

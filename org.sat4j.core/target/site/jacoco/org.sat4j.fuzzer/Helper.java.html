@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Helper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">SAT4J core</a> &gt; <a href="index.source.html" class="el_package">org.sat4j.fuzzer</a> &gt; <span class="el_source">Helper.java</span></div><h1>Helper.java</h1><pre class="source lang-java linenums">package org.sat4j.fuzzer;
+
+import org.sat4j.specs.TimeoutException;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
+import org.sat4j.core.ASolverFactory;
+import org.sat4j.minisat.core.Counter;
+import org.sat4j.minisat.core.ICDCL;
+import org.sat4j.minisat.core.IOrder;
+import org.sat4j.minisat.core.LearningStrategy;
+import org.sat4j.minisat.core.RestartStrategy;
+import org.sat4j.minisat.core.SearchParams;
+import org.sat4j.minisat.core.Solver;
+import org.sat4j.minisat.learning.ActiveLearning;
+import org.sat4j.minisat.learning.FixedLengthLearning;
+import org.sat4j.minisat.learning.PercentLengthLearning;
+import org.sat4j.minisat.orders.RandomWalkDecorator;
+import org.sat4j.minisat.orders.VarOrderHeap;
+import org.sat4j.minisat.orders.PureOrder;
+import org.sat4j.minisat.restarts.FixedPeriodRestarts;
+import org.sat4j.minisat.restarts.LubyRestarts;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+import org.sat4j.tools.ModelIterator;
+import org.sat4j.tools.SearchEnumeratorListener;
+import org.sat4j.tools.SolutionFoundListener;
+
+<span class="nc" id="L36">public class Helper {</span>
+
+//--------------------------------------------------- USED IN TRACE FACTORY ---------------------------------------------------------------
+
+<span class="fc" id="L40">    static ArrayList&lt;String&gt; SOLVERS = new ArrayList&lt;String&gt;();</span>
+    // Available Data Structure Factories
+<span class="fc" id="L42">    static List&lt;String&gt; DSF = List.of(&quot;CardinalityDataStructure&quot;,&quot;CardinalityDataStructureYanMax&quot;,&quot;CardinalityDataStructureYanMin&quot;,</span>
+        &quot;ClausalDataStructureWL&quot;,&quot;MixedDataStructureDanielHT&quot;,&quot;MixedDataStructureDanielWL&quot;,&quot;MixedDataStructureDanielWLConciseBinary&quot;,&quot;MixedDataStructureSingleWL&quot;);
+    // Available Learning Strategies
+<span class="fc" id="L45">    static List&lt;String&gt; LEARNING = List.of(&quot;ActiveLearning&quot;,&quot;ClauseOnlyLearning&quot;,&quot;FixedLengthLearning&quot;,&quot;MiniSATLearning&quot;,</span>
+        &quot;NoLearningButHeuristics&quot;,&quot;NoLearningNoHeuristics&quot;,&quot;PercentLengthLearning&quot;);
+    // Available Order Strategies
+<span class="fc" id="L48">    static List&lt;String&gt; ORDERS = List.of(&quot;NaturalStaticOrder&quot;,&quot;PureOrder&quot;,&quot;VarOrderHeap&quot;);</span>
+    // Available Phase Selection Strategies
+<span class="fc" id="L50">    static List&lt;String&gt; PHASE = List.of(&quot;PhaseCachingAutoEraseStrategy&quot;,&quot;PhaseInLastLearnedClauseSelectionStrategy&quot;,&quot;PositiveLiteralSelectionStrategy&quot;,&quot;RandomLiteralSelectionStrategy&quot;,</span>
+        &quot;RSATLastLearnedClausesPhaseSelectionStrategy&quot;,&quot;RSATPhaseSelectionStrategy&quot;,&quot;SolutionPhaseSelectionStrategy&quot;,&quot;UserFixedPhaseSelectionStrategy&quot;);
+    // Available Restart Startegies
+<span class="fc" id="L53">    static List&lt;String&gt; RESTARTS = List.of(&quot;ArminRestarts&quot;,&quot;EMARestarts&quot;,&quot;FixedPeriodRestarts&quot;,&quot;Glucose21Restarts&quot;,&quot;LubyRestarts&quot;,&quot;MiniSATRestarts&quot;,&quot;NoRestarts&quot;);</span>
+    // Available Simplifiers
+<span class="fc" id="L55">    static List&lt;String&gt; SIMPLIFIERS = List.of(&quot;NO_SIMPLIFICATION&quot;,&quot;simpleSimplification&quot;,&quot;expensiveSimplification&quot;,&quot;expensiveSimplificationWLOnly&quot;);</span>
+    
+    public static void initializeOptions(boolean verbose){
+
+        // All the Pre-Defined Solver Configurations for Minisat
+<span class="fc" id="L60">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
+<span class="fc" id="L61">        SOLVERS.addAll(Arrays.asList(factory.solverNames()));</span>
+        // No point in keeping it as an option
+<span class="fc" id="L63">        SOLVERS.remove(&quot;Default&quot;);</span>
+        // Not real solvers
+<span class="fc" id="L65">        SOLVERS.remove(&quot;Statistics&quot;);</span>
+<span class="fc" id="L66">        SOLVERS.remove(&quot;DimacsOutput&quot;);</span>
+<span class="fc" id="L67">    }</span>
+
+    public static int[] newClause(Random slaveRandomGenerator, Boolean UNIFORM){
+            // Start with default clause length 3
+<span class="fc" id="L71">            int CLAUSE_LENGTH = 3;</span>
+            // Check if Clauses are uniform or if we need to generate a length
+<span class="fc bfc" id="L73" title="All 2 branches covered.">            if(!UNIFORM){</span>
+                // Flip a coin if we need to make it shorter / longer and keep repeating
+<span class="fc" id="L75">                Double percentage = slaveRandomGenerator.nextDouble();</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">                if(percentage &lt; 0.01){</span>
+                    // 1% unit clause
+<span class="fc" id="L78">                    CLAUSE_LENGTH = 1;</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">                } else if(percentage &lt; 0.1){</span>
+                    // 10% binary clause
+<span class="fc" id="L81">                    CLAUSE_LENGTH = 2;</span>
+                } else {
+                    // ~ 17% longer clauses
+<span class="fc bfc" id="L84" title="All 2 branches covered.">                    while (percentage &lt; 1.0/6.0) {</span>
+<span class="fc" id="L85">                        CLAUSE_LENGTH += 1;</span>
+<span class="fc" id="L86">                        percentage = slaveRandomGenerator.nextDouble();</span>
+                    }
+                }
+            }
+<span class="fc" id="L90">            return new int[CLAUSE_LENGTH];</span>
+    }
+
+    // Make sure all literals in the clause / assumption are different from each other
+    public static Boolean isAlreadyPresent(int[] clause, int index, int literal){
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        for(int i = 0; i &lt; index; i++){</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            if(clause[i] == literal)</span>
+<span class="fc" id="L97">                return true;</span>
+        }
+<span class="fc" id="L99">        return false;</span>
+    }
+
+    // Custom toString method for array for easier parsing when rurning trace file
+    public static String clauseToString(int[] clause){
+<span class="pc bpc" id="L104" title="2 of 4 branches missed.">        if(clause == null || clause.length == 0)</span>
+<span class="nc" id="L105">            return null;</span>
+<span class="fc" id="L106">        String stringClause = &quot;&quot;;</span>
+<span class="fc bfc" id="L107" title="All 2 branches covered.">        for(int i=0; i &lt; clause.length; i++){</span>
+<span class="fc" id="L108">            stringClause += clause[i]+&quot; &quot;;</span>
+        }
+<span class="fc" id="L110">        return stringClause;</span>
+    }
+
+    public static String IVecToString(IVecInt reason){
+<span class="pc bpc" id="L114" title="1 of 4 branches missed.">        if(reason == null || reason.size() == 0)</span>
+<span class="fc" id="L115">            return null;</span>
+<span class="fc" id="L116">        String stringReason = &quot;&quot;;</span>
+<span class="fc" id="L117">        String[] splitReason = String.valueOf(reason).split(&quot;,&quot;);</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for(int i=0; i &lt; splitReason.length; i++){</span>
+<span class="fc" id="L119">            stringReason += splitReason[i]+&quot; &quot;;</span>
+        }
+<span class="fc" id="L121">        return stringReason;</span>
+    }
+
+    public static void printException(Boolean isTraceSeed, Boolean verbose, Trace trace, String location, Exception e){
+<span class="nc" id="L125">        trace.toFile();</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if(!isTraceSeed){</span>
+<span class="nc" id="L127">            System.out.print(&quot; --- Inside Exception from &quot; + location + &quot; &quot;);</span>
+<span class="nc" id="L128">            System.out.println(&quot; --- &quot; + e.getMessage());</span>
+        }
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if(verbose){</span>
+<span class="nc" id="L131">            e.printStackTrace(System.out);</span>
+        }
+<span class="nc" id="L133">    }</span>
+    
+    public static void createICNF(String ID, ArrayList&lt;String&gt; icnf){
+         // Defines the path to the file - currently pointing to the 'trcaes' folder
+<span class="nc" id="L137">        String path = &quot;./icnfs/&quot; + ID + &quot;.icnf&quot;;</span>
+
+<span class="nc" id="L139">        File traceFile = new File(path);</span>
+        try {
+<span class="nc" id="L141">            traceFile.createNewFile();</span>
+<span class="nc" id="L142">            FileWriter myWriter = new FileWriter(path);</span>
+
+            // Write all the API calls of the trace in the file seperated by a new line
+<span class="nc bnc" id="L145" title="All 2 branches missed.">            for (int i = 0; i &lt; icnf.size(); i++)</span>
+<span class="nc" id="L146">                myWriter.write(icnf.get(i) + &quot;\n&quot;);</span>
+<span class="nc" id="L147">            myWriter.close();</span>
+            
+<span class="nc" id="L149">        } catch (IOException e) {</span>
+<span class="nc" id="L150">            e.printStackTrace(System.out);</span>
+<span class="nc" id="L151">        }</span>
+
+<span class="nc" id="L153">    }</span>
+
+    public static void deleteProof(String Id){
+<span class="fc" id="L156">        File myObj = new File(&quot;icnfs/&quot;+Id+&quot;.icnf&quot;); </span>
+<span class="fc" id="L157">        myObj.delete();</span>
+<span class="fc" id="L158">        myObj = new File(&quot;idrups/&quot;+Id+&quot;.idrup&quot;);</span>
+<span class="fc" id="L159">        myObj.delete();</span>
+<span class="fc" id="L160">    }</span>
+
+//---------------------------------------------------- USED IN TRACE RUNNER ------------------------------------------------------------------
+
+    // Method to initialize with the specified solver
+    public static ISolver initSolver(String solverName){
+<span class="nc" id="L166">        ASolverFactory&lt;ISolver&gt; factory = org.sat4j.minisat.SolverFactory.instance();</span>
+        // Initialize default solver if no specific solver is passed as argument
+        ISolver solver;
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        if(solverName == &quot;Default&quot;){</span>
+<span class="nc" id="L170">            solver =  factory.defaultSolver();</span>
+        } else {
+<span class="nc" id="L172">            solver =  factory.createSolverByName(solverName).orElseGet(factory::defaultSolver);</span>
+        }
+<span class="nc" id="L174">        solver.setTimeout(120);</span>
+<span class="nc" id="L175">        return solver;</span>
+    }
+
+    @SuppressWarnings(&quot;rawtypes&quot;)
+    public static ISolver setRandomWalk(ICDCL solver, Double proba){
+<span class="nc" id="L180">        IOrder order = solver.getOrder();</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">        if(order instanceof VarOrderHeap){</span>
+<span class="nc" id="L182">            order = new RandomWalkDecorator((VarOrderHeap) order, proba);</span>
+<span class="nc" id="L183">            solver.setOrder(order);</span>
+        }
+<span class="nc" id="L185">        return solver;</span>
+    }
+
+    @SuppressWarnings({ &quot;rawtypes&quot;, &quot;unchecked&quot; })
+    public static ISolver setLearningStrategy(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
+<span class="nc" id="L190">        Solver asolver = (Solver) solver;</span>
+<span class="nc" id="L191">        String[] t = s.split(&quot;/&quot;);</span>
+<span class="nc" id="L192">        LearningStrategy learning = (LearningStrategy) Class.forName(&quot;org.sat4j.minisat.learning.&quot;+t[0]).getConstructor().newInstance();</span>
+        
+<span class="nc bnc" id="L194" title="All 2 branches missed.">        if(t.length &gt; 1){</span>
+<span class="nc" id="L195">            String[] property = t[1].split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L196" title="All 2 branches missed.">            if(property[0].equals(&quot;maxlength&quot;)){</span>
+<span class="nc" id="L197">                ((FixedLengthLearning) learning).setMaxLength(Integer.parseInt(property[1]));</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">            } else if(property[0].equals(&quot;maxpercent&quot;)){</span>
+<span class="nc" id="L199">                ((PercentLengthLearning) learning).setLimit(Integer.parseInt(property[1]));</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            } else if(property[0].equals(&quot;percent&quot;)){</span>
+<span class="nc" id="L201">                ((ActiveLearning) learning).setActivityPercent(Double.parseDouble(property[1]));</span>
+            }                
+        }
+
+<span class="nc" id="L205">        solver.setLearningStrategy(learning);</span>
+<span class="nc" id="L206">        learning.setSolver(asolver);</span>
+<span class="nc" id="L207">        return solver;</span>
+    }
+
+    @SuppressWarnings(&quot;rawtypes&quot;)
+    public static ISolver setOrder(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
+<span class="nc" id="L212">        String[] t = s.split(&quot;/&quot;);</span>
+<span class="nc" id="L213">        IOrder order = (IOrder) Class.forName(&quot;org.sat4j.minisat.orders.&quot;+t[0]).getConstructor().newInstance();</span>
+        
+<span class="nc bnc" id="L215" title="All 2 branches missed.">        if(t.length &gt; 1){</span>
+<span class="nc" id="L216">            String[] property = t[1].split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            if(property[0].equals(&quot;period&quot;)){</span>
+<span class="nc" id="L218">                ((PureOrder) order).setPeriod(Integer.parseInt(property[1]));</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">            } else if(property[0].equals(&quot;varDecay&quot;)){</span>
+<span class="nc" id="L220">                ((VarOrderHeap) order).setVarDecay(Double.parseDouble(property[1]));</span>
+            }
+        }
+
+<span class="nc" id="L224">        solver.setOrder(order);</span>
+<span class="nc" id="L225">        return solver;</span>
+    }
+
+    @SuppressWarnings(&quot;rawtypes&quot;)
+    public static ISolver setRestartStrategy(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
+<span class="nc" id="L230">        String[] t = s.split(&quot;/&quot;);</span>
+<span class="nc" id="L231">        RestartStrategy restart = (RestartStrategy) Class.forName(&quot;org.sat4j.minisat.restarts.&quot;+t[0]).getConstructor().newInstance();</span>
+        
+<span class="nc bnc" id="L233" title="All 2 branches missed.">        if(t.length &gt; 1){</span>
+<span class="nc" id="L234">            String[] property = t[1].split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">            if(property[0].equals(&quot;period&quot;)){</span>
+<span class="nc" id="L236">                ((FixedPeriodRestarts) restart).setPeriod(Long.parseLong(property[1]));</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">            } else if(property[0].equals(&quot;factor&quot;)){</span>
+<span class="nc" id="L238">                ((LubyRestarts) restart).setFactor(Integer.parseInt(property[1]));</span>
+            }
+        }
+
+<span class="nc" id="L242">        solver.setRestartStrategy(restart);</span>
+<span class="nc" id="L243">        return solver;</span>
+    }
+
+    @SuppressWarnings(&quot;rawtypes&quot;)
+    public static ISolver setSearchParams(ICDCL solver, String s) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException{
+<span class="nc" id="L248">        SearchParams params = (SearchParams) Class.forName(&quot;org.sat4j.minisat.core.SearchParams&quot;).getConstructor().newInstance();</span>
+
+<span class="nc" id="L250">        String[] t = s.split(&quot;/&quot;);</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">        for(int j = 0; j &lt; t.length; j++){</span>
+<span class="nc" id="L252">            String[] property = t[j].split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">            if(property[0].equals(&quot;varDecay&quot;)){</span>
+<span class="nc" id="L254">                params.setVarDecay(Double.parseDouble(property[1])); </span>
+<span class="nc bnc" id="L255" title="All 2 branches missed.">            } else if(property[0].equals(&quot;claDecay&quot;)){</span>
+<span class="nc" id="L256">                params.setClaDecay(Double.parseDouble(property[1]));</span>
+<span class="nc bnc" id="L257" title="All 2 branches missed.">            } else if(property[0].equals(&quot;conflictBoundIncFactor&quot;)){</span>
+<span class="nc" id="L258">                params.setConflictBoundIncFactor(Double.parseDouble(property[1]));</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">            } else if(property[0].equals(&quot;initConflictBound&quot;)){</span>
+<span class="nc" id="L260">                params.setInitConflictBound(Integer.parseInt(property[1]));</span>
+            }
+        }
+
+<span class="nc" id="L264">        solver.setSearchParams(params);</span>
+<span class="nc" id="L265">        return solver;</span>
+    }
+
+
+
+//---------------------------------------------------------- USED IN BOTH --------------------------------------------------------------------------
+
+    // Count solutions with External Iterator
+    public static long countSolutionsExt(ISolver solver) throws TimeoutException{
+<span class="fc" id="L274">        var enumerator = new ModelIterator(solver);</span>
+<span class="fc bfc" id="L275" title="All 2 branches covered.">        while (enumerator.isSatisfiable()) {</span>
+<span class="fc" id="L276">            int[] model = enumerator.model(); </span>
+            //System.out.println(Helper.clauseToString(model));
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">            if(model == null)</span>
+<span class="nc" id="L279">                break;</span>
+<span class="fc" id="L280">        }</span>
+<span class="fc" id="L281">        return (long) enumerator.numberOfModelsFoundSoFar();</span>
+    }
+
+    //Count solutions with Internal Iterator
+    public static long countSolutionsInt(ISolver solver) throws TimeoutException{
+<span class="fc" id="L286">        Counter counter = new Counter();</span>
+<span class="fc" id="L287">        SolutionFoundListener sfl = new SolutionFoundListener() {</span>
+            @Override
+            public void onSolutionFound(int[] solution) {
+<span class="fc" id="L290">                counter.inc();</span>
+<span class="fc" id="L291">            }</span>
+        };
+<span class="fc" id="L293">        SearchEnumeratorListener enumerator = new SearchEnumeratorListener(sfl);</span>
+<span class="fc" id="L294">        solver.setSearchListener(enumerator);</span>
+<span class="fc" id="L295">        solver.isSatisfiable();</span>
+<span class="fc" id="L296">        return  (long) enumerator.getNumberOfSolutionFound();</span>
+    }
+
+    public static long combinations(int n, int r) {
+<span class="nc bnc" id="L300" title="All 2 branches missed.">        if(r == 0){</span>
+<span class="nc" id="L301">            return 1;</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">        } else if(r == n){</span>
+<span class="nc" id="L303">            return 1 + combinations(n, r-1);</span>
+        } else {
+<span class="nc" id="L305">            return (factorial(n) / (factorial(r) * factorial(n-r))) + combinations(n, r-1);</span>
+        }
+    }
+
+    public static long factorial(int n) {
+<span class="nc bnc" id="L310" title="All 2 branches missed.">        if (n &lt;= 2) {</span>
+<span class="nc" id="L311">            return n;</span>
+        }
+<span class="nc" id="L313">        return n * factorial(n - 1);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

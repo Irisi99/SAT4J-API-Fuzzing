@@ -7,6 +7,6 @@ public class TestAPIGenerator {
 
     @Test
     public void runAPIFuzzerForCoverage() {
-        APIFuzzer.main(null);
+        APIFuzzer.main(new String[] {"-n", "50", "-p"});
     }
 }

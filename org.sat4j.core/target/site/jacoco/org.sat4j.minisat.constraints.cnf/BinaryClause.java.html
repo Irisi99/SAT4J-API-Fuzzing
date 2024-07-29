@@ -272,10 +272,10 @@ public abstract class BinaryClause
 <span class="nc" id="L272">        return voc.isSatisfied(this.tail);</span>
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-<span class="nc bnc" id="L276" title="All 2 branches missed.">        for (int i = trail.size() - 1; i &gt;= 0; i--) {</span>
-<span class="nc bnc" id="L277" title="All 2 branches missed.">            if (var(trail.get(i)) == var(this.head)) {</span>
-<span class="nc" id="L278">                return i;</span>
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
+<span class="pc bpc" id="L276" title="1 of 2 branches missed.">        for (int i = trail.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">            if (var(trail.get(i)) == var(this.head)) {</span>
+<span class="fc" id="L278">                return i;</span>
             }
         }
 <span class="nc" id="L281">        return -1;</span>

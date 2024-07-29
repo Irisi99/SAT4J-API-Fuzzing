@@ -69,11 +69,11 @@ public class ModelIterator extends SolverDecorator&lt;ISolver&gt; {
 
     private static final long serialVersionUID = 1L;
 
-<span class="nc" id="L72">    protected boolean trivialfalsity = false;</span>
+<span class="fc" id="L72">    protected boolean trivialfalsity = false;</span>
     private long bound;
-<span class="nc" id="L74">    protected long nbModelFound = 0;</span>
+<span class="fc" id="L74">    protected long nbModelFound = 0;</span>
 
-<span class="nc" id="L76">    private final ConstrGroup blockingClauses = new ConstrGroup();</span>
+<span class="fc" id="L76">    private final ConstrGroup blockingClauses = new ConstrGroup();</span>
 
     /**
      * Create an iterator over the solutions available in &lt;code&gt;solver&lt;/code&gt;.
@@ -89,8 +89,8 @@ public class ModelIterator extends SolverDecorator&lt;ISolver&gt; {
      * @see #model()
      */
     public ModelIterator(ISolver solver) {
-<span class="nc" id="L92">        this(solver, Long.MAX_VALUE);</span>
-<span class="nc" id="L93">    }</span>
+<span class="fc" id="L92">        this(solver, Long.MAX_VALUE);</span>
+<span class="fc" id="L93">    }</span>
 
     /**
      * Create an iterator over a limited number of solutions available in
@@ -111,9 +111,9 @@ public class ModelIterator extends SolverDecorator&lt;ISolver&gt; {
      * @see #model()
      */
     public ModelIterator(ISolver solver, long bound) {
-<span class="nc" id="L114">        super(solver);</span>
-<span class="nc" id="L115">        this.bound = bound;</span>
-<span class="nc" id="L116">    }</span>
+<span class="fc" id="L114">        super(solver);</span>
+<span class="fc" id="L115">        this.bound = bound;</span>
+<span class="fc" id="L116">    }</span>
 
     /*
      * (non-Javadoc)
@@ -122,14 +122,14 @@ public class ModelIterator extends SolverDecorator&lt;ISolver&gt; {
      */
     @Override
     public int[] model() {
-<span class="nc" id="L125">        int[] last = super.model();</span>
-<span class="nc" id="L126">        this.nbModelFound += 1 &lt;&lt; (nVars() - last.length);</span>
+<span class="fc" id="L125">        int[] last = super.model();</span>
+<span class="fc" id="L126">        this.nbModelFound += 1 &lt;&lt; (nVars() - last.length);</span>
         try {
-<span class="nc" id="L128">            blockingClauses.add(discardCurrentModel());</span>
-<span class="nc" id="L129">        } catch (ContradictionException e) {</span>
-<span class="nc" id="L130">            this.trivialfalsity = true;</span>
-<span class="nc" id="L131">        }</span>
-<span class="nc" id="L132">        return last;</span>
+<span class="fc" id="L128">            blockingClauses.add(discardCurrentModel());</span>
+<span class="fc" id="L129">        } catch (ContradictionException e) {</span>
+<span class="fc" id="L130">            this.trivialfalsity = true;</span>
+<span class="fc" id="L131">        }</span>
+<span class="fc" id="L132">        return last;</span>
     }
 
     /*
@@ -139,12 +139,12 @@ public class ModelIterator extends SolverDecorator&lt;ISolver&gt; {
      */
     @Override
     public boolean isSatisfiable() throws TimeoutException {
-<span class="nc bnc" id="L142" title="All 4 branches missed.">        if (this.trivialfalsity || this.nbModelFound &gt;= this.bound) {</span>
-<span class="nc" id="L143">            expireTimeout();</span>
-<span class="nc" id="L144">            return false;</span>
+<span class="pc bpc" id="L142" title="1 of 4 branches missed.">        if (this.trivialfalsity || this.nbModelFound &gt;= this.bound) {</span>
+<span class="fc" id="L143">            expireTimeout();</span>
+<span class="fc" id="L144">            return false;</span>
         }
-<span class="nc" id="L146">        this.trivialfalsity = false;</span>
-<span class="nc" id="L147">        return super.isSatisfiable(true);</span>
+<span class="fc" id="L146">        this.trivialfalsity = false;</span>
+<span class="fc" id="L147">        return super.isSatisfiable(true);</span>
     }
 
     /*
@@ -201,7 +201,7 @@ public class ModelIterator extends SolverDecorator&lt;ISolver&gt; {
      * @since 2.3
      */
     public long numberOfModelsFoundSoFar() {
-<span class="nc" id="L204">        return this.nbModelFound;</span>
+<span class="fc" id="L204">        return this.nbModelFound;</span>
     }
 
     /**

@@ -45,8 +45,8 @@ import org.sat4j.specs.MandatoryLiteralListener;
 public class LearntHTClause extends HTClause {
 
     public LearntHTClause(IVecInt ps, ILits voc) {
-<span class="fc" id="L48">        super(ps, voc);</span>
-<span class="fc" id="L49">    }</span>
+<span class="nc" id="L48">        super(ps, voc);</span>
+<span class="nc" id="L49">    }</span>
 
     /**
      * 
@@ -60,35 +60,35 @@ public class LearntHTClause extends HTClause {
      */
     public void register() {
         // looking for the literal to put in tail
-<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (this.middleLits.length &gt; 0) {</span>
-<span class="fc" id="L64">            var maxi = 0;</span>
-<span class="fc" id="L65">            int maxlevel = this.voc.getLevel(this.middleLits[0]);</span>
-<span class="fc bfc" id="L66" title="All 2 branches covered.">            for (var i = 1; i &lt; this.middleLits.length; i++) {</span>
-<span class="fc" id="L67">                int level = this.voc.getLevel(this.middleLits[i]);</span>
-<span class="fc bfc" id="L68" title="All 2 branches covered.">                if (level &gt; maxlevel) {</span>
-<span class="fc" id="L69">                    maxi = i;</span>
-<span class="fc" id="L70">                    maxlevel = level;</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (this.middleLits.length &gt; 0) {</span>
+<span class="nc" id="L64">            var maxi = 0;</span>
+<span class="nc" id="L65">            int maxlevel = this.voc.getLevel(this.middleLits[0]);</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">            for (var i = 1; i &lt; this.middleLits.length; i++) {</span>
+<span class="nc" id="L67">                int level = this.voc.getLevel(this.middleLits[i]);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                if (level &gt; maxlevel) {</span>
+<span class="nc" id="L69">                    maxi = i;</span>
+<span class="nc" id="L70">                    maxlevel = level;</span>
                 }
             }
-<span class="fc bfc" id="L73" title="All 2 branches covered.">            if (maxlevel &gt; this.voc.getLevel(this.tail)) {</span>
-<span class="fc" id="L74">                int l = this.tail;</span>
-<span class="fc" id="L75">                this.tail = this.middleLits[maxi];</span>
-<span class="fc" id="L76">                this.middleLits[maxi] = l;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (maxlevel &gt; this.voc.getLevel(this.tail)) {</span>
+<span class="nc" id="L74">                int l = this.tail;</span>
+<span class="nc" id="L75">                this.tail = this.middleLits[maxi];</span>
+<span class="nc" id="L76">                this.middleLits[maxi] = l;</span>
             }
         }
         // attach both head and tail literals.
-<span class="fc" id="L80">        this.voc.watch(neg(this.head), this);</span>
-<span class="fc" id="L81">        this.voc.watch(neg(this.tail), this);</span>
+<span class="nc" id="L80">        this.voc.watch(neg(this.head), this);</span>
+<span class="nc" id="L81">        this.voc.watch(neg(this.tail), this);</span>
 
-<span class="fc" id="L83">    }</span>
+<span class="nc" id="L83">    }</span>
 
     public boolean learnt() {
-<span class="fc" id="L86">        return true;</span>
+<span class="nc" id="L86">        return true;</span>
     }
 
     public void setLearnt() {
         // do nothing
-<span class="fc" id="L91">    }</span>
+<span class="nc" id="L91">    }</span>
 
     /**
      * @param claInc
@@ -100,8 +100,8 @@ public class LearntHTClause extends HTClause {
 
     @Override
     public void setActivity(double d) {
-<span class="fc" id="L103">        this.activity = d;</span>
-<span class="fc" id="L104">    }</span>
+<span class="nc" id="L103">        this.activity = d;</span>
+<span class="nc" id="L104">    }</span>
 
     public void propagatePI(MandatoryLiteralListener l, int p) {
 <span class="nc" id="L107">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>

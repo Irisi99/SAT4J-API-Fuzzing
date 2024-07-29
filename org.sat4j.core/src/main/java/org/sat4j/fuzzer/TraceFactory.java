@@ -50,7 +50,7 @@ public class TraceFactory {
     static ArrayList<Integer> unitClauses = new ArrayList<Integer>();
     static ArrayList<String> icnf = new ArrayList<String>();
     // sanity check - verbose - print all variables you are choosing
-    public static void run(long seed, int nrTraces, boolean isTraceSeed, boolean verbose) {
+    public static void run(long seed, int nrTraces, boolean skipProofCheck, boolean isTraceSeed, boolean verbose) {
 
         Helper.initializeOptions(verbose);
 
@@ -86,7 +86,7 @@ public class TraceFactory {
 
             iteration++;
             icnf.clear();
-            SKIP_PROOF_CHECK = false;
+            SKIP_PROOF_CHECK = skipProofCheck;
             PASS_MAX_VAR = false;
             CARDINALITY_CHECK = false;
             usedLiterals.clear();
@@ -148,10 +148,9 @@ public class TraceFactory {
                 if(ENUMERATING){
                     solver2 = initializeSolver(verbose, false, initSeed);
                     solver2.setTimeout(120);
-                } else {
-                    solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+trace.getId()+".idrup"));
+                } else if(!SKIP_PROOF_CHECK){
+                    solver.setSearchListener(new IdrupSearchListener<ISolverService>("idrups/"+trace.getId()+".idrup"));
                 }
-                    
             } catch (Exception e) {
                 Helper.printException(isTraceSeed, verbose, trace, "initializeSolver()", e);
                 continue;
@@ -287,8 +286,6 @@ public class TraceFactory {
 
                             // If this was the last iteration update statistics and continue to next trace
                             if(increments == totalIncrements){
-                                Helper.createICNF(trace.getId(), icnf);
-
                                 SATinstances++;
                                 if(verbose){
                                     System.out.println("c SATISFIABLE!");
@@ -303,16 +300,11 @@ public class TraceFactory {
                             String unsatCore = Helper.IVecToString(solver.unsatExplanation());
                             icnf.add("s UNSATISFIABLE");
 
-                            if(ASSUMPTIONS){
-                                if(unsatCore != null){
-                                    icnf.add("u "+unsatCore+"0");
-                                } else {
-                                    icnf.add("u 0");
-                                }
+                            if(ASSUMPTIONS && unsatCore != null){
+                                icnf.add("u "+unsatCore+"0");
                             } else {
                                 icnf.add("u 0");
                             }
-                            Helper.createICNF(trace.getId(), icnf);
 
                             UNSATinstances ++;
                             if(verbose){
@@ -325,11 +317,10 @@ public class TraceFactory {
                         }
 
                     } catch (Exception e) {
-                        if(e.getMessage().contains("Timeout")){
+                        if(e.getMessage()!= null && e.getMessage().contains("Timeout")){
                             TimeOutinstances++;
                             if(verbose){
                                 System.out.println("c TIMEOUT!");
-                                e.printStackTrace();
                             }
                         } else {
                             Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
@@ -362,6 +353,7 @@ public class TraceFactory {
             // IDRUP check
             try {
                 if(!SKIP_PROOF_CHECK){
+                    Helper.createICNF(trace.getId(), icnf);
                     Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
                     int exitCode = process.waitFor(); 
                     if(exitCode != 0){
@@ -493,7 +485,7 @@ public class TraceFactory {
                     if(solverName.equals("Concise")){
                         PASS_MAX_VAR = true;
                     }
-                    if(!SKIP_PROOF_CHECK && (solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver"))){
+                    if(solverName.equals("Parallel") || solverName.equals("SATUNSAT") || solverName.equals("MinOneSolver")){
                         SKIP_PROOF_CHECK = true;
                     }
                     if(addToTrace){

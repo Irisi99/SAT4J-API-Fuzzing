@@ -52,16 +52,16 @@ public final class PercentLengthLearning&lt;D extends DataStructureFactory&gt;
     private int bound;
 
     public PercentLengthLearning() {
-<span class="nc" id="L55">        this(10);</span>
-<span class="nc" id="L56">    }</span>
+<span class="fc" id="L55">        this(10);</span>
+<span class="fc" id="L56">    }</span>
 
 <span class="fc" id="L58">    public PercentLengthLearning(int percent) {</span>
 <span class="fc" id="L59">        this.maxpercent = percent;</span>
 <span class="fc" id="L60">    }</span>
 
     public void setLimit(int percent) {
-<span class="nc" id="L63">        this.maxpercent = percent;</span>
-<span class="nc" id="L64">    }</span>
+<span class="fc" id="L63">        this.maxpercent = percent;</span>
+<span class="fc" id="L64">    }</span>
 
     public int getLimit() {
 <span class="nc" id="L67">        return this.maxpercent;</span>
@@ -85,7 +85,7 @@ public final class PercentLengthLearning&lt;D extends DataStructureFactory&gt;
 
     @Override
     protected boolean learningCondition(Constr constr) {
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        return constr.size() &lt;= this.bound;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        return constr.size() &lt;= this.bound;</span>
     }
 
 }

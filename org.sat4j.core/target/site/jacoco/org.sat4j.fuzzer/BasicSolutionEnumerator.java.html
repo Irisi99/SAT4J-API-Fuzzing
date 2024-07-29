@@ -40,7 +40,7 @@ import org.sat4j.specs.ISolver;
 <span class="nc" id="L40">                i++;</span>
                 // Get the proof of SAT from the solver
 <span class="nc" id="L42">                int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);</span>
-<span class="nc" id="L43">                System.out.println(&quot;c Solution &quot; + i + &quot; : &quot; + TraceFactory.toString(lits) + &quot;\n&quot;);</span>
+<span class="nc" id="L43">                System.out.println(&quot;c Solution &quot; + i + &quot; : &quot; + Helper.clauseToString(lits) + &quot;\n&quot;);</span>
 
                 // Swap the sign of the literals and add them as a new clause in the solver in order to find other solutions
 <span class="nc bnc" id="L46" title="All 2 branches missed.">                for (int j = 0; j &lt; lits.length; j++) {</span>
@@ -48,7 +48,7 @@ import org.sat4j.specs.ISolver;
                 }
 <span class="nc" id="L49">                solver.addClause(new VecInt(lits));</span>
 
-<span class="nc bnc" id="L51" title="All 2 branches missed.">            } while (is_sat);</span>
+<span class="nc" id="L51">            } while (true);</span>
 
 <span class="nc" id="L53">            System.out.println(&quot;No other solution&quot;);</span>
 
@@ -64,5 +64,24 @@ import org.sat4j.specs.ISolver;
 <span class="nc" id="L64">            System.out.println(e.getMessage());</span>
 <span class="nc" id="L65">        }</span>
 <span class="nc" id="L66">    }</span>
+
+    // Custom method to count solutions of a CNF File
+    public static int countSolutions(ISolver solver) throws TimeoutException, ContradictionException{
+<span class="nc" id="L70">        int i = 0;</span>
+<span class="nc" id="L71">        Boolean is_sat = true;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        while (is_sat) {</span>
+<span class="nc" id="L73">            is_sat = solver.isSatisfiable();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (!is_sat)</span>
+<span class="nc" id="L75">                break;</span>
+<span class="nc" id="L76">            i++;</span>
+            // Get the proof of SAT from the solver
+<span class="nc" id="L78">            int[] lits = Arrays.copyOf(solver.modelWithInternalVariables(), solver.modelWithInternalVariables().length);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            for (int j = 0; j &lt; lits.length; j++) {</span>
+<span class="nc" id="L80">                lits[j] = lits[j] * -1;</span>
+            }
+<span class="nc" id="L82">            solver.addClause(new VecInt(lits));</span>
+<span class="nc" id="L83">        }</span>
+<span class="nc" id="L84">        return i;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

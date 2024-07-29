@@ -46,7 +46,7 @@ import org.sat4j.specs.Constr;
  *
  */
 @Feature(value = &quot;restarts&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L49">public class EMARestarts implements RestartStrategy {</span>
+<span class="fc" id="L49">public class EMARestarts implements RestartStrategy {</span>
 
     /**
      * 
@@ -61,22 +61,22 @@ import org.sat4j.specs.Constr;
     private long limit;
 
     public void reset() {
-<span class="nc" id="L64">        fast = 0;</span>
-<span class="nc" id="L65">        slow = 0;</span>
-<span class="nc" id="L66">        limit = 50;</span>
-<span class="nc" id="L67">    }</span>
+<span class="fc" id="L64">        fast = 0;</span>
+<span class="fc" id="L65">        slow = 0;</span>
+<span class="fc" id="L66">        limit = 50;</span>
+<span class="fc" id="L67">    }</span>
 
     public void newConflict() {
-<span class="nc" id="L70">    }</span>
+<span class="fc" id="L70">    }</span>
 
     @Override
     public void init(SearchParams params, SolverStats stats) {
-<span class="nc" id="L74">        this.stats = stats;</span>
-<span class="nc" id="L75">        reset();</span>
-<span class="nc" id="L76">    }</span>
+<span class="fc" id="L74">        this.stats = stats;</span>
+<span class="fc" id="L75">        reset();</span>
+<span class="fc" id="L76">    }</span>
 
     public boolean shouldRestart() {
-<span class="nc bnc" id="L79" title="All 4 branches missed.">        return this.stats.getConflicts() &gt; limit &amp;&amp; fast / 125 &gt; slow / 100;</span>
+<span class="pc bpc" id="L79" title="3 of 4 branches missed.">        return this.stats.getConflicts() &gt; limit &amp;&amp; fast / 125 &gt; slow / 100;</span>
     }
 
     @Override
@@ -86,12 +86,12 @@ import org.sat4j.specs.Constr;
 
     @Override
     public void newLearnedClause(Constr learned, int trailLevel) {
-<span class="nc" id="L89">        int lbd = (int) learned.getActivity();</span>
-<span class="nc" id="L90">        fast -= fast &gt;&gt; 5;</span>
-<span class="nc" id="L91">        fast += lbd &lt;&lt; (32 - 5);</span>
-<span class="nc" id="L92">        slow -= slow &gt;&gt; 14;</span>
-<span class="nc" id="L93">        slow += lbd &lt;&lt; (32 - 14);</span>
-<span class="nc" id="L94">    }</span>
+<span class="fc" id="L89">        int lbd = (int) learned.getActivity();</span>
+<span class="fc" id="L90">        fast -= fast &gt;&gt; 5;</span>
+<span class="fc" id="L91">        fast += lbd &lt;&lt; (32 - 5);</span>
+<span class="fc" id="L92">        slow -= slow &gt;&gt; 14;</span>
+<span class="fc" id="L93">        slow += lbd &lt;&lt; (32 - 14);</span>
+<span class="fc" id="L94">    }</span>
 
     @Override
     public String toString() {

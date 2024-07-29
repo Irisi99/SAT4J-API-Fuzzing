@@ -57,8 +57,8 @@ public class ConstrGroup implements IConstr {
      * Create a ConstrGroup that cannot contain null constrs.
      */
     public ConstrGroup() {
-<span class="nc" id="L60">        this(true);</span>
-<span class="nc" id="L61">    }</span>
+<span class="fc" id="L60">        this(true);</span>
+<span class="fc" id="L61">    }</span>
 
     /**
      * Create a new constrGroup.
@@ -72,7 +72,7 @@ public class ConstrGroup implements IConstr {
 <span class="fc" id="L72">    }</span>
 
     public void add(IConstr constr) {
-<span class="pc bpc" id="L75" title="1 of 4 branches missed.">        if (constr == null &amp;&amp; this.disallowNullConstraints) {</span>
+<span class="pc bpc" id="L75" title="3 of 4 branches missed.">        if (constr == null &amp;&amp; this.disallowNullConstraints) {</span>
 <span class="nc" id="L76">            throw new IllegalArgumentException(</span>
                     &quot;The constraint you entered cannot be removed from the solver.&quot;);
         }

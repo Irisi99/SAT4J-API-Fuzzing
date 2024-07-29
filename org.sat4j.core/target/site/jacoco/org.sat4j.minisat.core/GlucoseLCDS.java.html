@@ -64,32 +64,32 @@ class GlucoseLCDS&lt;D extends DataStructureFactory&gt;
 <span class="fc" id="L64">    }</span>
 
     public void reduce(IVec&lt;Constr&gt; learnedConstrs) {
-<span class="fc" id="L67">        learnedConstrs.sort(solver.getActivityComparator());</span>
+<span class="nc" id="L67">        learnedConstrs.sort(solver.getActivityComparator());</span>
         int i, j;
-<span class="fc" id="L69">        for (i = j = learnedConstrs.size() / 2; i &lt; learnedConstrs</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">                .size(); i++) {</span>
-<span class="fc" id="L71">            var c = learnedConstrs.get(i);</span>
-<span class="pc bpc" id="L72" title="1 of 4 branches missed.">            if (c.locked() || c.getActivity() &lt;= 2.0) {</span>
-<span class="fc" id="L73">                learnedConstrs.set(j++, learnedConstrs.get(i));</span>
+<span class="nc" id="L69">        for (i = j = learnedConstrs.size() / 2; i &lt; learnedConstrs</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                .size(); i++) {</span>
+<span class="nc" id="L71">            var c = learnedConstrs.get(i);</span>
+<span class="nc bnc" id="L72" title="All 4 branches missed.">            if (c.locked() || c.getActivity() &lt;= 2.0) {</span>
+<span class="nc" id="L73">                learnedConstrs.set(j++, learnedConstrs.get(i));</span>
             } else {
-<span class="fc" id="L75">                c.remove(solver);</span>
-<span class="fc" id="L76">                solver.slistener.delete(c);</span>
-<span class="fc" id="L77">                onRemove(c);</span>
+<span class="nc" id="L75">                c.remove(solver);</span>
+<span class="nc" id="L76">                solver.slistener.delete(c);</span>
+<span class="nc" id="L77">                onRemove(c);</span>
             }
         }
-<span class="pc bpc" id="L80" title="1 of 2 branches missed.">        if (solver.isVerbose()) {</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (solver.isVerbose()) {</span>
 <span class="nc" id="L81">            solver.out.log(this.solver.getLogPrefix() + &quot;cleaning &quot; //$NON-NLS-1$</span>
 <span class="nc" id="L82">                    + (learnedConstrs.size() - j) + &quot; clauses out of &quot; //$NON-NLS-1$</span>
 <span class="nc" id="L83">                    + learnedConstrs.size() + &quot; with flag &quot; //$NON-NLS-1$</span>
 <span class="nc" id="L84">                    + this.flag + &quot;/&quot; + solver.stats.getConflicts());</span>
         }
-<span class="fc" id="L86">        learnedConstrs.shrinkTo(j);</span>
+<span class="nc" id="L86">        learnedConstrs.shrinkTo(j);</span>
 
-<span class="fc" id="L88">    }</span>
+<span class="nc" id="L88">    }</span>
 
     protected void onRemove(Constr c) {
         // Nothing to do by default.
-<span class="fc" id="L92">    }</span>
+<span class="nc" id="L92">    }</span>
 
     public ConflictTimer getTimer() {
 <span class="fc" id="L95">        return this.timer;</span>

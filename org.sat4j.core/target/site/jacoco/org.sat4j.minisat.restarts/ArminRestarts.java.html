@@ -66,15 +66,15 @@ import org.sat4j.minisat.core.SolverStats;
 
     @Override
     public void onRestart() {
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (this.inner &gt;= this.outer) {</span>
-<span class="fc" id="L70">            this.outer *= this.params.getConflictBoundIncFactor();</span>
-<span class="fc" id="L71">            this.inner = this.params.getInitConflictBound();</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">        if (this.inner &gt;= this.outer) {</span>
+<span class="nc" id="L70">            this.outer *= this.params.getConflictBoundIncFactor();</span>
+<span class="nc" id="L71">            this.inner = this.params.getInitConflictBound();</span>
         } else {
-<span class="fc" id="L73">            this.inner *= this.params.getConflictBoundIncFactor();</span>
+<span class="nc" id="L73">            this.inner *= this.params.getConflictBoundIncFactor();</span>
         }
-<span class="fc" id="L75">        this.conflicts = Math.round(this.inner);</span>
-<span class="fc" id="L76">        this.conflictcount = 0;</span>
-<span class="fc" id="L77">    }</span>
+<span class="nc" id="L75">        this.conflicts = Math.round(this.inner);</span>
+<span class="nc" id="L76">        this.conflictcount = 0;</span>
+<span class="nc" id="L77">    }</span>
 
     @Override
     public String toString() {
@@ -82,13 +82,13 @@ import org.sat4j.minisat.core.SolverStats;
     }
 
     public boolean shouldRestart() {
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        return this.conflictcount &gt;= this.conflicts;</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">        return this.conflictcount &gt;= this.conflicts;</span>
     }
 
     @Override
     public void onBackjumpToRootLevel() {
-<span class="fc" id="L90">        this.conflictcount = 0;</span>
-<span class="fc" id="L91">    }</span>
+<span class="nc" id="L90">        this.conflictcount = 0;</span>
+<span class="nc" id="L91">    }</span>
 
     public void reset() {
 <span class="nc" id="L94">        this.conflictcount = 0;</span>

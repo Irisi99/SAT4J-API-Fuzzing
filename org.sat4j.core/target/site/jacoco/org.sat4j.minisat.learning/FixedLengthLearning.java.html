@@ -50,12 +50,12 @@ public final class FixedLengthLearning&lt;D extends DataStructureFactory&gt;
     private int bound;
 
     public FixedLengthLearning() {
-<span class="nc" id="L53">        this(3);</span>
-<span class="nc" id="L54">    }</span>
+<span class="fc" id="L53">        this(3);</span>
+<span class="fc" id="L54">    }</span>
 
-<span class="nc" id="L56">    public FixedLengthLearning(int maxlength) {</span>
-<span class="nc" id="L57">        this.maxlength = maxlength;</span>
-<span class="nc" id="L58">    }</span>
+<span class="fc" id="L56">    public FixedLengthLearning(int maxlength) {</span>
+<span class="fc" id="L57">        this.maxlength = maxlength;</span>
+<span class="fc" id="L58">    }</span>
 
     /*
      * (non-Javadoc)
@@ -66,12 +66,12 @@ public final class FixedLengthLearning&lt;D extends DataStructureFactory&gt;
      */
     @Override
     public void init() {
-<span class="nc" id="L69">        setBound(this.maxlength);</span>
-<span class="nc" id="L70">    }</span>
+<span class="fc" id="L69">        setBound(this.maxlength);</span>
+<span class="fc" id="L70">    }</span>
 
     public void setMaxLength(int v) {
-<span class="nc" id="L73">        this.maxlength = v;</span>
-<span class="nc" id="L74">    }</span>
+<span class="fc" id="L73">        this.maxlength = v;</span>
+<span class="fc" id="L74">    }</span>
 
     public int getMaxLength() {
 <span class="nc" id="L77">        return this.maxlength;</span>
@@ -84,12 +84,12 @@ public final class FixedLengthLearning&lt;D extends DataStructureFactory&gt;
     }
 
     protected void setBound(int newbound) {
-<span class="nc" id="L87">        this.bound = newbound;</span>
-<span class="nc" id="L88">    }</span>
+<span class="fc" id="L87">        this.bound = newbound;</span>
+<span class="fc" id="L88">    }</span>
 
     @Override
     protected boolean learningCondition(Constr constr) {
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        return constr.size() &lt;= this.bound;</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        return constr.size() &lt;= this.bound;</span>
     }
 
 }

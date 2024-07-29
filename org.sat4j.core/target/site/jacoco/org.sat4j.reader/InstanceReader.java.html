@@ -34,11 +34,13 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
 import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
 
 /**
  * An reader having the responsibility to choose the right reader according to
@@ -64,124 +66,129 @@ public class InstanceReader extends Reader {
 
     private KlauseReader knf;
 
-<span class="nc" id="L67">    private Reader reader = null;</span>
+<span class="nc" id="L69">    private Reader reader = null;</span>
 
     private final ISolver solver;
 
-<span class="nc" id="L71">    public InstanceReader(ISolver solver, Reader reader) {</span>
-<span class="nc" id="L72">        this.solver = solver;</span>
-<span class="nc" id="L73">        this.reader = reader;</span>
-<span class="nc" id="L74">    }</span>
+<span class="nc" id="L73">    public InstanceReader(ISolver solver, Reader reader) {</span>
+<span class="nc" id="L74">        this.solver = solver;</span>
+<span class="nc" id="L75">        this.reader = reader;</span>
+<span class="nc" id="L76">    }</span>
 
-<span class="nc" id="L76">    public InstanceReader(ISolver solver) {</span>
-<span class="nc" id="L77">        this.solver = solver;</span>
-<span class="nc" id="L78">    }</span>
+<span class="nc" id="L78">    public InstanceReader(ISolver solver) {</span>
+<span class="nc" id="L79">        this.solver = solver;</span>
+<span class="nc" id="L80">    }</span>
 
     private Reader getDefaultSATReader() {
-<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (this.dimacs == null) {</span>
-<span class="nc" id="L82">            this.dimacs = new LecteurDimacs(this.solver);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (this.dimacs == null) {</span>
+<span class="nc" id="L84">            this.dimacs = new LecteurDimacs(this.solver);</span>
         }
-<span class="nc" id="L84">        return this.dimacs;</span>
+<span class="nc" id="L86">        return this.dimacs;</span>
     }
 
     private Reader getEZSATReader() {
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (this.ezdimacs == null) {</span>
-<span class="nc" id="L89">            this.ezdimacs = new DimacsReader(this.solver);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">        if (this.ezdimacs == null) {</span>
+<span class="nc" id="L91">            this.ezdimacs = new DimacsReader(this.solver);</span>
         }
-<span class="nc" id="L91">        return this.ezdimacs;</span>
+<span class="nc" id="L93">        return this.ezdimacs;</span>
     }
 
     private Reader getAIGReader() {
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.aig == null) {</span>
-<span class="nc" id="L96">            this.aig = new AIGReader(this.solver);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">        if (this.aig == null) {</span>
+<span class="nc" id="L98">            this.aig = new AIGReader(this.solver);</span>
         }
-<span class="nc" id="L98">        return this.aig;</span>
+<span class="nc" id="L100">        return this.aig;</span>
     }
 
     private Reader getAAGReader() {
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (this.aag == null) {</span>
-<span class="nc" id="L103">            this.aag = new AAGReader(this.solver);</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        if (this.aag == null) {</span>
+<span class="nc" id="L105">            this.aag = new AAGReader(this.solver);</span>
         }
-<span class="nc" id="L105">        return this.aag;</span>
+<span class="nc" id="L107">        return this.aag;</span>
     }
 
     private Reader getKNFGReader() {
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        if (this.knf == null) {</span>
-<span class="nc" id="L110">            this.knf = new KlauseReader(this.solver);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (this.knf == null) {</span>
+<span class="nc" id="L112">            this.knf = new KlauseReader(this.solver);</span>
         }
-<span class="nc" id="L112">        return this.knf;</span>
+<span class="nc" id="L114">        return this.knf;</span>
     }
 
     protected Collection&lt;String&gt; getReservedPrefixes() {
-<span class="nc" id="L116">        Collection&lt;String&gt; prefixes = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L117">        prefixes.add(&quot;EZCNF&quot;);</span>
-<span class="nc" id="L118">        return prefixes;</span>
+<span class="nc" id="L118">        Collection&lt;String&gt; prefixes = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L119">        prefixes.add(&quot;EZCNF&quot;);</span>
+<span class="nc" id="L120">        return prefixes;</span>
     }
 
     @Override
     public IProblem parseInstance(String filename)
             throws ParseFormatException, IOException, ContradictionException {
         String fname;
-<span class="nc" id="L125">        var prefix = &quot;&quot;;</span>
+<span class="nc" id="L127">        var prefix = &quot;&quot;;</span>
 
-<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (filename.startsWith(&quot;http://&quot;)) {</span>
-<span class="nc" id="L128">            filename = filename.substring(filename.lastIndexOf('/') + 1);</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        if (filename.startsWith(&quot;http://&quot;)) {</span>
+<span class="nc" id="L130">            filename = filename.substring(filename.lastIndexOf('/') + 1);</span>
         }
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        for (String reservedPrefix : getReservedPrefixes()) {</span>
-<span class="nc bnc" id="L131" title="All 2 branches missed.">            if (filename.startsWith(reservedPrefix + &quot;:&quot;)) {</span>
-<span class="nc" id="L132">                filename = filename.substring(reservedPrefix.length() + 1);</span>
-<span class="nc" id="L133">                prefix = reservedPrefix;</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        for (String reservedPrefix : getReservedPrefixes()) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">            if (filename.startsWith(reservedPrefix + &quot;:&quot;)) {</span>
+<span class="nc" id="L134">                filename = filename.substring(reservedPrefix.length() + 1);</span>
+<span class="nc" id="L135">                prefix = reservedPrefix;</span>
 
             }
-<span class="nc" id="L136">        }</span>
-<span class="nc bnc" id="L137" title="All 4 branches missed.">        if (filename.endsWith(&quot;.gz&quot;) || filename.endsWith(&quot;.bz2&quot;)) {</span>
-<span class="nc" id="L138">            fname = filename.substring(0, filename.lastIndexOf('.'));</span>
+<span class="nc" id="L138">        }</span>
+<span class="nc bnc" id="L139" title="All 4 branches missed.">        if (filename.endsWith(&quot;.gz&quot;) || filename.endsWith(&quot;.bz2&quot;)) {</span>
+<span class="nc" id="L140">            fname = filename.substring(0, filename.lastIndexOf('.'));</span>
         } else {
-<span class="nc" id="L140">            fname = filename;</span>
+<span class="nc" id="L142">            fname = filename;</span>
         }
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        if (this.reader == null) {</span>
-<span class="nc" id="L143">            this.reader = handleFileName(fname, prefix);</span>
-<span class="nc" id="L144">            this.reader.setUseMapping(this.isUsingMapping());</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        if (this.reader == null) {</span>
+<span class="nc" id="L145">            this.reader = handleFileName(fname, prefix);</span>
+<span class="nc" id="L146">            this.reader.setUseMapping(this.isUsingMapping());</span>
         }
-<span class="nc" id="L146">        return this.reader.parseInstance(filename);</span>
+<span class="nc" id="L148">        return this.reader.parseInstance(filename);</span>
     }
 
     protected Reader handleFileName(String fname, String prefix) {
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        if (&quot;EZCNF&quot;.equals(prefix)) {</span>
-<span class="nc" id="L151">            return getEZSATReader();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (&quot;EZCNF&quot;.equals(prefix)) {</span>
+<span class="nc" id="L153">            return getEZSATReader();</span>
         }
-<span class="nc bnc" id="L153" title="All 2 branches missed.">        if (fname.endsWith(&quot;.aag&quot;)) {</span>
-<span class="nc" id="L154">            return getAAGReader();</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (fname.endsWith(&quot;.aag&quot;)) {</span>
+<span class="nc" id="L156">            return getAAGReader();</span>
         }
-<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (fname.endsWith(&quot;.aig&quot;)) {</span>
-<span class="nc" id="L157">            return getAIGReader();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        if (fname.endsWith(&quot;.aig&quot;)) {</span>
+<span class="nc" id="L159">            return getAIGReader();</span>
         }
-<span class="nc bnc" id="L159" title="All 2 branches missed.">        if (fname.endsWith(&quot;.knf&quot;)) {</span>
-<span class="nc" id="L160">            return getKNFGReader();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        if (fname.endsWith(&quot;.knf&quot;)) {</span>
+<span class="nc" id="L162">            return getKNFGReader();</span>
         }
-<span class="nc" id="L162">        return getDefaultSATReader();</span>
+<span class="nc" id="L164">        return getDefaultSATReader();</span>
     }
 
     @Override
     public void decode(int[] model, PrintWriter out) {
-<span class="nc" id="L167">        this.reader.decode(model, out);</span>
-<span class="nc" id="L168">    }</span>
+<span class="nc" id="L169">        this.reader.decode(model, out);</span>
+<span class="nc" id="L170">    }</span>
 
     @Override
     public IProblem parseInstance(java.io.InputStream in)
             throws ParseFormatException, ContradictionException, IOException {
-<span class="nc" id="L173">        throw new UnsupportedOperationException(</span>
+<span class="nc" id="L175">        throw new UnsupportedOperationException(</span>
                 &quot;Use a domain specific Reader (LecteurDimacs, AIGReader, etc.) for stream input &quot;);
     }
 
     @Override
     public boolean hasAMapping() {
-<span class="nc" id="L179">        return this.reader.hasAMapping();</span>
+<span class="nc" id="L181">        return this.reader.hasAMapping();</span>
     }
 
     @Override
     public Map&lt;Integer, String&gt; getMapping() {
-<span class="nc" id="L184">        return this.reader.getMapping();</span>
+<span class="nc" id="L186">        return this.reader.getMapping();</span>
+    }
+
+    @Override
+    public Optional&lt;IVecInt&gt; getSubsetOfVariable() {
+<span class="nc" id="L191">        return this.reader.getSubsetOfVariable();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -30,6 +30,7 @@
 package org.sat4j.specs;
 
 import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
 
 /*
  * Created on 16 oct. 2003
@@ -48,7 +49,7 @@ import org.sat4j.annotations.Feature;
 @Feature(value = &quot;constraint&quot;, parent = &quot;expert&quot;)
 public interface Constr extends IConstr {
 
-<span class="fc" id="L51">    Constr TAUTOLOGY = new Constr() {</span>
+<span class="fc" id="L52">    Constr TAUTOLOGY = new Constr() {</span>
 
         /**
          * 
@@ -56,89 +57,90 @@ public interface Constr extends IConstr {
         private static final long serialVersionUID = 1L;
 
         public boolean learnt() {
-<span class="nc" id="L59">            return false;</span>
+<span class="nc" id="L60">            return false;</span>
         }
 
         public int size() {
-<span class="nc" id="L63">            return 0;</span>
+<span class="nc" id="L64">            return 0;</span>
         }
 
         public int get(int i) {
-<span class="nc" id="L67">            throw new UnsupportedOperationException(</span>
+<span class="nc" id="L68">            throw new UnsupportedOperationException(</span>
                     &quot;No elements in a tautology&quot;);
         }
 
         @Override
         public double getActivity() {
-<span class="nc" id="L73">            return 0.0;</span>
+<span class="nc" id="L74">            return 0.0;</span>
         }
 
         public boolean canBePropagatedMultipleTimes() {
-<span class="nc" id="L77">            return false;</span>
+<span class="nc" id="L78">            return false;</span>
         }
 
         public String toString(VarMapper mapper) {
-<span class="nc" id="L81">            return &quot;TAUT&quot;;</span>
+<span class="nc" id="L82">            return &quot;TAUT&quot;;</span>
         }
 
         public void remove(UnitPropagationListener upl) {
             // do nothing
-<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">        }</span>
 
         public boolean simplify() {
-<span class="nc" id="L89">            return false;</span>
+<span class="nc" id="L90">            return false;</span>
         }
 
         public void calcReason(int p, IVecInt outReason) {
-<span class="nc" id="L93">            throw new UnsupportedOperationException(</span>
+<span class="nc" id="L94">            throw new UnsupportedOperationException(</span>
                     &quot;A tautology cannot be a reason&quot;);
         }
 
         public void calcReasonOnTheFly(int p, IVecInt trail,
                 IVecInt outReason) {
-<span class="nc" id="L99">            throw new UnsupportedOperationException(</span>
+<span class="nc" id="L100">            throw new UnsupportedOperationException(</span>
                     &quot;A tautology cannot be a reason&quot;);
         }
 
         public boolean locked() {
-<span class="nc" id="L104">            return false;</span>
+<span class="nc" id="L105">            return false;</span>
         }
 
         public void setLearnt() {
             // do nothing
-<span class="nc" id="L109">        }</span>
+<span class="nc" id="L110">        }</span>
 
         public void register() {
             // do nothing
-<span class="nc" id="L113">        }</span>
+<span class="nc" id="L114">        }</span>
 
         public void assertConstraint(UnitPropagationListener s) {
             // do nothing
-<span class="nc" id="L117">        }</span>
+<span class="nc" id="L118">        }</span>
 
         public void assertConstraintIfNeeded(UnitPropagationListener s) {
             // do nothing
-<span class="nc" id="L121">        }</span>
+<span class="nc" id="L122">        }</span>
 
         public boolean canBeSatisfiedByCountingLiterals() {
-<span class="nc" id="L124">            return false;</span>
+<span class="nc" id="L125">            return false;</span>
         }
 
         public int requiredNumberOfSatisfiedLiterals() {
-<span class="nc" id="L128">            return 0;</span>
+<span class="nc" id="L129">            return 0;</span>
         }
 
         public boolean isSatisfied() {
-<span class="nc" id="L132">            return true;</span>
+<span class="nc" id="L133">            return true;</span>
         }
 
-        public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-<span class="nc" id="L136">            return 0;</span>
+        public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
+                int decisionLevel, ILits voc) {
+<span class="nc" id="L138">            return 0;</span>
         }
 
         @Override
         public String dump() {
-<span class="nc" id="L141">            return &quot;&quot;;</span>
+<span class="nc" id="L143">            return &quot;&quot;;</span>
         }
     };
 
@@ -203,7 +205,7 @@ public interface Constr extends IConstr {
      */
     default void incActivity(double claInc) {
 
-<span class="nc" id="L206">    }</span>
+<span class="nc" id="L208">    }</span>
 
     /**
      * Indicate weather a constraint is responsible from an assignment.
@@ -231,7 +233,7 @@ public interface Constr extends IConstr {
      */
     default void rescaleBy(double d) {
 
-<span class="nc" id="L234">    }</span>
+<span class="nc" id="L236">    }</span>
 
     /**
      * Set the activity at a specific value
@@ -242,7 +244,7 @@ public interface Constr extends IConstr {
      */
     default void setActivity(double d) {
 
-<span class="nc" id="L245">    }</span>
+<span class="nc" id="L247">    }</span>
 
     /**
      * Method called when the constraint is to be asserted. It means that the
@@ -309,13 +311,34 @@ public interface Constr extends IConstr {
      * 
      * @param trail
      *            the internal solver trail
+     * @param trailLim
+     *            TODO
      * @param decisionLevel
      *            the current decision level
+     * @param voc
+     *            TODO
      * @return the decision level under which the constraint becomes assertive,
      *         else -1.
      * @since 2.3.6
      * @see #canBePropagatedMultipleTimes()
      */
-    int getAssertionLevel(IVecInt trail, int decisionLevel);
+    int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel,
+            ILits voc);
+
+    /**
+     * Returns the index of the first falsified literal in the constraint.
+     * 
+     * In the watched literals data structure, the first literal is always true
+     * in a reason, so this method should return 1.
+     * 
+     * In dedicated data structure (for binary clauses for instance), the method
+     * should return 0.
+     * 
+     * @return the index of the first falsified literal to test
+     * @since 3.0
+     */
+    default int getFirstFalsifiedLiteralIndexForReason() {
+<span class="nc" id="L341">        return 0;</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

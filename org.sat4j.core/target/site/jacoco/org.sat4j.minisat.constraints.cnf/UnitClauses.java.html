@@ -32,6 +32,7 @@ package org.sat4j.minisat.constraints.cnf;
 import static org.sat4j.Messages.NOT_IMPLEMENTED_YET;
 
 import org.sat4j.annotations.Feature;
+import org.sat4j.minisat.core.ILits;
 import org.sat4j.specs.Constr;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.MandatoryLiteralListener;
@@ -46,122 +47,122 @@ public class UnitClauses implements Constr {
 
     protected final int[] literals;
 
-<span class="nc" id="L49">    public UnitClauses(IVecInt values) {</span>
-<span class="nc" id="L50">        this.literals = new int[values.size()];</span>
-<span class="nc" id="L51">        values.copyTo(this.literals);</span>
-<span class="nc" id="L52">    }</span>
+<span class="fc" id="L50">    public UnitClauses(IVecInt values) {</span>
+<span class="fc" id="L51">        this.literals = new int[values.size()];</span>
+<span class="fc" id="L52">        values.copyTo(this.literals);</span>
+<span class="fc" id="L53">    }</span>
 
     public void assertConstraint(UnitPropagationListener s) {
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        for (int p : this.literals) {</span>
-<span class="nc" id="L56">            s.enqueue(p, this);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        for (int p : this.literals) {</span>
+<span class="nc" id="L57">            s.enqueue(p, this);</span>
         }
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L59">    }</span>
 
     public void assertConstraintIfNeeded(UnitPropagationListener s) {
-<span class="nc" id="L61">        assertConstraint(s);</span>
-<span class="nc" id="L62">    }</span>
+<span class="nc" id="L62">        assertConstraint(s);</span>
+<span class="nc" id="L63">    }</span>
 
     public void calcReason(int p, IVecInt outReason) {
-<span class="nc" id="L65">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L66">        throw new UnsupportedOperationException();</span>
 
     }
 
     @Override
     public double getActivity() {
-<span class="nc" id="L71">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L72">        throw new UnsupportedOperationException();</span>
     }
 
     public boolean locked() {
-<span class="nc" id="L75">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L76">        throw new UnsupportedOperationException();</span>
     }
 
     public void register() {
-<span class="nc" id="L79">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L80">        throw new UnsupportedOperationException();</span>
     }
 
     public void remove(UnitPropagationListener upl) {
-<span class="nc" id="L83">        int oldLevel = upl.getPropagationLevel();</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        for (int i = this.literals.length - 1; i &gt;= 0; i--) {</span>
-<span class="nc" id="L85">            upl.unset(this.literals[i]);</span>
+<span class="nc" id="L84">        int oldLevel = upl.getPropagationLevel();</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        for (int i = this.literals.length - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L86">            upl.unset(this.literals[i]);</span>
         }
-<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (upl.getPropagationLevel() &lt; oldLevel - literals.length) {</span>
-<span class="nc" id="L88">            throw new IllegalStateException(</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (upl.getPropagationLevel() &lt; oldLevel - literals.length) {</span>
+<span class="nc" id="L89">            throw new IllegalStateException(</span>
                     &quot;removed unit clause which caused propagations&quot;);
         }
-<span class="nc" id="L91">    }</span>
+<span class="nc" id="L92">    }</span>
 
     @Override
     public void rescaleBy(double d) {
-<span class="nc" id="L95">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L96">        throw new UnsupportedOperationException();</span>
     }
 
     public void setLearnt() {
-<span class="nc" id="L99">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L100">        throw new UnsupportedOperationException();</span>
     }
 
     public boolean simplify() {
-<span class="nc" id="L103">        return false;</span>
+<span class="nc" id="L104">        return false;</span>
     }
 
     public boolean propagate(UnitPropagationListener s, int p) {
-<span class="nc" id="L107">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L108">        throw new UnsupportedOperationException();</span>
     }
 
     public int get(int i) {
-<span class="nc" id="L111">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L112">        throw new UnsupportedOperationException();</span>
     }
 
     public boolean learnt() {
-<span class="nc" id="L115">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L116">        throw new UnsupportedOperationException();</span>
     }
 
     public int size() {
-<span class="nc" id="L119">        throw new UnsupportedOperationException();</span>
+<span class="nc" id="L120">        throw new UnsupportedOperationException();</span>
     }
 
     public boolean canBePropagatedMultipleTimes() {
-<span class="nc" id="L123">        return false;</span>
+<span class="nc" id="L124">        return false;</span>
     }
 
     public void calcReasonOnTheFly(int p, IVecInt trail, IVecInt outReason) {
-<span class="nc" id="L127">        calcReason(p, outReason);</span>
-<span class="nc" id="L128">    }</span>
+<span class="nc" id="L128">        calcReason(p, outReason);</span>
+<span class="nc" id="L129">    }</span>
 
     public void propagatePi(MandatoryLiteralListener m) {
-<span class="nc" id="L131">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L132">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public boolean canBeSatisfiedByCountingLiterals() {
-<span class="nc" id="L135">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L136">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public int requiredNumberOfSatisfiedLiterals() {
-<span class="nc" id="L139">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L140">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public boolean isSatisfied() {
-<span class="nc" id="L143">        return true;</span>
+<span class="nc" id="L144">        return true;</span>
     }
 
-    public int getAssertionLevel(IVecInt trail, int decisionLevel) {
-<span class="nc" id="L147">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+    public int getAssertionLevel(IVecInt trail, IVecInt trailLim, int decisionLevel, ILits voc) {
+<span class="nc" id="L148">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public String toString(VarMapper mapper) {
-<span class="nc" id="L151">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L152">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     @Override
     public String dump() {
-<span class="nc" id="L156">        var stb = new StringBuilder();</span>
-<span class="nc bnc" id="L157" title="All 2 branches missed.">        for (var i = 0; i &lt; literals.length; i++) {</span>
-<span class="nc" id="L158">            stb.append(literals[i]);</span>
-<span class="nc" id="L159">            stb.append(&quot; 0&quot;);</span>
-<span class="nc bnc" id="L160" title="All 2 branches missed.">            if (i &lt; literals.length - 1) {</span>
-<span class="nc" id="L161">                stb.append(System.lineSeparator());</span>
+<span class="nc" id="L157">        var stb = new StringBuilder();</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        for (var i = 0; i &lt; literals.length; i++) {</span>
+<span class="nc" id="L159">            stb.append(literals[i]);</span>
+<span class="nc" id="L160">            stb.append(&quot; 0&quot;);</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">            if (i &lt; literals.length - 1) {</span>
+<span class="nc" id="L162">                stb.append(System.lineSeparator());</span>
             }
         }
-<span class="nc" id="L164">        return stb.toString();</span>
+<span class="nc" id="L165">        return stb.toString();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

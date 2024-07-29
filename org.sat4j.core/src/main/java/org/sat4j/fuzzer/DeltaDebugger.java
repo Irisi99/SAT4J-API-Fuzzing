@@ -50,7 +50,6 @@ public class DeltaDebugger {
                 removeLiterals();
                 renameLiterals();
             } while(tryAgain);
-            shuffle(); //TODO
 
             String output = TraceRunner.runTrace(seedHEX+"_dd", content, false);
             if(output != null && output.equals(errorType)){
@@ -317,9 +316,6 @@ public class DeltaDebugger {
 
     // try to remove variables from the formula
     private static void removeVariables(){}
-
-    // try to shuffle clauses - only clauses within one increment ???
-    private static void shuffle(){}
 
     private static List<Integer> getClause(String[] line){
         List<Integer> clause = new ArrayList<Integer>();

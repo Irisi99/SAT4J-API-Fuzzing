@@ -36,6 +36,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.sat4j.annotations.Feature;
 import org.sat4j.core.VecInt;
@@ -69,42 +70,44 @@ public class LecteurDimacs extends Reader implements Serializable {
     protected transient BufferedInputStream in;
 
     /* nombre de literaux dans le fichier */
-<span class="nc" id="L72">    private int nbVars = -1;</span>
+<span class="nc" id="L73">    private int nbVars = -1;</span>
 
-<span class="nc" id="L74">    private int nbClauses = -1;</span>
+<span class="nc" id="L75">    private int nbClauses = -1;</span>
 
     private static final char EOF = (char) -1;
+
+    private IVecInt subsetOfVariables;
 
     /*
      * nomFichier repr?sente le nom du fichier ? lire
      */
-<span class="nc" id="L81">    public LecteurDimacs(ISolver s) {</span>
-<span class="nc" id="L82">        this.s = s;</span>
-<span class="nc" id="L83">    }</span>
+<span class="nc" id="L84">    public LecteurDimacs(ISolver s) {</span>
+<span class="nc" id="L85">        this.s = s;</span>
+<span class="nc" id="L86">    }</span>
 
     @Override
     public final IProblem parseInstance(final InputStream input)
             throws ParseFormatException, ContradictionException, IOException {
-<span class="nc" id="L88">        mapping = null;</span>
-<span class="nc" id="L89">        this.in = new BufferedInputStream(input, LecteurDimacs.TAILLE_BUF);</span>
-<span class="nc" id="L90">        this.s.reset();</span>
-<span class="nc" id="L91">        passerCommentaire();</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (this.nbVars &lt; 0) {</span>
-<span class="nc" id="L93">            throw new ParseFormatException(</span>
+<span class="nc" id="L91">        mapping = null;</span>
+<span class="nc" id="L92">        this.in = new BufferedInputStream(input, LecteurDimacs.TAILLE_BUF);</span>
+<span class="nc" id="L93">        this.s.reset();</span>
+<span class="nc" id="L94">        passerCommentaire();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">        if (this.nbVars &lt; 0) {</span>
+<span class="nc" id="L96">            throw new ParseFormatException(</span>
                     &quot;DIMACS error: wrong max number of variables&quot;);
         }
-<span class="nc" id="L96">        this.s.newVar(this.nbVars);</span>
-<span class="nc" id="L97">        this.s.setExpectedNumberOfClauses(this.nbClauses);</span>
-<span class="nc" id="L98">        char car = passerEspaces();</span>
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (this.nbClauses &gt; 0) {</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">            if (car == EOF) {</span>
-<span class="nc" id="L101">                throw new ParseFormatException(</span>
+<span class="nc" id="L99">        this.s.newVar(this.nbVars);</span>
+<span class="nc" id="L100">        this.s.setExpectedNumberOfClauses(this.nbClauses);</span>
+<span class="nc" id="L101">        char car = passerEspaces();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (this.nbClauses &gt; 0) {</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">            if (car == EOF) {</span>
+<span class="nc" id="L104">                throw new ParseFormatException(</span>
                         &quot;DIMACS error: the clauses are missing&quot;);
             }
-<span class="nc" id="L104">            ajouterClauses(car);</span>
+<span class="nc" id="L107">            ajouterClauses(car);</span>
         }
-<span class="nc" id="L106">        input.close();</span>
-<span class="nc" id="L107">        return this.s;</span>
+<span class="nc" id="L109">        input.close();</span>
+<span class="nc" id="L110">        return this.s;</span>
     }
 
     /**
@@ -115,64 +118,64 @@ public class LecteurDimacs extends Reader implements Serializable {
     private char passerCommentaire() throws IOException, ParseFormatException {
         char car;
         for (;;) {
-<span class="nc" id="L118">            car = passerEspaces();</span>
-<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (car == 'p') {</span>
-<span class="nc" id="L120">                checkFormat();</span>
-<span class="nc" id="L121">                car = lectureNombreLiteraux();</span>
+<span class="nc" id="L121">            car = passerEspaces();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (car == 'p') {</span>
+<span class="nc" id="L123">                checkFormat();</span>
+<span class="nc" id="L124">                car = lectureNombreLiteraux();</span>
             }
-<span class="nc bnc" id="L123" title="All 4 branches missed.">            if (car != 'c' &amp;&amp; car != 'p') {</span>
-<span class="nc" id="L124">                break; /* fin des commentaires */</span>
+<span class="nc bnc" id="L126" title="All 4 branches missed.">            if (car != 'c' &amp;&amp; car != 'p') {</span>
+<span class="nc" id="L127">                break; /* fin des commentaires */</span>
             }
-<span class="nc" id="L126">            car = manageCommentLine(); /* on passe la ligne de commentaire */</span>
-<span class="nc bnc" id="L127" title="All 2 branches missed.">            if (car == EOF) {</span>
-<span class="nc" id="L128">                break;</span>
+<span class="nc" id="L129">            car = manageCommentLine(); /* on passe la ligne de commentaire */</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">            if (car == EOF) {</span>
+<span class="nc" id="L131">                break;</span>
             }
         }
-<span class="nc" id="L131">        return car;</span>
+<span class="nc" id="L134">        return car;</span>
     }
 
     private void checkFormat() throws ParseFormatException {
         // check if the format is really cnf
         try {
-<span class="nc" id="L137">            char car = passerEspaces();</span>
-<span class="nc bnc" id="L138" title="All 6 branches missed.">            if ('c' != car || 'n' != in.read() || 'f' != in.read()) {</span>
-<span class="nc" id="L139">                throw new ParseFormatException(&quot;Expecting file in cnf format.&quot;);</span>
+<span class="nc" id="L140">            char car = passerEspaces();</span>
+<span class="nc bnc" id="L141" title="All 6 branches missed.">            if ('c' != car || 'n' != in.read() || 'f' != in.read()) {</span>
+<span class="nc" id="L142">                throw new ParseFormatException(&quot;Expecting file in cnf format.&quot;);</span>
             }
-<span class="nc" id="L141">        } catch (IOException e) {</span>
-<span class="nc" id="L142">            throw new ParseFormatException(e);</span>
-<span class="nc" id="L143">        }</span>
-<span class="nc" id="L144">    }</span>
+<span class="nc" id="L144">        } catch (IOException e) {</span>
+<span class="nc" id="L145">            throw new ParseFormatException(e);</span>
+<span class="nc" id="L146">        }</span>
+<span class="nc" id="L147">    }</span>
 
     /** lit le nombre repr?sentant le nombre de literaux */
     private char lectureNombreLiteraux() throws IOException {
-<span class="nc" id="L148">        char car = nextChiffre(); /* on lit le prchain chiffre */</span>
-<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (car != EOF) {</span>
-<span class="nc" id="L150">            this.nbVars = car - '0';</span>
+<span class="nc" id="L151">        char car = nextChiffre(); /* on lit le prchain chiffre */</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">        if (car != EOF) {</span>
+<span class="nc" id="L153">            this.nbVars = car - '0';</span>
             for (;;) { /*
                         * on lit le chiffre repr?sentant le nombre de literaux
                         */
-<span class="nc" id="L154">                car = (char) this.in.read();</span>
-<span class="nc bnc" id="L155" title="All 4 branches missed.">                if (car &lt; '0' || car &gt; '9') {</span>
-<span class="nc" id="L156">                    break;</span>
+<span class="nc" id="L157">                car = (char) this.in.read();</span>
+<span class="nc bnc" id="L158" title="All 4 branches missed.">                if (car &lt; '0' || car &gt; '9') {</span>
+<span class="nc" id="L159">                    break;</span>
                 }
-<span class="nc" id="L158">                this.nbVars = 10 * this.nbVars + car - '0';</span>
+<span class="nc" id="L161">                this.nbVars = 10 * this.nbVars + car - '0';</span>
             }
-<span class="nc" id="L160">            car = nextChiffre();</span>
-<span class="nc" id="L161">            this.nbClauses = car - '0';</span>
+<span class="nc" id="L163">            car = nextChiffre();</span>
+<span class="nc" id="L164">            this.nbClauses = car - '0';</span>
             for (;;) { /*
                         * on lit le chiffre repr?sentant le nombre de literaux
                         */
-<span class="nc" id="L165">                car = (char) this.in.read();</span>
-<span class="nc bnc" id="L166" title="All 4 branches missed.">                if (car &lt; '0' || car &gt; '9') {</span>
-<span class="nc" id="L167">                    break;</span>
+<span class="nc" id="L168">                car = (char) this.in.read();</span>
+<span class="nc bnc" id="L169" title="All 4 branches missed.">                if (car &lt; '0' || car &gt; '9') {</span>
+<span class="nc" id="L170">                    break;</span>
                 }
-<span class="nc" id="L169">                this.nbClauses = 10 * this.nbClauses + car - '0';</span>
+<span class="nc" id="L172">                this.nbClauses = 10 * this.nbClauses + car - '0';</span>
             }
-<span class="nc bnc" id="L171" title="All 4 branches missed.">            if (car != '\n' &amp;&amp; car != EOF) {</span>
-<span class="nc" id="L172">                nextLine(); /* on lit la fin de la ligne */</span>
+<span class="nc bnc" id="L174" title="All 4 branches missed.">            if (car != '\n' &amp;&amp; car != EOF) {</span>
+<span class="nc" id="L175">                nextLine(); /* on lit la fin de la ligne */</span>
             }
         }
-<span class="nc" id="L175">        return car;</span>
+<span class="nc" id="L178">        return car;</span>
     }
 
     /**
@@ -182,154 +185,170 @@ public class LecteurDimacs extends Reader implements Serializable {
      */
     private void ajouterClauses(char car)
             throws IOException, ContradictionException, ParseFormatException {
-<span class="nc" id="L185">        final IVecInt lit = new VecInt();</span>
-<span class="nc" id="L186">        var val = 0;</span>
-<span class="nc" id="L187">        var neg = false;</span>
+<span class="nc" id="L188">        final IVecInt lit = new VecInt();</span>
+<span class="nc" id="L189">        var val = 0;</span>
+<span class="nc" id="L190">        var neg = false;</span>
         for (;;) {
             /* on lit le signe du literal */
-<span class="nc bnc" id="L190" title="All 2 branches missed.">            if (car == 'c') {</span>
-<span class="nc" id="L191">                manageCommentLine();</span>
-<span class="nc" id="L192">                car = (char) this.in.read();</span>
-<span class="nc" id="L193">                continue;</span>
-<span class="nc bnc" id="L194" title="All 2 branches missed.">            } else if (car == '-') {</span>
-<span class="nc" id="L195">                neg = true;</span>
-<span class="nc" id="L196">                car = (char) this.in.read();</span>
-<span class="nc bnc" id="L197" title="All 2 branches missed.">            } else if (car == '+') {</span>
-<span class="nc" id="L198">                car = (char) this.in.read();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            if (car == 'c') {</span>
+<span class="nc" id="L194">                manageCommentLine();</span>
+<span class="nc" id="L195">                car = (char) this.in.read();</span>
+<span class="nc" id="L196">                continue;</span>
+<span class="nc bnc" id="L197" title="All 2 branches missed.">            } else if (car == '-') {</span>
+<span class="nc" id="L198">                neg = true;</span>
+<span class="nc" id="L199">                car = (char) this.in.read();</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">            } else if (car == '+') {</span>
+<span class="nc" id="L201">                car = (char) this.in.read();</span>
             } else /* on le 1er chiffre du literal */
-<span class="nc bnc" id="L200" title="All 4 branches missed.">            if (car &gt;= '0' &amp;&amp; car &lt;= '9') {</span>
-<span class="nc" id="L201">                val = car - '0';</span>
-<span class="nc" id="L202">                car = (char) this.in.read();</span>
+<span class="nc bnc" id="L203" title="All 4 branches missed.">            if (car &gt;= '0' &amp;&amp; car &lt;= '9') {</span>
+<span class="nc" id="L204">                val = car - '0';</span>
+<span class="nc" id="L205">                car = (char) this.in.read();</span>
             } else {
-<span class="nc" id="L204">                throw new ParseFormatException(&quot;Unknown character &quot; + car);</span>
+<span class="nc" id="L207">                throw new ParseFormatException(&quot;Unknown character &quot; + car);</span>
             }
             /* on lit la suite du literal */
-<span class="nc bnc" id="L207" title="All 4 branches missed.">            while (car &gt;= '0' &amp;&amp; car &lt;= '9') {</span>
-<span class="nc" id="L208">                val = val * 10 + car - '0';</span>
-<span class="nc" id="L209">                car = (char) this.in.read();</span>
+<span class="nc bnc" id="L210" title="All 4 branches missed.">            while (car &gt;= '0' &amp;&amp; car &lt;= '9') {</span>
+<span class="nc" id="L211">                val = val * 10 + car - '0';</span>
+<span class="nc" id="L212">                car = (char) this.in.read();</span>
             }
-<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (val == 0) { // on a lu toute la clause</span>
-<span class="nc" id="L212">                this.s.addClause(lit);</span>
-<span class="nc" id="L213">                lit.clear();</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">            if (val == 0) { // on a lu toute la clause</span>
+<span class="nc" id="L215">                this.s.addClause(lit);</span>
+<span class="nc" id="L216">                lit.clear();</span>
             } else {
                 /* on ajoute le literal au vecteur */
-<span class="nc bnc" id="L216" title="All 2 branches missed.">                lit.push(neg ? -val : val);</span>
-<span class="nc" id="L217">                neg = false;</span>
-<span class="nc" id="L218">                val = 0; /* on reinitialise les variables */</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">                lit.push(neg ? -val : val);</span>
+<span class="nc" id="L220">                neg = false;</span>
+<span class="nc" id="L221">                val = 0; /* on reinitialise les variables */</span>
             }
-<span class="nc bnc" id="L220" title="All 2 branches missed.">            if (car != EOF) {</span>
-<span class="nc" id="L221">                car = passerEspaces();</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">            if (car != EOF) {</span>
+<span class="nc" id="L224">                car = passerEspaces();</span>
             }
-<span class="nc bnc" id="L223" title="All 2 branches missed.">            if (car == EOF) {</span>
-<span class="nc bnc" id="L224" title="All 2 branches missed.">                if (!lit.isEmpty()) {</span>
-<span class="nc" id="L225">                    this.s.addClause(lit);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">            if (car == EOF) {</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">                if (!lit.isEmpty()) {</span>
+<span class="nc" id="L228">                    this.s.addClause(lit);</span>
                 }
                 break; /* on a lu tout le fichier */
             }
         }
-<span class="nc" id="L230">    }</span>
+<span class="nc" id="L233">    }</span>
 
     /** passe tout les caract?res d'espacement (espace ou \n) */
     private char passerEspaces() throws IOException {
         char car;
 
         do {
-<span class="nc" id="L237">            car = (char) this.in.read();</span>
-<span class="nc bnc" id="L238" title="All 4 branches missed.">        } while (car == ' ' || car == '\n');</span>
+<span class="nc" id="L240">            car = (char) this.in.read();</span>
+<span class="nc bnc" id="L241" title="All 6 branches missed.">        } while (car == ' ' || car == '\n' || car == '\r');</span>
 
-<span class="nc" id="L240">        return car;</span>
+<span class="nc" id="L243">        return car;</span>
     }
 
     /** passe tout les caract?res jusqu? rencontrer une fin de la ligne */
     private char nextLine() throws IOException {
         char car;
         do {
-<span class="nc" id="L247">            car = (char) this.in.read();</span>
-<span class="nc bnc" id="L248" title="All 4 branches missed.">        } while (car != '\n' &amp;&amp; car != EOF);</span>
-<span class="nc" id="L249">        return car;</span>
+<span class="nc" id="L250">            car = (char) this.in.read();</span>
+<span class="nc bnc" id="L251" title="All 4 branches missed.">        } while (car != '\n' &amp;&amp; car != EOF);</span>
+<span class="nc" id="L252">        return car;</span>
     }
 
     private Map&lt;Integer, String&gt; mapping;
 
     protected char manageCommentLine() throws IOException {
         char car;
-<span class="nc" id="L256">        var stb = new StringBuilder();</span>
+<span class="nc" id="L259">        var stb = new StringBuilder();</span>
         do {
-<span class="nc" id="L258">            car = (char) this.in.read();</span>
-<span class="nc" id="L259">            stb.append(car);</span>
-<span class="nc bnc" id="L260" title="All 4 branches missed.">        } while (car != '\n' &amp;&amp; car != EOF);</span>
-<span class="nc" id="L261">        String str = stb.toString().trim();</span>
-<span class="nc bnc" id="L262" title="All 2 branches missed.">        if (str.startsWith(&quot;pmin&quot;)) {</span>
-<span class="nc" id="L263">            String[] tokens = str.split(&quot; &quot;);</span>
-<span class="nc" id="L264">            IVecInt p = new VecInt(tokens.length - 2);</span>
-<span class="nc bnc" id="L265" title="All 2 branches missed.">            for (var i = 1; i &lt; tokens.length - 1; i++) {</span>
-<span class="nc" id="L266">                p.push(Integer.parseInt(tokens[i]));</span>
+<span class="nc" id="L261">            car = (char) this.in.read();</span>
+<span class="nc" id="L262">            stb.append(car);</span>
+<span class="nc bnc" id="L263" title="All 4 branches missed.">        } while (car != '\n' &amp;&amp; car != EOF);</span>
+<span class="nc" id="L264">        String str = stb.toString().trim();</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">        if (str.startsWith(&quot;pmin&quot;)) {</span>
+<span class="nc" id="L266">            String[] tokens = str.split(&quot; &quot;);</span>
+<span class="nc" id="L267">            IVecInt p = new VecInt(tokens.length - 2);</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">            for (var i = 1; i &lt; tokens.length - 1; i++) {</span>
+<span class="nc" id="L269">                p.push(Integer.parseInt(tokens[i]));</span>
             }
-<span class="nc" id="L268">            s = new Minimal4InclusionModel(s, p);</span>
-<span class="nc" id="L269">            System.out.println(&quot;c computing p-minimal model for p=&quot; + p);</span>
-<span class="nc bnc" id="L270" title="All 2 branches missed.">        } else if (isUsingMapping()) {</span>
-<span class="nc" id="L271">            String[] values = str.split(&quot;=&quot;);</span>
-<span class="nc bnc" id="L272" title="All 2 branches missed.">            if (values.length == 2) {</span>
-<span class="nc" id="L273">                startsMapping();</span>
-<span class="nc" id="L274">                mapping.put(Integer.valueOf(values[0].trim()),</span>
-<span class="nc" id="L275">                        values[1].trim());</span>
+<span class="nc" id="L271">            s = new Minimal4InclusionModel(s, p);</span>
+<span class="nc" id="L272">            System.out.println(&quot;c computing p-minimal model for p=&quot; + p);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">        } else if (str.startsWith(&quot;p show&quot;)) {</span>
+<span class="nc" id="L274">            String[] tokens = str.split(&quot; &quot;);</span>
+<span class="nc" id="L275">            IVecInt p = new VecInt(tokens.length - 2);</span>
+<span class="nc bnc" id="L276" title="All 2 branches missed.">            for (var i = 2; i &lt; tokens.length - 1; i++) {</span>
+<span class="nc" id="L277">                p.push(Integer.parseInt(tokens[i]));</span>
+            }
+<span class="nc" id="L279">            System.out.println(&quot;c enumerating model for p=&quot; + p);</span>
+<span class="nc" id="L280">            this.subsetOfVariables = p;</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">        } else if (isUsingMapping()) {</span>
+<span class="nc" id="L282">            String[] values = str.split(&quot;=&quot;);</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">            if (values.length == 2) {</span>
+<span class="nc" id="L284">                startsMapping();</span>
+<span class="nc" id="L285">                mapping.put(Integer.valueOf(values[0].trim()),</span>
+<span class="nc" id="L286">                        values[1].trim());</span>
             }
         }
-<span class="nc" id="L278">        return car;</span>
+<span class="nc" id="L289">        return car;</span>
+    }
+
+    @Override
+    public Optional&lt;IVecInt&gt; getSubsetOfVariable() {
+<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (this.subsetOfVariables == null) {</span>
+<span class="nc" id="L295">            return Optional.empty();</span>
+        }
+<span class="nc" id="L297">        return Optional.of(this.subsetOfVariables);</span>
     }
 
     /** passe tout les caract?re jusqu'? rencontrer un chiffre */
     private char nextChiffre() throws IOException {
         char car;
         do {
-<span class="nc" id="L285">            car = (char) this.in.read();</span>
-<span class="nc bnc" id="L286" title="All 6 branches missed.">        } while (car &lt; '0' || car &gt; '9' &amp;&amp; car != EOF);</span>
-<span class="nc" id="L287">        return car;</span>
+<span class="nc" id="L304">            car = (char) this.in.read();</span>
+<span class="nc bnc" id="L305" title="All 6 branches missed.">        } while (car &lt; '0' || car &gt; '9' &amp;&amp; car != EOF);</span>
+<span class="nc" id="L306">        return car;</span>
     }
 
     @Override
     public void decode(int[] model, PrintWriter out) {
-<span class="nc bnc" id="L292" title="All 4 branches missed.">        if (isUsingMapping() &amp;&amp; hasAMapping()) {</span>
-<span class="nc" id="L293">            decodeWithMapping(model, out);</span>
+<span class="nc bnc" id="L311" title="All 4 branches missed.">        if (isUsingMapping() &amp;&amp; hasAMapping()) {</span>
+<span class="nc" id="L312">            decodeWithMapping(model, out);</span>
         } else {
-<span class="nc bnc" id="L295" title="All 2 branches missed.">            for (int element : model) {</span>
-<span class="nc" id="L296">                out.print(element);</span>
-<span class="nc" id="L297">                out.print(&quot; &quot;);</span>
+<span class="nc bnc" id="L314" title="All 2 branches missed.">            for (int element : model) {</span>
+<span class="nc" id="L315">                out.print(element);</span>
+<span class="nc" id="L316">                out.print(&quot; &quot;);</span>
             }
-<span class="nc" id="L299">            out.print(&quot;0&quot;);</span>
+<span class="nc" id="L318">            out.print(&quot;0&quot;);</span>
         }
-<span class="nc" id="L301">    }</span>
+<span class="nc" id="L320">    }</span>
 
     private void decodeWithMapping(int[] model, PrintWriter out) {
         String mapped;
-<span class="nc bnc" id="L305" title="All 2 branches missed.">        for (int element : model) {</span>
-<span class="nc bnc" id="L306" title="All 2 branches missed.">            if (element &gt; 0) {</span>
-<span class="nc" id="L307">                mapped = mapping.get(element);</span>
-<span class="nc bnc" id="L308" title="All 2 branches missed.">                if (mapped == null) {</span>
-<span class="nc" id="L309">                    out.print(element);</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">        for (int element : model) {</span>
+<span class="nc bnc" id="L325" title="All 2 branches missed.">            if (element &gt; 0) {</span>
+<span class="nc" id="L326">                mapped = mapping.get(element);</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">                if (mapped == null) {</span>
+<span class="nc" id="L328">                    out.print(element);</span>
                 } else {
-<span class="nc" id="L311">                    out.print(mapped);</span>
+<span class="nc" id="L330">                    out.print(mapped);</span>
                 }
-<span class="nc" id="L313">                out.print(&quot; &quot;);</span>
+<span class="nc" id="L332">                out.print(&quot; &quot;);</span>
             }
         }
-<span class="nc" id="L316">        out.print(&quot;0&quot;);</span>
-<span class="nc" id="L317">    }</span>
+<span class="nc" id="L335">        out.print(&quot;0&quot;);</span>
+<span class="nc" id="L336">    }</span>
 
     @Override
     public boolean hasAMapping() {
-<span class="nc bnc" id="L321" title="All 2 branches missed.">        return mapping != null;</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        return mapping != null;</span>
     }
 
     @Override
     public Map&lt;Integer, String&gt; getMapping() {
-<span class="nc" id="L326">        return mapping;</span>
+<span class="nc" id="L345">        return mapping;</span>
     }
 
     protected void startsMapping() {
-<span class="nc bnc" id="L330" title="All 2 branches missed.">        if (mapping == null) {</span>
-<span class="nc" id="L331">            mapping = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">        if (mapping == null) {</span>
+<span class="nc" id="L350">            mapping = new HashMap&lt;&gt;();</span>
         }
-<span class="nc" id="L333">    }</span>
+<span class="nc" id="L352">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -53,12 +53,12 @@ public final class ActiveLearning&lt;D extends DataStructureFactory&gt;
     private int maxpercent;
 
     public ActiveLearning() {
-<span class="nc" id="L56">        this(0.95);</span>
-<span class="nc" id="L57">    }</span>
+<span class="fc" id="L56">        this(0.95);</span>
+<span class="fc" id="L57">    }</span>
 
-<span class="nc" id="L59">    public ActiveLearning(double d) {</span>
-<span class="nc" id="L60">        this.percent = d;</span>
-<span class="nc" id="L61">    }</span>
+<span class="fc" id="L59">    public ActiveLearning(double d) {</span>
+<span class="fc" id="L60">        this.percent = d;</span>
+<span class="fc" id="L61">    }</span>
 
     public void setOrder(IOrder order) {
 <span class="nc" id="L64">        this.order = order;</span>
@@ -66,13 +66,13 @@ public final class ActiveLearning&lt;D extends DataStructureFactory&gt;
 
     @Override
     public void setSolver(Solver&lt;D&gt; s) {
-<span class="nc" id="L69">        super.setSolver(s);</span>
-<span class="nc" id="L70">        this.order = s.getOrder();</span>
-<span class="nc" id="L71">    }</span>
+<span class="fc" id="L69">        super.setSolver(s);</span>
+<span class="fc" id="L70">        this.order = s.getOrder();</span>
+<span class="fc" id="L71">    }</span>
 
     public void setActivityPercent(double d) {
-<span class="nc" id="L74">        this.percent = d;</span>
-<span class="nc" id="L75">    }</span>
+<span class="fc" id="L74">        this.percent = d;</span>
+<span class="fc" id="L75">    }</span>
 
     public double getActivityPercent() {
 <span class="nc" id="L78">        return this.percent;</span>

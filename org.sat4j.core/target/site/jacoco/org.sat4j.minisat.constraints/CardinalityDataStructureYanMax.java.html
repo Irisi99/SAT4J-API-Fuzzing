@@ -40,7 +40,7 @@ import org.sat4j.specs.IVecInt;
  * @author leberre To change the template for this generated type comment go to
  *         Window - Preferences - Java - Code Generation - Code and Comments
  */
-<span class="nc" id="L43">public class CardinalityDataStructureYanMax</span>
+<span class="fc" id="L43">public class CardinalityDataStructureYanMax</span>
         extends AbstractCardinalityDataStructure {
 
     private static final long serialVersionUID = 1L;
@@ -53,12 +53,12 @@ import org.sat4j.specs.IVecInt;
      * .VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L56">        return MaxWatchCard.maxWatchCardNew(this.solver, getVocabulary(),</span>
+<span class="fc" id="L56">        return MaxWatchCard.maxWatchCardNew(this.solver, getVocabulary(),</span>
                 literals, MinWatchCard.ATLEAST, 1);
     }
 
     public Constr createUnregisteredClause(IVecInt literals) {
-<span class="nc" id="L61">        return new LearntWLClause(literals, getVocabulary());</span>
+<span class="fc" id="L61">        return new LearntWLClause(literals, getVocabulary());</span>
     }
 
     /*

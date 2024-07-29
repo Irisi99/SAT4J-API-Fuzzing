@@ -47,17 +47,17 @@ public final class PureOrder extends VarOrderHeap {
     private int cpt;
 
     public PureOrder() {
-<span class="nc" id="L50">        this(20);</span>
-<span class="nc" id="L51">    }</span>
+<span class="fc" id="L50">        this(20);</span>
+<span class="fc" id="L51">    }</span>
 
-<span class="nc" id="L53">    public PureOrder(int p) {</span>
-<span class="nc" id="L54">        setPeriod(p);</span>
-<span class="nc" id="L55">    }</span>
+<span class="fc" id="L53">    public PureOrder(int p) {</span>
+<span class="fc" id="L54">        setPeriod(p);</span>
+<span class="fc" id="L55">    }</span>
 
     public void setPeriod(int p) {
-<span class="nc" id="L58">        this.period = p;</span>
-<span class="nc" id="L59">        this.cpt = this.period;</span>
-<span class="nc" id="L60">    }</span>
+<span class="fc" id="L58">        this.period = p;</span>
+<span class="fc" id="L59">        this.cpt = this.period;</span>
+<span class="fc" id="L60">    }</span>
 
     public int getPeriod() {
 <span class="nc" id="L63">        return this.period;</span>
@@ -71,26 +71,27 @@ public final class PureOrder extends VarOrderHeap {
     @Override
     public int select() {
         // wait period branching
-<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (this.cpt &lt; this.period) {</span>
-<span class="nc" id="L75">            this.cpt++;</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (this.cpt &lt; this.period) {</span>
+<span class="fc" id="L75">            this.cpt++;</span>
         } else {
             // try to find a pure literal
-<span class="nc" id="L78">            this.cpt = 0;</span>
-<span class="nc" id="L79">            int nblits = 2 * this.lits.nVars();</span>
-<span class="nc bnc" id="L80" title="All 2 branches missed.">            for (var i = 2; i &lt;= nblits; i++) {</span>
-<span class="nc bnc" id="L81" title="All 4 branches missed.">                if (this.lits.isUnassigned(i) &amp;&amp; this.lits.watches(i).size() &gt; 0</span>
-<span class="nc bnc" id="L82" title="All 2 branches missed.">                        &amp;&amp; this.lits.watches(i ^ 1).size() == 0) {</span>
-<span class="nc" id="L83">                    return i;</span>
+<span class="fc" id="L78">            this.cpt = 0;</span>
+<span class="fc" id="L79">            int nblits = 2 * this.lits.nVars();</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (var i = 2; i &lt;= nblits; i++) {</span>
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">                if (this.lits.belongsToPool(i &gt;&gt; 1) &amp;&amp; this.lits.isUnassigned(i)</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                        &amp;&amp; this.lits.watches(i).size() &gt; 0</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">                        &amp;&amp; this.lits.watches(i ^ 1).size() == 0) {</span>
+<span class="nc" id="L84">                    return i;</span>
                 }
             }
         }
         // not found: using normal order
-<span class="nc" id="L88">        return super.select();</span>
+<span class="fc" id="L89">        return super.select();</span>
     }
 
     @Override
     public String toString() {
-<span class="nc" id="L93">        return &quot;tries to first branch on a single phase watched unassigned variable (pure literal if using a CB data structure) else VSIDS from MiniSAT&quot;; //$NON-NLS-1$</span>
+<span class="nc" id="L94">        return &quot;tries to first branch on a single phase watched unassigned variable (pure literal if using a CB data structure) else VSIDS from MiniSAT&quot;; //$NON-NLS-1$</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

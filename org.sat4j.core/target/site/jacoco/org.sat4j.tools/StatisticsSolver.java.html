@@ -272,192 +272,191 @@ import org.sat4j.specs.UnitClauseProvider;
     }
 
     public void expireTimeout() {
-<span class="nc" id="L275">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
-    }
+<span class="nc" id="L275">    }</span>
 
     public void reset() {
-<span class="nc" id="L279">    }</span>
+<span class="nc" id="L278">    }</span>
 
     public void printStat(PrintWriter out) {
-<span class="nc" id="L282">        var realNumberOfVariables = 0;</span>
-<span class="nc" id="L283">        var realNumberOfLiterals = 0;</span>
-<span class="nc" id="L284">        var pureLiterals = 0;</span>
-<span class="nc" id="L285">        int minOccV = Integer.MAX_VALUE;</span>
-<span class="nc" id="L286">        int maxOccV = Integer.MIN_VALUE;</span>
-<span class="nc" id="L287">        var sumV = 0;</span>
+<span class="nc" id="L281">        var realNumberOfVariables = 0;</span>
+<span class="nc" id="L282">        var realNumberOfLiterals = 0;</span>
+<span class="nc" id="L283">        var pureLiterals = 0;</span>
+<span class="nc" id="L284">        int minOccV = Integer.MAX_VALUE;</span>
+<span class="nc" id="L285">        int maxOccV = Integer.MIN_VALUE;</span>
+<span class="nc" id="L286">        var sumV = 0;</span>
         int sizeL, sizeV;
-<span class="nc" id="L289">        int minOccL = Integer.MAX_VALUE;</span>
-<span class="nc" id="L290">        int maxOccL = Integer.MIN_VALUE;</span>
-<span class="nc" id="L291">        var sumL = 0;</span>
+<span class="nc" id="L288">        int minOccL = Integer.MAX_VALUE;</span>
+<span class="nc" id="L289">        int maxOccL = Integer.MIN_VALUE;</span>
+<span class="nc" id="L290">        var sumL = 0;</span>
         IVecInt list;
         boolean oneNull;
-<span class="nc bnc" id="L294" title="All 2 branches missed.">        if (sizeoccurrences == null) {</span>
-<span class="nc" id="L295">            return;</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">        if (sizeoccurrences == null) {</span>
+<span class="nc" id="L294">            return;</span>
         }
-<span class="nc" id="L297">        int max = sizeoccurrences.length - 1;</span>
-<span class="nc bnc" id="L298" title="All 2 branches missed.">        for (var i = 2; i &lt; max; i += 2) {</span>
-<span class="nc" id="L299">            sizeV = 0;</span>
-<span class="nc" id="L300">            oneNull = false;</span>
-<span class="nc bnc" id="L301" title="All 2 branches missed.">            for (var k = 0; k &lt; 2; k++) {</span>
-<span class="nc" id="L302">                list = sizeoccurrences[i + k];</span>
-<span class="nc bnc" id="L303" title="All 2 branches missed.">                if (list == null) {</span>
-<span class="nc" id="L304">                    oneNull = true;</span>
+<span class="nc" id="L296">        int max = sizeoccurrences.length - 1;</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">        for (var i = 2; i &lt; max; i += 2) {</span>
+<span class="nc" id="L298">            sizeV = 0;</span>
+<span class="nc" id="L299">            oneNull = false;</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">            for (var k = 0; k &lt; 2; k++) {</span>
+<span class="nc" id="L301">                list = sizeoccurrences[i + k];</span>
+<span class="nc bnc" id="L302" title="All 2 branches missed.">                if (list == null) {</span>
+<span class="nc" id="L303">                    oneNull = true;</span>
                 } else {
-<span class="nc" id="L306">                    realNumberOfLiterals++;</span>
-<span class="nc" id="L307">                    sizeL = list.size();</span>
-<span class="nc" id="L308">                    sizeV += sizeL;</span>
-<span class="nc bnc" id="L309" title="All 2 branches missed.">                    if (minOccL &gt; sizeL) {</span>
-<span class="nc" id="L310">                        minOccL = sizeL;</span>
+<span class="nc" id="L305">                    realNumberOfLiterals++;</span>
+<span class="nc" id="L306">                    sizeL = list.size();</span>
+<span class="nc" id="L307">                    sizeV += sizeL;</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">                    if (minOccL &gt; sizeL) {</span>
+<span class="nc" id="L309">                        minOccL = sizeL;</span>
                     }
-<span class="nc bnc" id="L312" title="All 2 branches missed.">                    if (sizeL &gt; maxOccL) {</span>
-<span class="nc" id="L313">                        maxOccL = sizeL;</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">                    if (sizeL &gt; maxOccL) {</span>
+<span class="nc" id="L312">                        maxOccL = sizeL;</span>
                     }
-<span class="nc" id="L315">                    sumL += sizeL;</span>
+<span class="nc" id="L314">                    sumL += sizeL;</span>
                 }
             }
 
-<span class="nc bnc" id="L319" title="All 2 branches missed.">            if (sizeV &gt; 0) {</span>
-<span class="nc bnc" id="L320" title="All 2 branches missed.">                if (oneNull) {</span>
-<span class="nc" id="L321">                    pureLiterals++;</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">            if (sizeV &gt; 0) {</span>
+<span class="nc bnc" id="L319" title="All 2 branches missed.">                if (oneNull) {</span>
+<span class="nc" id="L320">                    pureLiterals++;</span>
                 }
-<span class="nc" id="L323">                realNumberOfVariables++;</span>
-<span class="nc bnc" id="L324" title="All 2 branches missed.">                if (minOccV &gt; sizeV) {</span>
-<span class="nc" id="L325">                    minOccV = sizeV;</span>
+<span class="nc" id="L322">                realNumberOfVariables++;</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">                if (minOccV &gt; sizeV) {</span>
+<span class="nc" id="L324">                    minOccV = sizeV;</span>
                 }
-<span class="nc bnc" id="L327" title="All 2 branches missed.">                if (sizeV &gt; maxOccV) {</span>
-<span class="nc" id="L328">                    maxOccV = sizeV;</span>
+<span class="nc bnc" id="L326" title="All 2 branches missed.">                if (sizeV &gt; maxOccV) {</span>
+<span class="nc" id="L327">                    maxOccV = sizeV;</span>
                 }
-<span class="nc" id="L330">                sumV += sizeV;</span>
+<span class="nc" id="L329">                sumV += sizeV;</span>
             }
 
         }
-<span class="nc bnc" id="L334" title="All 4 branches missed.">        if (realNumberOfVariables &gt; 0 &amp;&amp; realNumberOfLiterals &gt; 0) {</span>
-<span class="nc" id="L335">            System.out.println(&quot;c Distribution of constraints size:&quot;);</span>
-<span class="nc" id="L336">            var nbclauses = 0;</span>
-<span class="nc bnc" id="L337" title="All 2 branches missed.">            for (Map.Entry&lt;Integer, Counter&gt; entry : sizes.entrySet()) {</span>
-<span class="nc" id="L338">                System.out.printf(&quot;c %d =&gt; %d%n&quot;, entry.getKey(),</span>
-<span class="nc" id="L339">                        entry.getValue().getValue());</span>
-<span class="nc" id="L340">                nbclauses += entry.getValue().getValue();</span>
-<span class="nc" id="L341">            }</span>
+<span class="nc bnc" id="L333" title="All 4 branches missed.">        if (realNumberOfVariables &gt; 0 &amp;&amp; realNumberOfLiterals &gt; 0) {</span>
+<span class="nc" id="L334">            System.out.println(&quot;c Distribution of constraints size:&quot;);</span>
+<span class="nc" id="L335">            var nbclauses = 0;</span>
+<span class="nc bnc" id="L336" title="All 2 branches missed.">            for (Map.Entry&lt;Integer, Counter&gt; entry : sizes.entrySet()) {</span>
+<span class="nc" id="L337">                System.out.printf(&quot;c %d =&gt; %d%n&quot;, entry.getKey(),</span>
+<span class="nc" id="L338">                        entry.getValue().getValue());</span>
+<span class="nc" id="L339">                nbclauses += entry.getValue().getValue();</span>
+<span class="nc" id="L340">            }</span>
 
-<span class="nc" id="L343">            System.out.print(</span>
+<span class="nc" id="L342">            System.out.print(</span>
                     &quot;c Real number of variables, literals, number of clauses, size (#literals), #pureliterals, &quot;);
-<span class="nc" id="L345">            System.out.print(&quot;variable occurrences (min/max/avg) &quot;);</span>
-<span class="nc" id="L346">            System.out.print(&quot;literals occurrences (min/max/avg) &quot;);</span>
-<span class="nc" id="L347">            System.out.println(</span>
+<span class="nc" id="L344">            System.out.print(&quot;variable occurrences (min/max/avg) &quot;);</span>
+<span class="nc" id="L345">            System.out.print(&quot;literals occurrences (min/max/avg) &quot;);</span>
+<span class="nc" id="L346">            System.out.println(</span>
                     &quot;Specific clauses: #positive  #negative #horn  #dualhorn #binary #binarynegative #binarypositive #binaryhorn #remaining&quot;);
-<span class="nc" id="L349">            var binaryCounter = sizes.get(2);</span>
-<span class="nc bnc" id="L350" title="All 2 branches missed.">            int nbBinary = binaryCounter == null ? 0 : binaryCounter.getValue();</span>
-<span class="nc" id="L351">            System.out.printf(Locale.US,</span>
+<span class="nc" id="L348">            var binaryCounter = sizes.get(2);</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">            int nbBinary = binaryCounter == null ? 0 : binaryCounter.getValue();</span>
+<span class="nc" id="L350">            System.out.printf(Locale.US,</span>
                     &quot;%d %d %d %d %d %d %d %.2f %d %d %.2f &quot;,
-<span class="nc" id="L353">                    realNumberOfVariables, realNumberOfLiterals, nbclauses,</span>
-<span class="nc" id="L354">                    sumL, pureLiterals, minOccV, maxOccV,</span>
-<span class="nc" id="L355">                    sumV / (realNumberOfVariables * 1.0), minOccL, maxOccL,</span>
-<span class="nc" id="L356">                    sumL / (realNumberOfLiterals * 1.0));</span>
-<span class="nc" id="L357">            System.out.printf(&quot;%d %d %d %d %d %d %d %d %d%n&quot;, allpositive,</span>
-<span class="nc" id="L358">                    allnegative, horn, dualhorn, nbBinary, binarynegative,</span>
-<span class="nc" id="L359">                    binarypositive,</span>
-<span class="nc" id="L360">                    (nbBinary - binarynegative - binarypositive),</span>
-<span class="nc" id="L361">                    nbclauses - allpositive - allnegative - horn - dualhorn);</span>
+<span class="nc" id="L352">                    realNumberOfVariables, realNumberOfLiterals, nbclauses,</span>
+<span class="nc" id="L353">                    sumL, pureLiterals, minOccV, maxOccV,</span>
+<span class="nc" id="L354">                    sumV / (realNumberOfVariables * 1.0), minOccL, maxOccL,</span>
+<span class="nc" id="L355">                    sumL / (realNumberOfLiterals * 1.0));</span>
+<span class="nc" id="L356">            System.out.printf(&quot;%d %d %d %d %d %d %d %d %d%n&quot;, allpositive,</span>
+<span class="nc" id="L357">                    allnegative, horn, dualhorn, nbBinary, binarynegative,</span>
+<span class="nc" id="L358">                    binarypositive,</span>
+<span class="nc" id="L359">                    (nbBinary - binarynegative - binarypositive),</span>
+<span class="nc" id="L360">                    nbclauses - allpositive - allnegative - horn - dualhorn);</span>
         }
-<span class="nc" id="L363">    }</span>
+<span class="nc" id="L362">    }</span>
 
     public Map&lt;String, Number&gt; getStat() {
-<span class="nc" id="L366">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L365">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public String toString(String prefix) {
-<span class="nc" id="L370">        return prefix + &quot;Statistics about the benchmarks&quot;;</span>
+<span class="nc" id="L369">        return prefix + &quot;Statistics about the benchmarks&quot;;</span>
     }
 
     public void clearLearntClauses() {
-<span class="nc" id="L374">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L373">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public void setDBSimplificationAllowed(boolean status) {
-<span class="nc" id="L378">    }</span>
+<span class="nc" id="L377">    }</span>
 
     public boolean isDBSimplificationAllowed() {
-<span class="nc" id="L381">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L380">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public &lt;S extends ISolverService&gt; void setSearchListener(
             SearchListener&lt;S&gt; sl) {
-<span class="nc" id="L386">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L385">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public &lt;S extends ISolverService&gt; SearchListener&lt;S&gt; getSearchListener() {
-<span class="nc" id="L390">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L389">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public boolean isVerbose() {
-<span class="nc" id="L394">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L393">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public void setVerbose(boolean value) {
-<span class="nc" id="L398">    }</span>
+<span class="nc" id="L397">    }</span>
 
     public void setLogPrefix(String prefix) {
-<span class="nc" id="L401">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L400">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public String getLogPrefix() {
-<span class="nc" id="L405">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L404">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public IVecInt unsatExplanation() {
-<span class="nc" id="L409">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L408">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public int[] modelWithInternalVariables() {
-<span class="nc" id="L413">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L412">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public int realNumberOfVariables() {
-<span class="nc" id="L417">        return nbvars;</span>
+<span class="nc" id="L416">        return nbvars;</span>
     }
 
     public boolean isSolverKeptHot() {
-<span class="nc" id="L421">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L420">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public void setKeepSolverHot(boolean keepHot) {
-<span class="nc" id="L425">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L424">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public ISolver getSolvingEngine() {
-<span class="nc" id="L429">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L428">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public void setUnitClauseProvider(UnitClauseProvider ucp) {
-<span class="nc" id="L433">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L432">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public IConstr addConstr(Constr constr) {
-<span class="nc" id="L437">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L436">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public IConstr addParity(IVecInt literals, boolean even) {
-<span class="nc" id="L441">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L440">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     public AssignmentOrigin getOriginInModel(int p) {
-<span class="nc" id="L445">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L444">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     @Override
     public void setUnitClauseConsumer(UnitClauseConsumer ucc) {
-<span class="nc" id="L450">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L449">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     @Override
     public int[] decisions() {
-<span class="nc" id="L455">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
+<span class="nc" id="L454">        throw new UnsupportedOperationException(NOT_IMPLEMENTED_YET);</span>
     }
 
     @Override
     public void preprocessing() {
 
-<span class="nc" id="L461">    }</span>
+<span class="nc" id="L460">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

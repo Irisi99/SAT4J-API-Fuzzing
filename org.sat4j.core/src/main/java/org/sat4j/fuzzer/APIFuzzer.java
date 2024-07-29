@@ -10,6 +10,9 @@ public class APIFuzzer {
         SecureRandom rand = new SecureRandom();
         long masterSeed = 0;
         int nrTraces = 10;
+        boolean isTraceSeed = false;
+        boolean verbose = false;
+        boolean skipProofCheck = false;
 
         // Give seed for SecureRandom and number of Traces to be generated in comandline 
         if(args!= null && args.length > 0){
@@ -22,6 +25,10 @@ public class APIFuzzer {
                     } 
                 } else if(args[i].trim().equals("-n")){
                     nrTraces = Integer.parseInt(args[i+1]);
+                } else if(args[i].trim().equals("-v")){
+                    verbose = true;
+                } else if(args[i].trim().equals("-p")){
+                    skipProofCheck = true;
                 } else {
                     System.out.println("The only acceptable parameters are :");
                     System.out.println("    -s seed (long)");
@@ -40,7 +47,7 @@ public class APIFuzzer {
         // System.out.println("Master Seed: "+Long.toHexString(masterSeed));
 
         // Call TraceFactory and pass Master Seed
-        TraceFactory.run(masterSeed, nrTraces, false, false);
+        TraceFactory.run(masterSeed, nrTraces, skipProofCheck, isTraceSeed, verbose);
     }
 
 }
