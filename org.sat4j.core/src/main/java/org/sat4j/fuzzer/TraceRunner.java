@@ -262,6 +262,24 @@ public class TraceRunner {
                 // Return the class of the error that happened while running the trace
                 return e.getClass().getName();
             }
+        } catch (AssertionError a){
+            if(verbose){
+                a.printStackTrace();
+            }
+
+            if(!PROOF_CHECK_DONE)
+                Helper.deleteProof(seed);
+
+            if(a.getMessage() != null && a.getMessage().contains("Enumerators")){
+                return "Enumeration";
+            } else if(a.getMessage() != null && a.getMessage().contains("IDRUP")){
+                return a.getMessage();
+            } else if(a.getMessage() != null && a.getMessage().contains("Creating Empty clause ?")){
+                return "Empty Clause";
+            } else {
+                // Return the class of the error that happened while running the trace
+                return a.getClass().getName();
+            }
         }
         return null;
     }
