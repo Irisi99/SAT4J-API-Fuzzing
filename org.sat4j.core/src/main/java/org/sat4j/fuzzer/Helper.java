@@ -1,7 +1,5 @@
 package org.sat4j.fuzzer;
 
-import org.sat4j.specs.TimeoutException;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -270,7 +268,7 @@ public class Helper {
 //---------------------------------------------------------- USED IN BOTH --------------------------------------------------------------------------
 
     // Count solutions with External Iterator
-    public static long countSolutionsExt(ISolver solver) throws TimeoutException{
+    public static long countSolutionsExt(ISolver solver) throws Exception, AssertionError{
         var enumerator = new ModelIterator(solver);
         while (enumerator.isSatisfiable()) {
             int[] model = enumerator.model(); 
@@ -282,7 +280,7 @@ public class Helper {
     }
 
     //Count solutions with Internal Iterator
-    public static long countSolutionsInt(ISolver solver) throws TimeoutException{
+    public static long countSolutionsInt(ISolver solver) throws Exception, AssertionError {
         Counter counter = new Counter();
         SolutionFoundListener sfl = new SolutionFoundListener() {
             @Override

@@ -229,6 +229,16 @@ public class TraceFactory {
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
                         SKIP_PROOF_CHECK = true;
                         break;
+                    } catch( AssertionError a){
+                        trace.toFile();
+                        if(!isTraceSeed){
+                            System.out.print(" --- Inside Exception from Enumeration ");
+                            System.out.println(" --- " + a.getMessage());
+                        }
+                        if(verbose){
+                            System.out.println();
+                            a.printStackTrace(System.out);
+                        }
                     }
 
                 } else {
