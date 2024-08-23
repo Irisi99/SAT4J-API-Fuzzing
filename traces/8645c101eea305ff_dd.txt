@@ -1,0 +1,4 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructureYanMin
+22 addClause -1 2 
+28 enumerating
