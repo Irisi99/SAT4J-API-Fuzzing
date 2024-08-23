@@ -40,7 +40,7 @@ public class TraceFactory {
     static boolean ASSUMPTIONS;
     static boolean ENUMERATING;
     static int NUMBER_OF_CLAUSES;
-    static double coeficient;
+    static double coefficient;
     static ISolver solver;
     static ISolver solver2;
     static boolean SKIP_PROOF_CHECK;
@@ -61,8 +61,6 @@ public class TraceFactory {
         }
 
         int iteration = 0;
-        int increments = 0;
-        int totalIncrements = 5;
         Boolean isSAT = false;
         // STATISTICS
         Map<String, Number> stats;
@@ -123,22 +121,20 @@ public class TraceFactory {
             if(ENUMERATING){
                 // Add 1 - 20 to the Number of Variables on each increment
                 MAXVAR = slaveRandomGenerator.nextInt(20) + 1;
-                coeficient = 5;
+                coefficient = 5;
                 SKIP_PROOF_CHECK = true;
             } else {
                 icnf.add("p icnf");
                 // Add 20 - 200 to the Number of Variables on each increment
                 MAXVAR = slaveRandomGenerator.nextInt(181) + 20;
-                // Higher coeficient (more clauses) means more UNSAT instances
-                coeficient = 3;
+                // Higher coefficient (more clauses) means more UNSAT instances
+                coefficient = 3;
             }
 
             // Add Coeficient * newVariables new Clauses each increment
-            NUMBER_OF_CLAUSES = (int) (coeficient * MAXVAR);
-            Boolean skipMaxVar = true;
+            NUMBER_OF_CLAUSES = (int) (coefficient * MAXVAR);
 
             try {
-
                 long initSeed = slaveRandomGenerator.nextLong();
                 // Initialize the Solver with randomized Options
                 solver = initializeSolver(verbose, true, initSeed);
@@ -146,7 +142,7 @@ public class TraceFactory {
                 solver.setTimeout(120);
                 // Initalize identical solver if we are going to compare enumerators
                 if(ENUMERATING){
-                    solver2 = initializeSolver(verbose, false, initSeed);
+                    solver2 = initializeSolver(false, false, initSeed);
                     solver2.setTimeout(120);
                 } else if(!SKIP_PROOF_CHECK){
                     solver.setSearchListener(new IdrupSearchListener<ISolverService>("idrups/"+trace.getId()+".idrup"));
@@ -157,17 +153,10 @@ public class TraceFactory {
             }
 
             // Incremental -> add clauses - solve - repeat (increase number of variables and clauses)
-            increments = 0;
-
-            // Increments range from 1 to 5
-            totalIncrements = slaveRandomGenerator.nextInt(5) + 1;
-
-            while(increments < totalIncrements){
-                increments ++;
-
-                if(skipMaxVar){
-                    skipMaxVar = false;
-                } else {
+            // Increments range from 0 to 4
+            int totalIncrements = slaveRandomGenerator.nextInt(5) + 1;
+            for (int increments = 0 ; increments < totalIncrements; increments++){
+                if(increments != 0){
                     int OLDMAXVAR = MAXVAR;
                     if(ENUMERATING){
                         // Add 0 - 20 to the Number of Variables on each increment
@@ -176,13 +165,16 @@ public class TraceFactory {
                         // Add 20 - 200 to the Number of Variables on each increment
                         MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR;
                     }
-                    NUMBER_OF_CLAUSES = (int) (coeficient * (MAXVAR - OLDMAXVAR));
+                    NUMBER_OF_CLAUSES = (int) (coefficient * (MAXVAR - OLDMAXVAR));
                 }
 
                 if(PASS_MAX_VAR){
                     try{
                         trace.add("newVar " + MAXVAR);
                         solver.newVar(MAXVAR);
+                        if(ENUMERATING){
+                            solver2.newVar(MAXVAR);
+                        }
                     } catch(Exception e){
                         Helper.printException(isTraceSeed, verbose, trace, "newVar()", e);
                         SKIP_PROOF_CHECK = true;
@@ -230,15 +222,9 @@ public class TraceFactory {
                         SKIP_PROOF_CHECK = true;
                         break;
                     } catch( AssertionError a){
-                        trace.toFile();
-                        if(!isTraceSeed){
-                            System.out.print(" --- Inside Exception from Enumeration ");
-                            System.out.println(" --- " + a.getMessage());
-                        }
-                        if(verbose){
-                            System.out.println();
-                            a.printStackTrace(System.out);
-                        }
+                        Helper.printAssertionError(isTraceSeed, verbose, trace, "Enumeration", a);
+                        SKIP_PROOF_CHECK = true;
+                        break;
                     }
 
                 } else {
@@ -335,6 +321,10 @@ public class TraceFactory {
                         } else {
                             Helper.printException(isTraceSeed, verbose, trace, "isSatisfiable()", e);
                         }
+                        SKIP_PROOF_CHECK = true;
+                        break;
+                    }  catch( AssertionError a){
+                        Helper.printAssertionError(isTraceSeed, verbose, trace, "isSatisfiable()", a);
                         SKIP_PROOF_CHECK = true;
                         break;
                     }
@@ -441,7 +431,7 @@ public class TraceFactory {
 
             try {
 
-                //System.out.println(Helper.clauseToString(clause))
+                // System.out.println(Helper.clauseToString(clause));
                 trace.add("addClause " + Helper.clauseToString(clause));
 
                 solver.addClause(new VecInt(clause));
@@ -569,14 +559,14 @@ public class TraceFactory {
             String log = "Order : "+orderName;
             Integer period = 20;
             Double varDecay = 1.0;
-            if(orderName.equals("PureOrder")){
-                // Tries to first branch on a single phase watched unassigned variable else VSIDS from MiniSAT
-                period = initRandomGenerator.nextInt(101); // 0 - 100
-                log += "/period="+period;
-            } else if(orderName.equals("VarOrderHeap")){
+            if(orderName.equals("VarOrderHeap")){
                 // VSIDS like heuristics from MiniSAT using a heap
                 varDecay = initRandomGenerator.nextDouble(); // 0.0 - 1.0
                 log += "/varDecay="+varDecay;
+            } else if(orderName.equals("PureOrder")){
+                // Tries to first branch on a single phase watched unassigned variable else VSIDS from MiniSAT
+                period = initRandomGenerator.nextInt(101); // 0 - 100
+                log += "/period="+period;
             } else if(orderName.equals("NaturalStaticOrder")){
                 isNaturalStaticOrder = true;
             }

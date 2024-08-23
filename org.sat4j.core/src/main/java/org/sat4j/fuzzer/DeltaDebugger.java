@@ -177,7 +177,7 @@ public class DeltaDebugger {
 
         Map<Integer, List<Integer>> clauses = new HashMap<Integer, List<Integer>>();
         String output;
-        int reduced;
+        boolean reduced;
         boolean createNewFile = false;
 
         for(int i=0; i < content.size(); i++){
@@ -189,7 +189,7 @@ public class DeltaDebugger {
         }
 
         do{
-            reduced = 0;
+            reduced = false;
             for(int i=0; i < content.size(); i++){
                 if(content.get(i).contains("addClause") || content.get(i).contains("assuming")){
 
@@ -208,7 +208,7 @@ public class DeltaDebugger {
                         if(output != null && output.equals(errorType)){
                             j--;
                             tryAgain = true;
-                            reduced++;
+                            reduced = true;
                             createNewFile = true;
                             System.out.println("removed: true");
                         } else {
@@ -219,7 +219,7 @@ public class DeltaDebugger {
                     }
                 }
             }
-        } while(reduced > 5);
+        } while(reduced);
 
         if(createNewFile){
             // Create the new file with the reduced trace

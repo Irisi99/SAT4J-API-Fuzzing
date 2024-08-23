@@ -62,6 +62,7 @@ public class Helper {
         // Not real solvers
         SOLVERS.remove("Statistics");
         SOLVERS.remove("DimacsOutput");
+        //System.out.println(SOLVERS);
     }
 
     public static int[] newClause(Random slaveRandomGenerator, Boolean UNIFORM){
@@ -123,6 +124,17 @@ public class Helper {
         trace.toFile();
         if(!isTraceSeed){
             System.out.print(" --- Inside Exception from " + location + " ");
+            System.out.println(" --- " + e.getMessage());
+        }
+        if(verbose){
+            e.printStackTrace(System.out);
+        }
+    }
+
+    public static void printAssertionError(Boolean isTraceSeed, Boolean verbose, Trace trace, String location, AssertionError e){
+        trace.toFile();
+        if(!isTraceSeed){
+            System.out.print(" --- Inside Assert Error from " + location + " ");
             System.out.println(" --- " + e.getMessage());
         }
         if(verbose){
@@ -270,12 +282,7 @@ public class Helper {
     // Count solutions with External Iterator
     public static long countSolutionsExt(ISolver solver) throws Exception, AssertionError{
         var enumerator = new ModelIterator(solver);
-        while (enumerator.isSatisfiable()) {
-            int[] model = enumerator.model(); 
-            //System.out.println(Helper.clauseToString(model));
-            if(model == null)
-                break;
-        }
+        while (enumerator.isSatisfiable() && enumerator.model() != null){}
         return (long) enumerator.numberOfModelsFoundSoFar();
     }
 

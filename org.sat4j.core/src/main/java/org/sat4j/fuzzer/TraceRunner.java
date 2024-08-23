@@ -84,7 +84,7 @@ public class TraceRunner {
                     solver = Helper.initSolver(t[t.length-1]);
                     solver.setSearchListener(new IdrupSearchListener<ISolverService>("./idrups/"+seed+".idrup"));
                     solver2 = Helper.initSolver(t[t.length-1]);
-                    if (t[t.length-1].equals("Parallel") || t[t.length-1].equals("STUNSAT")) {
+                    if (t[t.length-1].equals("Parallel") || t[t.length-1].equals("STUNSAT") || t[t.length-1].equals("MinOneSolver")) {
                         SKIP_PROOF_CHECK = true;
                     }
 

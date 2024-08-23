@@ -1,11 +1,11 @@
 1 init
 7 addClause 1 
 11 addClause -8 -6 
-35 addClause 6 -5 
+35 addClause 6 -5 6 
 42 addClause 8 7 
 60 addClause -7 2 
 61 addClause -7 -4 
 63 addClause -3 5 
 72 addClause -2 4 9 
 74 addClause 9 3 
-721 assuming 
+721 assuming -10 

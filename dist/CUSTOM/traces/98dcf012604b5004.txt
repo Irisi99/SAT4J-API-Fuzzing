@@ -1,0 +1,49 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructureYanMax
+3 Order : PureOrder/period=28
+4 Phase Selection Strategy : PhaseCachingAutoEraseStrategy
+5 Learning Strategy : MiniSATLearning
+6 Restart Strategy : EMARestarts
+7 Simplification Type : expensiveSimplification
+8 Search Params : varDecay=0.9042559547694007/claDecay=1.2570368398670015/conflictBoundIncFactor=1.077798824490754/initConflictBound=543
+9 Learned Constraints Evaluation Type : LBD2
+10 Random Walk : 0.2949671968614811
+11 DBS simplification
+12 addClause 1 6 -4 
+13 addClause 3 -5 
+14 addClause 3 4 -6 
+15 addClause 3 1 6 
+16 addClause -7 2 3 
+17 addClause 6 -6 -5 
+18 addClause -2 -7 5 
+19 addClause 6 2 5 
+20 addClause 3 -2 -7 
+21 addClause 5 4 
+22 addClause 3 -3 -4 
+23 addClause 4 5 -1 
+24 addClause 3 -7 -5 
+25 addClause -5 1 -2 -7 
+26 addClause 3 -5 1 
+27 addClause -4 5 
+28 addClause 5 -5 -6 
+29 addClause -4 -2 -3 
+30 addClause 1 6 -4 
+31 addClause 5 6 3 -1 
+32 addClause 6 -4 1 
+33 addClause 3 -3 4 
+34 addClause -5 -6 -2 
+35 addClause 3 -3 -7 
+36 addClause -5 -7 1 
+37 addClause -1 
+38 addClause -5 4 
+39 addClause 2 6 -2 
+40 addClause -5 -1 3 
+41 addClause -2 2 3 
+42 addClause -4 4 5 
+43 addClause 3 
+44 addClause -5 2 6 
+45 addClause -4 -5 -7 
+46 addClause 2 -5 3 
+47 enumerating
+48 addClause 6 -11 -6 
+49 addClause 12 -6 7 
