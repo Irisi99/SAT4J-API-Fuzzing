@@ -46,30 +46,30 @@ import org.sat4j.specs.VarMapper;
  * 
  * @author leberre
  */
-<span class="nc bnc" id="L49" title="All 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">@Feature(&quot;constraint&quot;)</span>
 public class BinaryClauses implements Constr, Propagatable, Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private final ILits voc;
 
-<span class="nc" id="L56">    private final IVecInt clauses = new VecInt();</span>
+<span class="fc" id="L56">    private final IVecInt clauses = new VecInt();</span>
 
     private final int reason;
 
-<span class="nc" id="L60">    private int conflictindex = -1;</span>
+<span class="fc" id="L60">    private int conflictindex = -1;</span>
 
     /**
      * 
      */
-<span class="nc" id="L65">    public BinaryClauses(ILits voc, int p) {</span>
-<span class="nc" id="L66">        this.voc = voc;</span>
-<span class="nc" id="L67">        this.reason = p;</span>
-<span class="nc" id="L68">    }</span>
+<span class="fc" id="L65">    public BinaryClauses(ILits voc, int p) {</span>
+<span class="fc" id="L66">        this.voc = voc;</span>
+<span class="fc" id="L67">        this.reason = p;</span>
+<span class="fc" id="L68">    }</span>
 
     public void addBinaryClause(int p) {
-<span class="nc" id="L71">        clauses.push(p);</span>
-<span class="nc" id="L72">    }</span>
+<span class="fc" id="L71">        clauses.push(p);</span>
+<span class="fc" id="L72">    }</span>
 
     public void removeBinaryClause(int p) {
 <span class="nc" id="L75">        clauses.remove(p);</span>
@@ -91,15 +91,15 @@ public class BinaryClauses implements Constr, Propagatable, Serializable {
      * UnitPropagationListener , int)
      */
     public boolean propagate(UnitPropagationListener s, int p) {
-<span class="nc" id="L94">        voc.watch(p, this);</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">        for (var i = 0; i &lt; clauses.size(); i++) {</span>
-<span class="nc" id="L96">            int q = clauses.get(i);</span>
-<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (!s.enqueue(q, this)) {</span>
+<span class="fc" id="L94">        voc.watch(p, this);</span>
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        for (var i = 0; i &lt; clauses.size(); i++) {</span>
+<span class="fc" id="L96">            int q = clauses.get(i);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">            if (!s.enqueue(q, this)) {</span>
 <span class="nc" id="L98">                conflictindex = i;</span>
 <span class="nc" id="L99">                return false;</span>
             }
         }
-<span class="nc" id="L102">        return true;</span>
+<span class="fc" id="L102">        return true;</span>
     }
 
     /*
@@ -126,12 +126,12 @@ public class BinaryClauses implements Constr, Propagatable, Serializable {
      * @see org.sat4j.minisat.Constr#calcReason(int, org.sat4j.datatype.VecInt)
      */
     public void calcReason(int p, IVecInt outReason) {
-<span class="nc" id="L129">        outReason.push(this.reason ^ 1);</span>
-<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (p == ILits.UNDEFINED) {</span>
+<span class="fc" id="L129">        outReason.push(this.reason ^ 1);</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (p == ILits.UNDEFINED) {</span>
 <span class="nc bnc" id="L131" title="All 4 branches missed.">            assert conflictindex &gt; -1;</span>
 <span class="nc" id="L132">            outReason.push(clauses.get(conflictindex) ^ 1);</span>
         }
-<span class="nc" id="L134">    }</span>
+<span class="fc" id="L134">    }</span>
 
     /*
      * (non-Javadoc)
@@ -139,7 +139,7 @@ public class BinaryClauses implements Constr, Propagatable, Serializable {
      * @see org.sat4j.minisat.Constr#learnt()
      */
     public boolean learnt() {
-<span class="nc" id="L142">        return false;</span>
+<span class="fc" id="L142">        return false;</span>
     }
 
     /*
@@ -190,7 +190,7 @@ public class BinaryClauses implements Constr, Propagatable, Serializable {
     }
 
     public boolean canBePropagatedMultipleTimes() {
-<span class="nc" id="L193">        return true;</span>
+<span class="fc" id="L193">        return true;</span>
     }
 
     public String toString(VarMapper mapper) {

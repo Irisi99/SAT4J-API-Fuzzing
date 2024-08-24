@@ -44,7 +44,7 @@ import org.sat4j.specs.IVecInt;
  * @author leberre To change the template for this generated type comment go to
  *         Window - Preferences - Java - Code Generation - Code and Comments
  */
-<span class="nc" id="L47">public class ClausalDataStructureWL extends AbstractDataStructureFactory {</span>
+<span class="fc" id="L47">public class ClausalDataStructureWL extends AbstractDataStructureFactory {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -56,19 +56,19 @@ import org.sat4j.specs.IVecInt;
      * .VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L59">        IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (v == null) {</span>
+<span class="fc" id="L59">        IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (v == null) {</span>
             // tautological clause
-<span class="nc" id="L62">            return null;</span>
+<span class="fc" id="L62">            return null;</span>
         }
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (v.size() == 1) {</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">        if (v.size() == 1) {</span>
 <span class="nc" id="L65">            return new UnitClause(v.last());</span>
         }
-<span class="nc bnc" id="L67" title="All 2 branches missed.">        if (v.size() == 2) {</span>
-<span class="nc" id="L68">            return OriginalBinaryClause.brandNewClause(getVocabulary(),</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (v.size() == 2) {</span>
+<span class="fc" id="L68">            return OriginalBinaryClause.brandNewClause(getVocabulary(),</span>
                     v);
         }
-<span class="nc" id="L71">        return OriginalWLClause.brandNewClause(getVocabulary(), v);</span>
+<span class="fc" id="L71">        return OriginalWLClause.brandNewClause(getVocabulary(), v);</span>
     }
 
     public Constr createUnregisteredClause(IVecInt literals) {
@@ -77,7 +77,7 @@ import org.sat4j.specs.IVecInt;
 
     @Override
     protected ILits createLits() {
-<span class="nc" id="L80">        return new Lits();</span>
+<span class="fc" id="L80">        return new Lits();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

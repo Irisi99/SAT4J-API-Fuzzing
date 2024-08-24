@@ -42,7 +42,7 @@ import org.sat4j.specs.Constr;
  * @author leberre
  */
 @Feature(value = &quot;learning&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L45">public final class NoLearningNoHeuristics&lt;D extends DataStructureFactory&gt;</span>
+<span class="fc" id="L45">public final class NoLearningNoHeuristics&lt;D extends DataStructureFactory&gt;</span>
         extends AbstractLearning&lt;D&gt; {
 
     private static final long serialVersionUID = 1L;
@@ -55,15 +55,15 @@ import org.sat4j.specs.Constr;
 
     @Override
     public void setSolver(Solver&lt;D&gt; s) {
-<span class="nc" id="L58">        super.setSolver(s);</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        if (s != null) {</span>
-<span class="nc" id="L60">            this.dsf = s.getDSFactory();</span>
+<span class="fc" id="L58">        super.setSolver(s);</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        if (s != null) {</span>
+<span class="fc" id="L60">            this.dsf = s.getDSFactory();</span>
         }
-<span class="nc" id="L62">    }</span>
+<span class="fc" id="L62">    }</span>
 
     public void learns(Constr reason) {
-<span class="nc" id="L65">        this.dsf.ignoreConstraint(reason);</span>
-<span class="nc" id="L66">    }</span>
+<span class="fc" id="L65">        this.dsf.ignoreConstraint(reason);</span>
+<span class="fc" id="L66">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

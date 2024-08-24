@@ -113,9 +113,9 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
     }
 
     public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapEZSimp() {
-<span class="nc" id="L116">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeap();</span>
-<span class="nc" id="L117">        solver.setSimplifier(solver.simpleSimplification);</span>
-<span class="nc" id="L118">        return solver;</span>
+<span class="fc" id="L116">        Solver&lt;DataStructureFactory&gt; solver = newMiniLearningHeap();</span>
+<span class="fc" id="L117">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="fc" id="L118">        return solver;</span>
     }
 
     public static Solver&lt;DataStructureFactory&gt; newMiniLearningHeapExpSimp() {
@@ -138,9 +138,9 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
     }
 
     public static ICDCL&lt;DataStructureFactory&gt; newMiniLearningHeapRsatExpSimpLuby() {
-<span class="nc" id="L141">        ICDCL&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
-<span class="nc" id="L142">        solver.setRestartStrategy(new LubyRestarts(512));</span>
-<span class="nc" id="L143">        return solver;</span>
+<span class="fc" id="L141">        ICDCL&lt;DataStructureFactory&gt; solver = newMiniLearningHeapRsatExpSimp();</span>
+<span class="fc" id="L142">        solver.setRestartStrategy(new LubyRestarts(512));</span>
+<span class="fc" id="L143">        return solver;</span>
     }
 
     public static Solver&lt;DataStructureFactory&gt; newGlucose21() {
@@ -152,13 +152,13 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
 
     private static Solver&lt;DataStructureFactory&gt; newBestCurrentSolverConfiguration(
             DataStructureFactory dsf) {
-<span class="nc" id="L155">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
-<span class="nc" id="L156">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning, dsf,</span>
+<span class="fc" id="L155">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="fc" id="L156">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning, dsf,</span>
                 new VarOrderHeap(new RSATPhaseSelectionStrategy()),
                 new ArminRestarts());
-<span class="nc" id="L159">        solver.setSearchParams(new SearchParams(1.1, 100));</span>
-<span class="nc" id="L160">        solver.setSimplifier(solver.expensiveSimplification);</span>
-<span class="nc" id="L161">        return solver;</span>
+<span class="fc" id="L159">        solver.setSearchParams(new SearchParams(1.1, 100));</span>
+<span class="fc" id="L160">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="fc" id="L161">        return solver;</span>
     }
 
     /**
@@ -166,14 +166,14 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @since 2.2
      */
     public static ICDCL&lt;DataStructureFactory&gt; newGreedySolver() {
-<span class="nc" id="L169">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
-<span class="nc" id="L170">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+<span class="fc" id="L169">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="fc" id="L170">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
                 new MixedDataStructureDanielWL(),
                 new RandomWalkDecorator(
                         new VarOrderHeap(new RSATPhaseSelectionStrategy())),
                 new NoRestarts());
-<span class="nc" id="L175">        solver.setSimplifier(solver.expensiveSimplification);</span>
-<span class="nc" id="L176">        return solver;</span>
+<span class="fc" id="L175">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="fc" id="L176">        return solver;</span>
     }
 
     /**
@@ -181,41 +181,41 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @since 2.3.6
      */
     public static ICDCL&lt;DataStructureFactory&gt; newRandomSolver() {
-<span class="nc" id="L184">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
-<span class="nc" id="L185">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
+<span class="fc" id="L184">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="fc" id="L185">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning,</span>
                 new MixedDataStructureDanielWL(),
                 new RandomWalkDecorator(
                         new VarOrderHeap(new RandomLiteralSelectionStrategy()),
                         1.0),
                 new NoRestarts());
-<span class="nc" id="L191">        solver.setSimplifier(solver.expensiveSimplification);</span>
-<span class="nc" id="L192">        return solver;</span>
+<span class="fc" id="L191">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="fc" id="L192">        return solver;</span>
     }
 
     /**
      * @since 2.2
      */
     public static ICDCL&lt;DataStructureFactory&gt; newDefaultAutoErasePhaseSaving() {
-<span class="nc" id="L199">        ICDCL&lt;DataStructureFactory&gt; solver = newBestWL();</span>
-<span class="nc" id="L200">        solver.setOrder(new VarOrderHeap(new PhaseCachingAutoEraseStrategy()));</span>
-<span class="nc" id="L201">        return solver;</span>
+<span class="fc" id="L199">        ICDCL&lt;DataStructureFactory&gt; solver = newBestWL();</span>
+<span class="fc" id="L200">        solver.setOrder(new VarOrderHeap(new PhaseCachingAutoEraseStrategy()));</span>
+<span class="fc" id="L201">        return solver;</span>
     }
 
     /**
      * @since 2.2.3
      */
     public static ICDCL&lt;DataStructureFactory&gt; newDefaultMS21PhaseSaving() {
-<span class="nc" id="L208">        ICDCL&lt;DataStructureFactory&gt; solver = newBestWL();</span>
-<span class="nc" id="L209">        solver.setOrder(new VarOrderHeap(</span>
+<span class="fc" id="L208">        ICDCL&lt;DataStructureFactory&gt; solver = newBestWL();</span>
+<span class="fc" id="L209">        solver.setOrder(new VarOrderHeap(</span>
                 new RSATLastLearnedClausesPhaseSelectionStrategy()));
-<span class="nc" id="L211">        return solver;</span>
+<span class="fc" id="L211">        return solver;</span>
     }
 
     /**
      * @since 2.1
      */
     public static Solver&lt;DataStructureFactory&gt; newBestWL() {
-<span class="nc" id="L218">        return newBestCurrentSolverConfiguration(</span>
+<span class="fc" id="L218">        return newBestCurrentSolverConfiguration(</span>
                 new MixedDataStructureDanielWL());
     }
 
@@ -233,25 +233,25 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @since 2.2
      */
     public static ICDCL&lt;DataStructureFactory&gt; newBest17() {
-<span class="nc" id="L236">        Solver&lt;DataStructureFactory&gt; solver = newBestCurrentSolverConfiguration(</span>
+<span class="fc" id="L236">        Solver&lt;DataStructureFactory&gt; solver = newBestCurrentSolverConfiguration(</span>
                 new MixedDataStructureSingleWL());
-<span class="nc" id="L238">        solver.setSimplifier(solver.expensiveSimplificationWLOnly);</span>
-<span class="nc" id="L239">        solver.setLearnedConstraintsDeletionStrategy(</span>
+<span class="fc" id="L238">        solver.setSimplifier(solver.expensiveSimplificationWLOnly);</span>
+<span class="fc" id="L239">        solver.setLearnedConstraintsDeletionStrategy(</span>
                 solver.activityBasedLowMemory);
-<span class="nc" id="L241">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
+<span class="fc" id="L241">        LimitedLearning&lt;DataStructureFactory&gt; learning = new PercentLengthLearning&lt;&gt;(</span>
                 10);
-<span class="nc" id="L243">        solver.setLearningStrategy(learning);</span>
-<span class="nc" id="L244">        return solver;</span>
+<span class="fc" id="L243">        solver.setLearningStrategy(learning);</span>
+<span class="fc" id="L244">        return solver;</span>
     }
 
     /**
      * @since 2.1
      */
     public static Solver&lt;DataStructureFactory&gt; newGlucose() {
-<span class="nc" id="L251">        Solver&lt;DataStructureFactory&gt; solver = newBestWL();</span>
-<span class="nc" id="L252">        solver.setLearnedConstraintsDeletionStrategy(solver.lbdBased);</span>
-<span class="nc" id="L253">        solver.setRestartStrategy(new LubyRestarts(512));</span>
-<span class="nc" id="L254">        return solver;</span>
+<span class="fc" id="L251">        Solver&lt;DataStructureFactory&gt; solver = newBestWL();</span>
+<span class="fc" id="L252">        solver.setLearnedConstraintsDeletionStrategy(solver.lbdBased);</span>
+<span class="fc" id="L253">        solver.setRestartStrategy(new LubyRestarts(512));</span>
+<span class="fc" id="L254">        return solver;</span>
     }
 
     /**
@@ -316,7 +316,7 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return a SAT solver very close to the original MiniSAT sat solver.
      */
     public static Solver&lt;DataStructureFactory&gt; newMiniSATHeap() {
-<span class="nc" id="L319">        return newMiniSATHeap(new MixedDataStructureDanielWL());</span>
+<span class="fc" id="L319">        return newMiniSATHeap(new MixedDataStructureDanielWL());</span>
     }
 
     /**
@@ -324,25 +324,25 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      *         including easy reason simplification.
      */
     public static ICDCL&lt;DataStructureFactory&gt; newMiniSATHeapEZSimp() {
-<span class="nc" id="L327">        Solver&lt;DataStructureFactory&gt; solver = newMiniSATHeap();</span>
-<span class="nc" id="L328">        solver.setSimplifier(solver.simpleSimplification);</span>
-<span class="nc" id="L329">        return solver;</span>
+<span class="fc" id="L327">        Solver&lt;DataStructureFactory&gt; solver = newMiniSATHeap();</span>
+<span class="fc" id="L328">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="fc" id="L329">        return solver;</span>
     }
 
     public static ICDCL&lt;DataStructureFactory&gt; newMiniSATHeapExpSimp() {
-<span class="nc" id="L333">        Solver&lt;DataStructureFactory&gt; solver = newMiniSATHeap();</span>
-<span class="nc" id="L334">        solver.setSimplifier(solver.expensiveSimplification);</span>
-<span class="nc" id="L335">        return solver;</span>
+<span class="fc" id="L333">        Solver&lt;DataStructureFactory&gt; solver = newMiniSATHeap();</span>
+<span class="fc" id="L334">        solver.setSimplifier(solver.expensiveSimplification);</span>
+<span class="fc" id="L335">        return solver;</span>
     }
 
     public static Solver&lt;DataStructureFactory&gt; newMiniSATHeap(
             DataStructureFactory dsf) {
-<span class="nc" id="L340">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
-<span class="nc" id="L341">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning, dsf,</span>
+<span class="fc" id="L340">        MiniSATLearning&lt;DataStructureFactory&gt; learning = new MiniSATLearning&lt;&gt;();</span>
+<span class="fc" id="L341">        Solver&lt;DataStructureFactory&gt; solver = new Solver&lt;&gt;(learning, dsf,</span>
                 new VarOrderHeap(), new MiniSATRestarts());
-<span class="nc" id="L343">        learning.setDataStructureFactory(solver.getDSFactory());</span>
-<span class="nc" id="L344">        learning.setVarActivityListener(solver);</span>
-<span class="nc" id="L345">        return solver;</span>
+<span class="fc" id="L343">        learning.setDataStructureFactory(solver.getDSFactory());</span>
+<span class="fc" id="L344">        learning.setVarActivityListener(solver);</span>
+<span class="fc" id="L345">        return solver;</span>
     }
 
     /**
@@ -381,9 +381,9 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return the default solver with an aggressive LCDS based on activity
      */
     public static ISolver newActivityLCDS() {
-<span class="fc" id="L384">        Solver&lt;?&gt; solver = newGlucose21();</span>
-<span class="fc" id="L385">        solver.setLearnedConstraintsDeletionStrategy(solver.activityBased);</span>
-<span class="fc" id="L386">        return solver;</span>
+<span class="nc" id="L384">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="nc" id="L385">        solver.setLearnedConstraintsDeletionStrategy(solver.activityBased);</span>
+<span class="nc" id="L386">        return solver;</span>
     }
 
     /**
@@ -391,9 +391,9 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return the default solver with an aggressive LCDS based on size
      */
     public static ISolver newSizeLCDS() {
-<span class="nc" id="L394">        Solver&lt;?&gt; solver = newGlucose21();</span>
-<span class="nc" id="L395">        solver.setLearnedConstraintsDeletionStrategy(solver.sizeBased);</span>
-<span class="nc" id="L396">        return solver;</span>
+<span class="fc" id="L394">        Solver&lt;?&gt; solver = newGlucose21();</span>
+<span class="fc" id="L395">        solver.setLearnedConstraintsDeletionStrategy(solver.sizeBased);</span>
+<span class="fc" id="L396">        return solver;</span>
     }
 
     /**
@@ -421,7 +421,7 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      *      instance of ASolverFactory.
      */
     public static ISolver newLight() {
-<span class="fc" id="L424">        return newMiniLearningHeap();</span>
+<span class="nc" id="L424">        return newMiniLearningHeap();</span>
     }
 
     @Override
@@ -438,11 +438,11 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
     }
 
     public static ISolver newParallel() {
-<span class="nc" id="L441">        return new ManyCore&lt;ISolver&gt;(newSAT(), newUNSAT(),</span>
-<span class="nc" id="L442">                newMiniLearningHeapRsatExpSimpLuby(),</span>
-<span class="nc" id="L443">                newMiniLearningHeapRsatExpSimp(),</span>
-<span class="nc" id="L444">                newDefaultAutoErasePhaseSaving(), newMiniLearningHeap(),</span>
-<span class="nc" id="L445">                newMiniSATHeapExpSimp(), newMiniSATHeapEZSimp());</span>
+<span class="fc" id="L441">        return new ManyCore&lt;ISolver&gt;(newSAT(), newUNSAT(),</span>
+<span class="fc" id="L442">                newMiniLearningHeapRsatExpSimpLuby(),</span>
+<span class="fc" id="L443">                newMiniLearningHeapRsatExpSimp(),</span>
+<span class="fc" id="L444">                newDefaultAutoErasePhaseSaving(), newMiniLearningHeap(),</span>
+<span class="fc" id="L445">                newMiniSATHeapExpSimp(), newMiniSATHeapEZSimp());</span>
     }
 
     /**
@@ -452,7 +452,7 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return a parallel solver for both SAT and UNSAT problems.
      */
     public static ISolver newSATUNSAT() {
-<span class="nc" id="L455">        return new ManyCore&lt;ISolver&gt;(newSAT(), newUNSAT());</span>
+<span class="fc" id="L455">        return new ManyCore&lt;ISolver&gt;(newSAT(), newUNSAT());</span>
     }
 
     /**
@@ -461,11 +461,11 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return a solver for satisfiable benchmarks.
      */
     public static Solver&lt;DataStructureFactory&gt; newSAT() {
-<span class="nc" id="L464">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
-<span class="nc" id="L465">        solver.setRestartStrategy(new LubyRestarts(100));</span>
-<span class="nc" id="L466">        solver.setLearnedConstraintsDeletionStrategy(</span>
+<span class="fc" id="L464">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="fc" id="L465">        solver.setRestartStrategy(new LubyRestarts(100));</span>
+<span class="fc" id="L466">        solver.setLearnedConstraintsDeletionStrategy(</span>
                 solver.activityBasedLowMemory);
-<span class="nc" id="L468">        return solver;</span>
+<span class="fc" id="L468">        return solver;</span>
     }
 
     /**
@@ -474,24 +474,24 @@ public final class SolverFactory extends ASolverFactory&lt;ISolver&gt; {
      * @return a solver for unsatisfiable benchmarks.
      */
     public static Solver&lt;DataStructureFactory&gt; newUNSAT() {
-<span class="nc" id="L477">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
-<span class="nc" id="L478">        solver.setRestartStrategy(new NoRestarts());</span>
-<span class="nc" id="L479">        solver.setSimplifier(solver.simpleSimplification);</span>
-<span class="nc" id="L480">        return solver;</span>
+<span class="fc" id="L477">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="fc" id="L478">        solver.setRestartStrategy(new NoRestarts());</span>
+<span class="fc" id="L479">        solver.setSimplifier(solver.simpleSimplification);</span>
+<span class="fc" id="L480">        return solver;</span>
     }
 
     public static Solver&lt;DataStructureFactory&gt; newConcise() {
-<span class="fc" id="L484">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
-<span class="fc" id="L485">        solver.setDataStructureFactory(</span>
+<span class="nc" id="L484">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="nc" id="L485">        solver.setDataStructureFactory(</span>
                 new MixedDataStructureDanielWLConciseBinary());
-<span class="fc" id="L487">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
-<span class="fc" id="L488">        return solver;</span>
+<span class="nc" id="L487">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
+<span class="nc" id="L488">        return solver;</span>
     }
 
     public static Solver&lt;DataStructureFactory&gt; newNoSimplification() {
-<span class="nc" id="L492">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
-<span class="nc" id="L493">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
-<span class="nc" id="L494">        return solver;</span>
+<span class="fc" id="L492">        Solver&lt;DataStructureFactory&gt; solver = newGlucose21();</span>
+<span class="fc" id="L493">        solver.setSimplifier(Solver.NO_SIMPLIFICATION);</span>
+<span class="fc" id="L494">        return solver;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

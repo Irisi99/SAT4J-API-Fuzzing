@@ -73,13 +73,13 @@ public final class LubyRestarts implements RestartStrategy {
      * @see #luby()
      */
     public int nextLuby() {
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if ((this.un &amp; -this.un) == this.vn) {</span>
-<span class="nc" id="L77">            this.un = this.un + 1;</span>
-<span class="nc" id="L78">            this.vn = 1;</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if ((this.un &amp; -this.un) == this.vn) {</span>
+<span class="fc" id="L77">            this.un = this.un + 1;</span>
+<span class="fc" id="L78">            this.vn = 1;</span>
         } else {
-<span class="nc" id="L80">            this.vn = this.vn &lt;&lt; 1;</span>
+<span class="fc" id="L80">            this.vn = this.vn &lt;&lt; 1;</span>
         }
-<span class="nc" id="L82">        return this.vn;</span>
+<span class="fc" id="L82">        return this.vn;</span>
     }
 
     private int factor;
@@ -117,9 +117,9 @@ public final class LubyRestarts implements RestartStrategy {
 
     @Override
     public void onRestart() {
-<span class="nc" id="L120">        this.bound = nextLuby() * this.factor;</span>
-<span class="nc" id="L121">        this.conflictcount = 0;</span>
-<span class="nc" id="L122">    }</span>
+<span class="fc" id="L120">        this.bound = nextLuby() * this.factor;</span>
+<span class="fc" id="L121">        this.conflictcount = 0;</span>
+<span class="fc" id="L122">    }</span>
 
     @Override
     public String toString() {
@@ -128,7 +128,7 @@ public final class LubyRestarts implements RestartStrategy {
     }
 
     public boolean shouldRestart() {
-<span class="pc bpc" id="L131" title="1 of 2 branches missed.">        return this.conflictcount &gt;= this.bound;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">        return this.conflictcount &gt;= this.bound;</span>
     }
 
     @Override

@@ -45,7 +45,7 @@ import org.sat4j.minisat.core.IPhaseSelectionStrategy;
  * 
  */
 @Feature(value = &quot;phaseheuristics&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L48">public final class RandomLiteralSelectionStrategy</span>
+<span class="fc" id="L48">public final class RandomLiteralSelectionStrategy</span>
         implements IPhaseSelectionStrategy {
 
     /**
@@ -56,15 +56,15 @@ import org.sat4j.minisat.core.IPhaseSelectionStrategy;
     /**
      * @since 2.2
      */
-<span class="nc" id="L59">    public static final Random RAND = System</span>
-<span class="nc bnc" id="L60" title="All 2 branches missed.">            .getProperty(&quot;NONDETERMINISTIC&quot;) == null ? new Random(123456789)</span>
-<span class="nc" id="L61">                    : new Random();</span>
+<span class="fc" id="L59">    public static final Random RAND = System</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">            .getProperty(&quot;NONDETERMINISTIC&quot;) == null ? new Random(123456789)</span>
+<span class="pc" id="L61">                    : new Random();</span>
 
     public int select(int variable) {
-<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (RAND.nextBoolean()) {</span>
-<span class="nc" id="L65">            return posLit(variable);</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if (RAND.nextBoolean()) {</span>
+<span class="fc" id="L65">            return posLit(variable);</span>
         }
-<span class="nc" id="L67">        return negLit(variable);</span>
+<span class="fc" id="L67">        return negLit(variable);</span>
     }
 
     @Override

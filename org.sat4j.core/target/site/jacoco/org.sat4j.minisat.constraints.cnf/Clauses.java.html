@@ -118,8 +118,8 @@ public class Clauses {
      */
     static boolean propagationCheck(IVecInt ps, UnitPropagationListener s)
             throws ContradictionException {
-<span class="pc bpc" id="L121" title="1 of 2 branches missed.">        if (ps.size() == 0) {</span>
-<span class="nc" id="L122">            throw new ContradictionException(&quot;Creating Empty clause ?&quot;); //$NON-NLS-1$</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (ps.size() == 0) {</span>
+<span class="fc" id="L122">            throw new ContradictionException(&quot;Creating Empty clause ?&quot;); //$NON-NLS-1$</span>
 <span class="fc bfc" id="L123" title="All 2 branches covered.">        } else if (ps.size() == 1) {</span>
 <span class="pc bpc" id="L124" title="1 of 2 branches missed.">            if (!s.enqueue(ps.get(0))) {</span>
 <span class="nc" id="L125">                throw new ContradictionException(&quot;Contradictory Unit Clauses&quot;); //$NON-NLS-1$</span>

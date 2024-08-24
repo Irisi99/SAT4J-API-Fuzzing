@@ -77,11 +77,11 @@ public final class PureOrder extends VarOrderHeap {
             // try to find a pure literal
 <span class="fc" id="L78">            this.cpt = 0;</span>
 <span class="fc" id="L79">            int nblits = 2 * this.lits.nVars();</span>
-<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (var i = 2; i &lt;= nblits; i++) {</span>
-<span class="pc bpc" id="L81" title="2 of 4 branches missed.">                if (this.lits.belongsToPool(i &gt;&gt; 1) &amp;&amp; this.lits.isUnassigned(i)</span>
-<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                        &amp;&amp; this.lits.watches(i).size() &gt; 0</span>
-<span class="nc bnc" id="L83" title="All 2 branches missed.">                        &amp;&amp; this.lits.watches(i ^ 1).size() == 0) {</span>
-<span class="nc" id="L84">                    return i;</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">            for (var i = 2; i &lt;= nblits; i++) {</span>
+<span class="pc bpc" id="L81" title="1 of 4 branches missed.">                if (this.lits.belongsToPool(i &gt;&gt; 1) &amp;&amp; this.lits.isUnassigned(i)</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">                        &amp;&amp; this.lits.watches(i).size() &gt; 0</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">                        &amp;&amp; this.lits.watches(i ^ 1).size() == 0) {</span>
+<span class="fc" id="L84">                    return i;</span>
                 }
             }
         }

@@ -86,20 +86,20 @@ import org.sat4j.specs.IVecInt;
             // tautological clause
 <span class="fc" id="L87">            return null;</span>
         }
-<span class="pc bpc" id="L89" title="1 of 2 branches missed.">        if (v.size() == 1) {</span>
-<span class="nc" id="L90">            return new UnitClause(v.last());</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (v.size() == 1) {</span>
+<span class="fc" id="L90">            return new UnitClause(v.last());</span>
         }
-<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (v.size() == 2) {</span>
-<span class="nc" id="L93">            return createConciseBinaryClause(v);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (v.size() == 2) {</span>
+<span class="fc" id="L93">            return createConciseBinaryClause(v);</span>
         }
 <span class="fc" id="L95">        return OriginalWLClause.brandNewClause(getVocabulary(), v);</span>
     }
 
     private Constr createConciseBinaryClause(IVecInt literals) {
-<span class="nc bnc" id="L99" title="All 4 branches missed.">        assert literals.size() == 2;</span>
-<span class="nc bnc" id="L100" title="All 2 branches missed.">        if (binaryClauses == null) {</span>
-<span class="nc" id="L101">            binaryClauses = new BinaryClauses[getVocabulary().nVars() * 2 + 2];</span>
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        } else if (binaryClauses.length &lt; getVocabulary().nVars() * 2) {</span>
+<span class="pc bpc" id="L99" title="2 of 4 branches missed.">        assert literals.size() == 2;</span>
+<span class="fc bfc" id="L100" title="All 2 branches covered.">        if (binaryClauses == null) {</span>
+<span class="fc" id="L101">            binaryClauses = new BinaryClauses[getVocabulary().nVars() * 2 + 2];</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        } else if (binaryClauses.length &lt; getVocabulary().nVars() * 2) {</span>
 <span class="nc" id="L103">            var newBinaryClauses = new BinaryClauses[getVocabulary().nVars() * 2</span>
                     + 2];
 <span class="nc" id="L105">            System.arraycopy(binaryClauses, 0, newBinaryClauses, 0,</span>
@@ -107,19 +107,19 @@ import org.sat4j.specs.IVecInt;
 <span class="nc" id="L107">            binaryClauses = newBinaryClauses;</span>
         }
         BinaryClauses first, second;
-<span class="nc bnc" id="L110" title="All 2 branches missed.">        if ((first = binaryClauses[literals.get(0)]) == null) {</span>
-<span class="nc" id="L111">            first = new BinaryClauses(getVocabulary(), literals.get(0));</span>
-<span class="nc" id="L112">            getVocabulary().watch(literals.get(0) ^ 1, first);</span>
-<span class="nc" id="L113">            binaryClauses[literals.get(0)] = first;</span>
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if ((first = binaryClauses[literals.get(0)]) == null) {</span>
+<span class="fc" id="L111">            first = new BinaryClauses(getVocabulary(), literals.get(0));</span>
+<span class="fc" id="L112">            getVocabulary().watch(literals.get(0) ^ 1, first);</span>
+<span class="fc" id="L113">            binaryClauses[literals.get(0)] = first;</span>
         }
-<span class="nc bnc" id="L115" title="All 2 branches missed.">        if ((second = binaryClauses[literals.get(1)]) == null) {</span>
-<span class="nc" id="L116">            second = new BinaryClauses(getVocabulary(), literals.get(1));</span>
-<span class="nc" id="L117">            getVocabulary().watch(literals.get(1) ^ 1, second);</span>
-<span class="nc" id="L118">            binaryClauses[literals.get(1)] = second;</span>
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if ((second = binaryClauses[literals.get(1)]) == null) {</span>
+<span class="fc" id="L116">            second = new BinaryClauses(getVocabulary(), literals.get(1));</span>
+<span class="fc" id="L117">            getVocabulary().watch(literals.get(1) ^ 1, second);</span>
+<span class="fc" id="L118">            binaryClauses[literals.get(1)] = second;</span>
         }
-<span class="nc" id="L120">        first.addBinaryClause(literals.get(1));</span>
-<span class="nc" id="L121">        second.addBinaryClause(literals.get(0));</span>
-<span class="nc" id="L122">        return first;</span>
+<span class="fc" id="L120">        first.addBinaryClause(literals.get(1));</span>
+<span class="fc" id="L121">        second.addBinaryClause(literals.get(0));</span>
+<span class="fc" id="L122">        return first;</span>
     }
 
     public Constr createUnregisteredClause(IVecInt literals) {

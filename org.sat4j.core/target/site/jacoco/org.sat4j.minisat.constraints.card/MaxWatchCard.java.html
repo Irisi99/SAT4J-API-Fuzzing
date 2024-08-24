@@ -321,9 +321,9 @@ public final class MaxWatchCard
 <span class="fc" id="L321">        var curr = this.watchCumul;</span>
 
         // Pour chaque litt?ral
-<span class="pc bpc" id="L324" title="1 of 2 branches missed.">        while (i &lt; this.lits.length) {</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">        while (i &lt; this.lits.length) {</span>
             // On d?cr?mente si l'espoir n'est pas fond?
-<span class="pc bpc" id="L326" title="1 of 2 branches missed.">            if (this.voc.isUnassigned(this.lits[i++])) {</span>
+<span class="fc bfc" id="L326" title="All 2 branches covered.">            if (this.voc.isUnassigned(this.lits[i++])) {</span>
 <span class="fc" id="L327">                curr--;</span>
 <span class="fc bfc" id="L328" title="All 2 branches covered.">                if (curr &lt; this.degree) {</span>
 <span class="fc" id="L329">                    return false;</span>
@@ -331,7 +331,7 @@ public final class MaxWatchCard
             }
         }
 
-<span class="nc" id="L334">        return false;</span>
+<span class="fc" id="L334">        return false;</span>
     }
 
     /**

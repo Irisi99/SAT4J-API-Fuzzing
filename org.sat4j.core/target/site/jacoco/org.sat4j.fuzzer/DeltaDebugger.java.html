@@ -177,7 +177,7 @@ import org.sat4j.specs.TimeoutException;
 
 <span class="nc" id="L178">        Map&lt;Integer, List&lt;Integer&gt;&gt; clauses = new HashMap&lt;Integer, List&lt;Integer&gt;&gt;();</span>
         String output;
-        int reduced;
+        boolean reduced;
 <span class="nc" id="L181">        boolean createNewFile = false;</span>
 
 <span class="nc bnc" id="L183" title="All 2 branches missed.">        for(int i=0; i &lt; content.size(); i++){</span>
@@ -189,7 +189,7 @@ import org.sat4j.specs.TimeoutException;
         }
 
         do{
-<span class="nc" id="L192">            reduced = 0;</span>
+<span class="nc" id="L192">            reduced = false;</span>
 <span class="nc bnc" id="L193" title="All 2 branches missed.">            for(int i=0; i &lt; content.size(); i++){</span>
 <span class="nc bnc" id="L194" title="All 4 branches missed.">                if(content.get(i).contains(&quot;addClause&quot;) || content.get(i).contains(&quot;assuming&quot;)){</span>
 
@@ -208,7 +208,7 @@ import org.sat4j.specs.TimeoutException;
 <span class="nc bnc" id="L208" title="All 4 branches missed.">                        if(output != null &amp;&amp; output.equals(errorType)){</span>
 <span class="nc" id="L209">                            j--;</span>
 <span class="nc" id="L210">                            tryAgain = true;</span>
-<span class="nc" id="L211">                            reduced++;</span>
+<span class="nc" id="L211">                            reduced = true;</span>
 <span class="nc" id="L212">                            createNewFile = true;</span>
 <span class="nc" id="L213">                            System.out.println(&quot;removed: true&quot;);</span>
                         } else {
@@ -219,7 +219,7 @@ import org.sat4j.specs.TimeoutException;
                     }
                 }
             }
-<span class="nc bnc" id="L222" title="All 2 branches missed.">        } while(reduced &gt; 5);</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">        } while(reduced);</span>
 
 <span class="nc bnc" id="L224" title="All 2 branches missed.">        if(createNewFile){</span>
             // Create the new file with the reduced trace

@@ -50,11 +50,11 @@ import org.sat4j.specs.Constr;
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare(Constr c1, Constr c2) {
-<span class="nc" id="L53">        long delta = Math.round(c1.getActivity() - c2.getActivity());</span>
-<span class="nc bnc" id="L54" title="All 2 branches missed.">        if (delta == 0) {</span>
-<span class="nc" id="L55">            return c1.size() - c2.size();</span>
+<span class="fc" id="L53">        long delta = Math.round(c1.getActivity() - c2.getActivity());</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (delta == 0) {</span>
+<span class="fc" id="L55">            return c1.size() - c2.size();</span>
         }
-<span class="nc" id="L57">        return (int) delta;</span>
+<span class="fc" id="L57">        return (int) delta;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

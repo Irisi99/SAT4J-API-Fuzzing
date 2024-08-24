@@ -35,7 +35,7 @@ import org.sat4j.annotations.Feature;
 import org.sat4j.minisat.core.IPhaseSelectionStrategy;
 
 @Feature(value = &quot;phaseheuristics&quot;, parent = &quot;expert&quot;)
-<span class="nc" id="L38">public final class PositiveLiteralSelectionStrategy</span>
+<span class="fc" id="L38">public final class PositiveLiteralSelectionStrategy</span>
         implements IPhaseSelectionStrategy {
 
     /**
@@ -44,7 +44,7 @@ import org.sat4j.minisat.core.IPhaseSelectionStrategy;
     private static final long serialVersionUID = 1L;
 
     public int select(int variable) {
-<span class="nc" id="L47">        return posLit(variable);</span>
+<span class="fc" id="L47">        return posLit(variable);</span>
     }
 
     @Override

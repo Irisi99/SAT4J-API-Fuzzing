@@ -87,13 +87,13 @@ public final class ActiveLearning&lt;D extends DataStructureFactory&gt;
      */
     @Override
     protected boolean learningCondition(Constr clause) {
-<span class="nc" id="L90">        var nbactivevars = 0;</span>
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        for (var i = 0; i &lt; clause.size(); i++) {</span>
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (this.order.varActivity(clause.get(i)) &gt; 1) {</span>
-<span class="nc" id="L93">                nbactivevars++;</span>
+<span class="fc" id="L90">        var nbactivevars = 0;</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        for (var i = 0; i &lt; clause.size(); i++) {</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">            if (this.order.varActivity(clause.get(i)) &gt; 1) {</span>
+<span class="fc" id="L93">                nbactivevars++;</span>
             }
         }
-<span class="nc bnc" id="L96" title="All 2 branches missed.">        return nbactivevars &gt; clause.size() * this.percent;</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        return nbactivevars &gt; clause.size() * this.percent;</span>
     }
 
     @Override

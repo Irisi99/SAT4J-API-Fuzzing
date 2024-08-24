@@ -84,7 +84,7 @@ import org.sat4j.tools.IdrupSearchListener;
 <span class="nc" id="L84">                    solver = Helper.initSolver(t[t.length-1]);</span>
 <span class="nc" id="L85">                    solver.setSearchListener(new IdrupSearchListener&lt;ISolverService&gt;(&quot;./idrups/&quot;+seed+&quot;.idrup&quot;));</span>
 <span class="nc" id="L86">                    solver2 = Helper.initSolver(t[t.length-1]);</span>
-<span class="nc bnc" id="L87" title="All 4 branches missed.">                    if (t[t.length-1].equals(&quot;Parallel&quot;) || t[t.length-1].equals(&quot;STUNSAT&quot;)) {</span>
+<span class="nc bnc" id="L87" title="All 6 branches missed.">                    if (t[t.length-1].equals(&quot;Parallel&quot;) || t[t.length-1].equals(&quot;STUNSAT&quot;) || t[t.length-1].equals(&quot;MinOneSolver&quot;)) {</span>
 <span class="nc" id="L88">                        SKIP_PROOF_CHECK = true;</span>
                     }
 
@@ -262,22 +262,40 @@ import org.sat4j.tools.IdrupSearchListener;
                 // Return the class of the error that happened while running the trace
 <span class="nc" id="L263">                return e.getClass().getName();</span>
             }
-<span class="nc" id="L265">        }</span>
-<span class="nc" id="L266">        return null;</span>
+<span class="nc" id="L265">        } catch (AssertionError a){</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">            if(verbose){</span>
+<span class="nc" id="L267">                a.printStackTrace();</span>
+            }
+
+<span class="nc bnc" id="L270" title="All 2 branches missed.">            if(!PROOF_CHECK_DONE)</span>
+<span class="nc" id="L271">                Helper.deleteProof(seed);</span>
+
+<span class="nc bnc" id="L273" title="All 4 branches missed.">            if(a.getMessage() != null &amp;&amp; a.getMessage().contains(&quot;Enumerators&quot;)){</span>
+<span class="nc" id="L274">                return &quot;Enumeration&quot;;</span>
+<span class="nc bnc" id="L275" title="All 4 branches missed.">            } else if(a.getMessage() != null &amp;&amp; a.getMessage().contains(&quot;IDRUP&quot;)){</span>
+<span class="nc" id="L276">                return a.getMessage();</span>
+<span class="nc bnc" id="L277" title="All 4 branches missed.">            } else if(a.getMessage() != null &amp;&amp; a.getMessage().contains(&quot;Creating Empty clause ?&quot;)){</span>
+<span class="nc" id="L278">                return &quot;Empty Clause&quot;;</span>
+            } else {
+                // Return the class of the error that happened while running the trace
+<span class="nc" id="L281">                return a.getClass().getName();</span>
+            }
+<span class="nc" id="L283">        }</span>
+<span class="nc" id="L284">        return null;</span>
     }
 
     // Method to parse clause / assumptions from trace and remove any redundant information from the trace line such as index
     private static int[] getClause(String line){
-<span class="nc" id="L271">        String[] t = line.split(&quot; &quot;);</span>
-<span class="nc" id="L272">        int[] clause = new int[t.length-2];</span>
-<span class="nc bnc" id="L273" title="All 2 branches missed.">        for(int j=2; j &lt; t.length; j++){</span>
-<span class="nc" id="L274">            clause[j-2] = Integer.parseInt(t[j]);</span>
+<span class="nc" id="L289">        String[] t = line.split(&quot; &quot;);</span>
+<span class="nc" id="L290">        int[] clause = new int[t.length-2];</span>
+<span class="nc bnc" id="L291" title="All 2 branches missed.">        for(int j=2; j &lt; t.length; j++){</span>
+<span class="nc" id="L292">            clause[j-2] = Integer.parseInt(t[j]);</span>
 
-<span class="nc bnc" id="L276" title="All 2 branches missed.">            if(!usedLiterals.contains(Math.abs(clause[j-2]))){</span>
-<span class="nc" id="L277">                usedLiterals.add(Math.abs(clause[j-2]));</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">            if(!usedLiterals.contains(Math.abs(clause[j-2]))){</span>
+<span class="nc" id="L295">                usedLiterals.add(Math.abs(clause[j-2]));</span>
             }
         }
-<span class="nc" id="L280">        return clause;</span>
+<span class="nc" id="L298">        return clause;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -70,7 +70,7 @@ import org.sat4j.specs.UnitPropagationListener;
  * @param &lt;S&gt;
  *            the type of the solver (ISolver of IPBSolver)
  */
-<span class="nc bnc" id="L73" title="All 2 branches missed.">@Feature(&quot;solver&quot;)</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">@Feature(&quot;solver&quot;)</span>
 public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListener,
         UnitClauseProvider, UnitClauseConsumer {
 
@@ -87,14 +87,14 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 
     protected final List&lt;S&gt; solvers;
     protected final int numberOfSolvers;
-<span class="nc" id="L90">    private int winnerId = -1;</span>
+<span class="pc" id="L90">    private int winnerId = -1;</span>
     private boolean resultFound;
     private AtomicInteger remainingSolvers;
     private volatile int sleepTime;
     private volatile boolean solved;
-<span class="nc" id="L95">    private final IVecInt sharedUnitClauses = new VecInt();</span>
+<span class="pc" id="L95">    private final IVecInt sharedUnitClauses = new VecInt();</span>
 
-<span class="nc" id="L97">    private final IVec&lt;Counter&gt; solversStats = new Vec&lt;&gt;();</span>
+<span class="pc" id="L97">    private final IVec&lt;Counter&gt; solversStats = new Vec&lt;&gt;();</span>
 
     public ManyCore(ASolverFactory&lt;S&gt; factory, String... solverNames) {
 <span class="nc" id="L100">        this(factory, false, solverNames);</span>
@@ -142,25 +142,25 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 <span class="nc" id="L142">    }</span>
 
     public ManyCore(S... solverObjects) {
-<span class="nc" id="L145">        this(false, solverObjects);</span>
-<span class="nc" id="L146">    }</span>
+<span class="fc" id="L145">        this(false, solverObjects);</span>
+<span class="fc" id="L146">    }</span>
 
-<span class="nc" id="L148">    public ManyCore(boolean shareLearnedUnitClauses, S... solverObjects) {</span>
-<span class="nc" id="L149">        this.availableSolvers = new String[solverObjects.length];</span>
-<span class="nc bnc" id="L150" title="All 2 branches missed.">        for (var i = 0; i &lt; solverObjects.length; i++) {</span>
-<span class="nc" id="L151">            this.availableSolvers[i] = &quot;solver&quot; + i;</span>
+<span class="fc" id="L148">    public ManyCore(boolean shareLearnedUnitClauses, S... solverObjects) {</span>
+<span class="fc" id="L149">        this.availableSolvers = new String[solverObjects.length];</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (var i = 0; i &lt; solverObjects.length; i++) {</span>
+<span class="fc" id="L151">            this.availableSolvers[i] = &quot;solver&quot; + i;</span>
         }
-<span class="nc" id="L153">        this.numberOfSolvers = solverObjects.length;</span>
-<span class="nc" id="L154">        this.solvers = new ArrayList&lt;&gt;(this.numberOfSolvers);</span>
-<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
-<span class="nc" id="L156">            this.solvers.add(solverObjects[i]);</span>
-<span class="nc" id="L157">            solverObjects[i].setUnitClauseConsumer(this);</span>
-<span class="nc bnc" id="L158" title="All 2 branches missed.">            if (shareLearnedUnitClauses) {</span>
+<span class="fc" id="L153">        this.numberOfSolvers = solverObjects.length;</span>
+<span class="fc" id="L154">        this.solvers = new ArrayList&lt;&gt;(this.numberOfSolvers);</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
+<span class="fc" id="L156">            this.solvers.add(solverObjects[i]);</span>
+<span class="fc" id="L157">            solverObjects[i].setUnitClauseConsumer(this);</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">            if (shareLearnedUnitClauses) {</span>
 <span class="nc" id="L159">                solverObjects[i].setUnitClauseProvider(this);</span>
             }
-<span class="nc" id="L161">            this.solversStats.push(new Counter(0));</span>
+<span class="fc" id="L161">            this.solversStats.push(new Counter(0));</span>
         }
-<span class="nc" id="L163">    }</span>
+<span class="fc" id="L163">    }</span>
 
     public void addAllClauses(IVec&lt;IVecInt&gt; clauses)
             throws ContradictionException {
@@ -197,11 +197,11 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     public IConstr addClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L200">        var group = new ConstrGroup(false);</span>
-<span class="nc bnc" id="L201" title="All 2 branches missed.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
-<span class="nc" id="L202">            group.add(this.solvers.get(i).addClause(literals));</span>
+<span class="fc" id="L200">        var group = new ConstrGroup(false);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
+<span class="fc" id="L202">            group.add(this.solvers.get(i).addClause(literals));</span>
         }
-<span class="nc" id="L204">        return group;</span>
+<span class="fc" id="L204">        return group;</span>
     }
 
     public void clearLearntClauses() {
@@ -219,7 +219,7 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 <span class="nc" id="L219">    }</span>
 
     public Map&lt;String, Number&gt; getStat() {
-<span class="nc" id="L222">        return this.solvers.get(this.getWinnerId()).getStat();</span>
+<span class="fc" id="L222">        return this.solvers.get(this.getWinnerId()).getStat();</span>
     }
 
     public int getTimeout() {
@@ -275,10 +275,10 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 <span class="nc" id="L275">    }</span>
 
     public void setTimeout(int t) {
-<span class="nc bnc" id="L278" title="All 2 branches missed.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
-<span class="nc" id="L279">            this.solvers.get(i).setTimeout(t);</span>
+<span class="fc bfc" id="L278" title="All 2 branches covered.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
+<span class="fc" id="L279">            this.solvers.get(i).setTimeout(t);</span>
         }
-<span class="nc" id="L281">    }</span>
+<span class="fc" id="L281">    }</span>
 
     public void setTimeoutMs(long t) {
 <span class="nc bnc" id="L284" title="All 2 branches missed.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
@@ -329,31 +329,31 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     public boolean isSatisfiable() throws TimeoutException {
-<span class="nc" id="L332">        return isSatisfiable(VecInt.EMPTY, false);</span>
+<span class="fc" id="L332">        return isSatisfiable(VecInt.EMPTY, false);</span>
     }
 
     public synchronized boolean isSatisfiable(IVecInt assumps,
             boolean globalTimeout) throws TimeoutException {
-<span class="nc" id="L337">        this.remainingSolvers = new AtomicInteger(this.numberOfSolvers);</span>
-<span class="nc" id="L338">        this.solved = false;</span>
-<span class="nc bnc" id="L339" title="All 2 branches missed.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
-<span class="nc" id="L340">            new Thread(new RunnableSolver(i, this.solvers.get(i), assumps,</span>
-<span class="nc" id="L341">                    globalTimeout, this)).start();</span>
+<span class="fc" id="L337">        this.remainingSolvers = new AtomicInteger(this.numberOfSolvers);</span>
+<span class="fc" id="L338">        this.solved = false;</span>
+<span class="fc bfc" id="L339" title="All 2 branches covered.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
+<span class="fc" id="L340">            new Thread(new RunnableSolver(i, this.solvers.get(i), assumps,</span>
+<span class="fc" id="L341">                    globalTimeout, this)).start();</span>
         }
         try {
-<span class="nc" id="L344">            this.sleepTime = NORMAL_SLEEP;</span>
+<span class="fc" id="L344">            this.sleepTime = NORMAL_SLEEP;</span>
             do {
-<span class="nc" id="L346">                wait(this.sleepTime);</span>
-<span class="nc bnc" id="L347" title="All 2 branches missed.">            } while (this.remainingSolvers.get() &gt; 0);</span>
+<span class="fc" id="L346">                wait(this.sleepTime);</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">            } while (this.remainingSolvers.get() &gt; 0);</span>
 <span class="nc" id="L348">        } catch (InterruptedException e) {</span>
             // will happen when one solver found a solution
 <span class="nc" id="L350">            Thread.currentThread().interrupt();</span>
-<span class="nc" id="L351">        }</span>
-<span class="nc bnc" id="L352" title="All 2 branches missed.">        if (!this.solved) {</span>
+<span class="fc" id="L351">        }</span>
+<span class="pc bpc" id="L352" title="1 of 2 branches missed.">        if (!this.solved) {</span>
 <span class="nc bnc" id="L353" title="All 4 branches missed.">            assert this.remainingSolvers.get() == 0;</span>
 <span class="nc" id="L354">            throw new TimeoutException();</span>
         }
-<span class="nc" id="L356">        return this.resultFound;</span>
+<span class="fc" id="L356">        return this.resultFound;</span>
     }
 
     public boolean isSatisfiable(boolean globalTimeout)
@@ -362,11 +362,11 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     public boolean isSatisfiable(IVecInt assumps) throws TimeoutException {
-<span class="nc" id="L365">        return isSatisfiable(assumps, false);</span>
+<span class="fc" id="L365">        return isSatisfiable(assumps, false);</span>
     }
 
     public int[] model() {
-<span class="nc" id="L369">        return this.solvers.get(this.getWinnerId()).model();</span>
+<span class="fc" id="L369">        return this.solvers.get(this.getWinnerId()).model();</span>
     }
 
     public boolean model(int variable) {
@@ -383,34 +383,34 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 
     public synchronized void onFinishWithAnswer(boolean finished,
             boolean result, int index) {
-<span class="nc bnc" id="L386" title="All 4 branches missed.">        if (finished &amp;&amp; !this.solved) {</span>
-<span class="nc" id="L387">            this.winnerId = index;</span>
-<span class="nc" id="L388">            this.solversStats.get(index).inc();</span>
-<span class="nc" id="L389">            this.solved = true;</span>
-<span class="nc" id="L390">            this.resultFound = result;</span>
-<span class="nc bnc" id="L391" title="All 2 branches missed.">            for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
-<span class="nc bnc" id="L392" title="All 2 branches missed.">                if (i != this.getWinnerId()) {</span>
-<span class="nc" id="L393">                    this.solvers.get(i).expireTimeout();</span>
+<span class="fc bfc" id="L386" title="All 4 branches covered.">        if (finished &amp;&amp; !this.solved) {</span>
+<span class="fc" id="L387">            this.winnerId = index;</span>
+<span class="fc" id="L388">            this.solversStats.get(index).inc();</span>
+<span class="fc" id="L389">            this.solved = true;</span>
+<span class="fc" id="L390">            this.resultFound = result;</span>
+<span class="fc bfc" id="L391" title="All 2 branches covered.">            for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
+<span class="fc bfc" id="L392" title="All 2 branches covered.">                if (i != this.getWinnerId()) {</span>
+<span class="fc" id="L393">                    this.solvers.get(i).expireTimeout();</span>
                 }
             }
-<span class="nc" id="L396">            this.sleepTime = FAST_SLEEP;</span>
-<span class="nc bnc" id="L397" title="All 2 branches missed.">            if (isVerbose()) {</span>
+<span class="fc" id="L396">            this.sleepTime = FAST_SLEEP;</span>
+<span class="pc bpc" id="L397" title="1 of 2 branches missed.">            if (isVerbose()) {</span>
 <span class="nc" id="L398">                System.out.println(getLogPrefix() + &quot;And the winner is &quot;</span>
 <span class="nc" id="L399">                        + this.availableSolvers[this.getWinnerId()]);</span>
             }
         }
-<span class="nc" id="L402">        this.remainingSolvers.getAndDecrement();</span>
-<span class="nc" id="L403">    }</span>
+<span class="fc" id="L402">        this.remainingSolvers.getAndDecrement();</span>
+<span class="fc" id="L403">    }</span>
 
     public boolean isDBSimplificationAllowed() {
 <span class="nc" id="L406">        return this.solvers.get(0).isDBSimplificationAllowed();</span>
     }
 
     public void setDBSimplificationAllowed(boolean status) {
-<span class="nc bnc" id="L410" title="All 2 branches missed.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
-<span class="nc" id="L411">            this.solvers.get(i).setDBSimplificationAllowed(status);</span>
+<span class="fc bfc" id="L410" title="All 2 branches covered.">        for (var i = 0; i &lt; this.numberOfSolvers; i++) {</span>
+<span class="fc" id="L411">            this.solvers.get(i).setDBSimplificationAllowed(status);</span>
         }
-<span class="nc" id="L413">    }</span>
+<span class="fc" id="L413">    }</span>
 
     public &lt;I extends ISolverService&gt; void setSearchListener(
             SearchListener&lt;I&gt; sl) {
@@ -444,10 +444,10 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     private void checkWinnerId() {
-<span class="nc bnc" id="L447" title="All 2 branches missed.">        if (this.winnerId &lt; 0) {</span>
+<span class="pc bpc" id="L447" title="1 of 2 branches missed.">        if (this.winnerId &lt; 0) {</span>
 <span class="nc" id="L448">            throw new IllegalStateException(&quot;No solver solved the problem!&quot;);</span>
         }
-<span class="nc" id="L450">    }</span>
+<span class="fc" id="L450">    }</span>
 
     public IVecInt createBlockingClauseForCurrentModel() {
 <span class="nc" id="L453">        return this.solvers.get(this.getWinnerId())</span>
@@ -482,7 +482,7 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     public boolean isVerbose() {
-<span class="nc" id="L485">        return this.solvers.get(0).isVerbose();</span>
+<span class="fc" id="L485">        return this.solvers.get(0).isVerbose();</span>
     }
 
     public void setVerbose(boolean value) {
@@ -503,7 +503,7 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     public IVecInt unsatExplanation() {
-<span class="nc" id="L506">        return this.solvers.get(this.getWinnerId()).unsatExplanation();</span>
+<span class="fc" id="L506">        return this.solvers.get(this.getWinnerId()).unsatExplanation();</span>
     }
 
     public int[] primeImplicant() {
@@ -580,8 +580,8 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
 
     @Override
     public synchronized void learnUnit(int p) {
-<span class="nc" id="L583">        sharedUnitClauses.push(LiteralsUtils.toInternal(p));</span>
-<span class="nc" id="L584">    }</span>
+<span class="fc" id="L583">        sharedUnitClauses.push(LiteralsUtils.toInternal(p));</span>
+<span class="fc" id="L584">    }</span>
 
     @Override
     @Feature(value = &quot;unitclauseprovider&quot;, parent = &quot;expert&quot;)
@@ -611,8 +611,8 @@ public class ManyCore&lt;S extends ISolver&gt; implements ISolver, OutcomeListen
     }
 
     public int getWinnerId() {
-<span class="nc" id="L614">        checkWinnerId();</span>
-<span class="nc" id="L615">        return winnerId;</span>
+<span class="fc" id="L614">        checkWinnerId();</span>
+<span class="fc" id="L615">        return winnerId;</span>
     }
 
     public AssignmentOrigin getOriginInModel(int p) {
@@ -645,23 +645,23 @@ class RunnableSolver implements Runnable {
     private final boolean globalTimeout;
 
     public RunnableSolver(int i, ISolver solver, IVecInt assumps,
-<span class="nc" id="L648">            boolean globalTimeout, OutcomeListener ol) {</span>
-<span class="nc" id="L649">        this.index = i;</span>
-<span class="nc" id="L650">        this.solver = solver;</span>
-<span class="nc" id="L651">        this.ol = ol;</span>
-<span class="nc" id="L652">        this.assumps = assumps;</span>
-<span class="nc" id="L653">        this.globalTimeout = globalTimeout;</span>
-<span class="nc" id="L654">    }</span>
+<span class="fc" id="L648">            boolean globalTimeout, OutcomeListener ol) {</span>
+<span class="fc" id="L649">        this.index = i;</span>
+<span class="fc" id="L650">        this.solver = solver;</span>
+<span class="fc" id="L651">        this.ol = ol;</span>
+<span class="fc" id="L652">        this.assumps = assumps;</span>
+<span class="fc" id="L653">        this.globalTimeout = globalTimeout;</span>
+<span class="fc" id="L654">    }</span>
 
     public void run() {
         try {
-<span class="nc" id="L658">            boolean result = this.solver.isSatisfiable(this.assumps,</span>
+<span class="fc" id="L658">            boolean result = this.solver.isSatisfiable(this.assumps,</span>
                     this.globalTimeout);
-<span class="nc" id="L660">            this.ol.onFinishWithAnswer(true, result, this.index);</span>
-<span class="nc" id="L661">        } catch (Exception e) {</span>
-<span class="nc" id="L662">            this.ol.onFinishWithAnswer(false, false, this.index);</span>
-<span class="nc" id="L663">        }</span>
-<span class="nc" id="L664">    }</span>
+<span class="fc" id="L660">            this.ol.onFinishWithAnswer(true, result, this.index);</span>
+<span class="fc" id="L661">        } catch (Exception e) {</span>
+<span class="fc" id="L662">            this.ol.onFinishWithAnswer(false, false, this.index);</span>
+<span class="fc" id="L663">        }</span>
+<span class="fc" id="L664">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

@@ -151,7 +151,7 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
      * For learnt clauses only @author leberre
      */
     public boolean locked() {
-<span class="nc bnc" id="L154" title="All 2 branches missed.">        return this.voc.getReason(this.lits[0]) == this;</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">        return this.voc.getReason(this.lits[0]) == this;</span>
     }
 
     /**
@@ -216,8 +216,8 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
      */
     @Override
     public void rescaleBy(double d) {
-<span class="nc" id="L219">        this.activity *= d;</span>
-<span class="nc" id="L220">    }</span>
+<span class="fc" id="L219">        this.activity *= d;</span>
+<span class="fc" id="L220">    }</span>
 
     public int size() {
 <span class="fc" id="L223">        return this.lits.length;</span>
@@ -317,7 +317,7 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
     public int getAssertionLevel(IVecInt trail, IVecInt trailLim,
             int decisionLevel, ILits voc) {
 <span class="pc bpc" id="L319" title="1 of 2 branches missed.">        for (int i = trail.size() - 1; i &gt;= 0; i--) {</span>
-<span class="fc bfc" id="L320" title="All 2 branches covered.">            if (var(trail.get(i)) == var(this.lits[0])) {</span>
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">            if (var(trail.get(i)) == var(this.lits[0])) {</span>
 <span class="fc" id="L321">                return i;</span>
             }
         }
@@ -337,7 +337,7 @@ public abstract class WLClause implements Propagatable, Constr, Serializable {
 
     @Override
     public int getFirstFalsifiedLiteralIndexForReason() {
-<span class="nc" id="L340">        return 1;</span>
+<span class="fc" id="L340">        return 1;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

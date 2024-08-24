@@ -44,7 +44,7 @@ import org.sat4j.core.LiteralsUtils;
  * @author leberre
  * 
  */
-<span class="nc" id="L47">public final class SolutionPhaseSelectionStrategy</span>
+<span class="fc" id="L47">public final class SolutionPhaseSelectionStrategy</span>
         extends AbstractPhaserecordingSelectionStrategy {
 
     /**
@@ -54,18 +54,18 @@ import org.sat4j.core.LiteralsUtils;
 
     @Override
     public void init(int nlength) {
-<span class="nc bnc" id="L57" title="All 4 branches missed.">        if (this.phase == null || this.phase.length &lt; nlength) {</span>
-<span class="nc" id="L58">            this.phase = new int[nlength];</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">            for (var i = 1; i &lt; nlength; i++) {</span>
-<span class="nc" id="L60">                this.phase[i] = negLit(i);</span>
+<span class="pc bpc" id="L57" title="1 of 4 branches missed.">        if (this.phase == null || this.phase.length &lt; nlength) {</span>
+<span class="fc" id="L58">            this.phase = new int[nlength];</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">            for (var i = 1; i &lt; nlength; i++) {</span>
+<span class="fc" id="L60">                this.phase[i] = negLit(i);</span>
             }
         }
-<span class="nc" id="L63">    }</span>
+<span class="fc" id="L63">    }</span>
 
     @Override
     public void assignLiteral(int p) {
-<span class="nc" id="L67">        this.phase[var(p)] = p;</span>
-<span class="nc" id="L68">    }</span>
+<span class="fc" id="L67">        this.phase[var(p)] = p;</span>
+<span class="fc" id="L68">    }</span>
 
     @Override
     public String toString() {

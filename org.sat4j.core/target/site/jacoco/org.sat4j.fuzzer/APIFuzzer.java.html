@@ -27,28 +27,32 @@ import java.security.SecureRandom;
 <span class="fc" id="L27">                    nrTraces = Integer.parseInt(args[i+1]);</span>
 <span class="pc bpc" id="L28" title="1 of 2 branches missed.">                } else if(args[i].trim().equals(&quot;-v&quot;)){</span>
 <span class="nc" id="L29">                    verbose = true;</span>
-<span class="pc bpc" id="L30" title="1 of 2 branches missed.">                } else if(args[i].trim().equals(&quot;-p&quot;)){</span>
-<span class="fc" id="L31">                    skipProofCheck = true;</span>
+<span class="nc" id="L30">                    i--;</span>
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">                } else if(args[i].trim().equals(&quot;-p&quot;)){</span>
+<span class="fc" id="L32">                    skipProofCheck = true;</span>
+<span class="fc" id="L33">                    i--;</span>
                 } else {
-<span class="nc" id="L33">                    System.out.println(&quot;The only acceptable parameters are :&quot;);</span>
-<span class="nc" id="L34">                    System.out.println(&quot;    -s seed (long)&quot;);</span>
-<span class="nc" id="L35">                    System.out.println(&quot;    -n nr of Traces (int)&quot;);</span>
-<span class="nc" id="L36">                    System.exit(0);</span>
+<span class="nc" id="L35">                    System.out.println(&quot;The only acceptable parameters are :&quot;);</span>
+<span class="nc" id="L36">                    System.out.println(&quot;    -s seed (long)&quot;);</span>
+<span class="nc" id="L37">                    System.out.println(&quot;    -n nrOfTraces (int)&quot;);</span>
+<span class="nc" id="L38">                    System.out.println(&quot;    -v to run it in verbose mode&quot;);</span>
+<span class="nc" id="L39">                    System.out.println(&quot;    -p to skip IDRUP Proof check&quot;);</span>
+<span class="nc" id="L40">                    System.exit(0);</span>
                 }
             }
         }
 
         // Generate Master Seed 64 bit if not provided
-<span class="pc bpc" id="L42" title="1 of 2 branches missed.">        if(masterSeed == 0){</span>
-<span class="fc" id="L43">            byte[] seedBytes = rand.generateSeed(64);</span>
-<span class="fc" id="L44">            masterSeed = new BigInteger(seedBytes).longValue();</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if(masterSeed == 0){</span>
+<span class="fc" id="L47">            byte[] seedBytes = rand.generateSeed(64);</span>
+<span class="fc" id="L48">            masterSeed = new BigInteger(seedBytes).longValue();</span>
         }
 
         // System.out.println(&quot;Master Seed: &quot;+Long.toHexString(masterSeed));
 
         // Call TraceFactory and pass Master Seed
-<span class="fc" id="L50">        TraceFactory.run(masterSeed, nrTraces, skipProofCheck, isTraceSeed, verbose);</span>
-<span class="fc" id="L51">    }</span>
+<span class="fc" id="L54">        TraceFactory.run(masterSeed, nrTraces, skipProofCheck, isTraceSeed, verbose);</span>
+<span class="fc" id="L55">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

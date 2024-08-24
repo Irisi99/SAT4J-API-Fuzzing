@@ -217,18 +217,18 @@ public class MinWatchCard
 
 <span class="fc bfc" id="L218" title="All 2 branches covered.">        for (var i = 0; i &lt; ps.size();) {</span>
             // on verifie si le litteral est affecte
-<span class="pc bpc" id="L220" title="1 of 2 branches missed.">            if (voc.isUnassigned(ps.get(i))) {</span>
+<span class="fc bfc" id="L220" title="All 2 branches covered.">            if (voc.isUnassigned(ps.get(i))) {</span>
 <span class="fc" id="L221">                i++;</span>
             } else {
                 // Si le litteral est satisfait,
                 // ?a revient ? baisser le degr?
-<span class="nc bnc" id="L225" title="All 2 branches missed.">                if (voc.isSatisfied(ps.get(i))) {</span>
-<span class="nc" id="L226">                    modif--;</span>
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">                if (voc.isSatisfied(ps.get(i))) {</span>
+<span class="fc" id="L226">                    modif--;</span>
                 }
                 // dans tous les cas, s'il est assign?,
                 // on enleve le ieme litteral
-<span class="nc" id="L230">                ps.set(i, ps.last());</span>
-<span class="nc" id="L231">                ps.pop();</span>
+<span class="fc" id="L230">                ps.set(i, ps.last());</span>
+<span class="fc" id="L231">                ps.pop();</span>
             }
         }
 
@@ -273,13 +273,13 @@ public class MinWatchCard
 
 <span class="pc bpc" id="L274" title="1 of 2 branches missed.">        if (ps.size() &lt; mydegree) {</span>
 <span class="nc" id="L275">            throw new ContradictionException();</span>
-<span class="pc bpc" id="L276" title="1 of 2 branches missed.">        } else if (ps.size() == mydegree) {</span>
-<span class="nc bnc" id="L277" title="All 2 branches missed.">            for (var i = 0; i &lt; ps.size(); i++) {</span>
-<span class="nc bnc" id="L278" title="All 2 branches missed.">                if (!s.enqueue(ps.get(i))) {</span>
+<span class="fc bfc" id="L276" title="All 2 branches covered.">        } else if (ps.size() == mydegree) {</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">            for (var i = 0; i &lt; ps.size(); i++) {</span>
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">                if (!s.enqueue(ps.get(i))) {</span>
 <span class="nc" id="L279">                    throw new ContradictionException();</span>
                 }
             }
-<span class="nc" id="L282">            return new UnitClauses(ps);</span>
+<span class="fc" id="L282">            return new UnitClauses(ps);</span>
         }
 
         // La contrainte est maintenant cr??e
@@ -447,11 +447,11 @@ public class MinWatchCard
 <span class="nc" id="L447">    }</span>
 
     public int size() {
-<span class="fc" id="L450">        return this.lits.length;</span>
+<span class="nc" id="L450">        return this.lits.length;</span>
     }
 
     public int get(int i) {
-<span class="fc" id="L454">        return this.lits[i];</span>
+<span class="nc" id="L454">        return this.lits[i];</span>
     }
 
     public void assertConstraint(UnitPropagationListener s) {
@@ -599,7 +599,7 @@ public class MinWatchCard
     }
 
     public boolean canBePropagatedMultipleTimes() {
-<span class="fc" id="L602">        return false;</span>
+<span class="nc" id="L602">        return false;</span>
     }
 
     public Constr toConstraint() {

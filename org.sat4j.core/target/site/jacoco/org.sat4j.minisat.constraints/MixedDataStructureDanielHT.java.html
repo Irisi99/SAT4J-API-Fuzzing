@@ -48,7 +48,7 @@ import org.sat4j.specs.IVecInt;
  * @author leberre
  * @since 2.1
  */
-<span class="nc" id="L51">public class MixedDataStructureDanielHT extends AbstractDataStructureFactory {</span>
+<span class="fc" id="L51">public class MixedDataStructureDanielHT extends AbstractDataStructureFactory {</span>
 
     private static final long serialVersionUID = 1L;
 
@@ -80,34 +80,34 @@ import org.sat4j.specs.IVecInt;
      * .VecInt)
      */
     public Constr createClause(IVecInt literals) throws ContradictionException {
-<span class="nc" id="L83">        IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);</span>
-<span class="nc bnc" id="L84" title="All 2 branches missed.">        if (v == null) {</span>
+<span class="fc" id="L83">        IVecInt v = Clauses.sanityCheck(literals, getVocabulary(), this.solver);</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (v == null) {</span>
             // tautological clause
-<span class="nc" id="L86">            return null;</span>
+<span class="fc" id="L86">            return null;</span>
         }
-<span class="nc bnc" id="L88" title="All 2 branches missed.">        if (v.size() == 1) {</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if (v.size() == 1) {</span>
 <span class="nc" id="L89">            return new UnitClause(v.last());</span>
         }
-<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (v.size() == 2) {</span>
-<span class="nc" id="L92">            return OriginalBinaryClause.brandNewClause(getVocabulary(),</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (v.size() == 2) {</span>
+<span class="fc" id="L92">            return OriginalBinaryClause.brandNewClause(getVocabulary(),</span>
                     v);
         }
-<span class="nc" id="L95">        return OriginalHTClause.brandNewClause(getVocabulary(), v);</span>
+<span class="fc" id="L95">        return OriginalHTClause.brandNewClause(getVocabulary(), v);</span>
     }
 
     public Constr createUnregisteredClause(IVecInt literals) {
-<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (literals.size() == 1) {</span>
-<span class="nc" id="L100">            return new UnitClause(literals.last(), true);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (literals.size() == 1) {</span>
+<span class="fc" id="L100">            return new UnitClause(literals.last(), true);</span>
         }
-<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (literals.size() == 2) {</span>
-<span class="nc" id="L103">            return new LearntBinaryClause(literals, getVocabulary());</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if (literals.size() == 2) {</span>
+<span class="fc" id="L103">            return new LearntBinaryClause(literals, getVocabulary());</span>
         }
-<span class="nc" id="L105">        return new LearntHTClause(literals, getVocabulary());</span>
+<span class="fc" id="L105">        return new LearntHTClause(literals, getVocabulary());</span>
     }
 
     @Override
     protected ILits createLits() {
-<span class="nc" id="L110">        return new Lits();</span>
+<span class="fc" id="L110">        return new Lits();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
