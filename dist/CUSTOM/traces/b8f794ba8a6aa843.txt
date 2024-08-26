@@ -1,0 +1,42 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructure
+3 Order : VarOrderHeap/varDecay=0.5293287819423369
+4 Phase Selection Strategy : RSATPhaseSelectionStrategy
+5 Learning Strategy : MiniSATLearning
+6 Restart Strategy : LubyRestarts/factor=830
+7 Simplification Type : simpleSimplification
+8 Search Params : varDecay=0.9791862461686042/claDecay=1.4659534966567656/conflictBoundIncFactor=2.811016046873634/initConflictBound=66
+9 Learned Constraints Evaluation Type : LBD
+10 Random Walk : 0.7151116473858616
+11 DBS simplification
+12 addClause 4 -3 1 -5 
+13 addClause 3 -4 -2 4 
+14 addClause 1 4 
+15 addClause 3 4 1 
+16 addClause 4 -6 
+17 addClause -6 5 2 
+18 addClause -3 -4 2 
+19 addClause -3 -1 -5 
+20 addClause 1 -5 4 
+21 addClause -1 -4 1 
+22 addClause -6 -2 -1 5 
+23 addClause -3 -6 5 
+24 addClause -6 2 -3 
+25 addClause 5 -5 -4 
+26 addClause 3 -2 -3 
+27 addClause 1 2 5 
+28 addClause -5 5 -4 2 
+29 addClause -3 5 -1 
+30 addClause -5 -6 
+31 addClause -3 1 -6 
+32 addClause -4 -6 4 
+33 addClause -5 3 
+34 addClause -3 3 2 
+35 addClause 5 -2 -1 
+36 addClause -1 2 1 
+37 addClause 1 5 -4 
+38 addClause 1 -6 -5 
+39 addClause 4 3 -1 
+40 addClause -3 
+41 addClause 4 5 -2 
+42 enumerating
