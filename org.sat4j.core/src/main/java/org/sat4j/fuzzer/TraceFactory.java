@@ -218,6 +218,8 @@ public class TraceFactory {
                         }
 
                     } catch (Exception e) {
+                        if(e.getMessage().contains("Do not use internal enumerator when the solver contains no clause"))
+                            continue;
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
                         SKIP_PROOF_CHECK = true;
                         break;
