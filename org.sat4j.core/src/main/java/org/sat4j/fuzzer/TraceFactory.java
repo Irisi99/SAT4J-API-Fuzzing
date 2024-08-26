@@ -99,7 +99,7 @@ public class TraceFactory {
                 slaveSeed = seed;
             }
 
-            //System.out.println("Slave Seed : "+Long.toHexString(slaveSeed));
+            // System.out.println("Slave Seed : "+Long.toHexString(slaveSeed));
 
             slaveRandomGenerator = new Random(slaveSeed); 
 
@@ -119,16 +119,16 @@ public class TraceFactory {
 
             // Simpler Formulas for enumerating or it gives timeout
             if(ENUMERATING){
-                // Add 1 - 20 to the Number of Variables on each increment
+                // Add 1 - 20 to variables
                 MAXVAR = slaveRandomGenerator.nextInt(20) + 1;
                 coefficient = 5;
                 SKIP_PROOF_CHECK = true;
             } else {
                 icnf.add("p icnf");
-                // Add 20 - 200 to the Number of Variables on each increment
+                // Add 20 - 200 to variables
                 MAXVAR = slaveRandomGenerator.nextInt(181) + 20;
                 // Higher coefficient (more clauses) means more UNSAT instances
-                coefficient = 3;
+                coefficient = 2.6;
             }
 
             // Add Coeficient * newVariables new Clauses each increment
@@ -153,10 +153,13 @@ public class TraceFactory {
             }
 
             // Incremental -> add clauses - solve - repeat (increase number of variables and clauses)
-            // Increments range from 0 to 4
+            // Increments range from 0 to 4 on top the first execution
             int totalIncrements = slaveRandomGenerator.nextInt(5) + 1;
-            for (int increments = 0 ; increments < totalIncrements; increments++){
-                if(increments != 0){
+            if(verbose){
+                System.out.println("c INCREMENTS: " + totalIncrements);
+            }
+            for (int increments = 1 ; increments <= totalIncrements; increments++){
+                if(increments != 1){
                     int OLDMAXVAR = MAXVAR;
                     if(ENUMERATING){
                         // Add 0 - 20 to the Number of Variables on each increment
@@ -218,8 +221,10 @@ public class TraceFactory {
                         }
 
                     } catch (Exception e) {
-                        if(e.getMessage() != null && e.getMessage().contains("Do not use internal enumerator when the solver contains no clause"))
+                        if(e.getMessage() != null && e.getMessage().contains("Do not use internal enumerator when the solver contains no clause")){
+                            ENUMinstances++;
                             break;
+                        }
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
                         SKIP_PROOF_CHECK = true;
                         break;
@@ -304,7 +309,7 @@ public class TraceFactory {
                                 icnf.add("u 0");
                             }
 
-                            UNSATinstances ++;
+                            UNSATinstances++;
                             if(verbose){
                                 System.out.println("c UNSATISFIABLE!");
                                 if(ASSUMPTIONS && unsatCore != null){
