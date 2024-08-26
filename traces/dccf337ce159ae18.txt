@@ -1,0 +1,69 @@
+1 init
+2 Data Structure Factory : CardinalityDataStructure
+3 Order : VarOrderHeap/varDecay=0.1331053740425241
+4 Learning Strategy : ClauseOnlyLearning
+5 Restart Strategy : NoRestarts
+6 Random Walk : 6.185456442401316E-4
+7 addClause -11 -10 
+8 addClause 6 8 10 
+9 addClause -8 -2 -6 
+10 addClause 5 8 -3 
+11 addClause 10 -6 -3 
+12 addClause -5 8 5 
+13 addClause 1 4 9 
+14 addClause -10 -5 -2 
+15 addClause 8 -2 7 
+16 addClause 2 4 3 
+17 addClause -12 9 -4 
+18 addClause 7 9 11 
+19 addClause 9 -1 -6 
+20 addClause 10 -8 3 
+21 addClause -1 -11 10 
+22 addClause 9 5 -11 
+23 addClause 6 8 -5 
+24 addClause -2 4 1 
+25 addClause -7 9 
+26 addClause 3 -6 7 
+27 addClause 11 -7 
+28 addClause 9 7 -11 
+29 addClause 6 9 -4 
+30 addClause 3 10 1 -4 
+31 addClause 4 7 -1 
+32 addClause 8 -10 5 
+33 addClause 7 -6 -1 
+34 addClause 2 -8 -5 
+35 addClause 9 -9 -8 
+36 addClause 10 -11 11 
+37 addClause -4 6 -10 
+38 addClause -4 2 -1 
+39 addClause 11 -10 -5 
+40 addClause -5 9 -2 
+41 addClause -1 -11 4 -10 
+42 addClause -12 5 4 
+43 addClause -12 10 9 
+44 addClause -11 6 9 
+45 addClause -7 -8 5 
+46 addClause 5 6 
+47 addClause -6 8 5 
+48 addClause 11 -9 
+49 addClause 9 -2 
+50 addClause 5 10 3 
+51 addClause -8 3 9 
+52 addClause -6 
+53 addClause 7 10 -2 
+54 addClause -2 -8 8 
+55 addClause -2 -10 -6 
+56 addClause -12 -2 2 
+57 addClause -12 -8 
+58 addClause 3 9 -9 5 
+59 addClause -6 11 -11 
+60 addClause -2 -4 4 
+61 addClause 11 -4 8 
+62 addClause 8 4 
+63 addClause 8 -8 -2 
+64 addClause 1 -8 4 
+65 addClause 10 -8 3 
+66 addClause -6 3 
+67 enumerating
+68 addClause 5 -13 
+69 addClause -11 -7 

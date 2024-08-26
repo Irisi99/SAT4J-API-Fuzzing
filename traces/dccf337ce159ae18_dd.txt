@@ -1,0 +1,3 @@
+1 init
+52 addClause -1 
+67 enumerating

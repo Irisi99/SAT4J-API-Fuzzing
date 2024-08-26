@@ -218,8 +218,8 @@ public class TraceFactory {
                         }
 
                     } catch (Exception e) {
-                        if(e.getMessage().contains("Do not use internal enumerator when the solver contains no clause"))
-                            continue;
+                        if(e.getMessage() != null && e.getMessage().contains("Do not use internal enumerator when the solver contains no clause"))
+                            break;
                         Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
                         SKIP_PROOF_CHECK = true;
                         break;
@@ -447,7 +447,7 @@ public class TraceFactory {
                 // We do not create empty clauses but if all literals in our clause are already
                 // assigned a value through unit propagation then they are not considered and it throws an error
                 // Almost only happens when we have unit or binary clauses
-                if(e.getMessage().contains("Creating Empty clause ?")){
+                if(e.getMessage() !=  null && e.getMessage().contains("Creating Empty clause ?")){
                     // If it does happen we generate the clause again
                     NUMBER_OF_CLAUSES += 1;
                     trace.removeLast();
