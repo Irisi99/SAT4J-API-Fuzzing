@@ -436,12 +436,17 @@ public class Solver<D extends DataStructureFactory>
                     "Reference to the constraint to remove needed!"); //$NON-NLS-1$
         }
         Constr c = (Constr) co;
-        c.remove(this);
-        this.constrs.removeFromLast(c);
-        clearLearntClauses();
-        String type = c.getClass().getName();
-        this.constrTypes.get(type).dec();
-        return true;
+        // We expect the constraint to be in the solver
+        if (!this.isDBSimplificationAllowed() || this.constrs.contains(c)) {
+            c.remove(this);
+            this.constrs.removeFromLast(c);
+            clearLearntClauses();
+            String type = c.getClass().getName();
+            this.constrTypes.get(type).dec();
+            return true;
+        }
+        // If it is not the case, we do not do anything
+        return false;
     }
 
     /**
