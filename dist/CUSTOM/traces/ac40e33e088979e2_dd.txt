@@ -1,0 +1,8 @@
+1 init
+2 using solver MinOneSolver
+3 DBS simplification
+44 addClause 2 4 
+73 addClause 1 
+84 addClause 4 3 
+136 solve
+233 solve
