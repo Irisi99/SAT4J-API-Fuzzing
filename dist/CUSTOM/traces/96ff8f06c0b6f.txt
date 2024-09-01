@@ -1,6 +1,6 @@
 1 init
 2 using solver MinOneSolver
-3 DBS simplification
+3 DB simplification
 4 addClause 15 -21 -37 
 5 addClause -40 30 -6 
 6 addClause 33 -3 -31 36 

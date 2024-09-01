@@ -148,8 +148,8 @@ public class TraceRunner {
                     solver = Helper.setRandomWalk((ICDCL <?>) solver, proba);
                     solver2 = Helper.setRandomWalk((ICDCL <?>) solver2, proba);
 
-                // If API call is setting DBS simplification to true then set it true for the local solver
-                } else if(apiCalls.get(i).contains("DBS simplification")){
+                // If API call is setting DB simplification to true then set it true for the local solver
+                } else if(apiCalls.get(i).contains("DB simplification")){
                     solver.setDBSimplificationAllowed(true);
                     solver2.setDBSimplificationAllowed(true);
 

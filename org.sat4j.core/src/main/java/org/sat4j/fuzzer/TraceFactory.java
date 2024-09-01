@@ -526,10 +526,10 @@ public class TraceFactory {
                 }
             }
 
-            // Use DBS simplification or not
+            // Use DB simplification or not
             if (useAll || initRandomGenerator.nextBoolean()) {
                 if(addToTrace){
-                    trace.add("DBS simplification");
+                    trace.add("DB simplification");
                 }
                 asolver.setDBSimplificationAllowed(true);
             }
