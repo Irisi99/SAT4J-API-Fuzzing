@@ -474,11 +474,12 @@ public class TraceFactory {
         // Initialize deafult solver for Minisat
         ASolverFactory<ISolver> factory = org.sat4j.minisat.SolverFactory.instance();
         ISolver asolver = factory.defaultSolver();
-        // Use all options or randomly select options to include
-        Boolean useAll = initRandomGenerator.nextBoolean();
 
         // Use no options
         if(initRandomGenerator.nextBoolean()){
+
+            // Use all options or randomly select options to include
+            Boolean useAll = initRandomGenerator.nextBoolean();
 
             // Configure solver or use default solver
             if (useAll || initRandomGenerator.nextBoolean()) {
@@ -688,7 +689,7 @@ public class TraceFactory {
             // this(0.95, 0.999, 1.5, 100);
             // Some parameters used during the search
             Double varDecay = 0.9 + (initRandomGenerator.nextDouble()/10); // 0.9 - 1.0
-            Double claDecay = 0.5 + initRandomGenerator.nextDouble(); // 0.5 - 1.5
+            Double claDecay = 0.9 + (initRandomGenerator.nextDouble()/10); // 0.9 - 1.0
             Double conflictBoundIncFactor = initRandomGenerator.nextInt(3) + initRandomGenerator.nextDouble(); // 0.0 - 3.0
             Integer initConflictBound = initRandomGenerator.nextInt(1001); // 0 - 1000
             if(addToTrace){
