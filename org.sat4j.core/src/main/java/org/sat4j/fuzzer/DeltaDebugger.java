@@ -46,7 +46,6 @@ public class DeltaDebugger {
             do{
                 tryAgain = false;
                 removeLines();
-                removeVariables(); //TODO
                 removeLiterals();
                 renameLiterals();
             } while(tryAgain);
@@ -313,9 +312,6 @@ public class DeltaDebugger {
             createFile(content, seedHEX);
         }
     }
-
-    // try to remove variables from the formula
-    private static void removeVariables(){}
 
     private static List<Integer> getClause(String[] line){
         List<Integer> clause = new ArrayList<Integer>();
