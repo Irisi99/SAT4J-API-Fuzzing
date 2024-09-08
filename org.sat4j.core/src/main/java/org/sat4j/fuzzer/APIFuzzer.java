@@ -9,7 +9,7 @@ public class APIFuzzer {
 
         SecureRandom rand = new SecureRandom();
         long masterSeed = 0;
-        int nrTraces = 10;
+        int nrTraces = 100;
         boolean isTraceSeed = false;
         boolean verbose = false;
         boolean skipProofCheck = false;

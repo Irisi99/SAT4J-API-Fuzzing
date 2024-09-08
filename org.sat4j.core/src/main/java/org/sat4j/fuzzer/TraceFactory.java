@@ -62,6 +62,7 @@ public class TraceFactory {
 
         int iteration = 0;
         Boolean isSAT = false;
+        int exitCode = 0;
         // STATISTICS
         Map<String, Number> stats;
         int SATinstances = 0;
@@ -69,21 +70,27 @@ public class TraceFactory {
         int ENUMinstances = 0;
         int TimeOutinstances = 0;
         int nrStatistics = 0;
+        int nrIncrements = 0;
         long Propagations = 0;
         long Decisions = 0;
         int Starts = 0;
         long ReducedLiterals = 0;
         long LearnedClauses = 0;        
-        long LearnedLiterals = 0;        
+        long UpdatesToLBD = 0;        
         long NrConflicts = 0;
         long SolverRunTime = 0;
-        long startTime = 0;
-        long endTime = 0;
+        long SolverRunTimeTemp = 0;
+        long SolverStartTime = 0;
+        long SolverEndTime = 0;
+        long ProofCheckingTime = 0;
+        long ProofStartTime = 0;
+        long ProofEndTime = 0;
 
         while (iteration < nrTraces) {
 
             iteration++;
             icnf.clear();
+            SolverRunTimeTemp = 0;
             SKIP_PROOF_CHECK = skipProofCheck;
             PASS_MAX_VAR = false;
             CARDINALITY_CHECK = false;
@@ -236,7 +243,6 @@ public class TraceFactory {
 
                 } else {
                     try {
-                        startTime = System.currentTimeMillis();
                         // If Assumptions flag is true then solve with assumptions
                         if(ASSUMPTIONS){
                             int[] assumption;
@@ -264,7 +270,9 @@ public class TraceFactory {
                             icnf.add("q "+Helper.clauseToString(assumption)+"0");
 
                             // Call solver and pass the generated assumptions
+                            SolverStartTime = System.currentTimeMillis();
                             isSAT = solver.isSatisfiable(new VecInt(assumption));
+                            SolverEndTime = System.currentTimeMillis();
 
                         // If Assumptions flag is false then simply try to solve the formula
                         } else {
@@ -275,10 +283,13 @@ public class TraceFactory {
                             if(verbose){
                                 System.out.println("c SOLVING ");
                             }
+                            SolverStartTime = System.currentTimeMillis();
                             isSAT = solver.isSatisfiable(); 
+                            SolverEndTime = System.currentTimeMillis();
                         }
+
+                        SolverRunTimeTemp += (SolverEndTime - SolverStartTime);
                         
-                        endTime = System.currentTimeMillis();
                         // If it is SAT then we continue with next iteration
                         if (isSAT) {
 
@@ -335,25 +346,6 @@ public class TraceFactory {
                         SKIP_PROOF_CHECK = true;
                         break;
                     }
-
-                    // Get statistics from the Solver for the trace and updated the local ones
-                    try {
-                        nrStatistics++;
-                        stats = solver.getStat();
-                        Propagations += (long) stats.get("propagations");
-                        Decisions += (long) stats.get("decisions");
-                        Starts += (int) stats.get("starts");
-                        ReducedLiterals += (long) stats.get("reducedliterals");
-                        LearnedClauses += (long) stats.get("learnedclauses");            
-                        LearnedLiterals += (long) stats.get("learnedliterals");
-                        NrConflicts += (long) stats.get("conflicts");
-                        SolverRunTime += (endTime - startTime);
-                    } catch (Exception e) {
-                        if(verbose){
-                            System.out.println("c Error when retrieveing Statistics");
-                            e.printStackTrace();
-                        }
-                    }
                 }
             }
 
@@ -361,8 +353,10 @@ public class TraceFactory {
             try {
                 if(!SKIP_PROOF_CHECK){
                     Helper.createICNF(trace.getId(), icnf);
+                    ProofStartTime = System.currentTimeMillis();
                     Process process = Runtime.getRuntime().exec("./idrup-check icnfs/"+trace.getId()+".icnf idrups/"+trace.getId()+".idrup");
-                    int exitCode = process.waitFor(); 
+                    exitCode = process.waitFor(); 
+                    ProofEndTime = System.currentTimeMillis();
                     if(exitCode != 0){
                         if(isSAT){
                             SATinstances--;
@@ -381,18 +375,43 @@ public class TraceFactory {
                 Helper.printException(isTraceSeed, verbose, trace, "Proof Check", e);
             }
 
+            if(!ENUMERATING && exitCode == 0){
+                // Get statistics from the Solver for the trace and updated the local ones
+                try {
+                    stats = solver.getStat();
+                    // System.out.println(stats);
+                    Propagations += (long) stats.get("propagations");
+                    Decisions += (long) stats.get("decisions");
+                    Starts += (int) stats.get("starts");
+                    ReducedLiterals += (long) stats.get("reducedliterals");
+                    LearnedClauses += (long) stats.get("learnedclauses");            
+                    UpdatesToLBD += (long) stats.get("updateLBD");
+                    NrConflicts += (long) stats.get("conflicts");
+                    nrIncrements += totalIncrements;           
+                    SolverRunTime += SolverRunTimeTemp;
+                    ProofCheckingTime += (ProofEndTime - ProofStartTime);  
+                } catch (Exception e) {
+                    if(verbose){
+                        System.out.println("c Error when retrieveing Statistics");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             if(isTraceSeed){
                 break;
             }
         }
 
-        // How many SAT? How long does it take to run the solver? Number of conflicts/learned clauses etc.?
+        // How many SAT, how long does it take to run the solver, number of conflicts/learned clauses etc.
         System.out.println("c Statistics for "+ iteration +" iterations : ");
         System.out.println("c Error Instances : " + (iteration - SATinstances - UNSATinstances - ENUMinstances - TimeOutinstances));
         System.out.println("c Timeout Instances : " + TimeOutinstances);
         System.out.println("c SAT Instances : " + SATinstances);
         System.out.println("c UNSAT Instances : " + UNSATinstances);        
         System.out.println("c ENUM Instances : " + ENUMinstances);
+        
+        nrStatistics = SATinstances + UNSATinstances;
         if(nrStatistics != 0){
             System.out.println();
             System.out.println("c Average Propagations : " + Propagations/nrStatistics);
@@ -400,9 +419,10 @@ public class TraceFactory {
             System.out.println("c Average Starts : " + Starts/nrStatistics);
             System.out.println("c Average Reduced Literals : " + ReducedLiterals/nrStatistics);
             System.out.println("c Average Learned Clauses : " + LearnedClauses/nrStatistics);       
-            System.out.println("c Average Learned Literals : " + LearnedLiterals/nrStatistics); 
-            System.out.println("c Average Nr Conflicts : " + NrConflicts/nrStatistics);
-            System.out.println("c Average Solver Run Time : " + SolverRunTime/nrStatistics + " milli sec");
+            System.out.println("c Average Updates of LBD : " + UpdatesToLBD/nrStatistics); 
+            System.out.println("c Average Conflicts : " + NrConflicts/nrStatistics);
+            System.out.println("c Average Solver Run Time per Increment : " + SolverRunTime/nrIncrements/nrStatistics + " milli sec");
+            System.out.println("c Average Proof-Checking Time : " + ProofCheckingTime/nrStatistics + " milli sec");
         }
     }
 
