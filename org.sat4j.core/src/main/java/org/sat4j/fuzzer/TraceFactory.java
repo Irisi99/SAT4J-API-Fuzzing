@@ -168,16 +168,10 @@ public class TraceFactory {
             for (int increments = 1 ; increments <= totalIncrements; increments++){
                 if(increments != 1){
                     int OLDMAXVAR = MAXVAR;
-                    if(ENUMERATING){
-                        // Add 0 - 20 to the Number of Variables on each increment
-                        MAXVAR = slaveRandomGenerator.nextInt(21) + OLDMAXVAR;
-                    } else {
-                        // Add 20 - 200 to the Number of Variables on each increment
-                        MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR;
-                    }
+                    // Add 20 - 200 to the Number of Variables on each increment
+                    MAXVAR = slaveRandomGenerator.nextInt(181) + 20 + OLDMAXVAR;
                     NUMBER_OF_CLAUSES = (int) (coefficient * (MAXVAR - OLDMAXVAR));
                 }
-
                 if(PASS_MAX_VAR){
                     try{
                         trace.add("newVar " + MAXVAR);
@@ -224,20 +218,19 @@ public class TraceFactory {
                             throw new Exception("Internal and External Enumerators provided different values : " + internal + " - " + external);
                         } else {
                             ENUMinstances++;
-                            break;
                         }
 
                     } catch (Exception e) {
                         if(e.getMessage() != null && e.getMessage().contains("Do not use internal enumerator when the solver contains no clause")){
                             ENUMinstances++;
-                            break;
+                        } else {
+                            Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
+                            SKIP_PROOF_CHECK = true;
                         }
-                        Helper.printException(isTraceSeed, verbose, trace, "Enumeration", e);
-                        SKIP_PROOF_CHECK = true;
-                        break;
                     } catch( AssertionError a){
                         Helper.printAssertionError(isTraceSeed, verbose, trace, "Enumeration", a);
                         SKIP_PROOF_CHECK = true;
+                    } finally {
                         break;
                     }
 
