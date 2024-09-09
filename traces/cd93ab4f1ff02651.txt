@@ -6,7 +6,7 @@
 6 Simplification Type : expensiveSimplificationWLOnly
 7 Search Params : varDecay=0.983091747326108/claDecay=0.9561316294392254/conflictBoundIncFactor=2.659079811345488/initConflictBound=404
 8 Random Walk : 0.6229111889213748
-9 DBS simplification
+9 DB simplification
 10 addClause 42 -25 22 
 11 addClause 17 -41 -43 
 12 addClause -53 -19 -54 

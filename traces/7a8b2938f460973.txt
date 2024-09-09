@@ -1,7 +1,7 @@
 1 init
 2 Learning Strategy : NoLearningNoHeuristics
 3 Phase Selection Strategy : RandomLiteralSelectionStrategy
-4 DBS simplification
+4 DB simplification
 5 addClause 7 -7 -10 
 6 addClause 7 -3 -7 
 7 addClause -9 2 -4 

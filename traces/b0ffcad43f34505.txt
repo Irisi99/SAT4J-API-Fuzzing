@@ -1,7 +1,7 @@
 1 init
 2 using solver Backjumping
 3 Random Walk : 0.18497090109129322
-4 DBS simplification
+4 DB simplification
 5 addClause -102 -56 -105 
 6 addClause 85 108 -96 
 7 addClause 121 -9 -93 

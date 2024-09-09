@@ -3,7 +3,7 @@
 3 Learning Strategy : FixedLengthLearning/maxlength=58
 4 Restart Strategy : EMARestarts
 5 Simplification Type : expensiveSimplification
-6 DBS simplification
+6 DB simplification
 7 addClause 20 -63 80 
 8 addClause -30 102 -6 
 9 addClause -29 58 

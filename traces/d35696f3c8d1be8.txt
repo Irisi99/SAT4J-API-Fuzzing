@@ -3,7 +3,7 @@
 3 Order : PureOrder/period=17
 4 Simplification Type : expensiveSimplificationWLOnly
 5 Search Params : varDecay=0.904958467514622/claDecay=1.436789058527535/conflictBoundIncFactor=0.09363505249139126/initConflictBound=100
-6 DBS simplification
+6 DB simplification
 7 addClause -8 -150 40 
 8 addClause 101 129 -23 
 9 addClause -142 -118 45 

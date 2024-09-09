@@ -6,7 +6,7 @@
 6 Restart Strategy : EMARestarts
 7 Learned Constraints Evaluation Type : ACTIVITY
 8 Random Walk : 0.8957035161244895
-9 DBS simplification
+9 DB simplification
 10 addClause 121 77 -3 
 11 addClause 68 -83 -57 
 12 addClause -16 -90 9 

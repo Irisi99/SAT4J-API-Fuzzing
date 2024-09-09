@@ -1,6 +1,6 @@
 1 init
 2 using solver SATUNSAT
-3 DBS simplification
+3 DB simplification
 4 addClause 29 -40 -196 
 5 addClause 156 137 -106 
 6 addClause 16 145 47 

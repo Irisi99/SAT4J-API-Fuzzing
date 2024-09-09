@@ -8,7 +8,7 @@
 8 Search Params : varDecay=0.954885652822096/claDecay=1.4792490908489513/conflictBoundIncFactor=2.073367480514177/initConflictBound=464
 9 Learned Constraints Evaluation Type : LBD2
 10 Random Walk : 0.13042824711892786
-11 DBS simplification
+11 DB simplification
 12 addClause -95 -123 135 
 13 addClause -20 114 30 
 14 addClause 16 -22 101 

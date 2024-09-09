@@ -6,7 +6,7 @@
 6 Simplification Type : expensiveSimplificationWLOnly
 7 Search Params : varDecay=0.9670149024158032/claDecay=0.7810966436123874/conflictBoundIncFactor=2.7346327148890124/initConflictBound=122
 8 Learned Constraints Evaluation Type : LBD2
-9 DBS simplification
+9 DB simplification
 10 addClause -1 6 
 11 addClause 5 -8 3 
 12 addClause -2 8 2 

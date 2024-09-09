@@ -1,7 +1,7 @@
 1 init
 2 using solver NoSimplification
 3 Random Walk : 0.7567710325299177
-4 DBS simplification
+4 DB simplification
 5 newVar 2
 6 addClause -2 1 -1 
 7 addClause -1 2 1 

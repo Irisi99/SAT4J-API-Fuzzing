@@ -1,5 +1,5 @@
 1 init
-2 DBS simplification
+2 DB simplification
 4 addClause -6 -11 4 
 5 addClause -5 9 4 
 6 addClause -1 -7 3 

@@ -4,7 +4,7 @@
 4 Learning Strategy : FixedLengthLearning/maxlength=47
 5 Learned Constraints Evaluation Type : LBD2
 6 Random Walk : 0.1425842905692415
-7 DBS simplification
+7 DB simplification
 8 addClause -74 65 -70 
 9 addClause 54 -58 83 
 10 addClause -65 -38 -42 

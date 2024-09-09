@@ -4,7 +4,7 @@
 4 Restart Strategy : ArminRestarts
 5 Search Params : varDecay=0.9938042191044016/claDecay=0.5675654462386609/conflictBoundIncFactor=0.6016494690740559/initConflictBound=793
 6 Learned Constraints Evaluation Type : LBD2
-7 DBS simplification
+7 DB simplification
 8 newVar 23
 9 addClause -23 -5 6 
 10 addClause 1 10 20 

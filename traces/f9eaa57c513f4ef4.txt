@@ -1,7 +1,7 @@
 1 init
 2 using solver Concise
 3 Random Walk : 0.5123403049127487
-4 DBS simplification
+4 DB simplification
 5 addClause 128 -103 -173 
 6 addClause -44 -4 179 
 7 addClause 63 -153 -7 

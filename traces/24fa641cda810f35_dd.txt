@@ -1,5 +1,5 @@
 1 init
-11 DBS simplification
+11 DB simplification
 46 addClause -2 1 
 269 addClause -1 
 291 solve

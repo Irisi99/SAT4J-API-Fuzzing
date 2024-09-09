@@ -1,7 +1,7 @@
 1 init
 2 using solver DefaultAutoErasePhaseSaving
 3 Random Walk : 0.057685432056216235
-4 DBS simplification
+4 DB simplification
 5 addClause 51 16 -57 
 6 addClause -57 28 -41 
 7 addClause -40 -29 50 

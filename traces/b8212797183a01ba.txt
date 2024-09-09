@@ -5,7 +5,7 @@
 5 Simplification Type : expensiveSimplification
 6 Search Params : varDecay=0.9251664374112936/claDecay=0.9800014083365373/conflictBoundIncFactor=2.4876690705916467/initConflictBound=59
 7 Learned Constraints Evaluation Type : ACTIVITY
-8 DBS simplification
+8 DB simplification
 9 addClause -4 -11 -3 
 10 addClause -2 -7 7 
 11 addClause 2 7 -6 

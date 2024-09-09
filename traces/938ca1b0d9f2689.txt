@@ -5,7 +5,7 @@
 5 Restart Strategy : LubyRestarts/factor=131
 6 Search Params : varDecay=0.9648236373549588/claDecay=0.983129588446087/conflictBoundIncFactor=0.18821805524892832/initConflictBound=400
 7 Learned Constraints Evaluation Type : ACTIVITY
-8 DBS simplification
+8 DB simplification
 9 newVar 35
 10 addClause 31 -3 -17 
 11 addClause 17 -30 -11 

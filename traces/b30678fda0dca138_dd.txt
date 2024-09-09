@@ -1,6 +1,6 @@
 1 init
 3 Learning Strategy : NoLearningButHeuristics
-11 DBS simplification
+11 DB simplification
 14 addClause -12 8 13 
 20 addClause 4 -16 8 
 22 addClause -20 8 -17 -5 

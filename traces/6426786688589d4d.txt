@@ -1,6 +1,6 @@
 1 init
 2 using solver Light
-3 DBS simplification
+3 DB simplification
 4 addClause -53 -70 -19 
 5 addClause -92 -114 16 
 6 addClause -12 -33 

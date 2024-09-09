@@ -3,7 +3,7 @@
 3 Learning Strategy : NoLearningButHeuristics
 4 Learned Constraints Evaluation Type : LBD2
 5 Random Walk : 0.7490146990143487
-6 DBS simplification
+6 DB simplification
 7 addClause 8 -1 5 
 8 addClause 3 4 9 
 9 addClause 9 8 4 

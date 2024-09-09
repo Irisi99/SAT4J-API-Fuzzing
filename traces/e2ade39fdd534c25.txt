@@ -4,7 +4,7 @@
 4 Order : VarOrderHeap
 5 Phase Selection Strategy : RandomLiteralSelectionStrategy
 6 Restart Strategy : NoRestarts
-7 DBS simplification
+7 DB simplification
 8 addClause -33 -67 80 
 9 addClause -50 53 
 10 addClause -7 -72 -94 

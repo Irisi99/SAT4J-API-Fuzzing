@@ -1,6 +1,6 @@
 1 init
 2 using solver Parallel
-3 DBS simplification
+3 DB simplification
 4 addClause -26 -11 21 
 5 addClause -33 -37 10 
 6 addClause 2 -35 -43 

@@ -3,7 +3,7 @@
 3 Phase Selection Strategy : PhaseCachingAutoEraseStrategy
 4 Learning Strategy : NoLearningButHeuristics
 5 Simplification Type : NO_SIMPLIFICATION
-6 DBS simplification
+6 DB simplification
 7 addClause 1 -4 -3 
 8 addClause 3 2 -1 
 9 addClause 2 -4 -2 

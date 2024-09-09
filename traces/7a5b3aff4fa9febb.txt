@@ -1,7 +1,7 @@
 1 init
 2 using solver MiniLearningHeap
 3 Random Walk : 0.8100028767506289
-4 DBS simplification
+4 DB simplification
 5 newVar 185
 6 addClause -182 -113 -33 
 7 addClause -119 -74 129 

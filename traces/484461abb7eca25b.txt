@@ -1,7 +1,7 @@
 1 init
 2 using solver MiniLearningHeapRsatExpSimpBiere
 3 Random Walk : 0.9185753809852562
-4 DBS simplification
+4 DB simplification
 5 addClause -157 98 -150 
 6 addClause 33 -7 -95 
 7 addClause 2 68 -91 

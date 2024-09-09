@@ -3,7 +3,7 @@
 3 Order : VarOrderHeap/varDecay=0.5415948601285319
 4 Simplification Type : simpleSimplification
 5 Random Walk : 0.5868875326536637
-6 DBS simplification
+6 DB simplification
 7 newVar 129
 8 addClause 53 -124 25 
 9 addClause 22 76 51 

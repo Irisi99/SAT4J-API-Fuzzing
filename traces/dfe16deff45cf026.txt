@@ -1,6 +1,6 @@
 1 init
 2 using solver GreedySolver
-3 DBS simplification
+3 DB simplification
 4 addClause -5 2 1 
 5 addClause 4 -3 -2 
 6 addClause 1 -5 -3 

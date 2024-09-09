@@ -3,7 +3,7 @@
 3 Learning Strategy : NoLearningNoHeuristics
 4 Order : VarOrderHeap
 5 Phase Selection Strategy : PhaseInLastLearnedClauseSelectionStrategy
-6 DBS simplification
+6 DB simplification
 7 addClause -8 2 -2 
 8 addClause 9 -10 
 9 addClause 9 4 6 

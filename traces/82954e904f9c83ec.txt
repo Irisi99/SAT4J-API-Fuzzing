@@ -1,6 +1,6 @@
 1 init
 2 Random Walk : 0.3899157033755185
-3 DBS simplification
+3 DB simplification
 4 addClause -3 2 3 
 5 addClause -5 -3 -1 
 6 addClause 1 -6 2 
