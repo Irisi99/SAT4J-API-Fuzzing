@@ -14,6 +14,11 @@ Basic Enumerator of solutions is run with following comand : java -cp org.sat4j.
 Create 'traces' folder inside ant build folder for the following commands
 
 API Fuzzer is run with following command : java -cp org.sat4j.core.jar org/sat4j/fuzzer/APIFuzzer
+The acceptable parameters are :
+    -s seed (long)
+    -n nrOfTraces (int)
+    -v to run it in verbose mode
+    -p to skip IDRUP Proof check
 
 API Trace Runner is run with following command : java -cp org.sat4j.core.jar org/sat4j/fuzzer/TraceRunner argument
 If the argument is a seed then it will run the TraceFactory and generate a trace file for it
